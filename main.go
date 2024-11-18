@@ -1,12 +1,13 @@
 package main
 
 import (
-	_ "DAF-Bridge/Talent-Atmos-Backend/docs"
+	"fmt"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/gofiber/fiber/v2"
 )
 
-// @title Book API
+// @Talent-Atmos dev API
 // @description This is a sample server for a book API.
 // @version 1.0
 // @host localhost:8080
@@ -16,14 +17,22 @@ import (
 // @in header
 // @name Authorization
 
+func init() {
+	initializers.ConnectDB()
+	initializers.LoadEnvVariables()
+}
+
 func main() {
 	app := fiber.New()
+
+	fmt.Println("Hello!")
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
 
 	app.Listen(":8080")
+
 	// app.Get("/swagger/*", swagger.HandlerDefault) // default
 
 	// app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
