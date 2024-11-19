@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
-	"github.com/gofiber/fiber/v2"
 )
 
 // @Talent-Atmos dev API
@@ -23,15 +22,15 @@ func init() {
 }
 
 func main() {
-	app := fiber.New()
+	// app := fiber.New()
 
 	fmt.Println("Hello!")
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// app.Get("/", func(c *fiber.Ctx) error {
+	// 	return c.SendString("Hello, World!")
+	// })
 
-	app.Listen(":8080")
+	// app.Listen(":8080")
 
 	// app.Get("/swagger/*", swagger.HandlerDefault) // default
 
