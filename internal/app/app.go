@@ -16,17 +16,17 @@ func init() {
 func Start() {
 	app := fiber.New()
 
-    database := initializers.ConnectToDB()
-    // database.AutoMigrate(&domain.User{})
+	database := initializers.ConnectToDB()
+	// database.AutoMigrate(&domain.User{})
 
-    userRepo := repository.NewUserRepository(database)
-    userService := service.NewUserService(userRepo)
-    userHandler := handler.NewUserHandler(userService)
+	userRepo := repository.NewUserRepository(database) //
+	userService := service.NewUserService(userRepo)    //Business Logic || application
+	userHandler := handler.NewUserHandler(userService) //
 
 	// Define routes
-    app.Post("/users", userHandler.CreateUser)
-    app.Get("/users", userHandler.ListUsers)
+	app.Post("/users", userHandler.CreateUser)
+	app.Get("/users", userHandler.ListUsers)
 
-    app.Listen(":8080")
+	app.Listen(":8080")
 
 }
