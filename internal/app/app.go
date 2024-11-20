@@ -10,17 +10,38 @@ import (
 
 func init() {
 	initializers.LoadEnvVar()
+	// Connect to database
+	initializers.ConnectToDB()
+	// Sync database
+	initializers.SyncDB()
+    // Setup Goth
+    initializers.SetupGoth()
 }
 
 func Start() {
+	// Instantiate Goth
+
+
 	app := fiber.New()
 
-	database := initializers.ConnectToDB()
-	// database.AutoMigrate(&domain.User{})
+	jwtSecret := "your_jwt_secret"
 
-	userRepo := repository.NewUserRepository(database)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
+	// Dependencies Injections
+    userRepo := repository.NewUserRepository(initializers.DB)
+
+    userService := service.NewUserService(userRepo)
+    userHandler := handler.NewUserHandler(userService)
+
+    //auth
+    authService := service.NewAuthService(userRepo, jwtSecret)
+    oauthService := service.NewOauthService(userRepo, jwtSecret)
+    authHandler := handler.NewAuthHandler(authService)
+    oauthHandler := handler.NewOauthHandler(oauthService)
+    app.Post("/signup", authHandler.SignUp)
+    app.Post("/login", authHandler.LogIn)
+    app.Get("/auth/:provider", oauthHandler.GoogleLogin)
+    app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
+    app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
 
 	// Define routes
 	app.Post("/users", userHandler.CreateUser)
