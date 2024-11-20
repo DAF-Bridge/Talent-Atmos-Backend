@@ -6,7 +6,6 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
-	// "github.com/shareed2k/goth_fiber"
 )
 
 func init() {
@@ -17,7 +16,7 @@ func init() {
 	// Sync database
 	initializers.SyncDB()
     // Setup Goth
-    // initializers.SetupGoth()
+    initializers.SetupGoth()
 }
 
 func Start() {
@@ -26,7 +25,7 @@ func Start() {
 
 	app := fiber.New()
 
-	jwtSecret := "your_jwt_secret" // for mock only
+	jwtSecret := "your_jwt_secret"
 
 	// Dependencies Injections
     userRepo := repository.NewUserRepository(initializers.DB)
@@ -36,13 +35,14 @@ func Start() {
 
     //auth
     authService := service.NewAuthService(userRepo, jwtSecret)
-    // oauthService := service.NewOauthService(userRepo, jwtSecret)
+    oauthService := service.NewOauthService(userRepo, jwtSecret)
     authHandler := handler.NewAuthHandler(authService)
-    // oauthHandler := handler.NewOauthHandler(oauthService)
+    oauthHandler := handler.NewOauthHandler(oauthService)
     app.Post("/signup", authHandler.SignUp)
     app.Post("/login", authHandler.LogIn)
-    // app.Get("/login/:provider", goth_fiber.BeginAuthHandler)
-    // app.Get("/auth/callback/google", oauthHandler.GoogleCallback)
+    app.Get("/auth/:provider", oauthHandler.GoogleLogin)
+    app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
+    app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
 
 	// Define routes
     app.Post("/users", userHandler.CreateUser)
