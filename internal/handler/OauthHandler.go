@@ -22,9 +22,12 @@ func NewOauthHandler(oauthService *service.OauthService) *OauthHandler {
 // GoogleLogin starts the Google OAuth process
 func (h *OauthHandler) GoogleLogin(c *fiber.Ctx) error {
 	if gothUser, err := goth_fiber.CompleteUserAuth(c); err == nil {
-		c.JSON(gothUser)
-	} else {
-		goth_fiber.BeginAuthHandler(c)
+		if err = c.JSON(gothUser); err != nil {
+			return c.Status(500).SendString("Failed to complete Google OAuth: " + err.Error())
+		}
+	}
+	if err := goth_fiber.BeginAuthHandler(c); err != nil {
+		return c.Status(500).SendString("Failed to start Google OAuth: " + err.Error())
 	}
 	return nil
 }
@@ -38,7 +41,10 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 
 	// User data contains the Google account information
 	fmt.Println("User Info:", user)
-
+	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID)
+	if err != nil {
+		return c.Status(500).SendString("Failed to authenticate user: " + err.Error())
+	}
 	// You can now create or update a user record in your DB
 	// For example, you might want to save their details into your database:
 	// user := domain.User{Email: user.Email, Name: user.Name}
@@ -50,13 +56,19 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	// Return a response with the user information or JWT token
 	return c.JSON(fiber.Map{
 		"message": "Successfully authenticated with Google!",
-		"user":    user,
-		// "token": token, // Send JWT token if needed
+		"token":   token, // Send JWT token if needed
+
 	})
 }
 
 func (h *OauthHandler) GoogleLogOut(c *fiber.Ctx) error {
-	goth_fiber.Logout(c)
-	c.Redirect("/")
-	return c.JSON(fiber.Map{ "message": "Successfully Logout"})
+	err := goth_fiber.Logout(c)
+	if err != nil {
+		return c.Status(500).SendString("Failed to logout: " + err.Error())
+	}
+	err = c.Redirect("/")
+	if err != nil {
+		return c.Status(500).SendString("Failed to redirect: " + err.Error())
+	}
+	return c.JSON(fiber.Map{"message": "Successfully Logout"})
 }
