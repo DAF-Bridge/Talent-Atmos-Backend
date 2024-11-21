@@ -6,27 +6,54 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"log"
+	"os"
 )
 
 func init() {
 	//  Load environment variables
 	initializers.LoadEnvVar()
+	// Connect to database
+	initializers.ConnectToDB()
+	// Sync database
+	initializers.SyncDB()
+	// Setup Goth
+	initializers.SetupGoth()
 }
 
 func Start() {
+	// Instantiate Goth
+
 	app := fiber.New()
 
-	database := initializers.ConnectToDB()
-	// database.AutoMigrate(&domain.User{})
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET is not set")
+	}
 
-	userRepo := repository.NewUserRepository(database) //
-	userService := service.NewUserService(userRepo)    //Business Logic || application
-	userHandler := handler.NewUserHandler(userService) //
+	// Dependencies Injections
+	userRepo := repository.NewUserRepository(initializers.DB)
+
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
+
+	//auth
+	authService := service.NewAuthService(userRepo, jwtSecret)
+	oauthService := service.NewOauthService(userRepo, jwtSecret)
+	authHandler := handler.NewAuthHandler(authService)
+	oauthHandler := handler.NewOauthHandler(oauthService)
+	app.Post("/signup", authHandler.SignUp)
+	app.Post("/login", authHandler.LogIn)
+	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
+	app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
+	app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
 
 	// Define routes
 	app.Post("/users", userHandler.CreateUser)
 	app.Get("/users", userHandler.ListUsers)
 
-	app.Listen(":8080")
-
+	err := app.Listen(":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }

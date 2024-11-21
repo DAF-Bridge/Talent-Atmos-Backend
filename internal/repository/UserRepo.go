@@ -10,8 +10,24 @@ type UserRepository struct {
 }
 
 // Constructor
-func NewUserRepository(db *gorm.DB) domain.UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
     return &UserRepository{db: db}
+}
+
+func (r *UserRepository) FindByEmail(email string) (*domain.User, error) {
+    var user domain.User
+    if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
+        return nil, err
+    }
+    return &user, nil
+}
+
+func (r *UserRepository) FindByProviderID(providerID string) (*domain.User, error) {
+    var user domain.User
+    if err := r.db.Where("provider_id = ?", providerID).First(&user).Error; err != nil {
+        return nil, err
+    }
+    return &user, nil
 }
 
 func (r *UserRepository) Create(user *domain.User) error {
