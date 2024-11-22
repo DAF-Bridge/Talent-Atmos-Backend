@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
@@ -19,18 +18,19 @@ func NewOauthService(userRepo *repository.UserRepository, jwtSecret string) *Oau
 }
 
 func (s * OauthService) AuthenticateUser(name, email, provider, providerID string) (string, error) {
-	// check if email is already taken
-	if _,err := s.userRepo.FindByEmail(email); err == nil {
-		return "", errors.New("email already registered")
-	}
-	
-	// Create User if not exists
 	user := &domain.User{
 		Name: 		name, 
 		Email: 		email, 
 		Provider: 	provider, 
 		ProviderID: providerID, 
 	}
+
+	// check if email is already taken
+	if _,err := s.userRepo.FindByEmail(email); err == nil {
+		return s.generateJWT(user)
+	}
+	
+	// Create User if not exists
 	if err := s.userRepo.Create(user); err != nil {
 		return "", err
 	}
