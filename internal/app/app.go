@@ -5,6 +5,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -43,6 +44,14 @@ func Start() {
     app.Get("/auth/:provider", oauthHandler.GoogleLogin)
     app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
     app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
+
+    app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
+        user := c.Locals("user")
+        return c.JSON(fiber.Map{
+            "message": "You are authenticated!",
+            "user":    user,
+        })
+    })
 
 	// Define routes
     app.Post("/users", userHandler.CreateUser)
