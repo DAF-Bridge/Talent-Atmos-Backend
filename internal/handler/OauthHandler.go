@@ -18,9 +18,12 @@ func NewOauthHandler(oauthService *service.OauthService) *OauthHandler {
 // GoogleLogin starts the Google OAuth process
 func (h *OauthHandler) GoogleLogin(c *fiber.Ctx) error {
 	if gothUser, err := goth_fiber.CompleteUserAuth(c); err == nil {
-		c.JSON(gothUser)
-	} else {
-		goth_fiber.BeginAuthHandler(c)
+		if err = c.JSON(gothUser); err != nil {
+			return c.Status(500).SendString("Failed to complete Google OAuth: " + err.Error())
+		}
+	}
+	if err := goth_fiber.BeginAuthHandler(c); err != nil {
+		return c.Status(500).SendString("Failed to start Google OAuth: " + err.Error())
 	}
 	return nil
 }
@@ -34,7 +37,6 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 
 	// User data contains the Google account information
 	fmt.Println("User Info:", user)
-
 
 	// create or update a user record in your DB and Generate token
 	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID)
@@ -50,7 +52,13 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 }
 
 func (h *OauthHandler) GoogleLogOut(c *fiber.Ctx) error {
-	goth_fiber.Logout(c)
-	c.Redirect("/")
-	return c.JSON(fiber.Map{ "message": "Successfully Logout"})
+	err := goth_fiber.Logout(c)
+	if err != nil {
+		return c.Status(500).SendString("Failed to logout: " + err.Error())
+	}
+	err = c.Redirect("/")
+	if err != nil {
+		return c.Status(500).SendString("Failed to redirect: " + err.Error())
+	}
+	return c.JSON(fiber.Map{"message": "Successfully Logout"})
 }

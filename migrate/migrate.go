@@ -16,7 +16,9 @@ func init() {
 
 func main() {
 	if initializers.DB == nil {
-        log.Fatal("Database connection is not established.")
-    }
-	initializers.DB.AutoMigrate(&domain.User{})
+		log.Fatal("Database connection is not established.")
+	}
+	if err := initializers.DB.AutoMigrate(&domain.User{}); err != nil {
+		log.Fatal(err)
+	}
 }

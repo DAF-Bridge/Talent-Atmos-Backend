@@ -8,7 +8,7 @@ import (
 )
 
 func SetupGoth() {
-	// Setup the Google provider with the OAuth2 credentials
+	// Set up the Google provider with the OAuth2 credentials
 	goth.UseProviders(
 		google.New(
 			os.Getenv("GOOGLE_CLIENT_ID"),          // Correctly set the client ID
@@ -19,6 +19,6 @@ func SetupGoth() {
 		),
 	)
 
-	// // Optional: You can log out or setup an error handler if desired
+	// // Optional: You can log out or set up an error handler if desired
 	// gothic.SetState("your-random-state-key") // Set a random state key for security
 }
