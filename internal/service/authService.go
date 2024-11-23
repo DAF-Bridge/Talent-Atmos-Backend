@@ -43,6 +43,7 @@ func (s *AuthService) SignUp(name , email, password string) (string, error) {
 		return "", err
 	}
 
+	// fmt.Println(user.ID)
 	// Generate JWT
 	return s.generateJWT(user)
 }
@@ -59,6 +60,7 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
+	// fmt.Println(user.ID)
 	// Generate JWT
 	return s.generateJWT(user)
 	
