@@ -39,3 +39,16 @@ func (r *UserRepository) GetAll() ([]domain.User, error) {
     err := r.db.Find(&users).Error
     return users, err
 }
+
+func (r *UserRepository) GetCurrentUserProfile(userId uint) (*domain.Profile, error) {
+    var userProfile domain.Profile
+    if err := r.db.Where("User_ID = ?", userId).First(&userProfile).Error; err != nil {
+        return nil, err
+    }
+    return &userProfile, nil
+}
+
+// begin transaction
+func (r *UserRepository) BeginTransaction() *gorm.DB {
+    return r.db.Begin()
+}

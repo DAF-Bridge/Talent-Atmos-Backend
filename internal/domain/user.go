@@ -14,10 +14,11 @@ type User struct {
 type UserRepository interface {
 	Create(user *User) error
 	GetAll() ([]User, error)
-	
+	GetCurrentUserProfile(userId uint) (*Profile, error)
 }
 
 type UserService interface {
 	CreateUser(user *User) error
 	ListUsers() ([]User, error)
+	GetCurrentUserProfile(userId uint) (*Profile, error)
 }
