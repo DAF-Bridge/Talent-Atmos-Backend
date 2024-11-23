@@ -5,8 +5,8 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/golang-jwt/jwt/v5"
-	"strings"
 )
 
 type OauthService struct {
@@ -43,7 +43,7 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picU
 		return s.generateJWT(user)
 	}
 
-	fname, lname := SeparateName(name)
+	fname, lname := utils.SeparateName(name)
 
 	profile := &domain.Profile{
 		FirstName: fname, 
@@ -85,23 +85,4 @@ func (s *OauthService) generateJWT(user *domain.User) (string, error) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 	return token.SignedString([]byte(s.jwtSecret))
-}
-
-func SeparateName(fullName string) (string, string) {
-	// Trim any extra spaces and split the name by space
-	nameParts := strings.Fields(strings.TrimSpace(fullName))
-
-	// If there are no parts or only one part, return the full name as the first name and an empty last name
-	if len(nameParts) < 1 {
-		return fullName, ""
-	}
-	if len(nameParts) == 1 {
-		return nameParts[0], ""
-	}
-
-	// Assume that everything after the first part is the last name
-	firstName := nameParts[0]
-	lastName := strings.Join(nameParts[1:], " ")
-
-	return firstName, lastName
 }
