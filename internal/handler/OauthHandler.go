@@ -39,7 +39,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	fmt.Println("User Info:", user)
 
 	// create or update a user record in your DB and Generate token
-	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID)
+	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID, user.AvatarURL)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -55,10 +55,6 @@ func (h *OauthHandler) GoogleLogOut(c *fiber.Ctx) error {
 	err := goth_fiber.Logout(c)
 	if err != nil {
 		return c.Status(500).SendString("Failed to logout: " + err.Error())
-	}
-	err = c.Redirect("/")
-	if err != nil {
-		return c.Status(500).SendString("Failed to redirect: " + err.Error())
 	}
 	return c.JSON(fiber.Map{"message": "Successfully Logout"})
 }
