@@ -5,7 +5,9 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
 	"os"
 )
@@ -25,6 +27,12 @@ func Start() {
 	// Instantiate Goth
 
 	app := fiber.New()
+
+	// Apply the CORS middleware
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000", // Allow requests from this origin
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	}))
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
@@ -47,6 +55,15 @@ func Start() {
 	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
 	app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
 	app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
+
+    app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
+        user := c.Locals("user")
+        return c.JSON(fiber.Map{
+            "message": "You are authenticated!",
+            "user":    user,
+        })
+    })
+	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret),userHandler.GetCurrentUser)
 
 	// Define routes
 	app.Post("/users", userHandler.CreateUser)

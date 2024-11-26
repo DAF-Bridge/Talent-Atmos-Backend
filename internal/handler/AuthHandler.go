@@ -19,13 +19,14 @@ func (h *AuthHandler) SignUp(c *fiber.Ctx) error {
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		Phone    string `json:"phone"`
 	}
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	// Generate token
-	token, err := h.authService.SignUp(req.Name, req.Email, req.Password)
+	token, err := h.authService.SignUp(req.Name, req.Email, req.Password, req.Phone)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,10 +20,21 @@ func NewAuthService(userRepo *repository.UserRepository, jwtSecret string) *Auth
 	return &AuthService{userRepo: userRepo, jwtSecret: jwtSecret}
 }
 
-func (s *AuthService) SignUp(name , email, password string) (string, error) {
+func (s *AuthService) SignUp(name , email, password, phone string) (string, error) {
+
+	// Begin Transaction
+	tx := s.userRepo.BeginTransaction()
+
+	// Always defer rollback in case something goes wrong
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback() // Rollback in case of a panic
+		}
+	}()
+
 	// check if email is already taken
 	if _,err := s.userRepo.FindByEmail(email); err == nil {
-		return "", errors.New("email already taken")
+		return "", errors.New("email already registered")
 	}
 
 	// Hash Password
@@ -31,7 +43,6 @@ func (s *AuthService) SignUp(name , email, password string) (string, error) {
 		return "", err
 	}
 
-	// Create User
 	user := &domain.User{
 		Name: name, 
 		Email: email, 
@@ -39,7 +50,32 @@ func (s *AuthService) SignUp(name , email, password string) (string, error) {
 		Provider: "local", 
 	}
 
-	if err := s.userRepo.Create(user); err != nil {
+	// Create User
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	fname, lname := utils.SeparateName(name)
+
+	profile := &domain.Profile{
+		FirstName: fname, 
+		LastName: lname, 
+		Email: email, 
+		Phone: phone, 
+		PicUrl: "", 
+		UserID: user.ID,
+	}
+
+	// Create the profile
+	if err := tx.Create(profile).Error; err != nil {
+		tx.Rollback() // Rollback if profile creation fails
+		return "", err
+	}
+
+	// Commit the transaction if everything is successful
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback() // Rollback if commit fails
 		return "", err
 	}
 
@@ -59,6 +95,7 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
+	// fmt.Println(user.ID)
 	// Generate JWT
 	return s.generateJWT(user)
 	
