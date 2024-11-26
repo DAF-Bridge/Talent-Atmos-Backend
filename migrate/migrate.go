@@ -16,7 +16,19 @@ func init() {
 
 func main() {
 	if initializers.DB == nil {
-        log.Fatal("Database connection is not established.")
-    }
-	initializers.DB.AutoMigrate(&domain.User{})
+		log.Fatal("Database connection is not established.")
+	}
+	initializers.DB.Migrator().DropColumn(&domain.User{}, "pic_url")
+
+	// if err := initializers.DB.AutoMigrate(&domain.User{}); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// initializers.DB.Create(&domain.Profile{
+	// 	FirstName: "John",
+	// 	LastName:  "Doe",
+	// 	Email:     "test@gmail.com",
+	// 	Phone:     "1234567890",
+	// 	PicUrl:    "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+	// 	UserID:    1,
+	// })
 }

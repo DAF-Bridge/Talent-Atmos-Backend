@@ -18,3 +18,7 @@ func (s *UserService) CreateUser(user *domain.User) error {
 func (s *UserService) ListUsers() ([]domain.User, error) {
 	return s.repo.GetAll()
 }
+
+func (s *UserService) GetCurrentUserProfile(userId uint) (*domain.Profile, error) {
+	return s.repo.GetCurrentUserProfile(userId)
+}
