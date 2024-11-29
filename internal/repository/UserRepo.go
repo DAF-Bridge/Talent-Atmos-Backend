@@ -43,7 +43,7 @@ func (r *UserRepository) GetAll() ([]domain.User, error) {
 
 func (r *UserRepository) GetCurrentUserProfile(userId uuid.UUID) (*domain.Profile, error) {
 	var userProfile domain.Profile
-	if err := r.db.Where("User_ID = ?", userId).First(&userProfile).Error; err != nil {
+	if err := r.db.Preload("User").Where("User_ID = ?", userId).First(&userProfile).Error; err != nil {
 		return nil, err
 	}
 	return &userProfile, nil
