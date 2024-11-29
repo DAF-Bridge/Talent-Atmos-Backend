@@ -21,4 +21,4 @@ RUN go build -v -o /usr/local/bin/app ./
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["go", "run", "./cmd/main.go"]
+CMD ["go", "run", "./main.go"]
