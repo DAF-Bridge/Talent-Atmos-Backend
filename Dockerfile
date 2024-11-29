@@ -13,6 +13,8 @@ RUN go mod download && go mod verify
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
+COPY .env .env
+
 # Build the Go app
 RUN go build -v -o /usr/local/bin/app ./
 # RUN go build -o main .
