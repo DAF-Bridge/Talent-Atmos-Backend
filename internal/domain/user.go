@@ -24,10 +24,8 @@ const (
 )
 
 type User struct {
-	// gorm.Model
 	ID uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	// UID        uuid.UUID `type:uuid;default:uuid_generate_v4() gorm:"primarykey" json:"id"`
-	Name       string         `gorm:"type:varchar(255);unique;not null" json:"name"`
+	Name       string         `gorm:"type:varchar(255);not null" json:"name"`
 	Email      string         `gorm:"type:varchar(255);not null" json:"email"`
 	Password   *string        `gorm:"type:varchar(255)" json:"-"` // Hashed password for traditional login
 	Role       Role           `gorm:"type:Role;default:'User'" json:"role"`
