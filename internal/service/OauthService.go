@@ -33,7 +33,7 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picU
 	user := &domain.User{
 		Name: 		name, 
 		Email: 		email, 
-		Provider: 	provider, 
+		Provider: 	domain.Provider(provider), 
 		ProviderID: providerID, 
 	}
 

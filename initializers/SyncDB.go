@@ -11,4 +11,6 @@ func SyncDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	
 }
