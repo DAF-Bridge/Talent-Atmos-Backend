@@ -1,6 +1,9 @@
 package service
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/google/uuid"
+)
 
 type UserService struct {
 	repo domain.UserRepository
@@ -19,6 +22,6 @@ func (s *UserService) ListUsers() ([]domain.User, error) {
 	return s.repo.GetAll()
 }
 
-func (s *UserService) GetCurrentUserProfile(userId uint) (*domain.Profile, error) {
+func (s *UserService) GetCurrentUserProfile(userId uuid.UUID) (*domain.Profile, error) {
 	return s.repo.GetCurrentUserProfile(userId)
 }

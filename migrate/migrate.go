@@ -12,13 +12,18 @@ func init() {
 	initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
+	// Create enum types
+	// initializers.InitEnums(initializers.DB)
 }
 
 func main() {
 	if initializers.DB == nil {
 		log.Fatal("Database connection is not established.")
 	}
-	initializers.DB.Migrator().DropColumn(&domain.User{}, "pic_url")
+
+	initializers.DB.AutoMigrate(&domain.User{})
+	initializers.DB.AutoMigrate(&domain.Profile{})
+	// initializers.DB.Migrator().DropColumn(&domain.Profile{}, "pic_url")
 
 	// if err := initializers.DB.AutoMigrate(&domain.User{}); err != nil {
 	// 	log.Fatal(err)

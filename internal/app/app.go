@@ -1,6 +1,9 @@
 package app
 
 import (
+	"log"
+	"os"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -8,17 +11,14 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"log"
-	"os"
 )
 
 func init() {
-	//  Load environment variables
 	initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
 	// Sync database
-	initializers.SyncDB()
+	// initializers.SyncDB()
 	// Setup Goth
 	initializers.SetupGoth()
 }
@@ -56,14 +56,14 @@ func Start() {
 	app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
 	app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
 
-    app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
-        user := c.Locals("user")
-        return c.JSON(fiber.Map{
-            "message": "You are authenticated!",
-            "user":    user,
-        })
-    })
-	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret),userHandler.GetCurrentUser)
+	app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
+		user := c.Locals("user")
+		return c.JSON(fiber.Map{
+			"message": "You are authenticated!",
+			"user":    user,
+		})
+	})
+	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret), userHandler.GetCurrentUser)
 
 	// Define routes
 	app.Post("/users", userHandler.CreateUser)

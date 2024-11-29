@@ -1,0 +1,43 @@
+version: '2.4'  
+services:   
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "7000:9000"
+      - "7001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: miniopassword
+    volumes:
+      - ./volume:/data
+    command: server --address ":9001" --console-address ":9000" /data
+    restart: always
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: pg-database
+    environment:
+      POSTGRES_DB: database
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pg-admin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin1234
+    ports:
+      - "5050:80"
+  
+volumes:
+  pgdata:
+
+networks:                                
+  default:                               
+    driver: bridge
