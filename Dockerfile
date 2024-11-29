@@ -14,7 +14,7 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Build the Go app
-RUN go build -v -o /usr/local/bin/app ./cmd/
+RUN go build -v -o /usr/local/bin/app ./
 # RUN go build -o main .
 
 # Expose port 8080 to the outside world
