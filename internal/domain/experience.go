@@ -13,7 +13,7 @@ type Experience struct {
 	StartDate   time.Time      `gorm:"time:DATE" json:"start_date"`
 	EndDate     time.Time      `gorm:"time:DATE" json:"end_date"`
 	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
-	PicutreUrl  string         `gorm:"type:varchar(255)" json:"picture_url"`
+	PicUrl  	string         `gorm:"type:varchar(255)" json:"pic_url"`
 	Description string         `gorm:"type:text" json:"description"`
 	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`

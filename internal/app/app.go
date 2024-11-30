@@ -30,7 +30,7 @@ func Start() {
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000", // Allow requests from this origin
+		AllowOrigins: os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
