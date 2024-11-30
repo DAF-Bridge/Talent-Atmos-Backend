@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type OrganizationContact struct {
 	gorm.Model
-	ID             uint `gorm:"primaryKey;autoIncrement" json:"id"`
-	OrganizationID uint `json:"organization_id"`
+	OrganizationID uint   `gorm:"type:uint;not null" json:"organization_id"`
+	Media          string `gorm:"type:varchar(100)" json:"media"`
+	Url            string `gorm:"type:varchar(255)" json:"url"`
 }
