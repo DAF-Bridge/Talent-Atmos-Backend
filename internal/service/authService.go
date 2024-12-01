@@ -13,11 +13,12 @@ import (
 
 type AuthService struct {
 	userRepo  *repository.UserRepository
+	profileRepo *repository.ProfileRepository
 	jwtSecret string
 }
 
-func NewAuthService(userRepo *repository.UserRepository, jwtSecret string) *AuthService {
-	return &AuthService{userRepo: userRepo, jwtSecret: jwtSecret}
+func NewAuthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *AuthService {
+	return &AuthService{userRepo: userRepo, profileRepo: profileRepo ,jwtSecret: jwtSecret}
 }
 
 func (s *AuthService) SignUp(name, email, password, phone string) (string, error) {
@@ -53,7 +54,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 	}
 
 	// Create User
-	if err := tx.Create(user).Error; err != nil {
+	if err := s.userRepo.Create(user); err != nil {
 		tx.Rollback()
 		return "", err
 	}
@@ -70,7 +71,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 	}
 
 	// Create the profile
-	if err := tx.Create(profile).Error; err != nil {
+	if err := s.profileRepo.Create(profile); err != nil {
 		tx.Rollback() // Rollback if profile creation fails
 		return "", err
 	}

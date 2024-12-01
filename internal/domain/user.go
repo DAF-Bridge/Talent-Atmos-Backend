@@ -7,6 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
+//---------------------------------------------------------------------------
+// ENUMS
+//---------------------------------------------------------------------------
+
 type Role string
 type Provider string
 
@@ -23,6 +27,10 @@ const (
 	ProviderLocal    Provider = "local"
 )
 
+//---------------------------------------------------------------------------
+// Models
+//---------------------------------------------------------------------------
+
 type User struct {
 	ID uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name       string         `gorm:"type:varchar(255);not null" json:"name"`
@@ -35,6 +43,10 @@ type User struct {
 	UpdatedAt  time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
+
+//---------------------------------------------------------------------------
+// Interfaces
+//---------------------------------------------------------------------------
 
 type UserRepository interface {
 	Create(user *User) error
