@@ -7,6 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
+//---------------------------------------------------------------------------
+// ENUMS
+//---------------------------------------------------------------------------
+
 type Role string
 type Provider string
 
@@ -23,6 +27,10 @@ const (
 	ProviderLocal    Provider = "local"
 )
 
+//---------------------------------------------------------------------------
+// Models
+//---------------------------------------------------------------------------
+
 type User struct {
 	ID               uuid.UUID          `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name             string             `gorm:"type:varchar(255);not null" json:"name"`
@@ -37,6 +45,10 @@ type User struct {
 	TicketPurchased  []TicketPurchased  `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"ticket_purchased"`
 	EventParticipant []EventParticipant `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"event_participant"`
 }
+
+//---------------------------------------------------------------------------
+// Interfaces
+//---------------------------------------------------------------------------
 
 type UserRepository interface {
 	Create(user *User) error

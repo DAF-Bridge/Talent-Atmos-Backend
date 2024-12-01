@@ -11,11 +11,12 @@ import (
 
 type OauthService struct {
 	userRepo *repository.UserRepository
+	profileRepo *repository.ProfileRepository
 	jwtSecret string
 }
 
-func NewOauthService(userRepo *repository.UserRepository, jwtSecret string) *OauthService {
-	return &OauthService{userRepo: userRepo, jwtSecret: jwtSecret}
+func NewOauthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository ,jwtSecret string) *OauthService {
+	return &OauthService{userRepo: userRepo, profileRepo: profileRepo ,jwtSecret: jwtSecret}
 }
 
 func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picUrl string) (string, error) {
@@ -54,7 +55,7 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picU
 	}
 	
 	// Start the transaction for creating the user and profile
-	if err := tx.Create(user).Error; err != nil {
+	if err := s.userRepo.Create(user); err != nil {
 		tx.Rollback() // Rollback if user creation fails
 		return "", err
 	}
@@ -62,7 +63,7 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picU
 	profile.UserID = user.ID
 
 	// Create the profile
-	if err := tx.Create(profile).Error; err != nil {
+	if err := s.profileRepo.Create(profile); err != nil {
 		tx.Rollback() // Rollback if profile creation fails
 		return "", err
 	}
