@@ -42,3 +42,41 @@ type TicketAvailable struct {
 	EventID     uint    `json:"event_id"`
 	Event       Event   `json:"event"`
 }
+
+//---------------------------------------------------------------------------
+// Interfaces
+//---------------------------------------------------------------------------
+
+// Event 
+type EventRepository interface {
+	GetByID(id uint) (*Event, error)
+	GetAll() ([]Event, error)
+	Create(event *Event) error
+	// Update(event *Event) error
+	// Delete(id uint) error
+}
+
+type EventService interface {
+	GetEventByID(id uint) (*Event, error)
+	GetAllEvent() ([]Event, error)
+	CreateEvent(event *Event) error
+	// UpdateEvent(event *Event) error
+	// DeleteEvent(id uint) error
+}
+
+// TicketAvailable
+type TicketAvailableRepository interface {
+	GetByID(id uint) (*TicketAvailable, error)
+	GetAll() ([]TicketAvailable, error)
+	Create(ticketAvailable *TicketAvailable) error
+	// Update(ticketAvailable *TicketAvailable) error
+	// Delete(id uint) error
+}
+
+type TicketAvailableService interface {
+	GetAvailTicketByID(id uint) (*TicketAvailable, error)
+	GetAllAvailTicket() ([]TicketAvailable, error)
+	CreateAvailTicket(ticketAvailable *TicketAvailable) error
+	// UpdateAvailTicket(ticketAvailable *TicketAvailable) error
+	// DeleteAvailTicket(id uint) error
+}
