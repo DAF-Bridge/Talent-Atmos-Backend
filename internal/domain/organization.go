@@ -30,7 +30,6 @@ const (
 type Organization struct {
 	ID          			uint           			`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name        			string         			`gorm:"type:varchar(255);not null" json:"org_name"`
-	HeadLine    			string         			`gorm:"type:varchar(255);not null" json:"headline"` // Organization's headline
 	Goal        			[]string       			`gorm:"type:text[];not null" json:"goal"`           // Detailed description of the organization's goal
 	Expertise   			string         			`gorm:"type:varchar(255)" json:"expertise"`         // Organization's area of expertise
 	Location    			string         			`gorm:"type:varchar(255)" json:"location"`          // General location
@@ -45,13 +44,13 @@ type Organization struct {
 	UpdatedAt   			time.Time      			`gorm:"autoUpdateTime" json:"updated_at"`
 	DeletedAt   			gorm.DeletedAt 			`gorm:"index"`
 	OrganizationContacts 	[]OrganizationContact 	`gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	OrgOpenJobs 			[]OrgOpenJob 			`gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 }
 
 type OrganizationContact struct {
 	gorm.Model
-	ID             	uint 		`gorm:"primaryKey;autoIncrement" json:"id"`
 	OrganizationID 	uint 		`json:"organization_id"`
-	Media          	Media 		`gorm:"type:Media;not null" json:"media"`
+	Media          	Media 		`gorm:"type:media;not null" json:"media"`
 	MediaLink      	string 		`gorm:"type:varchar(255);not null" json:"media_link"`
 }
 
