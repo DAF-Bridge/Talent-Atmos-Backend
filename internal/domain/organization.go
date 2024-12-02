@@ -14,13 +14,13 @@ type Media string
 
 const (
 	// Media Enum
-	MediaWebsite 	Media = "website"
-	MediaFacebook   Media = "facebook"
+	MediaWebsite 	Media = "website"  
+	MediaFacebook   Media = "facebook" 
 	MediaIG         Media = "instagram"
 	MediaTikTok     Media = "tiktok"
 	MediaYoutube    Media = "youtube"
 	MediaLinkedin   Media = "linkedin"
-	MediaLine       Media = "line"
+	MediaLine       Media = "line"    
 )
 
 //---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ type OrganizationRepository interface {
 }
 
 type OrganizationService interface {
-	GetOrgByID(id uint) (*Organization, error)
+	GetOrgByID(id uint) (*Organization, error) 
 	GetAllOrg() ([]Organization, error)
 	CreateOrg(org *Organization) error
 	// Update(org *Organization) error
