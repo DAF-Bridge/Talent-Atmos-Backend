@@ -30,7 +30,7 @@ func Start() {
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000", // Allow requests from this origin
+		AllowOrigins: os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
@@ -41,15 +41,17 @@ func Start() {
 
 	// Dependencies Injections
 	userRepo := repository.NewUserRepository(initializers.DB)
-
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	profileRepo := repository.NewProfileRepository(initializers.DB)
+
 	//auth
-	authService := service.NewAuthService(userRepo, jwtSecret)
-	oauthService := service.NewOauthService(userRepo, jwtSecret)
+	authService := service.NewAuthService(userRepo, profileRepo ,jwtSecret)
+	oauthService := service.NewOauthService(userRepo,profileRepo ,jwtSecret)
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOauthHandler(oauthService)
+	
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
 	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
