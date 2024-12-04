@@ -9,8 +9,11 @@ func InitEnums(db *gorm.DB) error {
 		// `SELECT * FROM pg_extension WHERE extname = 'uuid-ossp')`,
 		// `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
 		// `SELECT uuid_generate_v4()`,
-		`CREATE TYPE "media" AS ENUM ('website', 'facebook', 'instagram', 'tiktok', 'youtube', 'linkedin', 'line')`,
+		// `CREATE TYPE "media" AS ENUM ('website', 'facebook', 'instagram', 'tiktok', 'youtube', 'linkedin', 'line')`,
 		// `DROP TYPE IF EXISTS "Media"`,
+		`CREATE TYPE "work_type" AS ENUM ('fulltime', 'parttime', 'internship', 'volunteer')`,
+		`CREATE TYPE "workplace" AS ENUM ('onsite', 'remote', 'hybrid')`,
+		`CREATE TYPE "career_stage" AS ENUM ('entrylevel', 'senior')`,
 	}
 	for _, e := range enums {
 		if err := db.Exec(e).Error; err != nil {
@@ -19,3 +22,21 @@ func InitEnums(db *gorm.DB) error {
 	}
 	return nil
 }
+
+// const (
+// 	WorkTypeFullTime 	WorkType = "fulltime"
+// 	WorkTypePartTime 	WorkType = "parttime"
+// 	WorkTypeInternship 	WorkType = "internship"
+// 	WorkTypeVolunteer 	WorkType = "volunteer"
+// )
+
+// const (
+// 	WorkplaceOnsite Workplace = "onsite"
+// 	WorkplaceRemote Workplace = "remote"
+// 	WorkplaceHybrid Workplace = "hybrid"
+// )
+
+// const (
+// 	CareerStageEntryLevel 	CareerStage = "entrylevel"
+// 	CareerStageSenior 		CareerStage = "senior"
+// )

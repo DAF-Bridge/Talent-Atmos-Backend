@@ -23,5 +23,5 @@ func (s *UserService) ListUsers() ([]domain.User, error) {
 }
 
 func (s *UserService) GetCurrentUserProfile(userId uuid.UUID) (*domain.Profile, error) {
-	return s.repo.GetCurrentUserProfile(userId)
+	return s.repo.GetProfileByUserID(userId)
 }

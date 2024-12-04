@@ -3,8 +3,8 @@ package domain
 import (
 	"time"
 
-	"gorm.io/gorm"
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 //---------------------------------------------------------------------------
@@ -12,6 +12,9 @@ import (
 //---------------------------------------------------------------------------
 
 type Media string
+type WorkType string
+type Workplace string
+type CareerStage string
 
 const (
 	// Media Enum
@@ -22,6 +25,24 @@ const (
 	MediaYoutube  Media = "youtube"
 	MediaLinkedin Media = "linkedin"
 	MediaLine     Media = "line"
+)
+
+const (
+	WorkTypeFullTime   WorkType = "fulltime"
+	WorkTypePartTime   WorkType = "parttime"
+	WorkTypeInternship WorkType = "internship"
+	WorkTypeVolunteer  WorkType = "volunteer"
+)
+
+const (
+	WorkplaceOnsite Workplace = "onsite"
+	WorkplaceRemote Workplace = "remote"
+	WorkplaceHybrid Workplace = "hybrid"
+)
+
+const (
+	CareerStageEntryLevel CareerStage = "entrylevel"
+	CareerStageSenior     CareerStage = "senior"
 )
 
 //---------------------------------------------------------------------------
@@ -46,6 +67,19 @@ type Organization struct {
 	DeletedAt            gorm.DeletedAt        `gorm:"index"`
 	OrganizationContacts []OrganizationContact `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs          []OrgOpenJob          `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	Industry             []*Industry           `gorm:"many2many:organization_industry;"`
+}
+
+type Industry struct {
+	gorm.Model
+	OrganizationID uint            `json:"organization_id"`
+	Industry       string          `gorm:"type:varchar(255);not null" json:"industry"`
+	Organization   []*Organization `gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+}
+
+type OrganizationIndustry struct {
+	OrganizationID uint `gorm:"index:idx_org_industry_org_id"`
+	IndustryID     uint `gorm:"index:idx_org_industry_industry_id"`
 }
 
 type OrganizationContact struct {
@@ -57,17 +91,19 @@ type OrganizationContact struct {
 
 type OrgOpenJob struct {
 	gorm.Model
-	OrganizationID uint   `json:"organization_id"`
-	Title          string `gorm:"type:varchar(255);not null" json:"title"`
-	Scope          string `gorm:"type:varchar(255);not null" json:"scope"`
-	Workplace      string `gorm:"type:varchar(255);not null" json:"workplace"`
-	WorkType       string `gorm:"type:varchar(255);not null" json:"work_type"`
-	Period         string `gorm:"type:varchar(255);not null" json:"period"`
-	Description    string `gorm:"type:text" json:"description"`
-	HoursPerDay    string `gorm:"type:varchar(255);not null" json:"hours_per_day"`
-	Qualifications string `gorm:"type:text" json:"qualifications"`
-	Benefits       string `gorm:"type:text" json:"benefits"`
-	Quantity       int    `json:"quantity"`
+	OrganizationID uint        `json:"organization_id"`
+	Title          string      `gorm:"type:varchar(255);not null" json:"title"`
+	Scope          string      `gorm:"type:varchar(255);not null" json:"scope"`
+	Workplace      Workplace   `gorm:"type:workplace;not null" json:"workplace"`
+	WorkType       WorkType    `gorm:"type:work_type;not null" json:"work_type"`
+	CareerStage    CareerStage `gorm:"type:career_stage;not null" json:"career_stage"`
+	Period         string      `gorm:"type:varchar(255);not null" json:"period"`
+	Description    string      `gorm:"type:text" json:"description"`
+	HoursPerDay    string      `gorm:"type:varchar(255);not null" json:"hours_per_day"`
+	Qualifications string      `gorm:"type:text" json:"qualifications"`
+	Benefits       string      `gorm:"type:text" json:"benefits"`
+	Quantity       int         `json:"quantity"`
+	Salary         float64     `gorm:"type:decimal(10,2)" json:"price"`
 }
 
 //---------------------------------------------------------------------------
@@ -76,18 +112,20 @@ type OrgOpenJob struct {
 
 // Organization
 type OrganizationRepository interface {
-	// GetByID(id uint) (*Organization, error)
-	// GetAll() ([]Organization, error)
+	GetByID(id uint) (*Organization, error)
+	GetAll() ([]Organization, error)
+	GetPage(page uint, size uint) ([]Organization, error)
 	Create(org *Organization) error
-	// Update(org *Organization) error
+	Update(org *Organization) error
 	// Delete(id uint) error
 }
 
 type OrganizationService interface {
-	// GetOrgByID(id uint) (*Organization, error)
-	// GetAllOrg() ([]Organization, error)
+	GetOrganizationByID(id uint) (*Organization, error)
+	ListAllOrganization() ([]Organization, error)
+	GetPageOrganization(page uint) ([]Organization, error)
 	CreateOrganization(org *Organization) error
-	// Update(org *Organization) error
+	UpdateOrganization(org *Organization) error
 	// Delete(id uint) error
 }
 
@@ -102,9 +140,9 @@ type OrgOpenJobRepository interface {
 }
 
 type OrgOpenJobService interface {
-	GetOrgOpenJobByID(id uint) (*OrgOpenJob, error)
-	GetAllOrgOpenJob() ([]OrgOpenJob, error)
-	CreateOrgOpenJob(org *OrgOpenJob) error
+	GetByID(id uint) (*OrgOpenJob, error)
+	GetAll() ([]OrgOpenJob, error)
+	Create(org *OrgOpenJob) error
 	// Update(org *OrgOpenJob) error
 	// Delete(id uint) error
 }
