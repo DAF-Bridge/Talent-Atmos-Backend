@@ -32,7 +32,7 @@ const (
 //---------------------------------------------------------------------------
 
 type User struct {
-	ID 		   uuid.UUID 	  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	ID         uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name       string         `gorm:"type:varchar(255);not null" json:"name"`
 	Email      string         `gorm:"type:varchar(255);not null" json:"email"`
 	Password   *string        `gorm:"type:varchar(255)" json:"-"` // Hashed password for traditional login
@@ -51,7 +51,7 @@ type User struct {
 type UserRepository interface {
 	Create(user *User) error
 	GetAll() ([]User, error)
-	GetCurrentUserProfile(userId uuid.UUID) (*Profile, error)
+	GetProfileByUserID(userId uuid.UUID) (*Profile, error)
 }
 
 type UserService interface {
