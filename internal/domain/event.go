@@ -58,12 +58,12 @@ type EventRepository interface {
 }
 
 type EventService interface {
-	GetEventByID(id uint) (*Event, error)
-	GetAllEvent() ([]Event, error)
-	GetPageEvent(page uint) ([]Event, error)
-	CreateEvent(event *Event) error
-	// UpdateEvent(event *Event) error
-	// DeleteEvent(id uint) error
+	GetByID(id uint) (*Event, error)
+	GetAll() ([]Event, error)
+	GetPage(page uint) ([]Event, error)
+	Create(event *Event) error
+	// Update(event *Event) error
+	// Delete(id uint) error
 }
 
 // TicketAvailable
@@ -76,9 +76,9 @@ type TicketAvailableRepository interface {
 }
 
 type TicketAvailableService interface {
-	GetAvailTicketByID(id uint) (*TicketAvailable, error)
-	GetAllAvailTicket() ([]TicketAvailable, error)
-	CreateAvailTicket(ticketAvailable *TicketAvailable) error
-	// UpdateAvailTicket(ticketAvailable *TicketAvailable) error
-	// DeleteAvailTicket(id uint) error
+	GetByID(id uint) (*TicketAvailable, error)
+	GetAll() ([]TicketAvailable, error)
+	Create(ticketAvailable *TicketAvailable) error
+	// Update(ticketAvailable *TicketAvailable) error
+	// Delete(id uint) error
 }
