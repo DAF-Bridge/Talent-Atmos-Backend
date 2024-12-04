@@ -20,14 +20,18 @@ func (s *OrganizationService) GetOrganizationByID(id uint) (*domain.Organization
 	return s.repo.GetByID(id)
 }
 
-func (s *OrganizationService) GetOrganizationPage(page uint) ([]domain.Organization, error) {
+func (s *OrganizationService) GetPageOrganization(page uint) ([]domain.Organization, error) {
 	return s.repo.GetPage(page, numberOfOrganization)
 }
 
-func (s *OrganizationService) GetAllOrganizations() ([]domain.Organization, error) {
+func (s *OrganizationService) ListAllOrganization() ([]domain.Organization, error) {
 	return s.repo.GetAll()
 }
 
 func (s *OrganizationService) UpdateOrganization(org *domain.Organization) error {
 	return s.repo.Update(org)
+}
+
+func (s *OrganizationService) DeleteOrganization(id uint) error {
+	return s.repo.Delete(id)
 }

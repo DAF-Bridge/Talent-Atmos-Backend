@@ -71,12 +71,16 @@ func Start() {
 	})
 	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret), userHandler.GetCurrentUser)
 
-	// Define routes
+	// Define routes for Users
 	app.Post("/users", userHandler.CreateUser)
 	app.Get("/users", userHandler.ListUsers)
 
 	// Define routes for Organizations
 	app.Post("/create/org", orgHandler.CreateOrganization)
+	app.Get("/orgs", orgHandler.ListOrganizations)
+	app.Get("/org/:id", orgHandler.GetOrganizationByID)
+	app.Put("/org/:id", orgHandler.UpdateOrganization)
+	app.Delete("/org/:id", orgHandler.DeleteOrganization)
 
 	err := app.Listen(":8080")
 	if err != nil {

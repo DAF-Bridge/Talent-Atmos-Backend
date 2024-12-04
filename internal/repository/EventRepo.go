@@ -9,9 +9,9 @@ type EventRepository struct {
 	db *gorm.DB
 }
 
+// Constructor
 func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
-
 }
 
 func (r *EventRepository) Create(event *domain.Event) error {
