@@ -24,8 +24,59 @@ type Profile struct {
 	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 	UserID      uuid.UUID      `gorm:"type:uuid;not null" json:"user_id"`
-	User        User           `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-One relationship (has one, use UserID as foreign key)
-	Experiences []Experience   `gorm:"foreignKey:ID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`     // One-to-Many relationship (has many)
+	User        User           `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`    // One-to-One relationship (has one, use UserID as foreign key)
+	Experiences []Experience   `gorm:"foreignKey:ProfileID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-Many relationship (has many)
+}
+
+type Experience struct {
+	ID          uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primarykey" json:"id"`
+	ProfileID   uint           `gorm:"type:uuid;not null" json:"profile_id"`
+	Currently   bool           `gorm:"default:false;not null" json:"currently"`
+	StartDate   time.Time      `gorm:"time:DATE" json:"start_date"`
+	EndDate     time.Time      `gorm:"time:DATE" json:"end_date"`
+	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
+	PicUrl      string         `gorm:"type:varchar(255)" json:"pic_url"`
+	Description string         `gorm:"type:text" json:"description"`
+	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
+}
+
+//---------------------------------------------------------------------------
+// Services
+//---------------------------------------------------------------------------
+
+// Profile
+type ProfileService interface {
+	CreateProfile(profile *Profile) error
+	UpdateProfile(profile *Profile) error
+}
+
+// Experience
+type ExperienceService interface {
+	CreateExperience(experience *Experience) error
+	ListExperiencesByUserID(userID uuid.UUID) ([]Experience, error)
+	GetExperienceByID(experienceID uuid.UUID) (*Experience, error)
+	UpdateExperience(experience *Experience) error
+	DeleteExperience(experienceID uuid.UUID) error
+}
+
+//---------------------------------------------------------------------------
+// Interfaces
+//---------------------------------------------------------------------------
+
+// Profile
+type ProfileRepository interface {
+	Create(profile *Profile) error
+	UpdateByUserID(profile *Profile) error
+}
+
+type ExperienceRepository interface {
+	GetByID(experienceID uuid.UUID) (*Experience, error)
+	GetbyUserID(userID uuid.UUID) ([]Experience, error)
+	Create(experience *Experience) error
+	Update(experience *Experience) error
+	Delete(experienceID uuid.UUID) error
 }
 
 type Experience struct {
@@ -34,7 +85,7 @@ type Experience struct {
 	StartDate   time.Time      `gorm:"time:DATE" json:"start_date"`
 	EndDate     time.Time      `gorm:"time:DATE" json:"end_date"`
 	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
-	PicUrl  	string         `gorm:"type:varchar(255)" json:"pic_url"`
+	PicUrl      string         `gorm:"type:varchar(255)" json:"pic_url"`
 	Description string         `gorm:"type:text" json:"description"`
 	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
