@@ -13,7 +13,7 @@ func init() {
 	// Connect to database
 	initializers.ConnectToDB()
 	// Create enum types
-	initializers.InitEnums(initializers.DB)
+	// initializers.InitEnums(initializers.DB)
 }
 
 func main() {
@@ -25,6 +25,7 @@ func main() {
 	initializers.DB.AutoMigrate(&domain.Organization{})
 	initializers.DB.AutoMigrate(&domain.OrganizationContact{})
 	initializers.DB.AutoMigrate(&domain.OrgOpenJob{})
+	initializers.DB.AutoMigrate(&domain.Industry{})
 
 
 }

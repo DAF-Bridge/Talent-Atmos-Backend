@@ -11,6 +11,9 @@ import (
 //---------------------------------------------------------------------------
 
 type Media string
+type WorkType string
+type Workplace string
+type CareerStage string
 
 const (
 	// Media Enum
@@ -21,6 +24,24 @@ const (
 	MediaYoutube    Media = "youtube"
 	MediaLinkedin   Media = "linkedin"
 	MediaLine       Media = "line"    
+)
+
+const (
+	WorkTypeFullTime 	WorkType = "fulltime"
+	WorkTypePartTime 	WorkType = "parttime"
+	WorkTypeInternship 	WorkType = "internship"
+	WorkTypeVolunteer 	WorkType = "volunteer"
+)
+
+const (
+	WorkplaceOnsite Workplace = "onsite"
+	WorkplaceRemote Workplace = "remote"
+	WorkplaceHybrid Workplace = "hybrid"
+)
+
+const (
+	CareerStageEntryLevel 	CareerStage = "entrylevel"
+	CareerStageSenior 		CareerStage = "senior"
 )
 
 //---------------------------------------------------------------------------
@@ -45,6 +66,19 @@ type Organization struct {
 	DeletedAt   			gorm.DeletedAt 			`gorm:"index"`
 	OrganizationContacts 	[]OrganizationContact 	`gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs 			[]OrgOpenJob 			`gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	Industry				[]*Industry				`gorm:"many2many:organization_industry;"`	
+}
+
+type Industry struct {
+	gorm.Model
+	OrganizationID 	uint 				`json:"organization_id"`
+	Industry       	string 				`gorm:"type:varchar(255);not null" json:"industry"`
+	Organization    []*Organization  	`gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+}
+
+type OrganizationIndustry struct {
+    OrganizationID uint `gorm:"index:idx_org_industry_org_id"`
+    IndustryID     uint `gorm:"index:idx_org_industry_industry_id"`
 }
 
 type OrganizationContact struct {
@@ -59,14 +93,16 @@ type OrgOpenJob struct {
 	OrganizationID  uint           `json:"organization_id"`
 	Title       	string         `gorm:"type:varchar(255);not null" json:"title"`
 	Scope       	string         `gorm:"type:varchar(255);not null" json:"scope"`
-	Workplace   	string         `gorm:"type:varchar(255);not null" json:"workplace"`
-	WorkType    	string         `gorm:"type:varchar(255);not null" json:"work_type"`
+	Workplace   	Workplace      `gorm:"type:workplace;not null" json:"workplace"`
+	WorkType    	WorkType       `gorm:"type:work_type;not null" json:"work_type"`
+	CareerStage 	CareerStage    `gorm:"type:career_stage;not null" json:"career_stage"`
 	Period      	string         `gorm:"type:varchar(255);not null" json:"period"`
 	Description 	string         `gorm:"type:text" json:"description"`
 	HoursPerDay 	string         `gorm:"type:varchar(255);not null" json:"hours_per_day"`
 	Qualifications 	string         `gorm:"type:text" json:"qualifications"`
 	Benefits 		string         `gorm:"type:text" json:"benefits"`
 	Quantity    	int            `json:"quantity"`
+	Salary        	float64 	   `gorm:"type:decimal(10,2)" json:"price"`
 }
 
 //---------------------------------------------------------------------------
