@@ -44,14 +44,18 @@ func Start() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	orgRepo := repository.NewOrganizationRepository(initializers.DB)
+	orgService := service.NewOrganizationService(orgRepo)
+	orgHandler := handler.NewOrganizationHandler(orgService)
+
 	profileRepo := repository.NewProfileRepository(initializers.DB)
 
 	//auth
-	authService := service.NewAuthService(userRepo, profileRepo ,jwtSecret)
-	oauthService := service.NewOauthService(userRepo,profileRepo ,jwtSecret)
+	authService := service.NewAuthService(userRepo, profileRepo, jwtSecret)
+	oauthService := service.NewOauthService(userRepo, profileRepo, jwtSecret)
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOauthHandler(oauthService)
-	
+
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
 	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
@@ -70,6 +74,9 @@ func Start() {
 	// Define routes
 	app.Post("/users", userHandler.CreateUser)
 	app.Get("/users", userHandler.ListUsers)
+
+	// Define routes for Organizations
+	app.Post("/create/org", orgHandler.CreateOrganization)
 
 	err := app.Listen(":8080")
 	if err != nil {
