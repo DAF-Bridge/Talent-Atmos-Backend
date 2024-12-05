@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
 
@@ -26,13 +27,13 @@ func (r *OrganizationRepository) GetByID(id uint) (*domain.Organization, error) 
 	return org, nil
 }
 
-func (r *OrganizationRepository) GetPage(page uint, size uint) ([]domain.Organization, error) {
+func (r *OrganizationRepository) GetPaginate(page uint, size uint) ([]domain.Organization, error) {
 	var orgs []domain.Organization
-	err := r.db.Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&orgs).Error
+	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&orgs).Error
 	return orgs, err
 }
 
-func (r *OrganizationRepository) GatAll() ([]domain.Organization, error) {
+func (r *OrganizationRepository) GetAll() ([]domain.Organization, error) {
 	var orgs []domain.Organization
 	err := r.db.Find(&orgs).Error
 	return orgs, err

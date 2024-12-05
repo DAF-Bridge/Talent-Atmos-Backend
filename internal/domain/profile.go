@@ -68,12 +68,13 @@ type ExperienceService interface {
 // Profile
 type ProfileRepository interface {
 	Create(profile *Profile) error
-	UpdateByUserID(profile *Profile) error
+	Update(profile *Profile) error
+	GetByUserID(userID uuid.UUID) (*Profile, error)
 }
 
 type ExperienceRepository interface {
 	GetByID(experienceID uuid.UUID) (*Experience, error)
-	GetbyUserID(userID uuid.UUID) ([]Experience, error)
+	GetByUserID(userID uuid.UUID) ([]Experience, error)
 	Create(experience *Experience) error
 	Update(experience *Experience) error
 	Delete(experienceID uuid.UUID) error

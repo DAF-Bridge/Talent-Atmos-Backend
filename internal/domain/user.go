@@ -15,13 +15,13 @@ type Role string
 type Provider string
 
 const (
-	// Role Enum
+	//Enum Role
 	RoleUser  Role = "User"
 	RoleAdmin Role = "Admin"
 )
 
 const (
-	// Provider Enum
+	// Enum Provider
 	ProviderGoogle   Provider = "google"
 	ProviderFacebook Provider = "facebook"
 	ProviderLocal    Provider = "local"
