@@ -54,7 +54,7 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if err := h.eventService.Create(&event); err != nil {
+	if err := h.eventService.CreateEvent(&event); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -62,7 +62,7 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 }
 
 func (h *EventHandler) ListEvents(c *fiber.Ctx) error {
-	events, err := h.eventService.GetAll()
+	events, err := h.eventService.GetAllEvents()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -79,7 +79,7 @@ func (h *EventHandler) GetEventByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid event id"})
 	}
 
-	event, err := h.eventService.GetByID(uint(eventID))
+	event, err := h.eventService.GetEventByID(uint(eventID))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -93,7 +93,7 @@ func (h *EventHandler) EventPaginate(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page"})
 	}
 
-	events, err := h.eventService.GetPaginate(uint(page))
+	events, err := h.eventService.GetEventPaginate(uint(page))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -111,7 +111,7 @@ func (h *EventHandler) EventFirst(c *fiber.Ctx) error {
 }
 
 func (h *EventHandler) UpcomingEvent(c *fiber.Ctx) error {
-	events, err := h.eventService.GetPaginate(1)
+	events, err := h.eventService.GetEventPaginate(1)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
