@@ -33,7 +33,7 @@ func (r *OrganizationRepository) GetPage(page uint, size uint) ([]domain.Organiz
 	if page < 1 || size < 1 {
 		return nil, errors.New("invalid pagination parameters")
 	}
-	
+
 	var orgs []domain.Organization
 	offset := int((page - 1) * size)
 	err := r.db.Order("created_at desc").Limit(int(size)).Offset(offset).Find(&orgs).Error
@@ -64,6 +64,6 @@ func (r *OrganizationRepository) Delete(id uint) error {
 	// return r.db.Delete(&domain.Organization{}, id).Error
 }
 
-func (r *OrganizationRepository) Delete(id uint) error {
-	return r.db.Delete(&domain.Organization{}, id).Error
-}
+// func (r *OrganizationRepository) Delete(id uint) error {
+// 	return r.db.Delete(&domain.Organization{}, id).Error
+// }
