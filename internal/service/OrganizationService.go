@@ -34,10 +34,6 @@ func (s *OrganizationService) UpdateOrganization(org *domain.Organization) error
 	return s.repo.Update(org)
 }
 
-func (s *OrganizationService) DeleteOrganization(id uint) error {
-	return s.repo.Delete(id)
-}
-
 // Deletes an organization by its ID
 func (s *OrganizationService) DeleteOrganization(id uint) error {
 	return s.repo.Delete(id)
