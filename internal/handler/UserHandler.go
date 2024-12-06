@@ -28,6 +28,14 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(user)
 }
 
+// @Summary List all users
+// @Description List all users
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} []domain.User
+// @Failure 500 {object} map[string]interface{}
+// @Router /users [get]
 func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 	users, err := h.service.ListUsers()
 	if err != nil {

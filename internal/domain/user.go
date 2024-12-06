@@ -41,7 +41,7 @@ type User struct {
 	ProviderID string         `gorm:"type:varchar(255);not null" json:"provider_id"`
 	CreatedAt  time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt  time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index"`
+	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }
 
 //---------------------------------------------------------------------------

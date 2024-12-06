@@ -1,5 +1,11 @@
 # Talent-Atmos-Backend
 
+## swagger
+
+```
+swag init -g .\internal\app\app.go -o ./docs --parseDependency --parseInternal
+```
+
 ## Backend Custom Domain
 - talent-atmos-backend-production.up.railway.app
 
