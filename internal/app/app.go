@@ -8,6 +8,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -56,6 +57,11 @@ func Start() {
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOauthHandler(oauthService)
 
+	//event
+	eventRepo := repository.NewEventRepository(initializers.DB)
+	eventService := service.NewEventService(eventRepo)
+	eventHandler := handler.NewEventHandler(eventService)
+
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
 	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
@@ -81,6 +87,14 @@ func Start() {
 	app.Get("/org/:id", orgHandler.GetOrganizationByID)
 	app.Put("/org/:id", orgHandler.UpdateOrganization)
 	app.Delete("/org/:id", orgHandler.DeleteOrganization)
+
+	app.Get("/Organizations", orgHandler.ListOrganizations)
+	app.Get("/Organization/:id", orgHandler.GetOrganizationByID)
+	app.Get("/Organization/paginate", orgHandler.GetOrganizationPaginate)
+	app.Post("/events", eventHandler.CreateEvent)
+	app.Get("/events", eventHandler.ListEvents)
+	app.Get("/event/:id", eventHandler.GetEventByID)
+	app.Get("/event/paginate", eventHandler.EventPaginate)
 
 	err := app.Listen(":8080")
 	if err != nil {

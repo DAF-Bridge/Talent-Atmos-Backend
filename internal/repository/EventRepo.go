@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
 
@@ -32,8 +33,16 @@ func (r *EventRepository) GetByID(eventID uint) (*domain.Event, error) {
 	return &event, nil
 }
 
-func (r *EventRepository) GetPage(page uint, size uint) ([]domain.Event, error) {
+func (r *EventRepository) GetPaginate(page uint, size uint) ([]domain.Event, error) {
 	var events []domain.Event
-	err := r.db.Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&events).Error
+	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&events).Error
 	return events, err
+}
+
+func (r *EventRepository) GetFirst() (*domain.Event, error) {
+	var event domain.Event
+	if err := r.db.First(&event).Error; err != nil {
+		return nil, err
+	}
+	return &event, nil
 }

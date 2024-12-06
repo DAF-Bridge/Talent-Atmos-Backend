@@ -16,8 +16,11 @@ func NewEventService(repo domain.EventRepository) *EventService {
 
 // CreateEvent creates a new event.
 func (s *EventService) CreateEvent(event *domain.Event) error {
-	return s.repo.Create(event)
-
+	err := s.repo.Create(event)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetAllEvents returns all events.
@@ -31,6 +34,10 @@ func (s *EventService) GetEventByID(eventID uint) (*domain.Event, error) {
 
 }
 
-func (s *EventService) GetEventPage(page uint) ([]domain.Event, error) {
-	return s.repo.GetPage(page, numberOfEvent)
+func (s *EventService) GetEventPaginate(page uint) ([]domain.Event, error) {
+	return s.repo.GetPaginate(page, numberOfEvent)
+}
+
+func (s *EventService) GetFirst() (*domain.Event, error) {
+	return s.repo.GetFirst()
 }

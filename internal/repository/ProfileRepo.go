@@ -18,8 +18,16 @@ func (r *ProfileRepository) Create(profile *domain.Profile) error {
 	return r.db.Create(profile).Error
 }
 
-func (r *ProfileRepository) UpdateByUserID(profile *domain.Profile) error {
-	return r.db.Where("User_ID = ?", profile.UserID).Updates(profile).Error
+func (r *ProfileRepository) Update(profile *domain.Profile) error {
+	return r.db.Updates(profile).Error
+}
+
+func (r *ProfileRepository) GetByUserID(userID uuid.UUID) (*domain.Profile, error) {
+	var profile domain.Profile
+	if err := r.db.Preload("User").Where("User_ID = ?", userID).First(&profile).Error; err != nil {
+		return nil, err
+	}
+	return &profile, nil
 }
 
 type ExperienceRepository struct {

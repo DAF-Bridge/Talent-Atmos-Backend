@@ -22,11 +22,11 @@ func (s *OrganizationService) GetOrganizationByID(id uint) (*domain.Organization
 	return s.repo.GetByID(id)
 }
 
-func (s *OrganizationService) GetPageOrganization(page uint) ([]domain.Organization, error) {
-	return s.repo.GetPage(page, numberOfOrganization)
+func (s *OrganizationService) GetPaginateOrganization(page uint) ([]domain.Organization, error) {
+	return s.repo.GetPaginate(page, numberOfOrganization)
 }
 
-func (s *OrganizationService) ListAllOrganization() ([]domain.Organization, error) {
+func (s *OrganizationService) ListAllOrganizations() ([]domain.Organization, error) {
 	return s.repo.GetAll()
 }
 

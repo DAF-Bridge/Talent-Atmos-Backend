@@ -40,12 +40,12 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 
 // ListOrganizations returns all organizations
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
-	orgs, err := h.service.ListAllOrganization()
+	orgs, err := h.service.ListAllOrganizations()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(orgs)
+	return c.Status(fiber.StatusOK).JSON(orgs)
 }
 
 // GetOrganizationByID returns an organization by its ID
@@ -66,25 +66,23 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "organization not found"})
 	}
 
-	return c.JSON(org)
+	return c.Status(fiber.StatusOK).JSON(org)
 }
 
-// GetOrganizationPage returns a page of organizations by its page number
-func (h *OrganizationHandler) GetOrganizationPage(c *fiber.Ctx) error {
-	page, err := c.ParamsInt("page")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "page is required"})
-	}
+// GetOrganizationPaginate returns a page of organizations
+func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
+	page := c.QueryInt("page", 1)
+
 	if page < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page"})
 	}
 
-	orgs, err := h.service.GetPageOrganization(uint(page))
+	organizations, err := h.service.GetPaginateOrganization(uint(page))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.JSON(orgs)
+	return c.Status(fiber.StatusOK).JSON(organizations)
 }
 
 // UpdateOrganization updates an organization by its ID

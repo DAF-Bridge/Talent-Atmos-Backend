@@ -114,7 +114,7 @@ type OrgOpenJob struct {
 type OrganizationRepository interface {
 	GetByID(id uint) (*Organization, error)
 	GetAll() ([]Organization, error)
-	GetPage(page uint, size uint) ([]Organization, error)
+	GetPaginate(page uint, size uint) ([]Organization, error)
 	Create(org *Organization) error
 	Update(org *Organization) error
 	Delete(id uint) error
@@ -122,8 +122,8 @@ type OrganizationRepository interface {
 
 type OrganizationService interface {
 	GetOrganizationByID(id uint) (*Organization, error)
-	ListAllOrganization() ([]Organization, error)
-	GetPageOrganization(page uint) ([]Organization, error)
+	ListAllOrganizations() ([]Organization, error)
+	GetPaginateOrganization(page uint) ([]Organization, error)
 	CreateOrganization(org *Organization) error
 	UpdateOrganization(org *Organization) error
 	DeleteOrganization(id uint) error
