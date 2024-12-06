@@ -87,3 +87,21 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(org)
 }
+
+// Deletes an organization
+func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	if orgID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
+	}
+
+	if err := h.service.DeleteOrganization(uint(orgID)); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusNoContent).JSON(nil)
+}

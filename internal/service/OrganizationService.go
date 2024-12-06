@@ -8,10 +8,12 @@ type OrganizationService struct {
 	repo domain.OrganizationRepository
 }
 
+// Constructor
 func NewOrganizationService(repo domain.OrganizationRepository) *OrganizationService {
 	return &OrganizationService{repo: repo}
 }
 
+// Creates a new organization
 func (s *OrganizationService) CreateOrganization(org *domain.Organization) error {
 	return s.repo.Create(org)
 }
@@ -30,4 +32,9 @@ func (s *OrganizationService) GetAllOrganizations() ([]domain.Organization, erro
 
 func (s *OrganizationService) UpdateOrganization(org *domain.Organization) error {
 	return s.repo.Update(org)
+}
+
+// Deletes an organization by its ID
+func (s *OrganizationService) DeleteOrganization(id uint) error {
+	return s.repo.Delete(id)
 }

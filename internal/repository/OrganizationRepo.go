@@ -32,7 +32,7 @@ func (r *OrganizationRepository) GetPage(page uint, size uint) ([]domain.Organiz
 	return orgs, err
 }
 
-func (r *OrganizationRepository) GatAll() ([]domain.Organization, error) {
+func (r *OrganizationRepository) GetAll() ([]domain.Organization, error) {
 	var orgs []domain.Organization
 	err := r.db.Find(&orgs).Error
 	return orgs, err
@@ -40,4 +40,8 @@ func (r *OrganizationRepository) GatAll() ([]domain.Organization, error) {
 
 func (r *OrganizationRepository) Update(org *domain.Organization) error {
 	return r.db.Save(org).Error
+}
+
+func (r *OrganizationRepository) Delete(id uint) error {
+	return r.db.Delete(&domain.Organization{}, id).Error
 }

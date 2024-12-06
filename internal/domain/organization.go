@@ -117,7 +117,7 @@ type OrganizationRepository interface {
 	GetPage(page uint, size uint) ([]Organization, error)
 	Create(org *Organization) error
 	Update(org *Organization) error
-	// Delete(id uint) error
+	Delete(id uint) error
 }
 
 type OrganizationService interface {
@@ -126,7 +126,7 @@ type OrganizationService interface {
 	GetPageOrganization(page uint) ([]Organization, error)
 	CreateOrganization(org *Organization) error
 	UpdateOrganization(org *Organization) error
-	// Delete(id uint) error
+	DeleteOrganization(id uint) error
 }
 
 // ---------------------------------------------------------------------------
