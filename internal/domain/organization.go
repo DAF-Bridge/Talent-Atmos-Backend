@@ -91,19 +91,20 @@ type OrganizationContact struct {
 
 type OrgOpenJob struct {
 	gorm.Model
-	OrganizationID uint        `json:"organization_id"`
-	Title          string      `gorm:"type:varchar(255);not null" json:"title"`
-	Scope          string      `gorm:"type:varchar(255);not null" json:"scope"`
-	Workplace      Workplace   `gorm:"type:workplace;not null" json:"workplace"`
-	WorkType       WorkType    `gorm:"type:work_type;not null" json:"work_type"`
-	CareerStage    CareerStage `gorm:"type:career_stage;not null" json:"career_stage"`
-	Period         string      `gorm:"type:varchar(255);not null" json:"period"`
-	Description    string      `gorm:"type:text" json:"description"`
-	HoursPerDay    string      `gorm:"type:varchar(255);not null" json:"hours_per_day"`
-	Qualifications string      `gorm:"type:text" json:"qualifications"`
-	Benefits       string      `gorm:"type:text" json:"benefits"`
-	Quantity       int         `json:"quantity"`
-	Salary         float64     `gorm:"type:decimal(10,2)" json:"price"`
+	OrganizationID uint           `json:"organization_id"`
+	Title          string         `gorm:"type:varchar(255);not null" json:"title"`
+	Scope          string         `gorm:"type:varchar(255);not null" json:"scope"`
+	Prerequisite   pq.StringArray `gorm:"type:text[]" json:"prerequisite"` // Required qualifications or skills
+	Workplace      Workplace      `gorm:"type:workplace;not null" json:"workplace"`
+	WorkType       WorkType       `gorm:"type:work_type;not null" json:"work_type"`
+	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"career_stage"`
+	Period         string         `gorm:"type:varchar(255);not null" json:"period"`
+	Description    string         `gorm:"type:text" json:"description"`
+	HoursPerDay    string         `gorm:"type:varchar(255);not null" json:"hours_per_day"`
+	Qualifications string         `gorm:"type:text" json:"qualifications"`
+	Benefits       string         `gorm:"type:text" json:"benefits"`
+	Quantity       int            `json:"quantity"`
+	Salary         float64        `gorm:"type:decimal(10,2)" json:"price"`
 }
 
 //---------------------------------------------------------------------------
@@ -135,16 +136,16 @@ type OrgOpenJobRepository interface {
 	GetByID(id uint) (*OrgOpenJob, error)
 	GetAll() ([]OrgOpenJob, error)
 	Create(org *OrgOpenJob) error
-	// Update(org *OrgOpenJob) error
-	// Delete(id uint) error
+	Update(org *OrgOpenJob) error
+	Delete(id uint) error
 }
 
 type OrgOpenJobService interface {
 	GetByID(id uint) (*OrgOpenJob, error)
 	GetAll() ([]OrgOpenJob, error)
 	Create(org *OrgOpenJob) error
-	// Update(org *OrgOpenJob) error
-	// Delete(id uint) error
+	Update(org *OrgOpenJob) error
+	Delete(id uint) error
 }
 
 // --------------------------------------------------------------------------

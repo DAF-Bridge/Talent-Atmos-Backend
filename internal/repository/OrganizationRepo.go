@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
@@ -59,6 +58,49 @@ func (r *OrganizationRepository) Delete(id uint) error {
 	// return r.db.Delete(&domain.Organization{}, id).Error
 }
 
-// func (r *OrganizationRepository) Delete(id uint) error {
-// 	return r.db.Delete(&domain.Organization{}, id).Error
-// }
+// --------------------------------------------------------------------------
+// OrgOpenJob Repository
+// --------------------------------------------------------------------------
+
+type OrgOpenJobRepository struct {
+	db *gorm.DB
+}
+
+// Constructor
+func NewOrgOpenJobRepository(db *gorm.DB) *OrgOpenJobRepository {
+	return &OrgOpenJobRepository{db: db}
+}
+
+func (r *OrgOpenJobRepository) Create(org *domain.OrgOpenJob) error {
+	return r.db.Create(org).Error
+}
+
+func (r *OrgOpenJobRepository) GetByID(id uint) (*domain.OrgOpenJob, error) {
+	org := &domain.OrgOpenJob{}
+	if err := r.db.First(org, id).Error; err != nil {
+		return nil, err
+	}
+	return org, nil
+}
+
+func (r *OrgOpenJobRepository) GetAll() ([]domain.OrgOpenJob, error) {
+	var orgs []domain.OrgOpenJob
+	err := r.db.Find(&orgs).Error
+	return orgs, err
+}
+
+func (r *OrgOpenJobRepository) Update(org *domain.OrgOpenJob) error {
+	if err := r.db.Save(org).Error; err != nil {
+		return fmt.Errorf("failed to update organization open job: %w", err)
+	}
+	return nil
+}
+
+func (r *OrgOpenJobRepository) Delete(id uint) error {
+	if err := r.db.Delete(&domain.OrgOpenJob{}, id).Error; err != nil {
+		return fmt.Errorf("failed to delete organization open job: %w", err)
+	}
+	return nil
+}
+
+// --------------------------------------------------------------------------

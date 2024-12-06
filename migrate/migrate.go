@@ -22,10 +22,10 @@ func main() {
 	}
 
 
-	initializers.DB.AutoMigrate(&domain.Organization{})
-	initializers.DB.AutoMigrate(&domain.OrganizationContact{})
+	// initializers.DB.AutoMigrate(&domain.Organization{})
+	// initializers.DB.AutoMigrate(&domain.OrganizationContact{})
 	initializers.DB.AutoMigrate(&domain.OrgOpenJob{})
-	initializers.DB.AutoMigrate(&domain.Industry{})
+	// initializers.DB.AutoMigrate(&domain.Industry{})
 
 
 }

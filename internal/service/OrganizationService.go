@@ -38,3 +38,36 @@ func (s *OrganizationService) UpdateOrganization(org *domain.Organization) error
 func (s *OrganizationService) DeleteOrganization(id uint) error {
 	return s.repo.Delete(id)
 }
+
+// --------------------------------------------------------------------------
+// OrgOpenJob Service
+// --------------------------------------------------------------------------
+
+type OrgOpenJobService struct {
+	repo domain.OrgOpenJobRepository
+}
+
+// Constructor
+func NewOrgOpenJobService(repo domain.OrgOpenJobRepository) *OrgOpenJobService {
+	return &OrgOpenJobService{repo: repo}
+}
+
+func (s *OrgOpenJobService) GetByID(id uint) (*domain.OrgOpenJob, error) {
+	return s.repo.GetByID(id)
+}
+
+func (s *OrgOpenJobService) GetAll() ([]domain.OrgOpenJob, error) {
+	return s.repo.GetAll()
+}
+
+func (s *OrgOpenJobService) Create(org *domain.OrgOpenJob) error {
+	return s.repo.Create(org)
+}
+
+func (s *OrgOpenJobService) Update(org *domain.OrgOpenJob) error {
+	return s.repo.Update(org)
+}
+
+func (s *OrgOpenJobService) Delete(id uint) error {
+	return s.repo.Delete(id)
+}

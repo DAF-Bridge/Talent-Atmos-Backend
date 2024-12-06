@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
 	// Sync database
@@ -48,6 +48,10 @@ func Start() {
 	orgRepo := repository.NewOrganizationRepository(initializers.DB)
 	orgService := service.NewOrganizationService(orgRepo)
 	orgHandler := handler.NewOrganizationHandler(orgService)
+
+	orgOpenJobRepo := repository.NewOrgOpenJobRepository(initializers.DB)
+	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo)
+	orgOpenJobHandler := handler.NewOrgOpenJobHandler(orgOpenJobService)
 
 	profileRepo := repository.NewProfileRepository(initializers.DB)
 
@@ -95,6 +99,13 @@ func Start() {
 	app.Get("/events", eventHandler.ListEvents)
 	app.Get("/event/:id", eventHandler.GetEventByID)
 	app.Get("/event/paginate", eventHandler.EventPaginate)
+
+	// Define routes for Organization Open Jobs
+	app.Post("/org/:orgID/open-job", orgOpenJobHandler.CreateOrgOpenJob)
+	app.Get("/org/:orgID/open-jobs", orgOpenJobHandler.ListOrgOpenJobs)
+	app.Get("/org/:orgID/open-job/:id", orgOpenJobHandler.GetOrgOpenJobByID)
+	app.Put("/org/:orgID/open-job/:id", orgOpenJobHandler.UpdateOrgOpenJob)
+	app.Delete("/org/:orgID/open-job/:id", orgOpenJobHandler.DeleteOrgOpenJob)
 
 	err := app.Listen(":8080")
 	if err != nil {
