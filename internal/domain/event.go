@@ -2,7 +2,6 @@ package domain
 
 import (
 	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -10,20 +9,25 @@ import (
 // Models
 //---------------------------------------------------------------------------
 
+type Timeline struct {
+    Time     string `json:"time"`
+    Activity string `json:"activity"`
+}
+
 type Event struct {
 	gorm.Model
 	Name            string                   `json:"event_name"`
 	HeadLine        string                   `json:"headline"`
 	PicUrl          string                   `json:"pic_url"`
-	StartDate       time.Time                `gorm:"time:DATE" json:"start_date"`
-	EndDate         time.Time                `gorm:"time:DATE" json:"end_date"`
-	StartTime       time.Time                `gorm:"time:TIME" json:"start_time"`
-	EndTime         time.Time                `gorm:"time:TIME" json:"end_time"`
+	StartDate       time.Time           	 `gorm:"time:date" json:"start_date"`
+	EndDate         time.Time                `gorm:"time:date" json:"end_date"`
+	StartTime       time.Time                `gorm:"time:time" json:"start_time"`
+	EndTime         time.Time                `gorm:"time:time" json:"end_time"`
 	Description     string                   `gorm:"type:text" json:"description"`
 	Highlight       string                   `gorm:"type:text" json:"highlight"`
 	Requirement     string                   `gorm:"type:text" json:"requirement"`
 	KeyTakeaway     string                   `gorm:"type:text" json:"key_takeaway"`
-	Timeline        []map[string]interface{} `gorm:"type:jsonb[]" json:"timeline"`
+	Timeline        []Timeline   		     `gorm:"serializer:json" json:"timeline"`
 	LocationName    string                   `json:"location_name"`
 	Latitude        string                   `json:"latitude"`
 	Longitude       string                   `json:"longitude"`

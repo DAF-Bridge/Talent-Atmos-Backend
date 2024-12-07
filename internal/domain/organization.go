@@ -51,6 +51,8 @@ const (
 
 type Organization struct {
 	ID                   uint                  `gorm:"primaryKey;autoIncrement" json:"id"`
+	PicUrl               string                `gorm:"type:varchar(255)" json:"pic_url"`
+	BgPicUrl             string                `gorm:"type:varchar(255)" json:"bg_PicUrl`
 	Name                 string                `gorm:"type:varchar(255);not null" json:"org_name"`
 	Goal                 pq.StringArray        `gorm:"type:text[];not null" json:"goal"`          // Detailed description of the organization's goal
 	Expertise            string                `gorm:"type:varchar(255)" json:"expertise"`        // Organization's area of expertise
@@ -72,7 +74,6 @@ type Organization struct {
 
 type Industry struct {
 	gorm.Model
-	OrganizationID uint            `json:"organization_id"`
 	Industry       string          `gorm:"type:varchar(255);not null" json:"industry"`
 	Organization   []*Organization `gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 }
