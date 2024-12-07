@@ -104,7 +104,7 @@ type OrgOpenJob struct {
 	Qualifications string         `gorm:"type:text" json:"qualifications"`
 	Benefits       string         `gorm:"type:text" json:"benefits"`
 	Quantity       int            `json:"quantity"`
-	Salary         float64        `gorm:"type:decimal(10,2)" json:"price"`
+	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary"`
 }
 
 //---------------------------------------------------------------------------
