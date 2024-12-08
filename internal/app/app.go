@@ -1,15 +1,17 @@
 package app
 
 import (
+	"github.com/gofiber/swagger"
 	"log"
 	"os"
 
+	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/docs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
+	_ "github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -24,10 +26,30 @@ func init() {
 	initializers.SetupGoth()
 }
 
+// @title Fiber Example API
+// @version 1.0
+// @description This is a sample swagger for Fiber
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email fiber@swagger.io
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @BasePath /
 func Start() {
 	// Instantiate Goth
 
 	app := fiber.New()
+	app.Get("/swagger/*", swagger.HandlerDefault) // default
+	//Swagger
+	//cfg := swagger.Config{
+	//	BasePath: "/",
+	//	FilePath: "./docs/swagger.json",
+	//	Path:     "swagger",
+	//	Title:    "Swagger API Docs",
+	//}
+	//
+	//app.Use(swagger.New(cfg))
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
