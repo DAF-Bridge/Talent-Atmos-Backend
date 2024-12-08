@@ -5,7 +5,7 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils/utils"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
 
 func init() {
@@ -29,7 +29,19 @@ func main() {
 	// initializers.DB.AutoMigrate(&domain.Organization{})
 	// initializers.DB.AutoMigrate(&domain.OrganizationContact{})
 	// initializers.DB.AutoMigrate(&domain.OrgOpenJob{})
-	// initializers.DB.AutoMigrate(&domain.Industry{})
+	// initializers.DB.Migrator().DropColumn(&domain.Industry{}, "organization_id")
+
+	// initializers.DB.Migrator().DropColumn(&domain.Event{}, "start_date")
+	// initializers.DB.Migrator().DropColumn(&domain.Event{}, "end_date")
+	// initializers.DB.Migrator().DropColumn(&domain.Event{}, "start_time")
+	// initializers.DB.Migrator().DropColumn(&domain.Event{}, "end_time")
+	// initializers.DB.AutoMigrate(&domain.Event{})
+	// initializers.DB.AutoMigrate(&domain.TicketAvailable{})
+
+	// startDate,_ := time.Parse("2006-01-02", "2024-01-16")
+	// endDate,_ := time.Parse("2006-01-02", "2024-01-15")
+	// startTime,_ := time.Parse("15:04:05", "17:00:00")
+	// endTime,_ := time.Parse("15:04:05", "17:00:00")
 
 	initializers.DB.Create(&domain.Event{
 		Name:            "Renewable Energy Summit",
@@ -50,9 +62,15 @@ func main() {
 		Province:        "Bangkok",
 		OrganizationID:  1,
 	})
+	if err := initializers.DB.AutoMigrate(&domain.OrganizationContact{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := initializers.DB.AutoMigrate(&domain.OrgOpenJob{}); err != nil {
+		log.Fatal(err)
+	}
 
-	//if err := initializers.DB.AutoMigrate(&domain.Industry{}); err != nil {
-	//	log.Fatal(err)
-	//}
+	if err := initializers.DB.AutoMigrate(&domain.Industry{}); err != nil {
+		log.Fatal(err)
+	}
 
 }

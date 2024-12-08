@@ -17,25 +17,25 @@ type Timeline struct {
 
 type Event struct {
 	gorm.Model
-	Name         	string         				`json:"event_name"`
-	HeadLine     	string         				`json:"headline"`
-	PicUrl       	string         				`json:"pic_url"`
-	StartDate       time.Time           	 	`gorm:"time:date" json:"start_date"`
-	EndDate         time.Time                	`gorm:"time:date" json:"end_date"`
-	StartTime       time.Time                	`gorm:"time:time" json:"start_time"`
-	EndTime         time.Time                	`gorm:"time:time" json:"end_time"`
-	Description  	string 		   				`gorm:"type:text" json:"description"`
-	Highlight    	string         				`gorm:"type:text" json:"highlight"`
-	Requirement  	string         				`gorm:"type:text" json:"requirement"`
-	KeyTakeaway 	string         				`gorm:"type:text" json:"key_takeaway"`
-	Timeline        []Timeline   		     	`gorm:"serializer:json" json:"timeline"`
-	LocationName   	string         				`json:"location_name"`
-	Latitude     	string         				`json:"latitude"`
-	Longitude    	string         				`json:"longitude"`
-	Province     	string         				`json:"province"`
-	OrganizationID  uint           				`json:"organization_id"`
-	Organization 	Organization   				`json:"organization"`
-	TicketAvailable []TicketAvailable 			`gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"ticket_available"`
+	Name            string                   `json:"event_name"`
+	HeadLine        string                   `json:"headline"`
+	PicUrl          string                   `json:"pic_url"`
+	StartDate       time.Time           	 `gorm:"time:date" json:"start_date"`
+	EndDate         time.Time                `gorm:"time:date" json:"end_date"`
+	StartTime       time.Time                `gorm:"time:time" json:"start_time"`
+	EndTime         time.Time                `gorm:"time:time" json:"end_time"`
+	Description     string                   `gorm:"type:text" json:"description"`
+	Highlight       string                   `gorm:"type:text" json:"highlight"`
+	Requirement     string                   `gorm:"type:text" json:"requirement"`
+	KeyTakeaway     string                   `gorm:"type:text" json:"key_takeaway"`
+	Timeline        []Timeline   		     `gorm:"serializer:json" json:"timeline"`
+	LocationName    string                   `json:"location_name"`
+	Latitude        string                   `json:"latitude"`
+	Longitude       string                   `json:"longitude"`
+	Province        string                   `json:"province"`
+	OrganizationID  uint                     `json:"organization_id"`
+	Organization    Organization             `json:"organization"`
+	TicketAvailable []TicketAvailable        `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"ticket_available"`
 }
 
 type TicketAvailable struct {
@@ -52,18 +52,21 @@ type TicketAvailable struct {
 // Interfaces
 //---------------------------------------------------------------------------
 
-// Event 
+// Event
 type EventRepository interface {
 	GetByID(id uint) (*Event, error)
 	GetAll() ([]Event, error)
+	GetPaginate(page uint, size uint) ([]Event, error)
 	Create(event *Event) error
+	GetFirst() (*Event, error)
 	// Update(event *Event) error
 	// Delete(id uint) error
 }
 
 type EventService interface {
-	GetEventByID(id uint) (*Event, error)
-	GetAllEvent() ([]Event, error)
+	GetEventByID(eventID uint) (*Event, error)
+	GetAllEvents() ([]Event, error)
+	GetEventPaginate(page uint) ([]Event, error)
 	CreateEvent(event *Event) error
 	GetFirst() (*Event, error)
 	// Update(event *Event) error
@@ -80,9 +83,9 @@ type TicketAvailableRepository interface {
 }
 
 type TicketAvailableService interface {
-	GetAvailTicketByID(id uint) (*TicketAvailable, error)
-	GetAllAvailTicket() ([]TicketAvailable, error)
-	CreateAvailTicket(ticketAvailable *TicketAvailable) error
-	// UpdateAvailTicket(ticketAvailable *TicketAvailable) error
-	// DeleteAvailTicket(id uint) error
+	GetByID(id uint) (*TicketAvailable, error)
+	GetAll() ([]TicketAvailable, error)
+	Create(ticketAvailable *TicketAvailable) error
+	// Update(ticketAvailable *TicketAvailable) error
+	// Delete(id uint) error
 }
