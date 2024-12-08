@@ -22,7 +22,7 @@ import (
 )
 
 func init() {
-	initializers.LoadEnvVar()
+	// initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
 	// Sync database
@@ -43,18 +43,7 @@ func init() {
 // @BasePath /
 func Start() {
 	// Instantiate Goth
-
 	app := fiber.New()
-	app.Get("/swagger/*", swagger.HandlerDefault) // default
-	//Swagger
-	//cfg := swagger.Config{
-	//	BasePath: "/",
-	//	FilePath: "./docs/swagger.json",
-	//	Path:     "swagger",
-	//	Title:    "Swagger API Docs",
-	//}
-	//
-	//app.Use(swagger.New(cfg))
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
