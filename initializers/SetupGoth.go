@@ -13,7 +13,7 @@ func SetupGoth() {
 		google.New(
 			os.Getenv("GOOGLE_CLIENT_ID"),          // Correctly set the client ID
 			os.Getenv("GOOGLE_CLIENT_SECRET"),      // Correctly set the client secret
-			"http://localhost:8080/auth/google/callback", // Redirect URI
+			os.Getenv("BASE_INTERNAL_URL") + "/auth/google/callback", // Redirect URI
 			"https://www.googleapis.com/auth/userinfo.email", // Valid scope
 			"https://www.googleapis.com/auth/userinfo.profile", // Valid scope
 		),

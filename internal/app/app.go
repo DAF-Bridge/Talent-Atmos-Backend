@@ -1,6 +1,9 @@
 package app
 
 import (
+	"log"
+	"os"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -8,17 +11,14 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"log"
-	"os"
 )
 
 func init() {
-	//  Load environment variables
 	initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
 	// Sync database
-	initializers.SyncDB()
+	// initializers.SyncDB()
 	// Setup Goth
 	initializers.SetupGoth()
 }
@@ -30,7 +30,7 @@ func Start() {
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000", // Allow requests from this origin
+		AllowOrigins: os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
@@ -41,29 +41,31 @@ func Start() {
 
 	// Dependencies Injections
 	userRepo := repository.NewUserRepository(initializers.DB)
-
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	profileRepo := repository.NewProfileRepository(initializers.DB)
+
 	//auth
-	authService := service.NewAuthService(userRepo, jwtSecret)
-	oauthService := service.NewOauthService(userRepo, jwtSecret)
+	authService := service.NewAuthService(userRepo, profileRepo ,jwtSecret)
+	oauthService := service.NewOauthService(userRepo,profileRepo ,jwtSecret)
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOauthHandler(oauthService)
+	
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
 	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
 	app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
 	app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
 
-    app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
-        user := c.Locals("user")
-        return c.JSON(fiber.Map{
-            "message": "You are authenticated!",
-            "user":    user,
-        })
-    })
-	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret),userHandler.GetCurrentUser)
+	app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
+		user := c.Locals("user")
+		return c.JSON(fiber.Map{
+			"message": "You are authenticated!",
+			"user":    user,
+		})
+	})
+	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret), userHandler.GetCurrentUser)
 
 	// Define routes
 	app.Post("/users", userHandler.CreateUser)

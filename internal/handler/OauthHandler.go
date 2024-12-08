@@ -2,6 +2,8 @@ package handler
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/shareed2k/goth_fiber"
@@ -45,7 +47,8 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	}
 
     // Redirect to frontend with token as query parameter
-    frontendURL := fmt.Sprintf("http://localhost:3000/oauth/callback?token=%s", token)
+	baseFrontendUrl := os.Getenv("BASE_EXTERNAL_URL")
+    frontendURL := fmt.Sprintf( baseFrontendUrl+ "/oauth/callback?token=%s", token)
 
 	// Return a response with the user information or JWT token
 	return c.Redirect(frontendURL)
