@@ -1,0 +1,189 @@
+basePath: /
+definitions:
+  domain.Experience:
+    properties:
+      created_at:
+        type: string
+      currently:
+        type: boolean
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      pic_url:
+        type: string
+      profile_id:
+        type: integer
+      start_date:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.Profile:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/gorm.DeletedAt'
+      education:
+        type: string
+      email:
+        type: string
+      experiences:
+        description: One-to-Many relationship (has many)
+        items:
+          $ref: '#/definitions/domain.Experience'
+        type: array
+      fname:
+        type: string
+      focusField:
+        description: field of expertise
+        type: string
+      headline:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      lname:
+        type: string
+      phone:
+        type: string
+      pic_url:
+        type: string
+      skill:
+        type: string
+      updated_at:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/domain.User'
+        description: One-to-One relationship (has one, use UserID as foreign key)
+      user_id:
+        type: string
+    type: object
+  domain.Provider:
+    enum:
+    - google
+    - facebook
+    - local
+    type: string
+    x-enum-varnames:
+    - ProviderGoogle
+    - ProviderFacebook
+    - ProviderLocal
+  domain.Role:
+    enum:
+    - User
+    - Admin
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
+  domain.User:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      provider:
+        allOf:
+        - $ref: '#/definitions/domain.Provider'
+        description: e.g., "google"
+      provider_id:
+        type: string
+      role:
+        $ref: '#/definitions/domain.Role'
+      updated_at:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: fiber@swagger.io
+    name: API Support
+  description: This is a sample swagger for Fiber
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Fiber Example API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: List all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all users
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get current user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Profile'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - users
+swagger: "2.0"
