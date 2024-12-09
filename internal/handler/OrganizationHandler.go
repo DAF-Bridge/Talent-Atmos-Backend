@@ -155,6 +155,7 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 
 // ListOrgOpenJobs returns all organization open jobs
 func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
+	// OrgId, err := c.ParamsInt("orgID")
 	orgs, err := h.service.GetAll()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -208,8 +209,8 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
 	}
-
-	if orgID < 1 {
+ 
+ 	if orgID < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
 	}
 

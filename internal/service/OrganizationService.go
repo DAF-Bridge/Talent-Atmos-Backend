@@ -56,8 +56,8 @@ func (s *OrgOpenJobService) GetByID(id uint) (*domain.OrgOpenJob, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *OrgOpenJobService) GetAll() ([]domain.OrgOpenJob, error) {
-	return s.repo.GetAll()
+func (s *OrgOpenJobService) GetAll(OrgId uint) ([]domain.OrgOpenJob, error) {
+	return s.repo.GetAll(OrgId)
 }
 
 func (s *OrgOpenJobService) Create(org *domain.OrgOpenJob) error {

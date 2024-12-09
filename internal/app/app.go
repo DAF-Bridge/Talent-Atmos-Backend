@@ -22,7 +22,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
 	// Sync database
@@ -118,10 +118,10 @@ func Start() {
 
 	// Define routes for Organization Open Jobs
 	app.Post("/org/:orgID/open-job", orgOpenJobHandler.CreateOrgOpenJob)
-	app.Get("/org/:orgID/open-jobs", orgOpenJobHandler.ListOrgOpenJobs)
-	app.Get("/org/:orgID/open-job/:id", orgOpenJobHandler.GetOrgOpenJobByID)
-	app.Put("/org/:orgID/open-job/:id", orgOpenJobHandler.UpdateOrgOpenJob)
-	app.Delete("/org/:orgID/open-job/:id", orgOpenJobHandler.DeleteOrgOpenJob)
+	app.Get("/org/:orgID/list-jobs", orgOpenJobHandler.ListOrgOpenJobs)
+	app.Get("/org/:orgID/get-job/:id", orgOpenJobHandler.GetOrgOpenJobByID)
+	app.Put("/org/:orgID/update-job/:id", orgOpenJobHandler.UpdateOrgOpenJob)
+	app.Delete("/org/:orgID/delete-job/:id", orgOpenJobHandler.DeleteOrgOpenJob)
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)     // default

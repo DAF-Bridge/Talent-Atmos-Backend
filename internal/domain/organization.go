@@ -134,7 +134,7 @@ type OrganizationService interface {
 // OrgOpenJob
 type OrgOpenJobRepository interface {
 	GetByID(id uint) (*OrgOpenJob, error)
-	GetAll() ([]OrgOpenJob, error)
+	GetAll(OrgId uint) ([]OrgOpenJob, error)
 	Create(org *OrgOpenJob) error
 	Update(org *OrgOpenJob) error
 	Delete(id uint) error

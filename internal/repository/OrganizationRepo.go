@@ -83,9 +83,9 @@ func (r *OrgOpenJobRepository) GetByID(id uint) (*domain.OrgOpenJob, error) {
 	return org, nil
 }
 
-func (r *OrgOpenJobRepository) GetAll() ([]domain.OrgOpenJob, error) {
+func (r *OrgOpenJobRepository) GetAll(OrgId uint) ([]domain.OrgOpenJob, error) {
 	var orgs []domain.OrgOpenJob
-	err := r.db.Find(&orgs).Error
+	err := r.db.Find(&orgs, &OrgId).Error
 	return orgs, err
 }
 
