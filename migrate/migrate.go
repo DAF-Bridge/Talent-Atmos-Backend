@@ -5,7 +5,7 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils/utils"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
 
 func init() {
