@@ -109,8 +109,8 @@ func Start() {
 	app.Get("/Organizations", orgHandler.ListOrganizations)
 	app.Get("/Organization/:id", orgHandler.GetOrganizationByID)
 	app.Get("/Organization/paginate", orgHandler.GetOrganizationPaginate)
-	// app.Post("/events", eventHandler.CreateEvent)
-	// app.Get("/events", eventHandler.ListEvents)
+	app.Post("/events", eventHandler.CreateEvent)
+	//app.Get("/events", eventHandler.ListEvents)
 	app.Get("/event/:id", eventHandler.GetEventByID)
 	app.Get("/events", eventHandler.EventPaginate)
 
