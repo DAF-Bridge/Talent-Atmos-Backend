@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	// Connect to database
 	initializers.ConnectToDB()
 	// Sync database
@@ -47,11 +47,11 @@ func Start() {
 	profileRepo := repository.NewProfileRepository(initializers.DB)
 
 	//auth
-	authService := service.NewAuthService(userRepo, profileRepo ,jwtSecret)
-	oauthService := service.NewOauthService(userRepo,profileRepo ,jwtSecret)
+	authService := service.NewAuthService(userRepo, profileRepo, jwtSecret)
+	oauthService := service.NewOauthService(userRepo, profileRepo, jwtSecret)
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOauthHandler(oauthService)
-	
+
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
 	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
