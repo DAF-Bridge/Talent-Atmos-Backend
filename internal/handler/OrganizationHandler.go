@@ -40,6 +40,7 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 
 // ListOrganizations returns all organizations
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
+
 	orgs, err := h.service.ListAllOrganizations()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -155,13 +156,15 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 
 // ListOrgOpenJobs returns all organization open jobs
 func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
-	// OrgId, err := c.ParamsInt("orgID")
-	orgs, err := h.service.GetAll()
+	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+	if orgID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(orgs)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "List of organization open jobs"})
 }
 
 // GetOrgOpenJobByID returns an organization open job by its ID
@@ -209,8 +212,8 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
 	}
- 
- 	if orgID < 1 {
+
+	if orgID < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
 	}
 
