@@ -22,6 +22,9 @@ func main() {
 		log.Fatal("Database connection is not established.")
 	}
 
+	if err := initializers.DB.AutoMigrate(&domain.Organization{}); err != nil {
+		log.Fatal(err)
+	}
 
 	// initializers.DB.AutoMigrate(&domain.Organization{})
 	// initializers.DB.AutoMigrate(&domain.OrganizationContact{})
@@ -47,6 +50,15 @@ func main() {
 		Province:        "Bangkok",
 		OrganizationID:  1,
 	})
+	if err := initializers.DB.AutoMigrate(&domain.OrganizationContact{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := initializers.DB.AutoMigrate(&domain.OrgOpenJob{}); err != nil {
+		log.Fatal(err)
+	}
 
+	if err := initializers.DB.AutoMigrate(&domain.Industry{}); err != nil {
+		log.Fatal(err)
+	}
 
 }

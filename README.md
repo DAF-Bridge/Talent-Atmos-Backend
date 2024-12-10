@@ -1,5 +1,14 @@
 # Talent-Atmos-Backend
 
+## swagger
+
+```
+swag init -g .\internal\app\app.go -o ./docs --parseDependency --parseInternal
+```
+
+## Backend Custom Domain
+- talent-atmos-backend-production.up.railway.app
+
 # Entity-Relationship Diagram
 
 This ER diagram illustrates the relationships between various entities such as Organizations, Users, Events, and their related attributes.
