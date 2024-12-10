@@ -164,7 +164,11 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	org, err := h.service.GetAll(uint(orgID))
+	org, err := h.service.GetAllByID(uint(orgID))
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	// return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "List of organization open jobs"})
 	return c.Status(fiber.StatusOK).JSON(org)

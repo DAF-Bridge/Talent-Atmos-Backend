@@ -38,7 +38,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	}
 
 	// User data contains the Google account information
-	fmt.Println("User Info:", user)
+	// fmt.Println("User Info:", user)
 
 	// create or update a user record in your DB and Generate token
 	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID, user.AvatarURL)
