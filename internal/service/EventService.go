@@ -2,7 +2,7 @@ package service
 
 import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 
-const numberOfEvent = 10
+const numberOfEvent = 12
 
 // EventService is a service that provides operations on events.
 type EventService struct {
