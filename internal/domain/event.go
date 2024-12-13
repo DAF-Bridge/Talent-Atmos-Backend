@@ -18,7 +18,6 @@ type Timeline struct {
 type Event struct {
 	gorm.Model
 	Name            string            `json:"event_name"`
-	HeadLine        string            `json:"headline"`
 	PicUrl          string            `json:"pic_url"`
 	StartDate       time.Time         `gorm:"time:date" json:"start_date"`
 	EndDate         time.Time         `gorm:"time:date" json:"end_date"`
