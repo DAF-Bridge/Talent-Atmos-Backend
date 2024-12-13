@@ -41,3 +41,7 @@ func (s *EventService) GetEventPaginate(page uint) ([]domain.Event, error) {
 func (s *EventService) GetFirst() (*domain.Event, error) {
 	return s.repo.GetFirst()
 }
+
+func (s *EventService) CountEvent() (int64, error) {
+	return s.repo.Count()
+}

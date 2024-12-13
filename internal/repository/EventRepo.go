@@ -46,3 +46,10 @@ func (r *EventRepository) GetFirst() (*domain.Event, error) {
 	}
 	return &event, nil
 }
+
+func (r *EventRepository) Count() (int64, error) {
+	var count int64
+	err := r.db.Model(&domain.Event{}).Count(&count).Error
+	return count, err
+
+}

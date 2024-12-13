@@ -97,8 +97,13 @@ func (h *EventHandler) EventPaginate(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+	total, err := h.eventService.CountEvent()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 	listEvent := newListEventShortResponse(events)
-	return c.JSON(fiber.Map{"events": listEvent})
+
+	return c.JSON(fiber.Map{"events": listEvent, "total_events": total})
 }
 
 func (h *EventHandler) EventFirst(c *fiber.Ctx) error {
