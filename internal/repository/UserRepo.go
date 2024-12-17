@@ -49,6 +49,12 @@ func (r *UserRepository) GetProfileByUserID(userId uuid.UUID) (*domain.Profile, 
 	return &userProfile, nil
 }
 
+func (r *UserRepository) IsExistByID(userId uuid.UUID) (bool, error) {
+	var exist bool
+	err := r.db.Model(&domain.User{}).Select("1").Where("id = ?", userId).Limit(1).Scan(&exist).Error
+	return exist, err
+}
+
 // begin transaction
 func (r *UserRepository) BeginTransaction() *gorm.DB {
 	return r.db.Begin()

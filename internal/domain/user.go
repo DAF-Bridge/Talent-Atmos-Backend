@@ -52,10 +52,12 @@ type UserRepository interface {
 	Create(user *User) error
 	GetAll() ([]User, error)
 	GetProfileByUserID(userId uuid.UUID) (*Profile, error)
+	IsExistByID(userId uuid.UUID) (bool, error)
 }
 
 type UserService interface {
 	CreateUser(user *User) error
 	ListUsers() ([]User, error)
 	GetCurrentUserProfile(userId uuid.UUID) (*Profile, error)
+	IsExistByID(userId uuid.UUID) (bool, error)
 }
