@@ -12,7 +12,6 @@ type EventHandler struct {
 type EventShortResponse struct {
 	ID        uint   `json:"id"`
 	Name      string `json:"Name"`
-	HeadLine  string `json:"HeadLine"`
 	StartDate string `json:"StartDate"`
 	EndDate   string `json:"EndDate"`
 	StartTime string `json:"StartTime"`
@@ -25,7 +24,6 @@ func newEventShortResponse(event domain.Event) EventShortResponse {
 	return EventShortResponse{
 		ID:        event.ID,
 		Name:      event.Name,
-		HeadLine:  event.HeadLine,
 		StartDate: event.StartDate.Format("02 Jan 2006"),
 		EndDate:   event.EndDate.Format("02 Jan 2006"),
 		StartTime: event.StartTime.Format("15:04:05"),
@@ -97,8 +95,13 @@ func (h *EventHandler) EventPaginate(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+	total, err := h.eventService.CountEvent()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 	listEvent := newListEventShortResponse(events)
-	return c.JSON(fiber.Map{"events": listEvent})
+
+	return c.JSON(fiber.Map{"events": listEvent, "total_events": total})
 }
 
 func (h *EventHandler) EventFirst(c *fiber.Ctx) error {

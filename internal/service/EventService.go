@@ -2,7 +2,7 @@ package service
 
 import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 
-const numberOfEvent = 10
+const numberOfEvent = 12
 
 // EventService is a service that provides operations on events.
 type EventService struct {
@@ -40,4 +40,8 @@ func (s *EventService) GetEventPaginate(page uint) ([]domain.Event, error) {
 
 func (s *EventService) GetFirst() (*domain.Event, error) {
 	return s.repo.GetFirst()
+}
+
+func (s *EventService) CountEvent() (int64, error) {
+	return s.repo.Count()
 }

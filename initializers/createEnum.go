@@ -11,9 +11,10 @@ func InitEnums(db *gorm.DB) error {
 		// `SELECT uuid_generate_v4()`,
 		// `CREATE TYPE "media" AS ENUM ('website', 'facebook', 'instagram', 'tiktok', 'youtube', 'linkedin', 'line')`,
 		// `DROP TYPE IF EXISTS "Media"`,
-		`CREATE TYPE "work_type" AS ENUM ('fulltime', 'parttime', 'internship', 'volunteer')`,
-		`CREATE TYPE "workplace" AS ENUM ('onsite', 'remote', 'hybrid')`,
-		`CREATE TYPE "career_stage" AS ENUM ('entrylevel', 'senior')`,
+		// `CREATE TYPE "work_type" AS ENUM ('fulltime', 'parttime', 'internship', 'volunteer')`,
+		// `CREATE TYPE "workplace" AS ENUM ('onsite', 'remote', 'hybrid')`,
+		// `CREATE TYPE "career_stage" AS ENUM ('entrylevel', 'midlevel' ,'senior')`,
+		`ALTER TYPE "career_stage" ADD VALUE 'midlevel'`,
 	}
 	for _, e := range enums {
 		if err := db.Exec(e).Error; err != nil {

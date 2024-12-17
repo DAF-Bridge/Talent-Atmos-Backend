@@ -1,75 +1,5 @@
 basePath: /
 definitions:
-  domain.Experience:
-    properties:
-      created_at:
-        type: string
-      currently:
-        type: boolean
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      description:
-        type: string
-      end_date:
-        type: string
-      id:
-        type: string
-      pic_url:
-        type: string
-      profile_id:
-        type: integer
-      start_date:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  domain.Profile:
-    properties:
-      bio:
-        type: string
-      created_at:
-        type: string
-      deleted_at:
-        $ref: '#/definitions/gorm.DeletedAt'
-      education:
-        type: string
-      email:
-        type: string
-      experiences:
-        description: One-to-Many relationship (has many)
-        items:
-          $ref: '#/definitions/domain.Experience'
-        type: array
-      fname:
-        type: string
-      focusField:
-        description: field of expertise
-        type: string
-      headline:
-        type: string
-      id:
-        type: integer
-      language:
-        type: string
-      lname:
-        type: string
-      phone:
-        type: string
-      pic_url:
-        type: string
-      skill:
-        type: string
-      updated_at:
-        type: string
-      user:
-        allOf:
-        - $ref: '#/definitions/domain.User'
-        description: One-to-One relationship (has one, use UserID as foreign key)
-      user_id:
-        type: string
-    type: object
   domain.Provider:
     enum:
     - google
@@ -92,7 +22,7 @@ definitions:
     properties:
       created_at:
         type: string
-      deleted_at:
+      deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       email:
         type: string
@@ -119,6 +49,17 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
+  handler.SignUpHandlerRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -132,58 +73,34 @@ info:
   title: Fiber Example API
   version: "1.0"
 paths:
-  /users:
-    get:
+  /signup:
+    post:
       consumes:
       - application/json
-      description: List all users
+      description: Create a new user in the system
+      parameters:
+      - description: Sign Up Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SignUpHandlerRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            items:
-              $ref: '#/definitions/domain.User'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: List all users
-      tags:
-      - users
-  /users/me:
-    get:
-      consumes:
-      - application/json
-      description: Get current user profile
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.Profile'
+            $ref: '#/definitions/domain.User'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get current user profile
+            type: string
+      summary: Sign up a new user
       tags:
-      - users
+      - Authentication
 swagger: "2.0"

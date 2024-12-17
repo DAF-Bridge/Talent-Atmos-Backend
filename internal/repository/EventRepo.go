@@ -10,9 +10,9 @@ type EventRepository struct {
 	db *gorm.DB
 }
 
+// Constructor
 func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
-
 }
 
 func (r *EventRepository) Create(event *domain.Event) error {
@@ -45,4 +45,11 @@ func (r *EventRepository) GetFirst() (*domain.Event, error) {
 		return nil, err
 	}
 	return &event, nil
+}
+
+func (r *EventRepository) Count() (int64, error) {
+	var count int64
+	err := r.db.Model(&domain.Event{}).Count(&count).Error
+	return count, err
+
 }

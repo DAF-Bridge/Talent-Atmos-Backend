@@ -11,31 +11,30 @@ import (
 //---------------------------------------------------------------------------
 
 type Timeline struct {
-    Time     string `json:"time"`
-    Activity string `json:"activity"`
+	Time     string `json:"time"`
+	Activity string `json:"activity"`
 }
 
 type Event struct {
 	gorm.Model
-	Name            string                   `json:"event_name"`
-	HeadLine        string                   `json:"headline"`
-	PicUrl          string                   `json:"pic_url"`
-	StartDate       time.Time           	 `gorm:"time:date" json:"start_date"`
-	EndDate         time.Time                `gorm:"time:date" json:"end_date"`
-	StartTime       time.Time                `gorm:"time:time" json:"start_time"`
-	EndTime         time.Time                `gorm:"time:time" json:"end_time"`
-	Description     string                   `gorm:"type:text" json:"description"`
-	Highlight       string                   `gorm:"type:text" json:"highlight"`
-	Requirement     string                   `gorm:"type:text" json:"requirement"`
-	KeyTakeaway     string                   `gorm:"type:text" json:"key_takeaway"`
-	Timeline        []Timeline   		     `gorm:"serializer:json" json:"timeline"`
-	LocationName    string                   `json:"location_name"`
-	Latitude        string                   `json:"latitude"`
-	Longitude       string                   `json:"longitude"`
-	Province        string                   `json:"province"`
-	OrganizationID  uint                     `json:"organization_id"`
-	Organization    Organization             `json:"organization"`
-	TicketAvailable []TicketAvailable        `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"ticket_available"`
+	Name            string            `json:"event_name"`
+	PicUrl          string            `json:"pic_url"`
+	StartDate       time.Time         `gorm:"time:date" json:"start_date"`
+	EndDate         time.Time         `gorm:"time:date" json:"end_date"`
+	StartTime       time.Time         `gorm:"time:time" json:"start_time"`
+	EndTime         time.Time         `gorm:"time:time" json:"end_time"`
+	Description     string            `gorm:"type:text" json:"description"`
+	Highlight       string            `gorm:"type:text" json:"highlight"`
+	Requirement     string            `gorm:"type:text" json:"requirement"`
+	KeyTakeaway     string            `gorm:"type:text" json:"key_takeaway"`
+	Timeline        []Timeline        `gorm:"serializer:json" json:"timeline"`
+	LocationName    string            `json:"location_name"`
+	Latitude        string            `json:"latitude"`
+	Longitude       string            `json:"longitude"`
+	Province        string            `json:"province"`
+	OrganizationID  uint              `json:"organization_id"`
+	Organization    Organization      `json:"organization"`
+	TicketAvailable []TicketAvailable `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"ticket_available"`
 }
 
 type TicketAvailable struct {
@@ -59,6 +58,7 @@ type EventRepository interface {
 	GetPaginate(page uint, size uint) ([]Event, error)
 	Create(event *Event) error
 	GetFirst() (*Event, error)
+	Count() (int64, error)
 	// Update(event *Event) error
 	// Delete(id uint) error
 }
@@ -69,6 +69,7 @@ type EventService interface {
 	GetEventPaginate(page uint) ([]Event, error)
 	CreateEvent(event *Event) error
 	GetFirst() (*Event, error)
+	CountEvent() (int64, error)
 	// Update(event *Event) error
 	// Delete(id uint) error
 }
