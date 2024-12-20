@@ -31,7 +31,7 @@ func Start() {
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization, RSC",
 	}))
 
 	jwtSecret := os.Getenv("JWT_SECRET")
