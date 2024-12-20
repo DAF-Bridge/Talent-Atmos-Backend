@@ -13,13 +13,13 @@ func AuthMiddleware(jwtSecret string) fiber.Handler {
 		// Extract the Authorization header
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing Authorization header"})
 		}
 
 		// Parse the Bearer token
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid Authorization header format"})
 		}
 
 		// Verify the token
