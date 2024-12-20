@@ -35,7 +35,11 @@ func (r *EventRepository) GetByID(eventID uint) (*domain.Event, error) {
 
 func (r *EventRepository) GetPaginate(page uint, size uint) ([]domain.Event, error) {
 	var events []domain.Event
-	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&events).Error
+	offset := int((page - 1) * size)
+	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
+				Order("created_at desc").Limit(int(size)).
+				Offset(int(offset)).
+				Find(&events).Error
 	return events, err
 }
 
