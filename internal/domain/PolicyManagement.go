@@ -1,19 +1,19 @@
-package Authorization
+package domain
 
 type Policy struct {
-	obj    string
-	action string
+	Obj    string `json:"obj"`
+	Action string `json:"action"`
 }
 
 type PolicyWithRoleDomain struct {
-	role   string
-	domain string
+	Role   string
+	Domain string
 	Policy
-	effect string
+	Effect string
 }
 
-// PolicyRoleManagement : interface for policy management
-type PolicyRoleManagement interface {
+// PolicyRoleService : interface for policy management
+type PolicyRoleService interface {
 	// AddPolicyForRoleInDomain : add role policy in domain
 	AddPolicyForRoleInDomain(role string, domain string, obj string, action string) (bool, error)
 	// AddPoliciesForRoleInDomain : add role policies in domain
@@ -21,7 +21,7 @@ type PolicyRoleManagement interface {
 	// DeletePolicyForRoleInDomain : delete role policy in domain
 	DeletePolicyForRoleInDomain(obj string, domain string, action string, role string) (bool, error)
 	// DeletePoliciesForRoleInDomain : delete role policies in domain
-	DeletePoliciesForRoleInDomain(role string, domain string) (bool, error)
+	DeletePoliciesForRoleInDomain(role string, domain string, policies []Policy) (bool, error)
 	// GetPoliciesForRoleInDomain : get role policies in domain
 	GetPoliciesForRoleInDomain(role string, domain string) ([][]string, error)
 	// GetRolesForPolicyInDomain : get roles for policy in domain

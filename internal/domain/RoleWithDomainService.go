@@ -1,7 +1,7 @@
-package Authorization
+package domain
 
-// RoleDomainManagement : interface for role management
-type RoleDomainManagement interface {
+// RoleService : interface for role management
+type RoleService interface {
 	GetUsersForRoleInDomain(name string, domain string) []string
 	GetRolesForUserInDomain(name string, domain string) []string
 	GetPermissionsForUserInDomain(user string, domain string) [][]string
