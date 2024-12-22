@@ -59,6 +59,7 @@ type EventRepository interface {
 	Create(event *Event) error
 	GetFirst() (*Event, error)
 	Count() (int64, error)
+	Exist(id uint) (bool, error)
 	// Update(event *Event) error
 	// Delete(id uint) error
 }
@@ -70,6 +71,7 @@ type EventService interface {
 	CreateEvent(event *Event) error
 	GetFirst() (*Event, error)
 	CountEvent() (int64, error)
+	ExistEvent(id uint) (bool, error)
 	// Update(event *Event) error
 	// Delete(id uint) error
 }

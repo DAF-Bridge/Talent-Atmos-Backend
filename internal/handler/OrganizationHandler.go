@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -106,13 +107,9 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 
 // Deletes an organization
 func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
-	orgID, err := c.ParamsInt("id")
+	orgID, err := utils.GetOrgIDFormFiberCtx(c)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
-	}
-
-	if orgID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	if err := h.service.DeleteOrganization(uint(orgID)); err != nil {
@@ -156,15 +153,11 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 
 // ListOrgOpenJobs returns all organization open jobs
 func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
-	orgID, err := c.ParamsInt("orgID")
+	orgID, err := utils.GetOrgIDFormFiberCtx(c)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	if orgID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
-	}
-
-	org, err := h.service.GetAllByID(uint(orgID))
+	org, err := h.service.GetAllByID(orgID)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -176,15 +169,12 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
 
 // GetOrgOpenJobByID returns an organization open job by its ID
 func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
-	orgID, err := c.ParamsInt("id")
+	orgID, err := utils.GetOrgIDFormFiberCtx(c)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
-	}
-	if orgID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	org, err := h.service.GetByID(uint(orgID))
+	org, err := h.service.GetByID(orgID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

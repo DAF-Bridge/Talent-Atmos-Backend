@@ -45,3 +45,7 @@ func (s *EventService) GetFirst() (*domain.Event, error) {
 func (s *EventService) CountEvent() (int64, error) {
 	return s.repo.Count()
 }
+
+func (s *EventService) ExistEvent(id uint) (bool, error) {
+	return s.repo.Exist(id)
+}
