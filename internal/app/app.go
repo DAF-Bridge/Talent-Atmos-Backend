@@ -28,13 +28,11 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
-	// Connect to database
+	initializers.LoadEnvVar()
 	initializers.ConnectToDB()
-	// Sync database
 	// initializers.SyncDB()
-	// Setup Goth
 	initializers.SetupGoth()
+	initializers.InitOAuth()
 }
 
 // @title Fiber Example API
@@ -54,7 +52,8 @@ func Start() {
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
-		AllowHeaders: "*", // Allow all headers
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
 	}))
 
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -116,9 +115,9 @@ func Start() {
 
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
-	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
-	app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
-	app.Get("/logout/:provider", oauthHandler.GoogleLogOut)
+	app.Get("/auth/google", oauthHandler.GoogleLogin)
+	app.Get("/auth/google/callback", oauthHandler.GoogleCallback)
+	app.Get("/logout", authHandler.LogOut)
 
 	app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
 		user := c.Locals("user")

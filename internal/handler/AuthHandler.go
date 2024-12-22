@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"time"
 )
 
 type AuthHandler struct {
@@ -68,4 +69,19 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"token": token})
+}
+
+func (s *AuthHandler) LogOut(c *fiber.Ctx) error {
+	// Delete JWT cookie
+    c.Cookie(&fiber.Cookie{
+        Name:     "authToken",
+        Value:    "",  // empty value
+        Expires:  time.Now().Add(-1 * time.Hour), // set expiry in the past
+        HTTPOnly: true,
+        SameSite: "Lax",
+        Path:     "/",  // important: must match the path used when setting
+    })
+
+	// Optionally, redirect to a logout page or send a response
+	return c.SendStatus(fiber.StatusOK)
 }

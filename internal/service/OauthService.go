@@ -19,7 +19,7 @@ func NewOauthService(userRepo *repository.UserRepository, profileRepo *repositor
 	return &OauthService{userRepo: userRepo, profileRepo: profileRepo ,jwtSecret: jwtSecret}
 }
 
-func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picUrl string) (string, error) {
+func (s * OauthService) AuthenticateUser(name, email, provider, providerID string) (string, error) {
 
 	// Start a new transaction
 	tx := s.userRepo.BeginTransaction()
@@ -51,7 +51,6 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID, picU
 		LastName: lname, 
 		Email: email, 
 		Phone: "", 
-		PicUrl: picUrl, 
 	}
 	
 	// Start the transaction for creating the user and profile
@@ -83,7 +82,7 @@ func (s *OauthService) generateJWT(user *domain.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"email": user.Email,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})
 	return token.SignedString([]byte(s.jwtSecret))
 }

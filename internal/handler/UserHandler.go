@@ -58,7 +58,7 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	if !ok {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id 2 uuid"})
 	}
-	println(userID)
+	// println(userID)
 
 	// Convert user_id to uint
 	currentUserID, err := uuid.Parse(userID)
