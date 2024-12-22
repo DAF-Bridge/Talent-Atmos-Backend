@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/customerrors"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -35,7 +36,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 
 	// check if email is already taken
 	if _, err := s.userRepo.FindByEmail(email); err == nil {
-		return "", errors.New("email already registered")
+		return "", customerrors.ErrEmailAlreadyRegistered
 	}
 
 	// Hash Password

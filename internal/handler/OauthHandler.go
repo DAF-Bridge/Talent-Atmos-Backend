@@ -118,9 +118,19 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Redirect to the frontend with the generated token
-	frontendURL := fmt.Sprintf("%s/oauth/callback?token=%s", baseFrontendURL, tokenString)
-	return c.Redirect(frontendURL)
+	// Set the JWT token in a cookie after redirect
+	c.Cookie(&fiber.Cookie{
+		Name:     "authToken",
+		Value:    tokenString, // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
+		HTTPOnly: true, // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
+		SameSite: "None", 
+		Path:     "/", // Path for which the cookie is valid
+	})
+
+	// Redirect first
+	return c.Redirect(baseFrontendURL + "/oauth/callback")
 }
 
 

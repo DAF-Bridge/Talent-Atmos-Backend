@@ -10,17 +10,27 @@ import (
 
 func AuthMiddleware(jwtSecret string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		var tokenString string
+
 		// Extract the Authorization header
 		authHeader := c.Get("Authorization")
-		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
+		if authHeader != "" {
+			// Parse the Bearer token
+			tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+			if tokenString == authHeader {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
+			}
 		}
 
-		// Parse the Bearer token
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		if tokenString == authHeader {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
+		// If no Authorization header, try to get the token from a cookie
+		if tokenString == "" {
+			tokenString = c.Cookies("authToken") // Adjust "authToken" to your cookie name
+			if tokenString == "" {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authentication token"})
+			}
 		}
+
+		println("tokenString: " + tokenString)
 
 		// Verify the token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

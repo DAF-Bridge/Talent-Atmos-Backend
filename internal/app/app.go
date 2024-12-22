@@ -53,7 +53,8 @@ func Start() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
-		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+		AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+		AllowCredentials: true,  // Allow credentials (cookies) to be sent
 	}))
 
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -117,7 +118,7 @@ func Start() {
 	app.Post("/login", authHandler.LogIn)
 	app.Get("/auth/google", oauthHandler.GoogleLogin)
 	app.Get("/auth/google/callback", oauthHandler.GoogleCallback)
-	app.Get("/logout", authHandler.LogOut)
+	app.Post("/logout", authHandler.LogOut)
 
 	app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
 		user := c.Locals("user")
