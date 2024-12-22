@@ -28,7 +28,7 @@ import (
 )
 
 func init() {
-	initializers.LoadEnvVar()
+	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	// initializers.SyncDB()
 	initializers.SetupGoth()
