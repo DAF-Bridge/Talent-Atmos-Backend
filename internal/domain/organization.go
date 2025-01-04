@@ -1,9 +1,9 @@
 package domain
 
 import (
-	"time"
-
+	"github.com/lib/pq"
 	"gorm.io/gorm"
+	"time"
 )
 
 //---------------------------------------------------------------------------
@@ -17,20 +17,20 @@ type CareerStage string
 
 const (
 	// Media Enum
-	MediaWebsite 	Media = "website"  
-	MediaFacebook   Media = "facebook" 
-	MediaIG         Media = "instagram"
-	MediaTikTok     Media = "tiktok"
-	MediaYoutube    Media = "youtube"
-	MediaLinkedin   Media = "linkedin"
-	MediaLine       Media = "line"    
+	MediaWebsite  Media = "website"
+	MediaFacebook Media = "facebook"
+	MediaIG       Media = "instagram"
+	MediaTikTok   Media = "tiktok"
+	MediaYoutube  Media = "youtube"
+	MediaLinkedin Media = "linkedin"
+	MediaLine     Media = "line"
 )
 
 const (
-	WorkTypeFullTime 	WorkType = "fulltime"
-	WorkTypePartTime 	WorkType = "parttime"
-	WorkTypeInternship 	WorkType = "internship"
-	WorkTypeVolunteer 	WorkType = "volunteer"
+	WorkTypeFullTime   WorkType = "fulltime"
+	WorkTypePartTime   WorkType = "parttime"
+	WorkTypeInternship WorkType = "internship"
+	WorkTypeVolunteer  WorkType = "volunteer"
 )
 
 const (
@@ -40,15 +40,13 @@ const (
 )
 
 const (
-	CareerStageEntryLevel 	CareerStage = "entrylevel"
-	CareerStageSenior 		CareerStage = "senior"
+	CareerStageEntryLevel CareerStage = "entrylevel"
+	CareerStageSenior     CareerStage = "senior"
 )
 
 //---------------------------------------------------------------------------
 // Models
 //---------------------------------------------------------------------------
-
-
 
 type Organization struct {
 	ID                   uint                  `gorm:"primaryKey;autoIncrement" json:"id"`
@@ -73,20 +71,20 @@ type Organization struct {
 
 type Industry struct {
 	gorm.Model
-	Industry       	string 				`gorm:"type:varchar(255);not null" json:"industry"`
-	Organization    []*Organization  	`gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	Industry     string          `gorm:"type:varchar(255);not null" json:"industry"`
+	Organization []*Organization `gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 }
 
 type OrganizationIndustry struct {
-    OrganizationID uint `gorm:"index:idx_org_industry_org_id"`
-    IndustryID     uint `gorm:"index:idx_org_industry_industry_id"`
+	OrganizationID uint `gorm:"index:idx_org_industry_org_id"`
+	IndustryID     uint `gorm:"index:idx_org_industry_industry_id"`
 }
 
 type OrganizationContact struct {
 	gorm.Model
-	OrganizationID 	uint 		`json:"organization_id"`
-	Media          	Media 		`gorm:"type:media;not null" json:"media"`
-	MediaLink      	string 		`gorm:"type:varchar(255);not null" json:"media_link"`
+	OrganizationID uint   `json:"organization_id"`
+	Media          Media  `gorm:"type:media;not null" json:"media"`
+	MediaLink      string `gorm:"type:varchar(255);not null" json:"media_link"`
 }
 
 type OrgOpenJob struct {
@@ -115,6 +113,7 @@ type OrgOpenJob struct {
 type OrganizationRepository interface {
 	GetByID(id uint) (*Organization, error)
 	GetAll() ([]Organization, error)
+	GetListByID(ids []uint) ([]Organization, error)
 	GetPaginate(page uint, size uint) ([]Organization, error)
 	Create(org *Organization) error
 	Update(org *Organization) error
@@ -130,7 +129,7 @@ type OrganizationService interface {
 	DeleteOrganization(id uint) error
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // OrgOpenJob
 type OrgOpenJobRepository interface {
 	GetByID(id uint) (*OrgOpenJob, error)

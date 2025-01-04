@@ -58,6 +58,13 @@ func (r *OrganizationRepository) Delete(id uint) error {
 	// return r.db.Delete(&domain.Organization{}, id).Error
 }
 
+// GetListByID
+func (r *OrganizationRepository) GetListByID(ids []uint) ([]domain.Organization, error) {
+	var orgs []domain.Organization
+	err := r.db.Where("id IN (?)", ids).Find(&orgs).Error
+	return orgs, err
+}
+
 // --------------------------------------------------------------------------
 // OrgOpenJob Repository
 // --------------------------------------------------------------------------

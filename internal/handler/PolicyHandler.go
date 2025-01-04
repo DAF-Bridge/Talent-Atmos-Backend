@@ -8,11 +8,11 @@ import (
 )
 
 type PolicyHandler struct {
-	policyRoleService *service.PolicyRoleService
+	policyRoleService service.EmployeeManagementService
 }
 
-func NewPolicyHandler(policyService *service.PolicyRoleService) *PolicyHandler {
-	return &PolicyHandler{policyRoleService: policyService}
+func NewPolicyHandler(policyRoleService service.EmployeeManagementService) *PolicyHandler {
+	return &PolicyHandler{policyRoleService: policyRoleService}
 }
 
 func (p *PolicyHandler) AddPolicyForRoleInDomain(c *fiber.Ctx) error {
@@ -32,7 +32,7 @@ func (p *PolicyHandler) AddPolicyForRoleInDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ok, err := p.policyRoleService.AddPolicyForRoleInDomain(policy.Role, orgID, policy.Obj, policy.Action)
+	ok, err := p.policyRoleService.AddPolicyForRoleInDomain(policy.Role, orgID, domain.Policy{Resource: policy.Resource, Action: policy.Action})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -79,7 +79,7 @@ func (p *PolicyHandler) DeletePolicyForRoleInDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ok, err := p.policyRoleService.DeletePolicyForRoleInDomain(policy.Obj, orgID, policy.Action, policy.Role)
+	ok, err := p.policyRoleService.DeletePolicyForRoleInDomain(policy.Role, orgID, domain.Policy{Resource: policy.Resource, Action: policy.Action})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -146,7 +146,7 @@ func (p *PolicyHandler) GetRolesForPolicyInDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	roles, err := p.policyRoleService.GetRolesForPolicyInDomain(orgID, policy.Obj, policy.Action)
+	roles, err := p.policyRoleService.GetRolesForPolicyInDomain(orgID, policy.Resource, policy.Action)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

@@ -1,8 +1,8 @@
 package domain
 
 type Policy struct {
-	Obj    string `json:"obj"`
-	Action string `json:"action"`
+	Resource string `json:"resource"`
+	Action   string `json:"action"`
 }
 
 type PolicyWithRoleDomain struct {
@@ -26,4 +26,12 @@ type PolicyRoleService interface {
 	GetPoliciesForRoleInDomain(role string, domain string) ([][]string, error)
 	// GetRolesForPolicyInDomain : get roles for policy in domain
 	GetRolesForPolicyInDomain(domain string, obj string, action string) ([][]string, error)
+}
+
+func CreatePolices(role string, domain string, policies []Policy) [][]string {
+	var polices [][]string
+	for _, policy := range policies {
+		polices = append(polices, []string{role, domain, policy.Resource, policy.Action})
+	}
+	return polices
 }

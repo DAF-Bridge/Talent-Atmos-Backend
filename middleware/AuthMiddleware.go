@@ -10,16 +10,16 @@ import (
 
 func AuthMiddleware(jwtSecret string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Extract the Authorization header
-		authHeader := c.Get("Authorization")
+		// Extract the authorization header
+		authHeader := c.Get("authorization")
 		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing Authorization header"})
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
 		}
 
 		// Parse the Bearer token
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid Authorization header format"})
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
 		}
 
 		// Verify the token

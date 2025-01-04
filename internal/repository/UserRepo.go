@@ -55,6 +55,18 @@ func (r *UserRepository) IsExistByID(userId uuid.UUID) (bool, error) {
 	return exist, err
 }
 
+func (r *UserRepository) GetListUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Where("id IN (?)", ids).Find(&users).Error
+	return users, err
+}
+
+func (r *UserRepository) GetListUsersByEmails(emails []string) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Where("email IN (?)", emails).Find(&users).Error
+	return users, err
+}
+
 // begin transaction
 func (r *UserRepository) BeginTransaction() *gorm.DB {
 	return r.db.Begin()

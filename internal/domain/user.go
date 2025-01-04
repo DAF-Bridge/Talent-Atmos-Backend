@@ -51,6 +51,8 @@ type User struct {
 type UserRepository interface {
 	Create(user *User) error
 	GetAll() ([]User, error)
+	GetListUsersByIDs([]uuid.UUID) ([]User, error)
+	GetListUsersByEmails([]string) ([]User, error)
 	GetProfileByUserID(userId uuid.UUID) (*Profile, error)
 	IsExistByID(userId uuid.UUID) (bool, error)
 }
@@ -61,3 +63,10 @@ type UserService interface {
 	GetCurrentUserProfile(userId uuid.UUID) (*Profile, error)
 	IsExistByID(userId uuid.UUID) (bool, error)
 }
+
+// add user sorting  by id
+type UserSortByID []User
+
+func (a UserSortByID) Len() int           { return len(a) }
+func (a UserSortByID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a UserSortByID) Less(i, j int) bool { return a[i].ID.String() < a[j].ID.String() }

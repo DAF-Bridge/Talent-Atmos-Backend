@@ -40,7 +40,7 @@ func (p *PolicyRoleService) GetRolesForPolicyInDomain(domain string, obj string,
 func createPolices(role string, domain string, policies []domain.Policy) [][]string {
 	var polices [][]string
 	for _, policy := range policies {
-		polices = append(polices, []string{role, domain, policy.Obj, policy.Action})
+		polices = append(polices, []string{role, domain, policy.Resource, policy.Action})
 	}
 	return polices
 }
