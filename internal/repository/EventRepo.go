@@ -37,9 +37,9 @@ func (r *EventRepository) GetPaginate(page uint, size uint) ([]domain.Event, err
 	var events []domain.Event
 	offset := int((page - 1) * size)
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
-				Order("created_at desc").Limit(int(size)).
-				Offset(int(offset)).
-				Find(&events).Error
+		Order("created_at desc").Limit(int(size)).
+		Offset(int(offset)).
+		Find(&events).Error
 	return events, err
 }
 
@@ -56,4 +56,11 @@ func (r *EventRepository) Count() (int64, error) {
 	err := r.db.Model(&domain.Event{}).Count(&count).Error
 	return count, err
 
+}
+
+func (r *EventRepository) Delete(eventID uint) error {
+	if err := r.db.Delete(&domain.Event{}, eventID).Error; err != nil {
+		return err
+	}
+	return nil
 }

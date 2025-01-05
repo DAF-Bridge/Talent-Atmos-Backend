@@ -45,3 +45,7 @@ func (s *EventService) GetFirst() (*domain.Event, error) {
 func (s *EventService) CountEvent() (int64, error) {
 	return s.repo.Count()
 }
+
+func (s *EventService) DeleteEvent(eventID uint) error {
+	return s.repo.Delete(eventID)
+}

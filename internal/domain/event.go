@@ -60,7 +60,7 @@ type EventRepository interface {
 	GetFirst() (*Event, error)
 	Count() (int64, error)
 	// Update(event *Event) error
-	// Delete(id uint) error
+	Delete(id uint) error
 }
 
 type EventService interface {
@@ -71,7 +71,7 @@ type EventService interface {
 	GetFirst() (*Event, error)
 	CountEvent() (int64, error)
 	// Update(event *Event) error
-	// Delete(id uint) error
+	DeleteEvent(id uint) error
 }
 
 // TicketAvailable

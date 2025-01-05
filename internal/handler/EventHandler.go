@@ -60,7 +60,9 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 }
 
 func (h *EventHandler) ListEvents(c *fiber.Ctx) error {
+	
 	events, err := h.eventService.GetAllEvents()
+	
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -120,4 +122,20 @@ func (h *EventHandler) UpcomingEvent(c *fiber.Ctx) error {
 	}
 	listEvent := newListEventShortResponse(events)
 	return c.JSON(fiber.Map{"events": listEvent})
+}
+
+func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
+	eventID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
+	}
+	if eventID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid event id"})
+	}
+
+	if err := h.eventService.DeleteEvent(uint(eventID)); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }

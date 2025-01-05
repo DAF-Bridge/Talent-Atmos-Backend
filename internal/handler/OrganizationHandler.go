@@ -228,7 +228,7 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusNoContent).JSON(nil)
+	return c.Status(fiber.StatusOK).JSON(nil)
 }
 
 // --------------------------------------------------------------------------
