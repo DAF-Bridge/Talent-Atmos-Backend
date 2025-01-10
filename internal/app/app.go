@@ -23,7 +23,7 @@ import (
 )
 
 func init() {
-	initializers.LoadEnvVar()
+	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToElasticSearch()
 	// initializers.ConnectToRedis()
