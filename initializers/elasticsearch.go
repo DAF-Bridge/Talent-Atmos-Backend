@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	// "github.com/elastic/go-elasticsearch/v7"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/opensearch-project/opensearch-go"
 )
 
@@ -38,7 +38,7 @@ func ConnectToElasticSearch() {
 	}
 	defer res.Body.Close()
 
-	// Print response status for debugging
-	fmt.Println("Response status:", res.Status())
-	fmt.Println("Successfully connected to Elasticsearch!")
+	status := res.Status()
+	logs.Info(fmt.Sprint("Successfully connected to Elasticsearch!, Response status: " + status))
+	// fmt.Println("Successfully connected to Elasticsearch!, Response status:", res.Status())
 }

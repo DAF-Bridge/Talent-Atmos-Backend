@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -46,6 +47,6 @@ func ConnectToDB() {
 		log.Fatal("Failed to ping database: ", err)
 	}
 
-	fmt.Println("Successfully connected to PostgreSQL!")
-
+	// fmt.Println("Successfully connected to PostgreSQL!")
+	logs.Info("Successfully connected to PostgreSQL!")
 }
