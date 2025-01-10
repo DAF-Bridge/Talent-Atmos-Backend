@@ -6,3 +6,6 @@
 
 # temp files
 /tmp
+/tmp/*
+build-erros.log
+main.exe
