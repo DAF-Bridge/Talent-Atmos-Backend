@@ -239,6 +239,27 @@ func (e *EmployeeManagementService) GetAllUsersByDomain(domain string) ([]domain
 
 }
 
+func (e *EmployeeManagementService) GetAllUsersWithRoleByDomain(domain string) ([]domain.User, map[string][]string, error) {
+	ids, err := e.enforcer.GetAllUsersByDomain(domain)
+	if err != nil {
+		return nil, nil, err
+	}
+	//find role by user id
+	var userIDMapRole = make(map[string][]string)
+	for _, id := range ids {
+		roles := e.enforcer.GetRolesForUserInDomain(id, domain)
+		userIDMapRole[id] = roles
+	}
+	// convert string to uuid
+	uuids := utils.ListStringToListUuid(ids)
+	users, err := e.userRepo.GetListUsersByIDs(uuids)
+	if err != nil {
+		return nil, nil, err
+	}
+	return users, userIDMapRole, nil
+
+}
+
 func (e *EmployeeManagementService) DeleteAllUsersByDomain(domain string) (bool, error) {
 	return e.enforcer.DeleteAllUsersByDomain(domain)
 }

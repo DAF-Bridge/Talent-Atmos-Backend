@@ -7,7 +7,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func RBACMiddleware(obj string, act string, enforcer *casbin.Enforcer) fiber.Handler {
+type RBACMiddleware struct {
+	enforcer *casbin.Enforcer
+}
+
+func NewRBACMiddleware(enforcer *casbin.Enforcer) *RBACMiddleware {
+	return &RBACMiddleware{enforcer: enforcer}
+}
+
+func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		userData, ok := c.Locals("user").(jwt.MapClaims)
@@ -33,19 +41,18 @@ func RBACMiddleware(obj string, act string, enforcer *casbin.Enforcer) fiber.Han
 		}
 
 		// Load policy from Database
-		err = enforcer.LoadPolicy()
+		err = r.enforcer.LoadPolicy()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "Error occurred when loading policy"})
 		}
 
 		// Casbin enforces policy
-		ok, err = enforcer.Enforce(sub, fmt.Sprintf("%d", orgID), obj, act)
+		ok, err = r.enforcer.Enforce(sub, fmt.Sprintf("%d", orgID), resources, act)
 
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "Error occurred when authorizing user"})
 
 		}
-
 		if !ok {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "You are not authorized"})
 

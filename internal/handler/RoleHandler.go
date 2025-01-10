@@ -7,6 +7,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type userWithRole struct {
+	Username string   `json:"username"`
+	Email    string   `json:"email"`
+	Role     []string `json:"role"`
+}
+
 type RoleHandler struct {
 	roleWithDomainService service.EmployeeManagementService
 	userService           *domain.UserService
@@ -155,6 +161,28 @@ func (r *RoleHandler) GetAllUsersByDomain(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(ListUserID)
 }
 
+func (r *RoleHandler) GetAllUsersWithRoleByDomain(c *fiber.Ctx) error {
+	// Access the organization
+	orgID, err := utils.GetStringOfOrgIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	ListUser, userIDMapRole, err := r.roleWithDomainService.GetAllUsersWithRoleByDomain(orgID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	var usersWithRole = make([]userWithRole, 0)
+	for _, user := range ListUser {
+		usersWithRole = append(usersWithRole, struct {
+			Username string   `json:"username"`
+			Email    string   `json:"email"`
+			Role     []string `json:"role"`
+		}{Username: user.Name, Email: user.Email, Role: userIDMapRole[user.ID.String()]})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"users": usersWithRole})
+}
+
 func (r *RoleHandler) DeleteAllUsersByDomain(c *fiber.Ctx) error {
 	// Access the organization
 	orgID, err := utils.GetStringOfOrgIDFormFiberCtx(c)
@@ -202,4 +230,31 @@ func (r *RoleHandler) GetAllRolesByDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(ListRole)
+}
+
+func (r *RoleHandler) UpdateRolesForUserInDomain(c *fiber.Ctx) error {
+	// Access the user_id
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	// Access the organization
+	orgID, err := utils.GetStringOfOrgIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	//role form Json body
+	type RoleJsonBody struct {
+		Roles []string `json:"roles"`
+	}
+	roleJsonBody := new(RoleJsonBody)
+	if err := c.BodyParser(roleJsonBody); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	ok, err := r.roleWithDomainService.UpdateRolesForUserInDomain(userID, roleJsonBody.Roles, orgID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 }

@@ -5,17 +5,29 @@ import (
 )
 
 // Define a private map and a sync.Once instance for lazy initialization
-var permissionsList map[string][]string
+var normalPermissionsList map[string][]string
+var RoleManagerPermissionsList map[string][]string
+var OrganizationAdminPermissionsList map[string][]string
+var SystemAdminPermissionsList map[string][]string
 var once sync.Once
+
+var specialRole []string
 
 // Read-only function to initialize permissionsList (called only once)
 func initializePermissionsList() {
-	permissionsList = map[string][]string{
-		"Role":      {"read", "create", "delete", "edit"},
+	normalPermissionsList = map[string][]string{
 		"Employees": {"read", "add", "remove", "edit"},
 		"Events":    {"read", "create", "delete", "edit"},
 		"Job":       {"read", "create", "delete", "edit"},
 	}
+	SystemAdminPermissionsList = map[string][]string{
+		"Domain": {"read", "create", "delete", "edit"},
+	}
+	RoleManagerPermissionsList = map[string][]string{
+		"Role": {"read", "create", "delete", "edit"},
+	}
+
+	specialRole = []string{"Role Manager", "System Admin", "Organization Admin"}
 }
 
 // GetPermissions returns a copy of permissions for a specific resource
@@ -23,7 +35,7 @@ func GetPermissions(key string) ([]string, bool) {
 	// Ensure the map is initialized
 	once.Do(initializePermissionsList)
 
-	permissions, exists := permissionsList[key]
+	permissions, exists := normalPermissionsList[key]
 	if !exists {
 		return nil, false
 	}
@@ -40,7 +52,7 @@ func GetAllPermissions() map[string][]string {
 
 	// Create a new map to return a copy
 	copyPermissionsList := make(map[string][]string)
-	for key, permissions := range permissionsList {
+	for key, permissions := range normalPermissionsList {
 		// Copy each slice of permissions
 		copyPermissions := make([]string, len(permissions))
 		copy(copyPermissions, permissions)
@@ -54,8 +66,8 @@ func GetAllResources() []string {
 	// Ensure the map is initialized
 	once.Do(initializePermissionsList)
 
-	resources := make([]string, 0, len(permissionsList))
-	for resource := range permissionsList {
+	resources := make([]string, 0, len(normalPermissionsList))
+	for resource := range normalPermissionsList {
 		resources = append(resources, resource)
 	}
 	return resources
@@ -88,4 +100,8 @@ func GetActions(resource string) []string {
 		return nil
 	}
 	return permissions
+}
+
+func GetSpecialRole() []string {
+	return specialRole
 }
