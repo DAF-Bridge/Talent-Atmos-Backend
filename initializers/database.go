@@ -1,12 +1,11 @@
 package initializers
 
 import (
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
-	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -15,19 +14,19 @@ var DB *gorm.DB
 
 func ConnectToDB() {
 	// Define the PostgreSQL connection details
-	// dsn := os.Getenv("DATABASE_URL")
+	dsn := os.Getenv("DATABASE_URL")
 
 	// Load the configuration file
 	utils.InitConfig()
 
-	dsn := fmt.Sprintf("%v://%v:%v@%v:%v/%v?sslmode=disable&TimeZone=Asia/Bangkok",
-		viper.GetString("db.driver"),
-		viper.GetString("db.user"),
-		viper.GetString("db.password"),
-		viper.GetString("db.host"),
-		viper.GetInt("db.port"),
-		viper.GetString("db.database"),
-	)
+	// dsn := fmt.Sprintf("%v://%v:%v@%v:%v/%v?sslmode=disable&TimeZone=Asia/Bangkok",
+	// 	viper.GetString("db.driver"),
+	// 	viper.GetString("db.user"),
+	// 	viper.GetString("db.password"),
+	// 	viper.GetString("db.host"),
+	// 	viper.GetInt("db.port"),
+	// 	viper.GetString("db.database"),
+	// )
 
 	// Initialize GORM with the PostgreSQL driver
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

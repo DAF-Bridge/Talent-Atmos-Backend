@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/gofiber/swagger"
-	"github.com/spf13/viper"
+	_ "github.com/spf13/viper"
 
 	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/docs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
@@ -63,8 +63,8 @@ func Start() {
 	// 	AllowCredentials: true, // Allow credentials (cookies) to be sent
 	// }))
 
-	// jwtSecret := os.Getenv("JWT_SECRET")
-	jwtSecret := viper.GetString("middleware.jwtSecret")
+	jwtSecret := os.Getenv("JWT_SECRET")
+	// jwtSecret := viper.GetString("middleware.jwtSecret")
 
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET is not set")
@@ -117,8 +117,10 @@ func Start() {
 
 	// fmt.Printf("Server is running on port %v\n", viper.GetInt("app.port"))
 
-	logs.Info("Server is running on port: " + viper.GetString("app.port"))
-	err := app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port")))
+	// logs.Info("Server is running on port: " + viper.GetString("app.port"))
+	logs.Info(fmt.Sprintf("Server is running on port: %v", os.Getenv("APP_PORT")))
+	// err := app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port")))
+	err := app.Listen(fmt.Sprintf(":%v", os.Getenv("APP_PORT")))
 
 	if err != nil {
 		log.Fatal(err)
