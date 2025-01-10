@@ -49,9 +49,8 @@ const (
 // Models
 //---------------------------------------------------------------------------
 
-
-
 type Organization struct {
+	gorm.Model
 	ID                   uint                  `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name                 string                `gorm:"type:varchar(255);not null" json:"org_name"`
 	Goal                 pq.StringArray        `gorm:"type:text[];not null" json:"goal"`          // Detailed description of the organization's goal
@@ -74,8 +73,8 @@ type Organization struct {
 
 type Industry struct {
 	gorm.Model
-	Industry       	string 				`gorm:"type:varchar(255);not null" json:"industry"`
-	Organization    []*Organization  	`gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	Industry     string          `gorm:"type:varchar(255);not null" json:"industry"`
+	Organization []*Organization `gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 }
 
 type OrganizationIndustry struct {
@@ -92,7 +91,8 @@ type OrganizationContact struct {
 
 type OrgOpenJob struct {
 	gorm.Model
-	OrganizationID uint           `json:"organization_id"`
+	OrganizationID uint           `gorm:"not null" json:"organization_id"`
+	Organization   string         `gorm:"type:varchar(255);not null" json:"organization"`
 	Title          string         `gorm:"type:varchar(255);not null" json:"title"`
 	Scope          string         `gorm:"type:varchar(255);not null" json:"scope"`
 	Prerequisite   pq.StringArray `gorm:"type:text[]" json:"prerequisite"` // Required qualifications or skills
@@ -133,21 +133,21 @@ type OrganizationService interface {
 
 // ---------------------------------------------------------------------------
 // OrgOpenJob
-type OrgOpenJobRepository interface {
-	GetByID(id uint) (*OrgOpenJob, error)
-	GetAllByID(OrgId uint) ([]OrgOpenJob, error)
-	Create(org *OrgOpenJob) error
-	Update(org *OrgOpenJob) error
-	Delete(id uint) error
-}
+// type OrgOpenJobRepository interface {
+// 	Create(org *OrgOpenJob) error
+// 	GetByID(id uint) (*OrgOpenJob, error)
+// 	GetAllByOrgID(OrgId uint) ([]OrgOpenJob, error)
+// 	Update(org *OrgOpenJob) error
+// 	Delete(id uint) error
+// }
 
-type OrgOpenJobService interface {
-	GetByID(id uint) (*OrgOpenJob, error)
-	GetAllByID(OrgId uint) ([]OrgOpenJob, error)
-	Create(org *OrgOpenJob) error
-	Update(org *OrgOpenJob) error
-	Delete(id uint) error
-}
+// type OrgOpenJobService interface {
+// 	GetByID(id uint) (*OrgOpenJob, error)
+// 	GetAllByID(OrgId uint) ([]OrgOpenJob, error)
+// 	Create(org *OrgOpenJob) error
+// 	Update(org *OrgOpenJob) error
+// 	Delete(id uint) error
+// }
 
 // --------------------------------------------------------------------------
 // OrganizationContact

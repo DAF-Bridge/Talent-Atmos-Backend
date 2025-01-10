@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -127,11 +128,11 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 // --------------------------------------------------------------------------
 
 type OrgOpenJobHandler struct {
-	service domain.OrgOpenJobService
+	service service.OrgOpenJobService
 }
 
 // Constructor
-func NewOrgOpenJobHandler(service domain.OrgOpenJobService) *OrgOpenJobHandler {
+func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler {
 	return &OrgOpenJobHandler{service: service}
 }
 
@@ -176,7 +177,9 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
 
 // GetOrgOpenJobByID returns an organization open job by its ID
 func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
-	orgID, err := c.ParamsInt("id")
+	orgID, err := c.ParamsInt("orgID")
+	jobID, err := c.ParamsInt("id")
+
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
 	}
@@ -184,7 +187,7 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
 	}
 
-	org, err := h.service.GetByID(uint(orgID))
+	org, err := h.service.GetByID(uint(orgID), uint(jobID))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

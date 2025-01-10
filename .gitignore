@@ -1,5 +1,6 @@
 # env file
 .env
+*.yaml
 .idea
 .vscode
 

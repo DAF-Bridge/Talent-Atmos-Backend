@@ -1,16 +1,16 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
 
-type EventHandler struct {
-	eventService domain.EventService
+type eventHandler struct {
+	eventService service.EventService
 }
 
 type EventShortResponse struct {
-	ID        uint   `json:"id"`
+	ID        int    `json:"id"`
 	Name      string `json:"Name"`
 	StartDate string `json:"StartDate"`
 	EndDate   string `json:"EndDate"`
@@ -20,49 +20,60 @@ type EventShortResponse struct {
 	Location  string `json:"Location"`
 }
 
-func newEventShortResponse(event domain.Event) EventShortResponse {
+func newEventShortResponse(event service.EventResponses) EventShortResponse {
 	return EventShortResponse{
 		ID:        event.ID,
 		Name:      event.Name,
-		StartDate: event.StartDate.Format("02 Jan 2006"),
-		EndDate:   event.EndDate.Format("02 Jan 2006"),
-		StartTime: event.StartTime.Format("15:04:05"),
-		EndTime:   event.EndTime.Format("15:04:05"),
+		StartDate: event.StartDate,
+		EndDate:   event.EndDate,
+		StartTime: event.StartTime,
+		EndTime:   event.EndTime,
 		PicUrl:    event.PicUrl,
 		Location:  event.LocationName,
 	}
 
 }
-func newListEventShortResponse(events []domain.Event) []EventShortResponse {
+
+func newListEventShortResponse(events []service.EventResponses) []EventShortResponse {
 	listEvent := make([]EventShortResponse, len(events))
+
 	for i, event := range events {
 		listEvent[i] = newEventShortResponse(event)
 	}
+
 	return listEvent
-
 }
 
-func NewEventHandler(eventService domain.EventService) *EventHandler {
-	return &EventHandler{eventService: eventService}
+func NewEventHandler(eventService service.EventService) eventHandler {
+	return eventHandler{eventService: eventService}
 }
 
-func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
-	var event domain.Event
+func (h eventHandler) CreateEvent(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	event := service.NewEventRequest{}
+
 	if err := c.BodyParser(&event); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if err := h.eventService.CreateEvent(&event); err != nil {
+	createdEvent, err := h.eventService.NewEvent(uint(orgID), event)
+
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(event)
+	return c.Status(fiber.StatusCreated).JSON(createdEvent)
 }
 
-func (h *EventHandler) ListEvents(c *fiber.Ctx) error {
-	
+func (h eventHandler) ListEvents(c *fiber.Ctx) error {
+
 	events, err := h.eventService.GetAllEvents()
-	
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -70,8 +81,31 @@ func (h *EventHandler) ListEvents(c *fiber.Ctx) error {
 	return c.JSON(events)
 }
 
-func (h *EventHandler) GetEventByID(c *fiber.Ctx) error {
+func (h eventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	events, err := h.eventService.GetAllEventsByOrgID(uint(orgID))
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(events)
+}
+
+func (h eventHandler) GetEventByID(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
 	eventID, err := c.ParamsInt("id")
+
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
 	}
@@ -79,7 +113,7 @@ func (h *EventHandler) GetEventByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid event id"})
 	}
 
-	event, err := h.eventService.GetEventByID(uint(eventID))
+	event, err := h.eventService.GetEventByID(uint(orgID), uint(eventID))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -87,7 +121,7 @@ func (h *EventHandler) GetEventByID(c *fiber.Ctx) error {
 	return c.JSON(event)
 }
 
-func (h *EventHandler) EventPaginate(c *fiber.Ctx) error {
+func (h eventHandler) EventPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	if page < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page"})
@@ -101,12 +135,13 @@ func (h *EventHandler) EventPaginate(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+
 	listEvent := newListEventShortResponse(events)
 
 	return c.JSON(fiber.Map{"events": listEvent, "total_events": total})
 }
 
-func (h *EventHandler) EventFirst(c *fiber.Ctx) error {
+func (h eventHandler) EventFirst(c *fiber.Ctx) error {
 	event, err := h.eventService.GetFirst()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -115,17 +150,25 @@ func (h *EventHandler) EventFirst(c *fiber.Ctx) error {
 	return c.JSON(newEventShortResponse(*event))
 }
 
-func (h *EventHandler) UpcomingEvent(c *fiber.Ctx) error {
+func (h eventHandler) UpcomingEvent(c *fiber.Ctx) error {
 	events, err := h.eventService.GetEventPaginate(1)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	listEvent := newListEventShortResponse(events)
+
 	return c.JSON(fiber.Map{"events": listEvent})
 }
 
-func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
+func (h eventHandler) DeleteEvent(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
 	eventID, err := c.ParamsInt("id")
+
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
 	}
@@ -133,9 +176,15 @@ func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid event id"})
 	}
 
-	if err := h.eventService.DeleteEvent(uint(eventID)); err != nil {
+	event, err := h.eventService.GetEventByID(uint(orgID), uint(eventID))
+
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
+	// if err := h.eventService.DeleteEvent(uint(eventID)); err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	// }
+
+	return c.Status(fiber.StatusOK).JSON(event)
 }

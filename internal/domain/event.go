@@ -52,27 +52,6 @@ type TicketAvailable struct {
 //---------------------------------------------------------------------------
 
 // Event
-type EventRepository interface {
-	GetByID(id uint) (*Event, error)
-	GetAll() ([]Event, error)
-	GetPaginate(page uint, size uint) ([]Event, error)
-	Create(event *Event) error
-	GetFirst() (*Event, error)
-	Count() (int64, error)
-	// Update(event *Event) error
-	Delete(id uint) error
-}
-
-type EventService interface {
-	GetEventByID(eventID uint) (*Event, error)
-	GetAllEvents() ([]Event, error)
-	GetEventPaginate(page uint) ([]Event, error)
-	CreateEvent(event *Event) error
-	GetFirst() (*Event, error)
-	CountEvent() (int64, error)
-	// Update(event *Event) error
-	DeleteEvent(id uint) error
-}
 
 // TicketAvailable
 type TicketAvailableRepository interface {

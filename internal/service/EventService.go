@@ -1,51 +1,161 @@
 package service
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+import (
+	"database/sql"
+	"errors"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+	"gorm.io/gorm"
+)
 
 const numberOfEvent = 12
 
 // EventService is a service that provides operations on events.
-type EventService struct {
-	repo domain.EventRepository
+type eventService struct {
+	eventRepo repository.EventRepository
 }
 
-// NewEventService creates a new EventService.
-func NewEventService(repo domain.EventRepository) *EventService {
-	return &EventService{repo: repo}
+func NewEventService(eventRepo repository.EventRepository) EventService {
+	return eventService{eventRepo: eventRepo}
 }
 
-// CreateEvent creates a new event.
-func (s *EventService) CreateEvent(event *domain.Event) error {
-	err := s.repo.Create(event)
+func (s eventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses, error) {
+	event := requestConvertToEvent(int(orgID), req)
+
+	newEvent, err := s.eventRepo.Create(uint(orgID), &event)
+
 	if err != nil {
-		return err
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
 	}
-	return nil
+
+	eventResponse := convertToEventResponse(*newEvent)
+
+	return &eventResponse, nil
 }
 
-// GetAllEvents returns all events.
-func (s *EventService) GetAllEvents() ([]domain.Event, error) {
-	return s.repo.GetAll()
+func (s eventService) GetAllEvents() ([]EventResponses, error) {
+	events, err := s.eventRepo.GetAll()
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("events not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponses := []EventResponses{}
+	for _, event := range events {
+		eventResponse := convertToEventResponse(event)
+		eventResponses = append(eventResponses, eventResponse)
+	}
+
+	return eventResponses, nil
 }
 
-// GetEventByID returns an event by its ID.
-func (s *EventService) GetEventByID(eventID uint) (*domain.Event, error) {
-	return s.repo.GetByID(eventID)
+func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) {
+	events, err := s.eventRepo.GetAllByOrgID(orgID)
 
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("events not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponses := []EventResponses{}
+	for _, event := range events {
+		eventResponse := convertToEventResponse(event)
+		eventResponses = append(eventResponses, eventResponse)
+	}
+
+	return eventResponses, nil
 }
 
-func (s *EventService) GetEventPaginate(page uint) ([]domain.Event, error) {
-	return s.repo.GetPaginate(page, numberOfEvent)
+func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, error) {
+	event, err := s.eventRepo.GetByID(orgID, eventID)
+	if err != nil {
+		// if err == sql.ErrNoRows {
+		// 	return nil, errors.New("event not found")
+		// }
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("event not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponse := convertToEventResponse(*event)
+
+	return &eventResponse, nil
 }
 
-func (s *EventService) GetFirst() (*domain.Event, error) {
-	return s.repo.GetFirst()
+func (s eventService) GetEventPaginate(page uint) ([]EventResponses, error) {
+	events, err := s.eventRepo.GetPaginate(page, numberOfEvent)
+	if err != nil {
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponses := []EventResponses{}
+	for _, event := range events {
+		eventResponse := convertToEventResponse(event)
+		eventResponses = append(eventResponses, eventResponse)
+	}
+
+	return eventResponses, nil
 }
 
-func (s *EventService) CountEvent() (int64, error) {
-	return s.repo.Count()
+func (s eventService) GetFirst() (*EventResponses, error) {
+	event, err := s.eventRepo.GetFirst()
+
+	if err != nil {
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponse := convertToEventResponse(*event)
+
+	return &eventResponse, nil
 }
 
-func (s *EventService) DeleteEvent(eventID uint) error {
-	return s.repo.Delete(eventID)
+func (s eventService) CountEvent() (int64, error) {
+	count, err := s.eventRepo.Count()
+	if err != nil {
+		logs.Error(err)
+		return 0, errs.NewUnexpectedError()
+	}
+
+	return count, nil
+}
+
+func (s eventService) DeleteEvent(orgID uint, eventID uint) (*EventResponses, error) {
+	err := s.eventRepo.Delete(orgID, eventID)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("event not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	event, err := s.eventRepo.GetByID(orgID, eventID)
+	if err != nil {
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponse := convertToEventResponse(*event)
+
+	return &eventResponse, nil
 }

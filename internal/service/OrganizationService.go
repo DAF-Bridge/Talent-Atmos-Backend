@@ -1,6 +1,14 @@
 package service
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+import (
+	"errors"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+	"gorm.io/gorm"
+)
 
 const numberOfOrganization = 10
 
@@ -43,31 +51,84 @@ func (s *OrganizationService) DeleteOrganization(id uint) error {
 // OrgOpenJob Service
 // --------------------------------------------------------------------------
 
-type OrgOpenJobService struct {
-	repo domain.OrgOpenJobRepository
+type orgOpenJobService struct {
+	jobRepo repository.OrgOpenJobRepository
 }
 
 // Constructor
-func NewOrgOpenJobService(repo domain.OrgOpenJobRepository) *OrgOpenJobService {
-	return &OrgOpenJobService{repo: repo}
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository) OrgOpenJobService {
+	return orgOpenJobService{jobRepo: jobRepo}
 }
 
-func (s *OrgOpenJobService) GetByID(id uint) (*domain.OrgOpenJob, error) {
-	return s.repo.GetByID(id)
+func (s orgOpenJobService) GetByID(orgID uint, jobID uint) (*JobResponses, error) {
+	// return s.jobRepo.GetByID(id)
+	job, err := s.jobRepo.GetByID(orgID, jobID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("job not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	JobResponse := convertToJobResponse(*job)
+
+	return &JobResponse, nil
 }
 
-func (s *OrgOpenJobService) GetAllByID(OrgId uint) ([]domain.OrgOpenJob, error) {
-	return s.repo.GetAllByID(OrgId)
+func (s orgOpenJobService) GetJobs() ([]JobResponses, error) {
+	jobs, err := s.jobRepo.GetAll()
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("jobs not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	jobsResponse := []JobResponses{}
+
+	for _, job := range jobs {
+		jobResponse := convertToJobResponse(job)
+		jobsResponse = append(jobsResponse, jobResponse)
+	}
+
+	return jobsResponse, nil
 }
 
-func (s *OrgOpenJobService) Create(org *domain.OrgOpenJob) error {
-	return s.repo.Create(org)
+func (s orgOpenJobService) GetAllByID(OrgId uint) ([]JobResponses, error) {
+	jobs, err := s.jobRepo.GetAllByOrgID(OrgId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("jobs not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	jobsResponse := []JobResponses{}
+
+	for _, job := range jobs {
+		jobResponse := convertToJobResponse(job)
+		jobsResponse = append(jobsResponse, jobResponse)
+	}
+
+	return jobsResponse, nil
 }
 
-func (s *OrgOpenJobService) Update(org *domain.OrgOpenJob) error {
-	return s.repo.Update(org)
+func (s orgOpenJobService) Create(org *domain.OrgOpenJob) error {
+	return s.jobRepo.Create(org)
 }
 
-func (s *OrgOpenJobService) Delete(id uint) error {
-	return s.repo.Delete(id)
+func (s orgOpenJobService) Update(org *domain.OrgOpenJob) error {
+	return s.jobRepo.Update(org)
+}
+
+func (s orgOpenJobService) Delete(id uint) error {
+	return s.jobRepo.Delete(id)
 }
