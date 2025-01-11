@@ -1,6 +1,9 @@
 package utils
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 func DateParser(dateStr string) time.Time {
 	parsedDate, _ := time.Parse("2006-01-02", dateStr)
@@ -10,4 +13,24 @@ func DateParser(dateStr string) time.Time {
 func TimeParser(timeStr string) time.Time {
 	parsedTime, _ := time.Parse("15:04:05", timeStr)
 	return parsedTime
+}
+
+type DateOnly struct {
+	time.Time
+}
+
+func (d DateOnly) MarshalJSON() ([]byte, error) {
+	// Format the date as "YYYY-MM-DD"
+	formatted := fmt.Sprintf(`"%s"`, d.Format("2006-01-02"))
+	return []byte(formatted), nil
+}
+
+func (d *DateOnly) UnmarshalJSON(b []byte) error {
+	// Parse date in "YYYY-MM-DD" format
+	parsedDate, err := time.Parse(`"2006-01-02"`, string(b))
+	if err != nil {
+		return err
+	}
+	d.Time = parsedDate
+	return nil
 }

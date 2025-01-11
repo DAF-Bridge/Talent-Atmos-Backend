@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
 
@@ -109,14 +110,14 @@ type MockEvent struct {
 	EventID        uint
 	Name           string
 	PicUrl         string
-	StartDate      time.Time `gorm:"time:date"`
-	EndDate        time.Time `gorm:"time:date"`
-	StartTime      time.Time `gorm:"time:time" `
-	EndTime        time.Time `gorm:"time:time" `
-	Description    string    `gorm:"type:text" `
-	Highlight      string    `gorm:"type:text" `
-	Requirement    string    `gorm:"type:text"`
-	KeyTakeaway    string    `gorm:"type:text" `
+	StartDate      utils.DateOnly `gorm:"time:date"`
+	EndDate        utils.DateOnly `gorm:"time:date"`
+	StartTime      time.Time      `gorm:"time:time" `
+	EndTime        time.Time      `gorm:"time:time" `
+	Description    string         `gorm:"type:text" `
+	Highlight      string         `gorm:"type:text" `
+	Requirement    string         `gorm:"type:text"`
+	KeyTakeaway    string         `gorm:"type:text" `
 	Timeline       []Timeline
 	LocationName   string
 	Latitude       string

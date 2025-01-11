@@ -20,8 +20,8 @@ func NewEventRepositoryMock() MockEventRepository {
 			OrganizationID: 1,
 			Name:           "Renewable Energy Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 01 15"),
-			EndDate:        utils.DateParser("2024 01 16"),
+			StartDate:      utils.DateOnly{Time: utils.DateParser("2025-01-15")},
+			EndDate:        utils.DateOnly{Time: utils.DateParser("2025-01-16")},
 			StartTime:      utils.TimeParser("09:00:00"),
 			EndTime:        utils.TimeParser("17:00:00"),
 			Timeline: []models.Timeline{
@@ -46,6 +46,11 @@ func NewEventRepositoryMock() MockEventRepository {
 			LocationType: "onsite",
 			Audience:     "students",
 			PriceType:    "free",
+			Organization: models.Organization{
+				ID:     1,
+				Name:   "Renewable Energy Association",
+				PicUrl: "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+			},
 		},
 
 		{
@@ -53,8 +58,8 @@ func NewEventRepositoryMock() MockEventRepository {
 			OrganizationID: 1,
 			Name:           "Tech Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 02 20"),
-			EndDate:        utils.DateParser("2024 02 21"),
+			StartDate:      utils.DateOnly{Time: utils.DateParser("2024-02-20")},
+			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-02-21")},
 			StartTime:      utils.TimeParser("10:00:00"),
 			EndTime:        utils.TimeParser("18:00:00"),
 			Timeline: []models.Timeline{
@@ -79,14 +84,19 @@ func NewEventRepositoryMock() MockEventRepository {
 			LocationType: "onsite",
 			Audience:     "professionals",
 			PriceType:    "free",
+			Organization: models.Organization{
+				ID:     1,
+				Name:   "Renewable Energy Association",
+				PicUrl: "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+			},
 		},
 		{
 			EventID:        3,
 			OrganizationID: 1,
 			Name:           "Marketing Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 03 10"),
-			EndDate:        utils.DateParser("2024 03 11"),
+			StartDate:      utils.DateOnly{Time: utils.DateParser("2024-03-10")},
+			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-03-11")},
 			StartTime:      utils.TimeParser("09:00:00"),
 			EndTime:        utils.TimeParser("17:00:00"),
 			Timeline: []models.Timeline{
@@ -111,14 +121,19 @@ func NewEventRepositoryMock() MockEventRepository {
 			LocationType: "onsite",
 			Audience:     "general",
 			PriceType:    "paid",
+			Organization: models.Organization{
+				ID:     1,
+				Name:   "Renewable Energy Association",
+				PicUrl: "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+			},
 		},
 		{
 			EventID:        4,
 			OrganizationID: 1,
 			Name:           "Startup Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 04 05"),
-			EndDate:        utils.DateParser("2024 04 06"),
+			StartDate:      utils.DateOnly{Time: utils.DateParser("2024-04-05")},
+			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-04-06")},
 			StartTime:      utils.TimeParser("10:00:00"),
 			EndTime:        utils.TimeParser("18:00:00"),
 			Timeline: []models.Timeline{
@@ -143,6 +158,11 @@ func NewEventRepositoryMock() MockEventRepository {
 			LocationType: "onsite",
 			Audience:     "students",
 			PriceType:    "free",
+			Organization: models.Organization{
+				ID:     1,
+				Name:   "Renewable Energy Association",
+				PicUrl: "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+			},
 		},
 
 		{
@@ -150,8 +170,8 @@ func NewEventRepositoryMock() MockEventRepository {
 			OrganizationID: 2,
 			Name:           "Sustainable Energy Forum",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 01 15"),
-			EndDate:        utils.DateParser("2024 01 16"),
+			StartDate:      utils.DateOnly{Time: utils.DateParser("2024-01-15")},
+			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-01-16")},
 			StartTime:      utils.TimeParser("09:00:00"),
 			EndTime:        utils.TimeParser("17:00:00"),
 			Timeline: []models.Timeline{
@@ -176,6 +196,11 @@ func NewEventRepositoryMock() MockEventRepository {
 			LocationType: "onsite",
 			Audience:     "students",
 			PriceType:    "free",
+			Organization: models.Organization{
+				ID:     2,
+				Name:   "Sustainable Energy Association",
+				PicUrl: "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+			},
 		},
 	}
 
@@ -198,12 +223,13 @@ func (e *eventRepositoryMock) Create(orgID uint, event *models.MockEvent) (*mode
 	event.OrganizationID = orgID
 
 	// Increment the EventID based on the last event in the list
-	if len(e.events) > 0 {
-		lastEvent := e.events[len(e.events)-1]
-		event.EventID = lastEvent.EventID + 1
-	} else {
-		event.EventID = 1
+	var lastEventID uint
+	for _, evt := range e.events {
+		if evt.OrganizationID == orgID && evt.EventID > lastEventID {
+			lastEventID = evt.EventID
+		}
 	}
+	event.EventID = lastEventID + 1
 
 	return event, nil
 }

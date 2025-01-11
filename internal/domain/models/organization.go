@@ -53,6 +53,7 @@ type Organization struct {
 	gorm.Model
 	ID                   uint                  `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name                 string                `gorm:"type:varchar(255);not null" json:"org_name"`
+	PicUrl               string                `gorm:"type:varchar(255)" json:"pic_url"`          // URL to organization's logo
 	Goal                 pq.StringArray        `gorm:"type:text[];not null" json:"goal"`          // Detailed description of the organization's goal
 	Expertise            string                `gorm:"type:varchar(255)" json:"expertise"`        // Organization's area of expertise
 	Location             string                `gorm:"type:varchar(255)" json:"location"`         // General location

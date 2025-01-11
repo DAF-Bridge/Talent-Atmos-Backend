@@ -245,7 +245,7 @@ func (h mockEventHandler) CreateMockEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
 
-	event := service.NewEventRequest{}
+	var event service.NewEventRequest
 
 	if err := c.BodyParser(&event); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})

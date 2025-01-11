@@ -4,6 +4,12 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 )
 
+type OrganizationShortRespones struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"name"`
+	PicUrl string `json:"picUrl"`
+}
+
 type JobResponses struct {
 	ID             uint               `json:"id"`
 	Organization   string             `json:"organization"`

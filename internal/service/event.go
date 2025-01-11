@@ -43,6 +43,20 @@ type EventResponses struct {
 	Province       string            `json:"province"`
 }
 
+type EventCardResponses struct {
+	ID             int                       `json:"id"`
+	OrganizationID int                       `json:"organization_id"`
+	Name           string                    `json:"name"`
+	PicUrl         string                    `json:"picUrl"`
+	StartDate      string                    `json:"startDate"`
+	EndDate        string                    `json:"endDate"`
+	StartTime      string                    `json:"startTime"`
+	EndTime        string                    `json:"endTime"`
+	LocationName   string                    `json:"location"`
+	Organization   OrganizationShortRespones `json:"organization"`
+	Province       string                    `json:"province"`
+}
+
 type EventService interface {
 	NewEvent(orgID uint, event NewEventRequest) (*EventResponses, error)
 	GetAllEvents() ([]EventResponses, error)
@@ -62,8 +76,8 @@ func convertToEventResponse(event models.Event) EventResponses {
 		OrganizationID: int(event.OrganizationID),
 		Name:           event.Name,
 		PicUrl:         event.PicUrl,
-		StartDate:      event.StartDate.Format("2006 01 02"),
-		EndDate:        event.EndDate.Format("2006 01 02"),
+		StartDate:      event.StartDate.Format("2006-01-02"),
+		EndDate:        event.EndDate.Format("2006-01-02"),
 		StartTime:      event.StartTime.Format("15:04:05"),
 		EndTime:        event.EndTime.Format("15:04:05"),
 		TimeLine:       event.Timeline,
@@ -84,7 +98,7 @@ type MockEventService interface {
 	GetAllMockEventsByOrgID(orgID uint) ([]EventResponses, error)
 	GetMockEventByID(orgID uint, eventID uint) (*EventResponses, error)
 	GetMockEventPaginate(page uint) ([]EventResponses, error)
-	SearchMockEvent(params map[string]string) ([]EventResponses, error)
+	SearchMockEvent(params map[string]string) ([]EventCardResponses, error)
 	GetFirst() (*EventResponses, error)
 	CountMockEvent() (int64, error)
 	// Update(event *Event) error
@@ -117,8 +131,8 @@ func requestConvertToMockEvent(orgID int, reqEvent NewEventRequest) models.MockE
 		OrganizationID: uint(orgID),
 		Name:           reqEvent.Name,
 		PicUrl:         reqEvent.PicUrl,
-		StartDate:      utils.DateParser(reqEvent.StartDate),
-		EndDate:        utils.DateParser(reqEvent.EndDate),
+		StartDate:      utils.DateOnly{Time: utils.DateParser(reqEvent.StartDate)},
+		EndDate:        utils.DateOnly{Time: utils.DateParser(reqEvent.EndDate)},
 		StartTime:      utils.TimeParser(reqEvent.StartTime),
 		EndTime:        utils.TimeParser(reqEvent.EndTime),
 		Timeline:       reqEvent.TimeLine,
@@ -139,8 +153,8 @@ func convertMockEventToEventResponse(event models.MockEvent) EventResponses {
 		OrganizationID: int(event.OrganizationID),
 		Name:           event.Name,
 		PicUrl:         event.PicUrl,
-		StartDate:      event.StartDate.Format("2006 01 02"),
-		EndDate:        event.EndDate.Format("2006 01 02"),
+		StartDate:      event.StartDate.Format("2006-01-02"),
+		EndDate:        event.EndDate.Format("2006-01-02"),
 		StartTime:      event.StartTime.Format("15:04:05"),
 		EndTime:        event.EndTime.Format("15:04:05"),
 		TimeLine:       event.Timeline,
@@ -152,5 +166,25 @@ func convertMockEventToEventResponse(event models.MockEvent) EventResponses {
 		Latitude:       event.Latitude,
 		Longitude:      event.Longitude,
 		Province:       event.Province,
+	}
+}
+
+func convertMockEventToEventCardResponse(event models.MockEvent) EventCardResponses {
+	return EventCardResponses{
+		ID:             int(event.EventID),
+		OrganizationID: int(event.OrganizationID),
+		Name:           event.Name,
+		PicUrl:         event.PicUrl,
+		StartDate:      event.StartDate.Format("2006-01-02"),
+		EndDate:        event.EndDate.Format("2006-01-02"),
+		StartTime:      event.StartTime.Format("15:04:05"),
+		EndTime:        event.EndTime.Format("15:04:05"),
+		LocationName:   event.LocationName,
+		Province:       event.Province,
+		Organization: OrganizationShortRespones{
+			ID:     event.OrganizationID,
+			Name:   event.Organization.Name,
+			PicUrl: event.Organization.PicUrl,
+		},
 	}
 }

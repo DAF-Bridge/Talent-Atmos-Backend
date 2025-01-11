@@ -15,35 +15,32 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 	return &eventRepository{db: db}
 }
 
+func (r eventRepository) Search(params map[string]string) ([]models.Event, error) {
+	events := []models.Event{}
+	query := r.db
+
+	// if name, ok := params["name"]; ok && name != "" {
+	// 	query = query.Where("name ILIKE ?", "%"+name+"%")
+	// }
+	// if location, ok := params["location"]; ok && location != "" {
+	// 	query = query.Where("location_name = ?", location)
+	// }
+	// if category, ok := params["category"]; ok && category != "all" {
+	// 	query = query.Where("category = ?", category)
+	// }
+
+	if search, ok := params["search"]; ok && search != "" {
+		query = query.Where("name ILIKE ? OR location_name ILIKE ? OR category ILIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%")
+	}
+
+	if err := query.Find(&events).Error; err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
 func (r eventRepository) Create(orgID uint, event *models.Event) (*models.Event, error) {
-	// query := `
-	// 	insert into events (organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province)
-	// 	values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
-	// result := r.db.Exec(
-	// 	query,
-	// 	event.OrganizationID,
-	// 	event.Name,
-	// 	event.PicUrl,
-	// 	event.StartDate,
-	// 	event.EndDate,
-	// 	event.StartTime,
-	// 	event.EndTime,
-	// 	event.Description,
-	// 	event.Highlight,
-	// 	event.Requirement,
-	// 	event.KeyTakeaway,
-	// 	event.Timeline,
-	// 	event.LocationName,
-	// 	event.Latitude,
-	// 	event.Longitude,
-	// 	event.Province,
-	// ).Error
-
-	// event.ID = uint(id)
-
-	// return &event, nil
-
 	event.OrganizationID = orgID
 
 	err := r.db.Create(event).Error
@@ -55,12 +52,6 @@ func (r eventRepository) Create(orgID uint, event *models.Event) (*models.Event,
 }
 
 func (r eventRepository) GetAll() ([]models.Event, error) {
-	// query := `
-	// 			select id, organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province
-	// 			from events
-	// 			order by created_at desc
-	// 		 `
-
 	events := []models.Event{}
 	err := r.db.Find(&events).Error
 
@@ -72,15 +63,6 @@ func (r eventRepository) GetAll() ([]models.Event, error) {
 }
 
 func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
-	// query := `
-	// 			select id, organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province
-	// 		 	from events
-	// 		 	where organization_id = ?
-	// 			order by created_at desc
-	// 		 `
-
-	// err := r.db.Select(&events, query, int(orgID)).Error
-
 	events := []models.Event{}
 
 	err := r.db.Where("organization_id = ?", int(orgID)).Find(&events).Error

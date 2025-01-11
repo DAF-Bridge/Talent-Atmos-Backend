@@ -1,13 +1,13 @@
 package dto
 
 type EventSearchCriteria struct {
-	Page         string `json:"page" query:"page"`
-	Search       string `json:"search" query:"search"`
+	Page         string   `json:"page" query:"page"`
+	Search       string   `json:"search" query:"search"`
 	Category     string `json:"category" query:"category"`
-	DateRange    string `json:"dateRange" query:"dateRange"`
-	LocationType string `json:"location" query:"location"`
-	Audience     string `json:"audience" query:"audience"`
-	PriceType    string `json:"price" query:"price"`
+	DateRange    string   `json:"dateRange" query:"dateRange"`
+	LocationType string   `json:"location" query:"location"`
+	Audience     string   `json:"audience" query:"audience"`
+	PriceType    string   `json:"price" query:"price"`
 }
 
 type EventSearchResult struct {

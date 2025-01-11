@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"errors"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -265,7 +266,7 @@ func (s mockEventService) GetMockEventPaginate(page uint) ([]EventResponses, err
 	return eventResponses, nil
 }
 
-func (s mockEventService) SearchMockEvent(params map[string]string) ([]EventResponses, error) {
+func (s mockEventService) SearchMockEvent(params map[string]string) ([]EventCardResponses, error) {
 	events, err := s.mockEventRepo.Search(params)
 
 	if err != nil {
@@ -277,9 +278,9 @@ func (s mockEventService) SearchMockEvent(params map[string]string) ([]EventResp
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponses := []EventResponses{}
+	eventResponses := []EventCardResponses{}
 	for _, event := range events {
-		eventResponse := convertMockEventToEventResponse(event)
+		eventResponse := convertMockEventToEventCardResponse(event)
 		eventResponses = append(eventResponses, eventResponse)
 	}
 
