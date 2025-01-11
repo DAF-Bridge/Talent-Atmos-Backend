@@ -51,7 +51,7 @@ type TicketAvailable struct {
 // Interfaces
 //---------------------------------------------------------------------------
 
-// Event
+// Event is in repository package
 
 // TicketAvailable
 type TicketAvailableRepository interface {
@@ -68,4 +68,64 @@ type TicketAvailableService interface {
 	Create(ticketAvailable *TicketAvailable) error
 	// Update(ticketAvailable *TicketAvailable) error
 	// Delete(id uint) error
+}
+
+// ----------- Mock Event ----------- //
+
+type Category string
+type Audience string
+type PriceType string
+type LocationType string
+
+const (
+	Conference  Category = "conference"
+	All         Category = "all"
+	Incubation  Category = "incubation"
+	Networking  Category = "networking"
+	Forum       Category = "forum"
+	Exhibition  Category = "exhibition"
+	Competition Category = "competition"
+	Workshop    Category = "workshop"
+	Campaign    Category = "campaign"
+)
+
+const (
+	General       Audience = "general"
+	Students      Audience = "students"
+	Professionals Audience = "professionals"
+)
+
+const (
+	Free PriceType = "free"
+	Paid PriceType = "paid"
+)
+
+const (
+	Online LocationType = "online"
+	Onsite LocationType = "onsite"
+)
+
+type MockEvent struct {
+	EventID        uint
+	Name           string
+	PicUrl         string
+	StartDate      time.Time `gorm:"time:date"`
+	EndDate        time.Time `gorm:"time:date"`
+	StartTime      time.Time `gorm:"time:time" `
+	EndTime        time.Time `gorm:"time:time" `
+	Description    string    `gorm:"type:text" `
+	Highlight      string    `gorm:"type:text" `
+	Requirement    string    `gorm:"type:text"`
+	KeyTakeaway    string    `gorm:"type:text" `
+	Timeline       []Timeline
+	LocationName   string
+	Latitude       string
+	Longitude      string
+	Province       string
+	Category       Category
+	LocationType   LocationType
+	Audience       Audience
+	PriceType      PriceType
+	OrganizationID uint
+	Organization   Organization
 }

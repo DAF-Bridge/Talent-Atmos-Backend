@@ -14,7 +14,6 @@ var ESClient *opensearch.Client
 
 func ConnectToElasticSearch() {
 	bonsaiURL := os.Getenv("ELASTICSEARCH_URL")
-	// apiKey := os.Getenv("ELASTICSEARCH_API_KEY")
 	username := os.Getenv("ELASTICSEARCH_USERNAME")
 	password := os.Getenv("ELASTICSEARCH_PASSWORD")
 
@@ -28,13 +27,13 @@ func ConnectToElasticSearch() {
 	var err error
 	ESClient, err = opensearch.NewClient(cfg)
 	if err != nil {
-		log.Fatalf("Error creating the client: %s", err)
+		log.Fatalf("Error creating the Elasticsearch client: %s", err)
 	}
 
 	// Test connection
 	res, err := ESClient.Info()
 	if err != nil {
-		log.Fatalf("Error getting info: %s", err)
+		log.Fatalf("Error getting info from Elasticsearch: %s", err)
 	}
 	defer res.Body.Close()
 

@@ -16,3 +16,16 @@ type EventRepository interface {
 	// Update(event *domain.Event) error
 	Delete(orgID uint, eventID uint) error
 }
+
+type MockEventRepository interface {
+	Create(orgID uint, event *domain.MockEvent) (*domain.MockEvent, error)
+	GetAll() ([]domain.MockEvent, error)
+	GetAllByOrgID(orgID uint) ([]domain.MockEvent, error)
+	GetByID(orgID uint, eventID uint) (*domain.MockEvent, error)
+	Search(params map[string]string) ([]domain.MockEvent, error)
+	GetPaginate(page uint, size uint) ([]domain.MockEvent, error)
+	GetFirst() (*domain.MockEvent, error)
+	Count() (int64, error)
+	// Update(event *domain.Event) error
+	Delete(orgID uint, eventID uint) error
+}

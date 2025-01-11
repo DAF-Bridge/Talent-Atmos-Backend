@@ -1,31 +1,31 @@
 package domain
 
 type SearchCriteria struct {
-    Category   string
-    Search     string
-    DateRange  string
-    Location   string
-    Audience   string
-    Price      string
+	Category     string
+	Search       string
+	DateRange    string
+	LocationType string
+	Audience     string
+	PriceType    string
 }
 
 type EventSearchResult struct {
-    ID          uint
-    Name        string
-    Description string
-	WorkType	string
-	WorkPlace	string
+	ID          uint
+	Name        string
+	Description string
+	WorkType    string
+	WorkPlace   string
 	Salary      float64
 }
 
 type JobSearchResult struct {
-    ID       uint
-    Title    string
-    Scope    string
-    Salary   float64
+	ID     uint
+	Title  string
+	Scope  string
+	Salary float64
 }
 
 type SearchRepository interface {
-    SearchEvents(criteria SearchCriteria, page int) ([]EventSearchResult, error)
-    SearchJobs(criteria SearchCriteria, page int) ([]JobSearchResult, error)
+	SearchEvents(criteria SearchCriteria, page int) ([]EventSearchResult, error)
+	SearchJobs(criteria SearchCriteria, page int) ([]JobSearchResult, error)
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
-	// "github.com/elastic/go-elasticsearch/v7"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

@@ -23,7 +23,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToElasticSearch()
 	// initializers.ConnectToRedis()
@@ -121,7 +121,6 @@ func Start() {
 	logs.Info(fmt.Sprintf("Server is running on port: %v", os.Getenv("APP_PORT")))
 	// err := app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port")))
 	err := app.Listen(fmt.Sprintf(":%v", os.Getenv("APP_PORT")))
-
 	if err != nil {
 		log.Fatal(err)
 	}
