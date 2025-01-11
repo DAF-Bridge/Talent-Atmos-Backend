@@ -1,22 +1,22 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
 type UserHandler struct {
-	service domain.UserService
+	service models.UserService
 }
 
-func NewUserHandler(service domain.UserService) *UserHandler {
+func NewUserHandler(service models.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	var user domain.User
+	var user models.User
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}

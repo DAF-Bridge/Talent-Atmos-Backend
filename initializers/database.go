@@ -19,6 +19,7 @@ func ConnectToDB() {
 	// Load the configuration file
 	utils.InitConfig()
 
+	// Using Viper to load the configuration file
 	// dsn := fmt.Sprintf("%v://%v:%v@%v:%v/%v?sslmode=disable&TimeZone=Asia/Bangkok",
 	// 	viper.GetString("db.driver"),
 	// 	viper.GetString("db.user"),

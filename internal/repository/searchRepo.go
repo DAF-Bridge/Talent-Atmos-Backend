@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	// "github.com/elastic/go-elasticsearch/v7"
 	"github.com/opensearch-project/opensearch-go"
 )
@@ -18,7 +18,7 @@ func NewSearchRepository(esClient *opensearch.Client) SearchRepository {
 	return &searchQueryRepository{esClient: esClient}
 }
 
-func (es *searchQueryRepository) IndexEvent(event *domain.Event) error {
+func (es *searchQueryRepository) IndexEvent(event *models.Event) error {
 	data, err := json.Marshal(event)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (es *searchQueryRepository) IndexEvent(event *domain.Event) error {
 	return nil
 }
 
-func (es *searchQueryRepository) IndexJob(job *domain.OrgOpenJob) error {
+func (es *searchQueryRepository) IndexJob(job *models.OrgOpenJob) error {
 	data, err := json.Marshal(job)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (es *searchQueryRepository) IndexJob(job *domain.OrgOpenJob) error {
 	return nil
 }
 
-func (es *searchQueryRepository) SearchEvents(query EventSearchQuery) ([]domain.Event, error) {
+func (es *searchQueryRepository) SearchEvents(query EventSearchQuery) ([]models.Event, error) {
 	esQuery := map[string]interface{}{
 		"query": map[string]interface{}{
 			"bool": map[string]interface{}{
@@ -93,7 +93,7 @@ func (es *searchQueryRepository) SearchEvents(query EventSearchQuery) ([]domain.
 	var results struct {
 		Hits struct {
 			Hits []struct {
-				Source domain.Event `json:"_source"`
+				Source models.Event `json:"_source"`
 			} `json:"hits"`
 		} `json:"hits"`
 	}
@@ -102,7 +102,7 @@ func (es *searchQueryRepository) SearchEvents(query EventSearchQuery) ([]domain.
 		return nil, err
 	}
 
-	events := make([]domain.Event, len(results.Hits.Hits))
+	events := make([]models.Event, len(results.Hits.Hits))
 
 	for i, hit := range results.Hits.Hits {
 		events[i] = hit.Source
@@ -111,7 +111,7 @@ func (es *searchQueryRepository) SearchEvents(query EventSearchQuery) ([]domain.
 	return events, nil
 }
 
-func (es *searchQueryRepository) SearchJobs(query JobSearchQuery) ([]domain.OrgOpenJob, error) {
+func (es *searchQueryRepository) SearchJobs(query JobSearchQuery) ([]models.OrgOpenJob, error) {
 	esQuery := map[string]interface{}{
 		"query": map[string]interface{}{
 			"bool": map[string]interface{}{
@@ -150,7 +150,7 @@ func (es *searchQueryRepository) SearchJobs(query JobSearchQuery) ([]domain.OrgO
 	var results struct {
 		Hits struct {
 			Hits []struct {
-				Source domain.OrgOpenJob `json:"_source"`
+				Source models.OrgOpenJob `json:"_source"`
 			} `json:"hits"`
 		} `json:"hits"`
 	}
@@ -159,7 +159,7 @@ func (es *searchQueryRepository) SearchJobs(query JobSearchQuery) ([]domain.OrgO
 		return nil, err
 	}
 
-	jobs := make([]domain.OrgOpenJob, len(results.Hits.Hits))
+	jobs := make([]models.OrgOpenJob, len(results.Hits.Hits))
 	for i, hit := range results.Hits.Hits {
 		jobs[i] = hit.Source
 	}

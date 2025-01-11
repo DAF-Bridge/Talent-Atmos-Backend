@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 )
@@ -17,7 +17,7 @@ func NewSearchService(searchRepo repository.SearchRepository) SearchService {
 	}
 }
 
-func (s *searchService) SyncEventElasticSearch(event *domain.Event) error {
+func (s *searchService) SyncEventElasticSearch(event *models.Event) error {
 	err := s.searchRepo.IndexEvent(event)
 	if err != nil {
 		logs.Error(err)
@@ -27,7 +27,7 @@ func (s *searchService) SyncEventElasticSearch(event *domain.Event) error {
 	return nil
 }
 
-func (s *searchService) SyncJobElasticSearch(job *domain.OrgOpenJob) error {
+func (s *searchService) SyncJobElasticSearch(job *models.OrgOpenJob) error {
 	err := s.searchRepo.IndexJob(job)
 	if err != nil {
 		logs.Error(err)

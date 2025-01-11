@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	// "fmt"
 	"log"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
-
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
@@ -23,8 +22,7 @@ func init() {
 func main() {
 	if initializers.DB == nil {
 		log.Fatal("Database connection is not established.")
-	}	
-
+	}
 
 	// if err := initializers.DB.AutoMigrate(&domain.Organization{}); err != nil {
 	// 	log.Fatal(err)
@@ -53,11 +51,10 @@ func main() {
 	// 	Longitude:       "100.5018",
 	// 	Province:        "Bangkok",
 	// 	OrganizationID:  1,
-	// })	
+	// })
 	// }
 
-	
 	// drop column headling on event
-	initializers.DB.Migrator().DropColumn(&domain.Event{}, "head_line")
+	initializers.DB.Migrator().DropColumn(&models.Event{}, "head_line")
 
 }

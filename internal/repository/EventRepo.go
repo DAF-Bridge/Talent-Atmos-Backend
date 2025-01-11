@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
@@ -15,7 +15,7 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 	return &eventRepository{db: db}
 }
 
-func (r eventRepository) Create(orgID uint, event *domain.Event) (*domain.Event, error) {
+func (r eventRepository) Create(orgID uint, event *models.Event) (*models.Event, error) {
 	// query := `
 	// 	insert into events (organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province)
 	// 	values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
@@ -54,14 +54,14 @@ func (r eventRepository) Create(orgID uint, event *domain.Event) (*domain.Event,
 	return event, nil
 }
 
-func (r eventRepository) GetAll() ([]domain.Event, error) {
+func (r eventRepository) GetAll() ([]models.Event, error) {
 	// query := `
 	// 			select id, organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province
 	// 			from events
 	// 			order by created_at desc
 	// 		 `
 
-	events := []domain.Event{}
+	events := []models.Event{}
 	err := r.db.Find(&events).Error
 
 	if err != nil {
@@ -71,7 +71,7 @@ func (r eventRepository) GetAll() ([]domain.Event, error) {
 	return events, nil
 }
 
-func (r eventRepository) GetAllByOrgID(orgID uint) ([]domain.Event, error) {
+func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
 	// query := `
 	// 			select id, organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province
 	// 		 	from events
@@ -81,7 +81,7 @@ func (r eventRepository) GetAllByOrgID(orgID uint) ([]domain.Event, error) {
 
 	// err := r.db.Select(&events, query, int(orgID)).Error
 
-	events := []domain.Event{}
+	events := []models.Event{}
 
 	err := r.db.Where("organization_id = ?", int(orgID)).Find(&events).Error
 
@@ -92,8 +92,8 @@ func (r eventRepository) GetAllByOrgID(orgID uint) ([]domain.Event, error) {
 	return events, nil
 }
 
-func (r eventRepository) GetByID(orgID uint, eventID uint) (*domain.Event, error) {
-	event := domain.Event{}
+func (r eventRepository) GetByID(orgID uint, eventID uint) (*models.Event, error) {
+	event := models.Event{}
 
 	err := r.db.Where("organization_id = ?", int(eventID)).Where("id = ?", int(eventID)).First(&event).Error
 
@@ -125,8 +125,8 @@ func (r eventRepository) GetByID(orgID uint, eventID uint) (*domain.Event, error
 // 	return events, nil
 // }
 
-func (r eventRepository) GetPaginate(page uint, size uint) ([]domain.Event, error) {
-	events := []domain.Event{}
+func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, error) {
+	events := []models.Event{}
 	offset := int((page - 1) * size)
 
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
@@ -141,8 +141,8 @@ func (r eventRepository) GetPaginate(page uint, size uint) ([]domain.Event, erro
 	return events, nil
 }
 
-func (r eventRepository) GetFirst() (*domain.Event, error) {
-	event := domain.Event{}
+func (r eventRepository) GetFirst() (*models.Event, error) {
+	event := models.Event{}
 
 	err := r.db.First(&event).Error
 
@@ -156,7 +156,7 @@ func (r eventRepository) GetFirst() (*domain.Event, error) {
 func (r eventRepository) Count() (int64, error) {
 	var count int64
 
-	err := r.db.Model(&domain.Event{}).Count(&count).Error
+	err := r.db.Model(&models.Event{}).Count(&count).Error
 
 	if err != nil {
 		return 0, err
@@ -177,7 +177,7 @@ func (r eventRepository) Count() (int64, error) {
 
 func (r eventRepository) Delete(orgID uint, eventID uint) error {
 
-	event := domain.Event{}
+	event := models.Event{}
 
 	err := r.db.Where("organization_id = ?", int(orgID)).Delete("id = ?", int(eventID)).First(&event).Error
 	// err := r.db.(&domain.Event{}, int(eventID)).Error

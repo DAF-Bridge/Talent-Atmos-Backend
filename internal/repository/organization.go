@@ -1,12 +1,14 @@
 package repository
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+)
 
 type OrgOpenJobRepository interface {
-	Create(org *domain.OrgOpenJob) error
-	GetByID(orgID uint, jobID uint) (*domain.OrgOpenJob, error)
-	GetAll() ([]domain.OrgOpenJob, error)
-	GetAllByOrgID(OrgId uint) ([]domain.OrgOpenJob, error)
-	Update(org *domain.OrgOpenJob) error
+	Create(org *models.OrgOpenJob) error
+	GetByID(orgID uint, jobID uint) (*models.OrgOpenJob, error)
+	GetAll() ([]models.OrgOpenJob, error)
+	GetAllByOrgID(OrgId uint) ([]models.OrgOpenJob, error)
+	Update(org *models.OrgOpenJob) error
 	Delete(id uint) error
 }

@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/customerrors"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -13,13 +13,13 @@ import (
 )
 
 type AuthService struct {
-	userRepo  *repository.UserRepository
+	userRepo    *repository.UserRepository
 	profileRepo *repository.ProfileRepository
-	jwtSecret string
+	jwtSecret   string
 }
 
 func NewAuthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *AuthService {
-	return &AuthService{userRepo: userRepo, profileRepo: profileRepo ,jwtSecret: jwtSecret}
+	return &AuthService{userRepo: userRepo, profileRepo: profileRepo, jwtSecret: jwtSecret}
 }
 
 func (s *AuthService) SignUp(name, email, password, phone string) (string, error) {
@@ -47,11 +47,11 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 
 	hashedPasswordString := string(hashedPassword) // Convert []byte to string
 
-	user := &domain.User{
+	user := &models.User{
 		Name:     name,
 		Email:    email,
 		Password: &hashedPasswordString,
-		Provider: domain.ProviderLocal,
+		Provider: models.ProviderLocal,
 	}
 
 	// Create User
@@ -62,7 +62,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 
 	fname, lname := utils.SeparateName(name)
 
-	profile := &domain.Profile{
+	profile := &models.Profile{
 		FirstName: fname,
 		LastName:  lname,
 		Email:     email,
@@ -94,7 +94,7 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
-	passwordStr := string(*user.Password)	// Convert *string to string
+	passwordStr := string(*user.Password) // Convert *string to string
 
 	// Check Password
 	if err := bcrypt.CompareHashAndPassword([]byte(passwordStr), []byte(password)); err != nil {
@@ -108,12 +108,12 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 }
 
 // Private Methods for local use
-func (s *AuthService) generateJWT(user *domain.User) (string, error) {
+func (s *AuthService) generateJWT(user *models.User) (string, error) {
 	// Generate JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"email":   user.Email,
-		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(),  // 7 days
+		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})
 	return token.SignedString([]byte(s.jwtSecret))
 }

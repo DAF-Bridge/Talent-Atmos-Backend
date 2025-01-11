@@ -1,13 +1,12 @@
-package infrastructure
+package elasticsearch
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"strings"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
-	// "github.com/elastic/go-elasticsearch/v7"
 	"github.com/opensearch-project/opensearch-go"
 )
 
@@ -43,7 +42,7 @@ func (es *ElasticSearchClient) CreateIndex(indexName string) error {
 	return nil
 }
 
-func (es *ElasticSearchClient) SyncEventsAndJobs(events []domain.Event, jobs []domain.OrgOpenJob) error {
+func (es *ElasticSearchClient) SyncEventsAndJobs(events []models.Event, jobs []models.OrgOpenJob) error {
 	// Sync events to Elasticsearch
 	for _, event := range events {
 		eventJSON, err := json.Marshal(event)

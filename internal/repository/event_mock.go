@@ -3,34 +3,35 @@ package repository
 import (
 	"strings"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
 
 type eventRepositoryMock struct {
-	events []domain.MockEvent
+	events []models.MockEvent
 }
 
 func NewEventRepositoryMock() MockEventRepository {
-	events := []domain.MockEvent{
+	events := []models.MockEvent{
 		{
 			EventID:        1,
 			OrganizationID: 1,
-			Name:           "1. Renewable Energy Summit",
+			Name:           "Renewable Energy Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
 			StartDate:      utils.DateParser("2024 01 15"),
 			EndDate:        utils.DateParser("2024 01 16"),
 			StartTime:      utils.TimeParser("09:00:00"),
 			EndTime:        utils.TimeParser("17:00:00"),
-			Timeline: []domain.Timeline{
+			Timeline: []models.Timeline{
 				{
 					Time:     "09:00 AM",
 					Activity: "Opening Ceremony",
 				},
 				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
+					Time:     "10:00 AM",
+					Activity: "Keynote Speech",
 				},
 			},
 			Description:  "Explore advancements in renewable energy technologies.",
@@ -50,31 +51,31 @@ func NewEventRepositoryMock() MockEventRepository {
 		{
 			EventID:        2,
 			OrganizationID: 1,
-			Name:           "2. Tech Summit",
+			Name:           "Tech Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 01 15"),
-			EndDate:        utils.DateParser("2024 01 16"),
-			StartTime:      utils.TimeParser("09:00:00"),
-			EndTime:        utils.TimeParser("17:00:00"),
-			Timeline: []domain.Timeline{
+			StartDate:      utils.DateParser("2024 02 20"),
+			EndDate:        utils.DateParser("2024 02 21"),
+			StartTime:      utils.TimeParser("10:00:00"),
+			EndTime:        utils.TimeParser("18:00:00"),
+			Timeline: []models.Timeline{
 				{
-					Time:     "09:00 AM",
+					Time:     "10:00 AM",
 					Activity: "Opening Ceremony",
 				},
 				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
+					Time:     "11:00 AM",
+					Activity: "Tech Innovations",
 				},
 			},
-			Description:  "Explore advancements in renewable energy technologies.",
-			Highlight:    "Top speakers from the renewable energy sector.",
-			Requirement:  "Open to professionals in the energy sector.",
-			KeyTakeaway:  "Learn about the latest trends in solar and wind energy.",
-			LocationName: "Conference Hall A",
-			Latitude:     "13.7563",
-			Longitude:    "100.5018",
-			Province:     "Bangkok",
-			Category:     "workshop",
+			Description:  "Discover the latest in technology and innovation.",
+			Highlight:    "Leading tech companies showcasing their products.",
+			Requirement:  "Open to all tech enthusiasts.",
+			KeyTakeaway:  "Gain insights into future tech trends.",
+			LocationName: "Tech Expo Center",
+			Latitude:     "37.7749",
+			Longitude:    "-122.4194",
+			Province:     "San Francisco",
+			Category:     "conference",
 			LocationType: "onsite",
 			Audience:     "professionals",
 			PriceType:    "free",
@@ -82,34 +83,66 @@ func NewEventRepositoryMock() MockEventRepository {
 		{
 			EventID:        3,
 			OrganizationID: 1,
-			Name:           "3. Marketing Summit",
+			Name:           "Marketing Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-			StartDate:      utils.DateParser("2024 01 15"),
-			EndDate:        utils.DateParser("2024 01 16"),
+			StartDate:      utils.DateParser("2024 03 10"),
+			EndDate:        utils.DateParser("2024 03 11"),
 			StartTime:      utils.TimeParser("09:00:00"),
 			EndTime:        utils.TimeParser("17:00:00"),
-			Timeline: []domain.Timeline{
+			Timeline: []models.Timeline{
 				{
 					Time:     "09:00 AM",
 					Activity: "Opening Ceremony",
 				},
 				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
+					Time:     "10:00 AM",
+					Activity: "Marketing Strategies",
 				},
 			},
-			Description:  "Explore advancements in renewable energy technologies.",
-			Highlight:    "Top speakers from the renewable energy sector.",
-			Requirement:  "Open to professionals in the energy sector.",
-			KeyTakeaway:  "Learn about the latest trends in solar and wind energy.",
-			LocationName: "Conference Hall A",
-			Latitude:     "13.7563",
-			Longitude:    "100.5018",
-			Province:     "Bangkok",
+			Description:  "Explore the latest marketing strategies and trends.",
+			Highlight:    "Industry leaders sharing their insights.",
+			Requirement:  "Open to marketing professionals.",
+			KeyTakeaway:  "Learn about effective marketing techniques.",
+			LocationName: "Marketing Hall B",
+			Latitude:     "40.7128",
+			Longitude:    "-74.0060",
+			Province:     "New York",
 			Category:     "workshop",
 			LocationType: "onsite",
 			Audience:     "general",
 			PriceType:    "paid",
+		},
+		{
+			EventID:        4,
+			OrganizationID: 1,
+			Name:           "Startup Summit",
+			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
+			StartDate:      utils.DateParser("2024 04 05"),
+			EndDate:        utils.DateParser("2024 04 06"),
+			StartTime:      utils.TimeParser("10:00:00"),
+			EndTime:        utils.TimeParser("18:00:00"),
+			Timeline: []models.Timeline{
+				{
+					Time:     "10:00 AM",
+					Activity: "Opening Ceremony",
+				},
+				{
+					Time:     "11:00 AM",
+					Activity: "Startup Pitches",
+				},
+			},
+			Description:  "Discover the latest startups and innovations.",
+			Highlight:    "Top startups showcasing their products.",
+			Requirement:  "Open to investors and entrepreneurs.",
+			KeyTakeaway:  "Learn about the startup ecosystem.",
+			LocationName: "Startup Hub",
+			Latitude:     "51.5074",
+			Longitude:    "-0.1278",
+			Province:     "London",
+			Category:     "exhibition",
+			LocationType: "onsite",
+			Audience:     "students",
+			PriceType:    "free",
 		},
 	}
 
@@ -127,7 +160,7 @@ func (e *eventRepositoryMock) Count() (int64, error) {
 }
 
 // Create implements EventRepository.
-func (e *eventRepositoryMock) Create(orgID uint, event *domain.MockEvent) (*domain.MockEvent, error) {
+func (e *eventRepositoryMock) Create(orgID uint, event *models.MockEvent) (*models.MockEvent, error) {
 	// eventResponse := convertToEventResponse(event)
 	event.OrganizationID = orgID
 
@@ -155,25 +188,30 @@ func (e *eventRepositoryMock) Delete(orgID uint, eventID uint) error {
 }
 
 // GetAll implements EventRepository.
-func (e *eventRepositoryMock) GetAll() ([]domain.MockEvent, error) {
+func (e *eventRepositoryMock) GetAll() ([]models.MockEvent, error) {
 	return e.events, nil
 }
 
 // GetAllByOrgID implements EventRepository.
-func (e *eventRepositoryMock) GetAllByOrgID(orgID uint) ([]domain.MockEvent, error) {
+func (e *eventRepositoryMock) GetAllByOrgID(orgID uint) ([]models.MockEvent, error) {
+	var resEvent []models.MockEvent
 	for _, event := range e.events {
 		if event.OrganizationID == orgID {
-			return []domain.MockEvent{event}, nil
+			resEvent = append(resEvent, event)
 		}
 	}
 
-	return nil, errs.NewNotFoundError("event not found")
+	if len(resEvent) == 0 {
+		return nil, errs.NewNotFoundError("events not found")
+	}
+
+	return resEvent, nil
 }
 
 // GetByID implements EventRepository.
-func (e *eventRepositoryMock) GetByID(orgID uint, eventID uint) (*domain.MockEvent, error) {
+func (e *eventRepositoryMock) GetByID(orgID uint, eventID uint) (*models.MockEvent, error) {
 	for _, event := range e.events {
-		if event.OrganizationID == orgID {
+		if event.OrganizationID == orgID && event.EventID == eventID {
 			return &event, nil
 		}
 	}
@@ -182,12 +220,12 @@ func (e *eventRepositoryMock) GetByID(orgID uint, eventID uint) (*domain.MockEve
 }
 
 // GetFirst implements EventRepository.
-func (e *eventRepositoryMock) GetFirst() (*domain.MockEvent, error) {
+func (e *eventRepositoryMock) GetFirst() (*models.MockEvent, error) {
 	return &e.events[0], nil
 }
 
 // GetPaginate implements EventRepository.
-func (e *eventRepositoryMock) GetPaginate(page uint, size uint) ([]domain.MockEvent, error) {
+func (e *eventRepositoryMock) GetPaginate(page uint, size uint) ([]models.MockEvent, error) {
 	page = page - 1
 	start := int(page * size)
 
@@ -204,46 +242,53 @@ func (e *eventRepositoryMock) GetPaginate(page uint, size uint) ([]domain.MockEv
 }
 
 // Search implements EventRepository.
-func (e *eventRepositoryMock) Search(params map[string]string) ([]domain.MockEvent, error) {
-	events := []domain.MockEvent{}
+func (e *eventRepositoryMock) Search(params map[string]string) ([]models.MockEvent, error) {
+	events := []models.MockEvent{}
 	for _, event := range e.events {
-		if event.Name == params["name"] {
-			events = append(events, event)
+
+		match := true
+
+		if params["name"] != "" && !strings.EqualFold(event.Name, params["name"]) {
+			match = false
 		}
 
-		if string(event.Category) == params["category"] {
-			events = append(events, event)
+		if params["category"] != "" && string(event.Category) != params["category"] {
+			match = false
 		}
 
-		if string(event.Audience) == params["audience"] {
-			events = append(events, event)
+		if params["audience"] != "" && string(event.Audience) != params["audience"] {
+			match = false
 		}
 
-		if string(event.PriceType) == params["price"] {
-			events = append(events, event)
+		if params["price"] != "" && string(event.PriceType) != params["price"] {
+			match = false
 		}
 
-		if string(event.LocationType) == params["location"] {
-			events = append(events, event)
+		if params["location"] != "" && string(event.LocationType) != params["location"] {
+			match = false
 		}
-
-		// if event.StartDate == utils.DateParser(params["dateRange"]) {
-		// 	events = append(events, event)
-		// }
-
-		// if event.EndDate == utils.DateParser(params["dateRange"]) {
-		// 	events = append(events, event)
-		// }
 
 		if params["search"] != "" {
-			if strings.Contains(event.Name, params["search"]) ||
-				strings.Contains(event.Description, params["search"]) ||
-				strings.Contains(event.Highlight, params["search"]) ||
-				strings.Contains(event.Requirement, params["search"]) ||
-				strings.Contains(event.KeyTakeaway, params["search"]) ||
-				strings.Contains(event.LocationName, params["search"]) ||
-				strings.Contains(event.Province, params["search"]) {
+			if !(strings.Contains(strings.ToLower(event.Name), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.Description), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.Highlight), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.Requirement), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.KeyTakeaway), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.LocationName), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.Province), strings.ToLower(params["search"]))) {
+				match = false
+			}
+		}
 
+		if match {
+			exists := false
+			for _, e := range events {
+				if e.EventID == event.EventID {
+					exists = true
+					break
+				}
+			}
+			if !exists {
 				events = append(events, event)
 			}
 		}
@@ -251,7 +296,7 @@ func (e *eventRepositoryMock) Search(params map[string]string) ([]domain.MockEve
 	}
 
 	if len(events) == 0 {
-		return nil, errs.NewNotFoundError("event not found")
+		return nil, errs.NewNotFoundError("events not found")
 	}
 
 	return events, nil

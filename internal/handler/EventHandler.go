@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -202,15 +202,23 @@ func NewMockEventHandler(eventService service.MockEventService) mockEventHandler
 
 func (h mockEventHandler) SearchMockEvent(c *fiber.Ctx) error {
 
-	query := domain.SearchCriteria{
-		Search:       c.Query("search"),
-		Category:     c.Query("category"),
-		LocationType: c.Query("location"),
-		Audience:     c.Query("audience"),
-		PriceType:    c.Query("price"),
+	// query := dto.EventSearchCriteria{
+	// 	Page:         c.Query("page"),
+	// 	Search:       c.Query("search"),
+	// 	Category:     c.Query("category"),
+	// 	LocationType: c.Query("location"),
+	// 	Audience:     c.Query("audience"),
+	// 	PriceType:    c.Query("price"),
+	// }
+
+	var query dto.EventSearchCriteria
+
+	if err := c.QueryParser(&query); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid query parameters"})
 	}
 
 	queryMap := map[string]string{
+		"page":     query.Page,
 		"search":   query.Search,
 		"category": query.Category,
 		"location": query.LocationType,

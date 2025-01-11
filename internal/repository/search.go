@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+)
 
 type EventSearchQuery struct {
 	Category  string
@@ -21,8 +23,8 @@ type JobSearchQuery struct {
 }
 
 type SearchRepository interface {
-	IndexEvent(event *domain.Event) error
-	IndexJob(job *domain.OrgOpenJob) error
-	SearchEvents(query EventSearchQuery) ([]domain.Event, error)
-	SearchJobs(query JobSearchQuery) ([]domain.OrgOpenJob, error)
+	IndexEvent(event *models.Event) error
+	IndexJob(job *models.OrgOpenJob) error
+	SearchEvents(query EventSearchQuery) ([]models.Event, error)
+	SearchJobs(query JobSearchQuery) ([]models.OrgOpenJob, error)
 }

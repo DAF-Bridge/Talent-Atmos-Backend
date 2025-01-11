@@ -1,25 +1,25 @@
 package service
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"time"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type OauthService struct {
-	userRepo *repository.UserRepository
+	userRepo    *repository.UserRepository
 	profileRepo *repository.ProfileRepository
-	jwtSecret string
+	jwtSecret   string
 }
 
-func NewOauthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository ,jwtSecret string) *OauthService {
-	return &OauthService{userRepo: userRepo, profileRepo: profileRepo ,jwtSecret: jwtSecret}
+func NewOauthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *OauthService {
+	return &OauthService{userRepo: userRepo, profileRepo: profileRepo, jwtSecret: jwtSecret}
 }
 
-func (s * OauthService) AuthenticateUser(name, email, provider, providerID string) (string, error) {
+func (s *OauthService) AuthenticateUser(name, email, provider, providerID string) (string, error) {
 
 	// Start a new transaction
 	tx := s.userRepo.BeginTransaction()
@@ -31,28 +31,28 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID strin
 		}
 	}()
 
-	user := &domain.User{
-		Name: 		name, 
-		Email: 		email, 
-		Provider: 	domain.Provider(provider), 
-		ProviderID: providerID, 
+	user := &models.User{
+		Name:       name,
+		Email:      email,
+		Provider:   models.Provider(provider),
+		ProviderID: providerID,
 	}
 
 	// check if email is already taken
-	if existedUser,err := s.userRepo.FindByEmail(email); err == nil {
+	if existedUser, err := s.userRepo.FindByEmail(email); err == nil {
 		user.ID = existedUser.ID
 		return s.generateJWT(user)
 	}
 
 	fname, lname := utils.SeparateName(name)
 
-	profile := &domain.Profile{
-		FirstName: fname, 
-		LastName: lname, 
-		Email: email, 
-		Phone: "", 
+	profile := &models.Profile{
+		FirstName: fname,
+		LastName:  lname,
+		Email:     email,
+		Phone:     "",
 	}
-	
+
 	// Start the transaction for creating the user and profile
 	if err := s.userRepo.Create(user); err != nil {
 		tx.Rollback() // Rollback if user creation fails
@@ -77,12 +77,12 @@ func (s * OauthService) AuthenticateUser(name, email, provider, providerID strin
 	return s.generateJWT(user)
 }
 
-func (s *OauthService) generateJWT(user *domain.User) (string, error) {
+func (s *OauthService) generateJWT(user *models.User) (string, error) {
 	// Generate JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-		"email": user.Email,
-		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
+		"email":   user.Email,
+		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})
 	return token.SignedString([]byte(s.jwtSecret))
 }

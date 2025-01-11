@@ -2,8 +2,8 @@ package repository
 
 import (
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
@@ -17,31 +17,31 @@ func NewOrganizationRepository(db *gorm.DB) *OrganizationRepository {
 	return &OrganizationRepository{db: db}
 }
 
-func (r *OrganizationRepository) Create(org *domain.Organization) error {
+func (r *OrganizationRepository) Create(org *models.Organization) error {
 	return r.db.Create(org).Error
 }
 
-func (r *OrganizationRepository) GetByID(id uint) (*domain.Organization, error) {
-	org := &domain.Organization{}
+func (r *OrganizationRepository) GetByID(id uint) (*models.Organization, error) {
+	org := &models.Organization{}
 	if err := r.db.First(org, id).Error; err != nil {
 		return nil, err
 	}
 	return org, nil
 }
 
-func (r *OrganizationRepository) GetPaginate(page uint, size uint) ([]domain.Organization, error) {
-	var orgs []domain.Organization
+func (r *OrganizationRepository) GetPaginate(page uint, size uint) ([]models.Organization, error) {
+	var orgs []models.Organization
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&orgs).Error
 	return orgs, err
 }
 
-func (r *OrganizationRepository) GetAll() ([]domain.Organization, error) {
-	var orgs []domain.Organization
+func (r *OrganizationRepository) GetAll() ([]models.Organization, error) {
+	var orgs []models.Organization
 	err := r.db.Find(&orgs).Error
 	return orgs, err
 }
 
-func (r *OrganizationRepository) Update(org *domain.Organization) error {
+func (r *OrganizationRepository) Update(org *models.Organization) error {
 	if err := r.db.Save(org).Error; err != nil {
 		return fmt.Errorf("failed to update organization: %w", err)
 	}
@@ -50,7 +50,7 @@ func (r *OrganizationRepository) Update(org *domain.Organization) error {
 }
 
 func (r *OrganizationRepository) Delete(id uint) error {
-	if err := r.db.Delete(&domain.Organization{}, id).Error; err != nil {
+	if err := r.db.Delete(&models.Organization{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete organization: %w", err)
 	}
 	return nil
@@ -71,12 +71,12 @@ func NewOrgOpenJobRepository(db *gorm.DB) OrgOpenJobRepository {
 	return orgOpenJobRepository{db: db}
 }
 
-func (r orgOpenJobRepository) Create(org *domain.OrgOpenJob) error {
+func (r orgOpenJobRepository) Create(org *models.OrgOpenJob) error {
 	return r.db.Create(org).Error
 }
 
-func (r orgOpenJobRepository) GetByID(orgID uint, jobID uint) (*domain.OrgOpenJob, error) {
-	org := &domain.OrgOpenJob{}
+func (r orgOpenJobRepository) GetByID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+	org := &models.OrgOpenJob{}
 
 	err := r.db.Where("organization_id = ?", orgID).Where("id = ?", jobID).First(&org).Error
 
@@ -87,20 +87,20 @@ func (r orgOpenJobRepository) GetByID(orgID uint, jobID uint) (*domain.OrgOpenJo
 	return org, nil
 }
 
-func (r orgOpenJobRepository) GetAll() ([]domain.OrgOpenJob, error) {
-	var orgs []domain.OrgOpenJob
+func (r orgOpenJobRepository) GetAll() ([]models.OrgOpenJob, error) {
+	var orgs []models.OrgOpenJob
 	err := r.db.Find(&orgs).Error
 	return orgs, err
 }
 
-func (r orgOpenJobRepository) GetAllByOrgID(OrgId uint) ([]domain.OrgOpenJob, error) {
-	var orgs []domain.OrgOpenJob
+func (r orgOpenJobRepository) GetAllByOrgID(OrgId uint) ([]models.OrgOpenJob, error) {
+	var orgs []models.OrgOpenJob
 
 	err := r.db.Where("organization_id = ?", OrgId).Find(&orgs).Error
 	return orgs, err
 }
 
-func (r orgOpenJobRepository) Update(org *domain.OrgOpenJob) error {
+func (r orgOpenJobRepository) Update(org *models.OrgOpenJob) error {
 	if err := r.db.Save(org).Error; err != nil {
 		return fmt.Errorf("failed to update organization open job: %w", err)
 	}
@@ -108,7 +108,7 @@ func (r orgOpenJobRepository) Update(org *domain.OrgOpenJob) error {
 }
 
 func (r orgOpenJobRepository) Delete(id uint) error {
-	if err := r.db.Delete(&domain.OrgOpenJob{}, id).Error; err != nil {
+	if err := r.db.Delete(&models.OrgOpenJob{}, id).Error; err != nil {
 		return fmt.Errorf("failed to delete organization open job: %w", err)
 	}
 	return nil

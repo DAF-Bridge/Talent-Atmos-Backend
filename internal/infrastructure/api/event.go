@@ -34,6 +34,6 @@ func NewEventRouter(app *fiber.App, db *gorm.DB) {
 	event.Get("/", mockEventHandler.ListMockEventsByOrgID)
 	event.Get("/:id", mockEventHandler.GetMockEventByID)
 	app.Get("/events-paginate", mockEventHandler.EventMockPaginate)
-	app.Get("/search", mockEventHandler.SearchMockEvent)
+	app.Get("/events/q", mockEventHandler.SearchMockEvent)
 	event.Delete("/:id", mockEventHandler.DeleteMockEvent)
 }

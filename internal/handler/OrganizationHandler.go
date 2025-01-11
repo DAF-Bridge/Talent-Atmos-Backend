@@ -1,23 +1,23 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
 
 type OrganizationHandler struct {
-	service domain.OrganizationService
+	service models.OrganizationService
 }
 
 // Constructor
-func NewOrganizationHandler(service domain.OrganizationService) *OrganizationHandler {
+func NewOrganizationHandler(service models.OrganizationService) *OrganizationHandler {
 	return &OrganizationHandler{service: service}
 }
 
 // CreateOrganization creates a new organization BUT still not create the Contact and OpenJob
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
-	var org domain.Organization
+	var org models.Organization
 	if err := c.BodyParser(&org); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -89,7 +89,7 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 
 // UpdateOrganization updates an organization by its ID
 func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
-	var org domain.Organization
+	var org models.Organization
 	if err := c.BodyParser(&org); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -138,7 +138,7 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 
 // CreateOrgOpenJob creates a new organization open job
 func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
-	var org domain.OrgOpenJob
+	var org models.OrgOpenJob
 	if err := c.BodyParser(&org); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -200,7 +200,7 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 
 // UpdateOrgOpenJob updates an organization open job by its ID
 func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
-	var org domain.OrgOpenJob
+	var org models.OrgOpenJob
 	if err := c.BodyParser(&org); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}

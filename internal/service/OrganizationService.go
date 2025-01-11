@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"gorm.io/gorm"
@@ -13,32 +13,32 @@ import (
 const numberOfOrganization = 10
 
 type OrganizationService struct {
-	repo domain.OrganizationRepository
+	repo models.OrganizationRepository
 }
 
 // Constructor
-func NewOrganizationService(repo domain.OrganizationRepository) *OrganizationService {
+func NewOrganizationService(repo models.OrganizationRepository) *OrganizationService {
 	return &OrganizationService{repo: repo}
 }
 
 // Creates a new organization
-func (s *OrganizationService) CreateOrganization(org *domain.Organization) error {
+func (s *OrganizationService) CreateOrganization(org *models.Organization) error {
 	return s.repo.Create(org)
 }
 
-func (s *OrganizationService) GetOrganizationByID(id uint) (*domain.Organization, error) {
+func (s *OrganizationService) GetOrganizationByID(id uint) (*models.Organization, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *OrganizationService) GetPaginateOrganization(page uint) ([]domain.Organization, error) {
+func (s *OrganizationService) GetPaginateOrganization(page uint) ([]models.Organization, error) {
 	return s.repo.GetPaginate(page, numberOfOrganization)
 }
 
-func (s *OrganizationService) ListAllOrganizations() ([]domain.Organization, error) {
+func (s *OrganizationService) ListAllOrganizations() ([]models.Organization, error) {
 	return s.repo.GetAll()
 }
 
-func (s *OrganizationService) UpdateOrganization(org *domain.Organization) error {
+func (s *OrganizationService) UpdateOrganization(org *models.Organization) error {
 	return s.repo.Update(org)
 }
 
@@ -121,11 +121,11 @@ func (s orgOpenJobService) GetAllByID(OrgId uint) ([]JobResponses, error) {
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) Create(org *domain.OrgOpenJob) error {
+func (s orgOpenJobService) Create(org *models.OrgOpenJob) error {
 	return s.jobRepo.Create(org)
 }
 
-func (s orgOpenJobService) Update(org *domain.OrgOpenJob) error {
+func (s orgOpenJobService) Update(org *models.OrgOpenJob) error {
 	return s.jobRepo.Update(org)
 }
 

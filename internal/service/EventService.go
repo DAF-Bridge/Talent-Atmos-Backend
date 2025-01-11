@@ -3,9 +3,9 @@ package service
 import (
 	"database/sql"
 	"errors"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"gorm.io/gorm"
@@ -172,7 +172,7 @@ func NewMockEventService(mockEventRepo repository.MockEventRepository) mockEvent
 func (s mockEventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses, error) {
 	event := requestConvertToMockEvent(int(orgID), req)
 
-	mockEvent := domain.MockEvent(event)
+	mockEvent := models.MockEvent(event)
 
 	newEvent, err := s.mockEventRepo.Create(uint(orgID), &mockEvent)
 
@@ -269,7 +269,7 @@ func (s mockEventService) SearchMockEvent(params map[string]string) ([]EventResp
 	events, err := s.mockEventRepo.Search(params)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("events not found")
 		}
 

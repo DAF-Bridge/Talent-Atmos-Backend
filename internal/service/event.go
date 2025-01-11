@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
 
@@ -12,7 +12,7 @@ type NewEventRequest struct {
 	EndDate      string            `json:"endDate"`
 	StartTime    string            `json:"startTime"`
 	EndTime      string            `json:"endTime"`
-	TimeLine     []domain.Timeline `json:"timeLine"`
+	TimeLine     []models.Timeline `json:"timeLine"`
 	Description  string            `json:"description"`
 	Highlight    string            `json:"highlight"`
 	Requirement  string            `json:"requirement"`
@@ -32,7 +32,7 @@ type EventResponses struct {
 	EndDate        string            `json:"endDate"`
 	StartTime      string            `json:"startTime"`
 	EndTime        string            `json:"endTime"`
-	TimeLine       []domain.Timeline `json:"timeLine"`
+	TimeLine       []models.Timeline `json:"timeLine"`
 	Description    string            `json:"description"`
 	Highlight      string            `json:"highlight"`
 	Requirement    string            `json:"requirement"`
@@ -56,7 +56,7 @@ type EventService interface {
 	DeleteEvent(orgID uint, eventID uint) (*EventResponses, error)
 }
 
-func convertToEventResponse(event domain.Event) EventResponses {
+func convertToEventResponse(event models.Event) EventResponses {
 	return EventResponses{
 		ID:             int(event.ID),
 		OrganizationID: int(event.OrganizationID),
@@ -91,8 +91,8 @@ type MockEventService interface {
 	DeleteMockEvent(orgID uint, eventID uint) (*EventResponses, error)
 }
 
-func requestConvertToEvent(orgID int, reqEvent NewEventRequest) domain.Event {
-	return domain.Event{
+func requestConvertToEvent(orgID int, reqEvent NewEventRequest) models.Event {
+	return models.Event{
 		OrganizationID: uint(orgID),
 		Name:           reqEvent.Name,
 		PicUrl:         reqEvent.PicUrl,
@@ -112,8 +112,8 @@ func requestConvertToEvent(orgID int, reqEvent NewEventRequest) domain.Event {
 	}
 }
 
-func requestConvertToMockEvent(orgID int, reqEvent NewEventRequest) domain.MockEvent {
-	return domain.MockEvent{
+func requestConvertToMockEvent(orgID int, reqEvent NewEventRequest) models.MockEvent {
+	return models.MockEvent{
 		OrganizationID: uint(orgID),
 		Name:           reqEvent.Name,
 		PicUrl:         reqEvent.PicUrl,
@@ -133,7 +133,7 @@ func requestConvertToMockEvent(orgID int, reqEvent NewEventRequest) domain.MockE
 	}
 }
 
-func convertMockEventToEventResponse(event domain.MockEvent) EventResponses {
+func convertMockEventToEventResponse(event models.MockEvent) EventResponses {
 	return EventResponses{
 		ID:             int(event.EventID),
 		OrganizationID: int(event.OrganizationID),

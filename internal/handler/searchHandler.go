@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +18,7 @@ func NewSearchHandler(searchSrv service.SearchService) SearchHandler {
 }
 
 func (h *SearchHandler) SyncEventElasticSearch(c *fiber.Ctx) error {
-	event := domain.Event{}
+	event := models.Event{}
 
 	if err := c.BodyParser(&event); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -34,7 +34,7 @@ func (h *SearchHandler) SyncEventElasticSearch(c *fiber.Ctx) error {
 }
 
 func (h *SearchHandler) SyncJobElasticSearch(c *fiber.Ctx) error {
-	job := domain.OrgOpenJob{}
+	job := models.OrgOpenJob{}
 
 	if err := c.BodyParser(&job); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
