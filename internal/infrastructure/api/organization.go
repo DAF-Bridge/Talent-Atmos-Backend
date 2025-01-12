@@ -14,12 +14,12 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB) {
 	organizationService := service.NewOrganizationService(organizationRepo)
 	organizationHandler := handler.NewOrganizationHandler(organizationService)
 
-	org := app.Group("/org")
+	org := app.Group("/orgs")
 
-	org.Get("/paginate", organizationHandler.GetOrganizationPaginate)
+	org.Get("/list", organizationHandler.ListOrganizations)
 	org.Post("/", organizationHandler.CreateOrganization)
-	app.Get("/orgs", organizationHandler.ListOrganizations)
 	org.Get("/:id", organizationHandler.GetOrganizationByID)
+	app.Get("/paginate", organizationHandler.GetOrganizationPaginate)
 	org.Put("/:id", organizationHandler.UpdateOrganization)
 	org.Delete("/:id", organizationHandler.DeleteOrganization)
 
@@ -29,9 +29,10 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB) {
 	orgOpenJobHandler := handler.NewOrgOpenJobHandler(orgOpenJobService)
 
 	// Define routes for Organization Open Jobs
-	org.Post("/:orgID/open-job", orgOpenJobHandler.CreateOrgOpenJob)
-	org.Get("/:orgID/list-jobs", orgOpenJobHandler.ListOrgOpenJobs)
-	org.Get("/:orgID/get-job/:id", orgOpenJobHandler.GetOrgOpenJobByID)
-	org.Put("/:orgID/update-job/:id", orgOpenJobHandler.UpdateOrgOpenJob)
-	org.Delete("/:orgID/delete-job/:id", orgOpenJobHandler.DeleteOrgOpenJob)
+	org.Get("/jobs/list/all", orgOpenJobHandler.ListAllOrganizationJobs)
+	org.Post("/:orgID/jobs/open", orgOpenJobHandler.CreateOrgOpenJob)
+	org.Get("/:orgID/jobs/list", orgOpenJobHandler.ListOrgOpenJobsByOrgID)
+	org.Get("/:orgID/jobs/get/:id", orgOpenJobHandler.GetOrgOpenJobByID)
+	org.Put("/:orgID/jobs/update/:id", orgOpenJobHandler.UpdateOrgOpenJob)
+	org.Delete("/:orgID/jobs/delete/:id", orgOpenJobHandler.DeleteOrgOpenJob)
 }

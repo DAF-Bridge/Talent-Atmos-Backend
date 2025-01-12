@@ -7,15 +7,24 @@ import (
 )
 
 type OrganizationHandler struct {
-	service models.OrganizationService
+	service service.OrganizationService
 }
 
 // Constructor
-func NewOrganizationHandler(service models.OrganizationService) *OrganizationHandler {
+func NewOrganizationHandler(service service.OrganizationService) *OrganizationHandler {
 	return &OrganizationHandler{service: service}
 }
 
-// CreateOrganization creates a new organization BUT still not create the Contact and OpenJob
+// @Summary Create a new organization
+// @Description Create a new organization BUT still not create the Contact and OpenJob
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param org body models.Organization true "Organization"
+// @Success 201 {object} models.Organization
+// @Failure 400 {object} fiber.Map "Bad Request - json body is required or invalid / organization name is required"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs [post]
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	var org models.Organization
 	if err := c.BodyParser(&org); err != nil {
@@ -32,16 +41,17 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(org)
-	// return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-	// 	"status":  "success",
-	// 	"message": "organization created successfully",
-	// 	"data":    org,
-	// })
 }
 
-// ListOrganizations returns all organizations
+// @Summary List all organizations
+// @Description Get all organizations
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Organization "OK"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/list [get]
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
-
 	orgs, err := h.service.ListAllOrganizations()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -50,7 +60,17 @@ func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(orgs)
 }
 
-// GetOrganizationByID returns an organization by its ID
+// @Summary Get an organization by ID
+// @Description Get an organization by ID
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Success 200 {object} models.Organization
+// @Failure 400 {object} fiber.Map "Bad Request - organization id is required"
+// @Failure 404 {object} fiber.Map "Not Found - organization not found"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{id} [get]
 func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("id")
 	if err != nil {
@@ -71,7 +91,16 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(org)
 }
 
-// GetOrganizationPaginate returns a page of organizations
+// @Summary Get a page of organizations
+// @Description Get a page of organizations
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param page query int true "Page number"
+// @Success 200 {array} models.Organization
+// @Failure 400 {object} fiber.Map "Bad Request - invalid page"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/paginate [get]
 func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 
@@ -87,25 +116,50 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(organizations)
 }
 
-// UpdateOrganization updates an organization by its ID
+// @Summary Update an organization by ID
+// @Description Update an organization by ID
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Param org body models.Organization true "Organization"
+// @Success 200 {object} models.Organization
+// @Failure 400 {object} fiber.Map "Bad Request - organization id is required / invalid organization ID"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{id} [put]
 func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	var org models.Organization
 	if err := c.BodyParser(&org); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if org.ID == 0 {
+	orgID, err := c.ParamsInt("id")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	if org.ID < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization ID"})
 	}
 
-	if err := h.service.UpdateOrganization(&org); err != nil {
+	if err := h.service.UpdateOrganization(uint(orgID), &org); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(org)
 }
 
-// Deletes an organization
+// @Summary Delete an organization by ID
+// @Description Delete an organization by ID
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Success 200 {object} nil "OK"
+// @Failure 400 {object} fiber.Map "Bad Request - organization id is required / invalid organization id"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{id} [delete]
 func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("id")
 	if err != nil {
@@ -120,7 +174,7 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusNoContent).JSON(nil)
+	return c.Status(fiber.StatusOK).JSON(nil)
 }
 
 // --------------------------------------------------------------------------
@@ -136,7 +190,16 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 	return &OrgOpenJobHandler{service: service}
 }
 
-// CreateOrgOpenJob creates a new organization open job
+// @Summary Create a new organization open job
+// @Description Create a new organization open job
+// @Tags Organization Job
+// @Accept json
+// @Produce json
+// @Param org body models.OrgOpenJob true "Organization Open Job"
+// @Success 201 {object} models.OrgOpenJob
+// @Failure 400 {object} fiber.Map "Bad Request - json body is required or invalid / job title is required"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/jobs/open [post]
 func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	var org models.OrgOpenJob
 	if err := c.BodyParser(&org); err != nil {
@@ -148,15 +211,41 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job title is required"})
 	}
 
-	if err := h.service.Create(&org); err != nil {
+	if err := h.service.NewJob(&org); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(org)
 }
 
-// ListOrgOpenJobs returns all organization open jobs
-func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
+// @Summary List all organization jobs
+// @Description Get all organization jobs
+// @Tags Organization Job
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.OrgOpenJob "OK"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/jobs/list/all [get]
+func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
+	orgs, err := h.service.ListAllJobs()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(orgs)
+}
+
+// @Summary List all jobs of its organization
+// @Description Get all organization open jobs
+// @Tags Organization Job
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Success 200 {array} models.OrgOpenJob
+// @Failure 400 {object} fiber.Map "Bad Request - organization id is required or invalid"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/jobs/list [get]
+func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
@@ -165,73 +254,141 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobs(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	org, err := h.service.GetAllByID(uint(orgID))
+	org, err := h.service.GetAllJobsByOrgID(uint(orgID))
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "List of organization open jobs"})
 	return c.Status(fiber.StatusOK).JSON(org)
 }
 
-// GetOrgOpenJobByID returns an organization open job by its ID
+// @Summary Get an organization open job by ID
+// @Description Get an organization open job by ID
+// @Tags Organization Job
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Param id path int true "Job ID"
+// @Success 200 {object} models.OrgOpenJob
+// @Failure 400 {object} fiber.Map "Bad Request - organization id & job id is required"
+// @Failure 404 {object} fiber.Map "Not Found - jobs not found"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/jobs/get/{id} [get]
 func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
+	}
+	if orgID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
+	}
+
+	jobID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
+	}
+	if jobID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid job id"})
+	}
+
+	org, err := h.service.GetJobByID(uint(orgID), uint(jobID))
+
+	if org == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "jobs not found"})
+	}
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(org)
+}
+
+// @Summary Update an organization open job by ID
+// @Description Update an organization open job by ID
+// @Tags Organization Job
+// @Accept json
+// @Produce json
+// @Param org body models.OrgOpenJob true "Organization Open Job"
+// @Success 200 {object} models.OrgOpenJob
+// @Failure 400 {object} fiber.Map "Bad Request - organization id & job id is required"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/jobs/update/{id} [put]
+func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
+	var job models.OrgOpenJob
+
+	if err := c.BodyParser(&job); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid json body"})
+	}
+
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	if orgID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
+	}
+
 	jobID, err := c.ParamsInt("id")
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
 	}
-	if orgID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
+	if jobID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid job id"})
 	}
 
-	org, err := h.service.GetByID(uint(orgID), uint(jobID))
+	job.ID = uint(jobID)
+	job.OrganizationID = uint(orgID)
+
+	err = h.service.UpdateJob(uint(orgID), uint(jobID), &job)
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	if org == nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "organization open job not found"})
-	}
 
-	return c.Status(fiber.StatusOK).JSON(org)
+	return c.Status(fiber.StatusOK).JSON(job)
 }
 
-// UpdateOrgOpenJob updates an organization open job by its ID
-func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
-	var org models.OrgOpenJob
-	if err := c.BodyParser(&org); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	if org.ID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job ID"})
-	}
-
-	if err := h.service.Update(&org); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(org)
-}
-
-// DeleteOrgOpenJob deletes an organization open job by its ID
+// @Summary Delete an organization job by ID
+// @Description Delete an organization job by ID
+// @Tags Organization Job
+// @Accept json
+// @Produce json
+// @Param id path int true "Job ID"
+// @Success 200 {object} nil "OK"
+// @Failure 400 {object} fiber.Map "Bad Request - organization id & job id is required"
+// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/jobs/delete/{id} [delete]
 func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
-	orgID, err := c.ParamsInt("id")
+	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required  (orgID)"})
 	}
 
 	if orgID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization open job id"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id  (orgID)"})
 	}
 
-	if err := h.service.Delete(uint(orgID)); err != nil {
+	jobID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required (id)"})
+	}
+
+	if jobID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid job id (id)"})
+	}
+
+	job, err := h.service.RemoveJob(uint(orgID), uint(jobID))
+
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(nil)
+	return c.Status(fiber.StatusOK).JSON(job)
 }
 
 // --------------------------------------------------------------------------

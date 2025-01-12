@@ -9,20 +9,954 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "fiber@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/events": {
+            "get": {
+                "description": "Get a list of all events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List all events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/service.EventResponses"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/events-paginate": {
+            "get": {
+                "description": "Get a paginated list of events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Paginate events",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PaginatedEventsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid page number",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/first": {
+            "get": {
+                "description": "Get the first event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get the first event",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.EventShortResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/q": {
+            "get": {
+                "description": "Search for mock events based on various criteria such as page, search term, category, location type, audience, and price type.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Search for mock events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Location type",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Audience type",
+                        "name": "audience",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Price type",
+                        "name": "price",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.EventCardResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Events not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/upcoming": {
+            "get": {
+                "description": "Get a list of upcoming events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get upcoming events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.EventResponses"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs": {
+            "post": {
+                "description": "Create a new organization BUT still not create the Contact and OpenJob",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Create a new organization",
+                "parameters": [
+                    {
+                        "description": "Organization",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - json body is required or invalid / organization name is required",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/jobs/list/all": {
+            "get": {
+                "description": "Get all organization jobs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "List all organization jobs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OrgOpenJob"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/list": {
+            "get": {
+                "description": "Get all organizations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "List all organizations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Organization"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/paginate": {
+            "get": {
+                "description": "Get a page of organizations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get a page of organizations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Organization"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - invalid page",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{id}": {
+            "get": {
+                "description": "Get an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id is required",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - organization not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Update an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organization",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id is required / invalid organization ID",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Delete an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id is required / invalid organization id",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/events": {
+            "get": {
+                "description": "Get a list of all events for a specific organization",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List all events for a specific organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/service.EventResponses"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid organization id or missing orgID parameters",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new event for a specific organization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event data",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.NewEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/service.EventResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id is required or invalid / event body is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/events/{id}": {
+            "get": {
+                "description": "Get an event by its ID for a specific organization",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get an event by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.EventResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid organization id or missing orgID parameters",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an event by its ID for a specific organization",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Delete an event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.EventResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid organization id or missing orgID parameters",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/delete/{id}": {
+            "delete": {
+                "description": "Delete an organization job by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Delete an organization job by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id \u0026 job id is required",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/get/{id}": {
+            "get": {
+                "description": "Get an organization open job by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Get an organization open job by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrgOpenJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id \u0026 job id is required",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - jobs not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/list": {
+            "get": {
+                "description": "Get all organization open jobs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "List all jobs of its organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OrgOpenJob"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id is required or invalid",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/open": {
+            "post": {
+                "description": "Create a new organization open job",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Create a new organization open job",
+                "parameters": [
+                    {
+                        "description": "Organization Open Job",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.OrgOpenJob"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrgOpenJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - json body is required or invalid / job title is required",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/update/{id}": {
+            "put": {
+                "description": "Update an organization open job by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Update an organization open job by ID",
+                "parameters": [
+                    {
+                        "description": "Organization Open Job",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.OrgOpenJob"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrgOpenJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - organization id \u0026 job id is required",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/signup": {
             "post": {
                 "description": "Create a new user in the system",
@@ -49,21 +983,54 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "message: Sign up successful\" \"OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.User"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Invalid input",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "List all users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -71,66 +1038,61 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Provider": {
-            "type": "string",
-            "enum": [
-                "google",
-                "facebook",
-                "local"
-            ],
-            "x-enum-varnames": [
-                "ProviderGoogle",
-                "ProviderFacebook",
-                "ProviderLocal"
-            ]
-        },
-        "domain.Role": {
-            "type": "string",
-            "enum": [
-                "User",
-                "Admin"
-            ],
-            "x-enum-varnames": [
-                "RoleUser",
-                "RoleAdmin"
-            ]
-        },
-        "domain.User": {
+        "dto.EventShortResponseDTO": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
                 },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "email": {
-                    "type": "string"
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "builds CMU"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "builds IDEA 2024"
                 },
-                "provider": {
-                    "description": "e.g., \"google\"",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.Provider"
-                        }
-                    ]
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
                 },
-                "provider_id": {
-                    "type": "string"
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
                 },
-                "role": {
-                    "$ref": "#/definitions/domain.Role"
-                },
-                "updated_at": {
-                    "type": "string"
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
                 }
             }
+        },
+        "dto.PaginatedEventsResponse": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventShortResponseDTO"
+                    }
+                },
+                "total_events": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "fiber.Map": {
+            "type": "object",
+            "additionalProperties": true
         },
         "gorm.DeletedAt": {
             "type": "object",
@@ -141,6 +1103,35 @@ const docTemplate = `{
                 "valid": {
                     "description": "Valid is true if Time is not NULL",
                     "type": "boolean"
+                }
+            }
+        },
+        "handler.EventShortResponse": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "picUrl": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
                 }
             }
         },
@@ -160,18 +1151,598 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.CareerStage": {
+            "type": "string",
+            "enum": [
+                "entrylevel",
+                "senior"
+            ],
+            "x-enum-varnames": [
+                "CareerStageEntryLevel",
+                "CareerStageSenior"
+            ]
+        },
+        "models.Industry": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industry": {
+                    "type": "string"
+                },
+                "organization": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Organization"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Media": {
+            "type": "string",
+            "enum": [
+                "website",
+                "facebook",
+                "instagram",
+                "tiktok",
+                "youtube",
+                "linkedin",
+                "line"
+            ],
+            "x-enum-varnames": [
+                "MediaWebsite",
+                "MediaFacebook",
+                "MediaIG",
+                "MediaTikTok",
+                "MediaYoutube",
+                "MediaLinkedin",
+                "MediaLine"
+            ]
+        },
+        "models.OrgOpenJob": {
+            "type": "object",
+            "properties": {
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "junior"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "organization": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "organization_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "prerequisite": {
+                    "description": "Required qualifications or skills",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Great at problem solving",
+                        "Reliable"
+                    ]
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "Software Development"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
+                }
+            }
+        },
+        "models.Organization": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "expertise": {
+                    "description": "Organization's area of expertise",
+                    "type": "string"
+                },
+                "goal": {
+                    "description": "Detailed description of the organization's goal",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industry": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Industry"
+                    }
+                },
+                "latitude": {
+                    "description": "Geographic latitude (stored as string for precision)",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "General location",
+                    "type": "string"
+                },
+                "longitude": {
+                    "description": "Geographic longitude (stored as string for precision)",
+                    "type": "string"
+                },
+                "orgOpenJobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrgOpenJob"
+                    }
+                },
+                "org_email": {
+                    "description": "Email address (unique constraint)",
+                    "type": "string"
+                },
+                "org_name": {
+                    "type": "string"
+                },
+                "org_phone": {
+                    "type": "string"
+                },
+                "organizationContacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrganizationContact"
+                    }
+                },
+                "pic_url": {
+                    "description": "URL to organization's logo",
+                    "type": "string"
+                },
+                "postal_code": {
+                    "description": "Postal code, allowing for flexibility in format",
+                    "type": "string"
+                },
+                "province": {
+                    "description": "Province name",
+                    "type": "string"
+                },
+                "subdistrict": {
+                    "description": "Subdistrict name",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OrganizationContact": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "media": {
+                    "$ref": "#/definitions/models.Media"
+                },
+                "media_link": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Provider": {
+            "type": "string",
+            "enum": [
+                "google",
+                "facebook",
+                "local"
+            ],
+            "x-enum-varnames": [
+                "ProviderGoogle",
+                "ProviderFacebook",
+                "ProviderLocal"
+            ]
+        },
+        "models.Role": {
+            "type": "string",
+            "enum": [
+                "User",
+                "Admin"
+            ],
+            "x-enum-varnames": [
+                "RoleUser",
+                "RoleAdmin"
+            ]
+        },
+        "models.Timeline": {
+            "type": "object",
+            "properties": {
+                "activity": {
+                    "type": "string",
+                    "example": "Registration"
+                },
+                "time": {
+                    "type": "string",
+                    "example": "08:00"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "description": "e.g., \"google\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Provider"
+                        }
+                    ]
+                },
+                "provider_id": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WorkType": {
+            "type": "string",
+            "enum": [
+                "fulltime",
+                "parttime",
+                "internship",
+                "volunteer"
+            ],
+            "x-enum-varnames": [
+                "WorkTypeFullTime",
+                "WorkTypePartTime",
+                "WorkTypeInternship",
+                "WorkTypeVolunteer"
+            ]
+        },
+        "models.Workplace": {
+            "type": "string",
+            "enum": [
+                "onsite",
+                "remote",
+                "hybrid"
+            ],
+            "x-enum-varnames": [
+                "WorkplaceOnsite",
+                "WorkplaceRemote",
+                "WorkplaceHybrid"
+            ]
+        },
+        "service.EventCardResponses": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "organization": {
+                    "$ref": "#/definitions/service.OrganizationShortRespones"
+                },
+                "organization_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                }
+            }
+        },
+        "service.EventResponses": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "highlight": {
+                    "type": "string",
+                    "example": "This is a highlight"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "keyTakeaway": {
+                    "type": "string",
+                    "example": "This is a key takeaway"
+                },
+                "latitude": {
+                    "type": "string",
+                    "example": "13.7563"
+                },
+                "locationName": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "longitude": {
+                    "type": "string",
+                    "example": "100.5018"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "organization_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "requirement": {
+                    "type": "string",
+                    "example": "This is a requirement"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                },
+                "timeLine": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
+                }
+            }
+        },
+        "service.NewEventRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "highlight": {
+                    "type": "string",
+                    "example": "This is a highlight"
+                },
+                "keyTakeaway": {
+                    "type": "string",
+                    "example": "This is a key takeaway"
+                },
+                "latitude": {
+                    "type": "string",
+                    "example": "13.7563"
+                },
+                "locationName": {
+                    "type": "string",
+                    "example": "Bangkok"
+                },
+                "longitude": {
+                    "type": "string",
+                    "example": "100.5018"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "requirement": {
+                    "type": "string",
+                    "example": "This is a requirement"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                },
+                "timeLine": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
+                }
+            }
+        },
+        "service.OrganizationShortRespones": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Fiber Example API",
-	Description:      "This is a sample swagger for Fiber",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

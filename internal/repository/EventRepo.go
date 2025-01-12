@@ -86,27 +86,6 @@ func (r eventRepository) GetByID(orgID uint, eventID uint) (*models.Event, error
 	return &event, nil
 }
 
-// func (r eventRepository) Search(params map[string]string) ([]domain.Event, error) {
-// 	events := []domain.Event{}
-// 	query := r.db
-
-// 	if name, ok := params["name"]; ok && name != "" {
-// 		query = query.Where("name ILIKE ?", "%"+name+"%")
-// 	}
-// 	if location, ok := params["location"]; ok && location != "" {
-// 		query = query.Where("location_name = ?", location)
-// 	}
-// 	if category, ok := params["category"]; ok && category != "all" {
-// 		query = query.Where("category = ?", category)
-// 	}
-
-// 	if err := query.Find(&events).Error; err != nil {
-// 		return nil, err
-// 	}
-
-// 	return events, nil
-// }
-
 func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, error) {
 	events := []models.Event{}
 	offset := int((page - 1) * size)
@@ -147,22 +126,21 @@ func (r eventRepository) Count() (int64, error) {
 	return count, nil
 }
 
-// func (r eventRepository) Update(event *domain.Event) error {
-// 	err := r.db.Save(event).Error
+func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (*models.Event, error) {
 
-// 	if err != nil {
-// 		return err
-// 	}
+	err := r.db.Where("organization_id = ?", int(orgID)).Where("id = ?", int(eventID)).Save(event).Error
+	if err != nil {
+		return nil, err
+	}
 
-// 	return nil
-// }
+	return event, nil
+}
 
 func (r eventRepository) Delete(orgID uint, eventID uint) error {
 
 	event := models.Event{}
 
 	err := r.db.Where("organization_id = ?", int(orgID)).Delete("id = ?", int(eventID)).First(&event).Error
-	// err := r.db.(&domain.Event{}, int(eventID)).Error
 
 	if err != nil {
 		return err
@@ -170,79 +148,3 @@ func (r eventRepository) Delete(orgID uint, eventID uint) error {
 
 	return nil
 }
-
-// func (r *EventRepository) Create(event *domain.Event) error {
-// 	return r.db.Create(event).Error
-// }
-
-// func (r *EventRepository) GetAll() ([]domain.Event, error) {
-// 	var events []domain.Event
-// 	err := r.db.Find(&events).Error
-
-// 	if err != nil {
-// 		log.Println(err)
-// 		return nil, err
-// 	}
-
-// 	return events, nil
-// }
-
-// func (r *EventRepository) GetAllByID(id int) ([]domain.Event, error) {
-// 	query := `
-// 				select id, organization_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, timeline, location_name, latitude, longitude, province
-// 			 	from events
-// 			 	where organization_id = ?
-// 				order by created_at desc
-// 			 `
-
-// 	var events []domain.Event
-
-// 	err := r.db.Select(&events, query, id).Error
-
-// 	if err != nil {
-// 		log.Println(err)
-// 		return nil, err
-// 	}
-
-// 	return events, nil
-// }
-
-// func (r *EventRepository) GetByID(eventID uint) (*domain.Event, error) {
-// 	var event domain.Event
-// 	if err := r.db.Where("ID = ?", eventID).First(&event).Error; err != nil {
-// 		return nil, err
-// 	}
-// 	return &event, nil
-// }
-
-// func (r *EventRepository) GetPaginate(page uint, size uint) ([]domain.Event, error) {
-// 	var events []domain.Event
-// 	offset := int((page - 1) * size)
-// 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
-// 		Order("created_at desc").Limit(int(size)).
-// 		Offset(int(offset)).
-// 		Find(&events).Error
-// 	return events, err
-// }
-
-// func (r *EventRepository) GetFirst() (*domain.Event, error) {
-// 	var event domain.Event
-// 	if err := r.db.First(&event).Error; err != nil {
-// 		return nil, err
-// 	}
-// 	return &event, nil
-// }
-
-// func (r *EventRepository) Count() (int64, error) {
-// 	var count int64
-// 	err := r.db.Model(&domain.Event{}).Count(&count).Error
-// 	return count, err
-
-// }
-
-// func (r *EventRepository) Delete(eventID uint) error {
-// 	if err := r.db.Delete(&domain.Event{}, eventID).Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }

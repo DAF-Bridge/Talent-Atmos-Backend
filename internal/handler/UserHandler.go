@@ -33,7 +33,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Success 200 {object} []domain.User
+// @Success 200 {object} []models.User
 // @Failure 500 {object} map[string]interface{}
 // @Router /users [get]
 func (h *UserHandler) ListUsers(c *fiber.Ctx) error {

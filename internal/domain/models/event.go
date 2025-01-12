@@ -12,8 +12,8 @@ import (
 //---------------------------------------------------------------------------
 
 type Timeline struct {
-	Time     string `json:"time"`
-	Activity string `json:"activity"`
+	Time     string `json:"time" example:"08:00"`
+	Activity string `json:"activity" example:"Registration"`
 }
 
 type Event struct {

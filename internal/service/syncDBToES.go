@@ -39,7 +39,7 @@ func (s *SyncService) SyncEventElasticSearch() error {
 }
 
 func (s *SyncService) SyncJobElasticSearch() error {
-	jobs, err := s.jobRepo.GetAll()
+	jobs, err := s.jobRepo.GetAllJobs()
 
 	if err != nil {
 		logs.Error(err)
@@ -59,7 +59,7 @@ func (s *SyncService) SyncAllElasticSearch() error {
 		return fmt.Errorf("failed to fetching events: %w", err)
 	}
 
-	jobs, err := s.jobRepo.GetAll()
+	jobs, err := s.jobRepo.GetAllJobs()
 
 	if err != nil {
 		logs.Error(err)

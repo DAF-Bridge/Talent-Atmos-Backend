@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"errors"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -42,7 +41,7 @@ func (s eventService) GetAllEvents() ([]EventResponses, error) {
 	events, err := s.eventRepo.GetAll()
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errs.NewNotFoundError("events not found")
 		}
 
@@ -63,7 +62,7 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) 
 	events, err := s.eventRepo.GetAllByOrgID(orgID)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("events not found")
 		}
 
@@ -83,11 +82,8 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) 
 func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, error) {
 	event, err := s.eventRepo.GetByID(orgID, eventID)
 	if err != nil {
-		// if err == sql.ErrNoRows {
-		// 	return nil, errors.New("event not found")
-		// }
 
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("event not found")
 		}
 
@@ -102,7 +98,12 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, e
 
 func (s eventService) GetEventPaginate(page uint) ([]EventResponses, error) {
 	events, err := s.eventRepo.GetPaginate(page, numberOfEvent)
+
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("events not found")
+		}
+
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
@@ -120,6 +121,7 @@ func (s eventService) GetFirst() (*EventResponses, error) {
 	event, err := s.eventRepo.GetFirst()
 
 	if err != nil {
+
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
@@ -143,7 +145,7 @@ func (s eventService) DeleteEvent(orgID uint, eventID uint) (*EventResponses, er
 	err := s.eventRepo.Delete(orgID, eventID)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("event not found")
 		}
 
@@ -191,7 +193,7 @@ func (s mockEventService) GetAllMockEvents() ([]EventResponses, error) {
 	events, err := s.mockEventRepo.GetAll()
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errs.NewNotFoundError("events not found")
 		}
 
@@ -212,7 +214,7 @@ func (s mockEventService) GetAllMockEventsByOrgID(orgID uint) ([]EventResponses,
 	events, err := s.mockEventRepo.GetAllByOrgID(orgID)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("events not found")
 		}
 
@@ -233,9 +235,6 @@ func (s mockEventService) GetMockEventByID(orgID uint, eventID uint) (*EventResp
 	event, err := s.mockEventRepo.GetByID(orgID, eventID)
 
 	if err != nil {
-		// if err == sql.ErrNoRows {
-		// 	return nil, errors.New("event not found")
-		// }
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("event not found")
@@ -314,7 +313,7 @@ func (s mockEventService) DeleteMockEvent(orgID uint, eventID uint) (*EventRespo
 	err := s.mockEventRepo.Delete(orgID, eventID)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("event not found")
 		}
 

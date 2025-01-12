@@ -18,7 +18,7 @@ func NewEventRepositoryMock() MockEventRepository {
 		{
 			EventID:        1,
 			OrganizationID: 1,
-			Name:           "Renewable Energy Summit",
+			Name:           "Builds Renewable Energy Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
 			StartDate:      utils.DateOnly{Time: utils.DateParser("2025-01-15")},
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2025-01-16")},
@@ -359,4 +359,24 @@ func (e *eventRepositoryMock) Search(params map[string]string) ([]models.MockEve
 	}
 
 	return events, nil
+}
+
+// Update implements EventRepository.
+func (e *eventRepositoryMock) Update(orgID uint, eventID uint, event *models.MockEvent) (*models.MockEvent, error) {
+	found := false
+
+	for i, evt := range e.events {
+		if evt.OrganizationID == orgID && evt.EventID == eventID {
+			event.EventID = evt.EventID
+			e.events[i] = *event
+			found = true
+			return event, nil
+		}
+	}
+
+	if !found {
+		return nil, errs.NewNotFoundError("event not found")
+	}
+
+	return nil, errs.NewUnexpectedError()
 }

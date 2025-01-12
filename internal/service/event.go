@@ -6,55 +6,55 @@ import (
 )
 
 type NewEventRequest struct {
-	Name         string            `json:"name"`
-	PicUrl       string            `json:"picUrl"`
-	StartDate    string            `json:"startDate"`
-	EndDate      string            `json:"endDate"`
-	StartTime    string            `json:"startTime"`
-	EndTime      string            `json:"endTime"`
+	Name         string            `json:"name" example:"builds IDEA 2024"`
+	PicUrl       string            `json:"picUrl" example:"https://example.com/image.jpg"`
+	StartDate    string            `json:"startDate" example:"2024-11-29"`
+	EndDate      string            `json:"endDate" example:"2024-11-29"`
+	StartTime    string            `json:"startTime" example:"08:00"`
+	EndTime      string            `json:"endTime" example:"17:00"`
 	TimeLine     []models.Timeline `json:"timeLine"`
-	Description  string            `json:"description"`
-	Highlight    string            `json:"highlight"`
-	Requirement  string            `json:"requirement"`
-	KeyTakeaway  string            `json:"keyTakeaway"`
-	LocationName string            `json:"locationName"`
-	Latitude     string            `json:"latitude"`
-	Longitude    string            `json:"longitude"`
-	Province     string            `json:"province"`
+	Description  string            `json:"description" example:"This is a description"`
+	Highlight    string            `json:"highlight" example:"This is a highlight"`
+	Requirement  string            `json:"requirement" example:"This is a requirement"`
+	KeyTakeaway  string            `json:"keyTakeaway" example:"This is a key takeaway"`
+	LocationName string            `json:"locationName" example:"Bangkok"`
+	Latitude     string            `json:"latitude" example:"13.7563"`
+	Longitude    string            `json:"longitude" example:"100.5018"`
+	Province     string            `json:"province" example:"Chiang Mai"`
 }
 
 type EventResponses struct {
-	ID             int               `json:"id"`
-	OrganizationID int               `json:"organization_id"`
-	Name           string            `json:"name"`
-	PicUrl         string            `json:"picUrl"`
-	StartDate      string            `json:"startDate"`
-	EndDate        string            `json:"endDate"`
-	StartTime      string            `json:"startTime"`
-	EndTime        string            `json:"endTime"`
+	ID             int               `json:"id" example:"1"`
+	OrganizationID int               `json:"organization_id" example:"1"`
+	Name           string            `json:"name" example:"builds IDEA 2024"`
+	PicUrl         string            `json:"picUrl" example:"https://example.com/image.jpg"`
+	StartDate      string            `json:"startDate" example:"2024-11-29"`
+	EndDate        string            `json:"endDate" example:"2024-11-29"`
+	StartTime      string            `json:"startTime" example:"08:00"`
+	EndTime        string            `json:"endTime" example:"17:00"`
 	TimeLine       []models.Timeline `json:"timeLine"`
-	Description    string            `json:"description"`
-	Highlight      string            `json:"highlight"`
-	Requirement    string            `json:"requirement"`
-	KeyTakeaway    string            `json:"keyTakeaway"`
-	LocationName   string            `json:"locationName"`
-	Latitude       string            `json:"latitude"`
-	Longitude      string            `json:"longitude"`
-	Province       string            `json:"province"`
+	Description    string            `json:"description" example:"This is a description"`
+	Highlight      string            `json:"highlight" example:"This is a highlight"`
+	Requirement    string            `json:"requirement" example:"This is a requirement"`
+	KeyTakeaway    string            `json:"keyTakeaway" example:"This is a key takeaway"`
+	LocationName   string            `json:"locationName" example:"builds CMU"`
+	Latitude       string            `json:"latitude" example:"13.7563"`
+	Longitude      string            `json:"longitude" example:"100.5018"`
+	Province       string            `json:"province" example:"Chiang Mai"`
 }
 
 type EventCardResponses struct {
-	ID             int                       `json:"id"`
-	OrganizationID int                       `json:"organization_id"`
-	Name           string                    `json:"name"`
-	PicUrl         string                    `json:"picUrl"`
-	StartDate      string                    `json:"startDate"`
-	EndDate        string                    `json:"endDate"`
-	StartTime      string                    `json:"startTime"`
-	EndTime        string                    `json:"endTime"`
-	LocationName   string                    `json:"location"`
+	ID             int                       `json:"id" example:"1"`
+	OrganizationID int                       `json:"organization_id" example:"1"`
+	Name           string                    `json:"name" example:"builds IDEA 2024"`
+	PicUrl         string                    `json:"picUrl" example:"https://example.com/image.jpg"`
+	StartDate      string                    `json:"startDate" example:"2024-11-29"`
+	EndDate        string                    `json:"endDate" example:"2024-11-29"`
+	StartTime      string                    `json:"startTime" example:"08:00"`
+	EndTime        string                    `json:"endTime" example:"17:00"`
+	LocationName   string                    `json:"location" example:"builds CMU"`
 	Organization   OrganizationShortRespones `json:"organization"`
-	Province       string                    `json:"province"`
+	Province       string                    `json:"province" example:"Chiang Mai"`
 }
 
 type EventService interface {

@@ -13,7 +13,7 @@ type EventRepository interface {
 	GetPaginate(page uint, size uint) ([]models.Event, error)
 	GetFirst() (*models.Event, error)
 	Count() (int64, error)
-	// Update(event *domain.Event) error
+	Update(orgID uint, eventID uint, event *models.Event) (*models.Event, error)
 	Delete(orgID uint, eventID uint) error
 }
 
@@ -26,6 +26,6 @@ type MockEventRepository interface {
 	GetPaginate(page uint, size uint) ([]models.MockEvent, error)
 	GetFirst() (*models.MockEvent, error)
 	Count() (int64, error)
-	// Update(event *domain.Event) error
+	Update(orgID uint, eventID uint, event *models.MockEvent) (*models.MockEvent, error)
 	Delete(orgID uint, eventID uint) error
 }

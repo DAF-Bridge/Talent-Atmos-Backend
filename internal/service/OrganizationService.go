@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -12,39 +13,93 @@ import (
 
 const numberOfOrganization = 10
 
-type OrganizationService struct {
-	repo models.OrganizationRepository
+type organizationService struct {
+	repo repository.OrganizationRepository
 }
 
-// Constructor
-func NewOrganizationService(repo models.OrganizationRepository) *OrganizationService {
-	return &OrganizationService{repo: repo}
+func NewOrganizationService(repo repository.OrganizationRepository) OrganizationService {
+	return organizationService{repo: repo}
 }
 
 // Creates a new organization
-func (s *OrganizationService) CreateOrganization(org *models.Organization) error {
-	return s.repo.Create(org)
+func (s organizationService) CreateOrganization(org *models.Organization) error {
+	return s.repo.CreateOrganization(org)
 }
 
-func (s *OrganizationService) GetOrganizationByID(id uint) (*models.Organization, error) {
-	return s.repo.GetByID(id)
+func (s organizationService) GetOrganizationByID(id uint) (*models.Organization, error) {
+	org, err := s.repo.GetByOrgID(id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return org, nil
 }
 
-func (s *OrganizationService) GetPaginateOrganization(page uint) ([]models.Organization, error) {
-	return s.repo.GetPaginate(page, numberOfOrganization)
+func (s organizationService) GetPaginateOrganization(page uint) ([]models.Organization, error) {
+	orgs, err := s.repo.GetOrgsPaginate(page, numberOfOrganization)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("organizations not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return orgs, nil
 }
 
-func (s *OrganizationService) ListAllOrganizations() ([]models.Organization, error) {
-	return s.repo.GetAll()
+func (s organizationService) ListAllOrganizations() ([]models.Organization, error) {
+	orgs, err := s.repo.GetAllOrganizations()
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("organizations not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return orgs, nil
 }
 
-func (s *OrganizationService) UpdateOrganization(org *models.Organization) error {
-	return s.repo.Update(org)
+func (s organizationService) UpdateOrganization(orgID uint, org *models.Organization) error {
+	err := s.repo.UpdateOrganization(org)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
 }
 
 // Deletes an organization by its ID
-func (s *OrganizationService) DeleteOrganization(id uint) error {
-	return s.repo.Delete(id)
+func (s organizationService) DeleteOrganization(id uint) error {
+	err := s.repo.DeleteOrganization(id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
 }
 
 // --------------------------------------------------------------------------
@@ -60,9 +115,51 @@ func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository) OrgOpenJobSer
 	return orgOpenJobService{jobRepo: jobRepo}
 }
 
-func (s orgOpenJobService) GetByID(orgID uint, jobID uint) (*JobResponses, error) {
-	// return s.jobRepo.GetByID(id)
-	job, err := s.jobRepo.GetByID(orgID, jobID)
+func (s orgOpenJobService) ListAllJobs() ([]JobResponses, error) {
+	jobs, err := s.jobRepo.GetAllJobs()
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("jobs not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	jobsResponse := []JobResponses{}
+
+	for _, job := range jobs {
+		jobResponse := convertToJobResponse(job)
+		jobsResponse = append(jobsResponse, jobResponse)
+	}
+
+	return jobsResponse, nil
+}
+
+func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]JobResponses, error) {
+	jobs, err := s.jobRepo.GetAllJobsByOrgID(OrgId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("jobs not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	jobsResponse := []JobResponses{}
+
+	for _, job := range jobs {
+		jobResponse := convertToJobResponse(job)
+		jobsResponse = append(jobsResponse, jobResponse)
+	}
+
+	return jobsResponse, nil
+}
+
+func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*JobResponses, error) {
+	job, err := s.jobRepo.GetJobByID(orgID, jobID)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -78,8 +175,8 @@ func (s orgOpenJobService) GetByID(orgID uint, jobID uint) (*JobResponses, error
 	return &JobResponse, nil
 }
 
-func (s orgOpenJobService) GetJobs() ([]JobResponses, error) {
-	jobs, err := s.jobRepo.GetAll()
+func (s orgOpenJobService) GetJobPaginate(page uint) ([]JobResponses, error) {
+	jobs, err := s.jobRepo.GetJobsPaginate(page, numberOfOrganization)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -100,35 +197,42 @@ func (s orgOpenJobService) GetJobs() ([]JobResponses, error) {
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) GetAllByID(OrgId uint) ([]JobResponses, error) {
-	jobs, err := s.jobRepo.GetAllByOrgID(OrgId)
+func (s orgOpenJobService) NewJob(org *models.OrgOpenJob) error {
+	return s.jobRepo.CreateJob(org)
+}
+
+func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, job *models.OrgOpenJob) error {
+
+	existJob, err := s.jobRepo.GetJobByID(orgID, jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("jobs not found")
+			return errors.New("job not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	job.ID = existJob.ID
+	job.OrganizationID = existJob.OrganizationID
+	job.Organization = existJob.Organization
+
+	return nil
+}
+
+func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) (*JobResponses, error) {
+	job, err := s.jobRepo.DeleteJob(orgID, jobID)
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("job not found")
 		}
 
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []JobResponses{}
+	jobResponse := convertToJobResponse(*job)
 
-	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
-		jobsResponse = append(jobsResponse, jobResponse)
-	}
-
-	return jobsResponse, nil
-}
-
-func (s orgOpenJobService) Create(org *models.OrgOpenJob) error {
-	return s.jobRepo.Create(org)
-}
-
-func (s orgOpenJobService) Update(org *models.OrgOpenJob) error {
-	return s.jobRepo.Update(org)
-}
-
-func (s orgOpenJobService) Delete(id uint) error {
-	return s.jobRepo.Delete(id)
+	return &jobResponse, nil
 }

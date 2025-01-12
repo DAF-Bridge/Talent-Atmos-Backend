@@ -1,45 +1,43 @@
-basePath: /
 definitions:
-  domain.Provider:
-    enum:
-    - google
-    - facebook
-    - local
-    type: string
-    x-enum-varnames:
-    - ProviderGoogle
-    - ProviderFacebook
-    - ProviderLocal
-  domain.Role:
-    enum:
-    - User
-    - Admin
-    type: string
-    x-enum-varnames:
-    - RoleUser
-    - RoleAdmin
-  domain.User:
+  dto.EventShortResponseDTO:
     properties:
-      created_at:
+      endDate:
+        example: "2024-11-29"
         type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      email:
+      endTime:
+        example: "17:00"
         type: string
       id:
+        example: 1
+        type: integer
+      location:
+        example: builds CMU
         type: string
       name:
+        example: builds IDEA 2024
         type: string
-      provider:
-        allOf:
-        - $ref: '#/definitions/domain.Provider'
-        description: e.g., "google"
-      provider_id:
+      picUrl:
+        example: https://example.com/image.jpg
         type: string
-      role:
-        $ref: '#/definitions/domain.Role'
-      updated_at:
+      startDate:
+        example: "2024-11-29"
         type: string
+      startTime:
+        example: "08:00"
+        type: string
+    type: object
+  dto.PaginatedEventsResponse:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/dto.EventShortResponseDTO'
+        type: array
+      total_events:
+        example: 1
+        type: integer
+    type: object
+  fiber.Map:
+    additionalProperties: true
     type: object
   gorm.DeletedAt:
     properties:
@@ -48,6 +46,25 @@ definitions:
       valid:
         description: Valid is true if Time is not NULL
         type: boolean
+    type: object
+  handler.EventShortResponse:
+    properties:
+      endDate:
+        type: string
+      endTime:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      picUrl:
+        type: string
+      startDate:
+        type: string
+      startTime:
+        type: string
     type: object
   handler.SignUpHandlerRequest:
     properties:
@@ -60,19 +77,1049 @@ definitions:
       phone:
         type: string
     type: object
-host: localhost:8080
+  models.CareerStage:
+    enum:
+    - entrylevel
+    - senior
+    type: string
+    x-enum-varnames:
+    - CareerStageEntryLevel
+    - CareerStageSenior
+  models.Industry:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      industry:
+        type: string
+      organization:
+        items:
+          $ref: '#/definitions/models.Organization'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  models.Media:
+    enum:
+    - website
+    - facebook
+    - instagram
+    - tiktok
+    - youtube
+    - linkedin
+    - line
+    type: string
+    x-enum-varnames:
+    - MediaWebsite
+    - MediaFacebook
+    - MediaIG
+    - MediaTikTok
+    - MediaYoutube
+    - MediaLinkedin
+    - MediaLine
+  models.OrgOpenJob:
+    properties:
+      benefits:
+        example: Health insurance
+        type: string
+      career_stage:
+        allOf:
+        - $ref: '#/definitions/models.CareerStage'
+        example: junior
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        example: This is a description
+        type: string
+      hours_per_day:
+        example: 8 hours
+        type: string
+      id:
+        example: 1
+        type: integer
+      organization:
+        example: builds CMU
+        type: string
+      organization_id:
+        example: 1
+        type: integer
+      period:
+        example: 1 year
+        type: string
+      prerequisite:
+        description: Required qualifications or skills
+        example:
+        - Great at problem solving
+        - Reliable
+        items:
+          type: string
+        type: array
+      qualifications:
+        example: Bachelor's degree in Computer Science
+        type: string
+      quantity:
+        example: 1
+        type: integer
+      salary:
+        example: 30000
+        type: number
+      scope:
+        example: Software Development
+        type: string
+      title:
+        example: Software Engineer
+        type: string
+      updatedAt:
+        type: string
+      work_type:
+        allOf:
+        - $ref: '#/definitions/models.WorkType'
+        example: fulltime
+      workplace:
+        allOf:
+        - $ref: '#/definitions/models.Workplace'
+        example: remote
+    type: object
+  models.Organization:
+    properties:
+      created_at:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      expertise:
+        description: Organization's area of expertise
+        type: string
+      goal:
+        description: Detailed description of the organization's goal
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      industry:
+        items:
+          $ref: '#/definitions/models.Industry'
+        type: array
+      latitude:
+        description: Geographic latitude (stored as string for precision)
+        type: string
+      location:
+        description: General location
+        type: string
+      longitude:
+        description: Geographic longitude (stored as string for precision)
+        type: string
+      org_email:
+        description: Email address (unique constraint)
+        type: string
+      org_name:
+        type: string
+      org_phone:
+        type: string
+      orgOpenJobs:
+        items:
+          $ref: '#/definitions/models.OrgOpenJob'
+        type: array
+      organizationContacts:
+        items:
+          $ref: '#/definitions/models.OrganizationContact'
+        type: array
+      pic_url:
+        description: URL to organization's logo
+        type: string
+      postal_code:
+        description: Postal code, allowing for flexibility in format
+        type: string
+      province:
+        description: Province name
+        type: string
+      subdistrict:
+        description: Subdistrict name
+        type: string
+      updated_at:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.OrganizationContact:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      media:
+        $ref: '#/definitions/models.Media'
+      media_link:
+        type: string
+      organization_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.Provider:
+    enum:
+    - google
+    - facebook
+    - local
+    type: string
+    x-enum-varnames:
+    - ProviderGoogle
+    - ProviderFacebook
+    - ProviderLocal
+  models.Role:
+    enum:
+    - User
+    - Admin
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
+  models.Timeline:
+    properties:
+      activity:
+        example: Registration
+        type: string
+      time:
+        example: "08:00"
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      provider:
+        allOf:
+        - $ref: '#/definitions/models.Provider'
+        description: e.g., "google"
+      provider_id:
+        type: string
+      role:
+        $ref: '#/definitions/models.Role'
+      updated_at:
+        type: string
+    type: object
+  models.WorkType:
+    enum:
+    - fulltime
+    - parttime
+    - internship
+    - volunteer
+    type: string
+    x-enum-varnames:
+    - WorkTypeFullTime
+    - WorkTypePartTime
+    - WorkTypeInternship
+    - WorkTypeVolunteer
+  models.Workplace:
+    enum:
+    - onsite
+    - remote
+    - hybrid
+    type: string
+    x-enum-varnames:
+    - WorkplaceOnsite
+    - WorkplaceRemote
+    - WorkplaceHybrid
+  service.EventCardResponses:
+    properties:
+      endDate:
+        example: "2024-11-29"
+        type: string
+      endTime:
+        example: "17:00"
+        type: string
+      id:
+        example: 1
+        type: integer
+      location:
+        example: builds CMU
+        type: string
+      name:
+        example: builds IDEA 2024
+        type: string
+      organization:
+        $ref: '#/definitions/service.OrganizationShortRespones'
+      organization_id:
+        example: 1
+        type: integer
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      startDate:
+        example: "2024-11-29"
+        type: string
+      startTime:
+        example: "08:00"
+        type: string
+    type: object
+  service.EventResponses:
+    properties:
+      description:
+        example: This is a description
+        type: string
+      endDate:
+        example: "2024-11-29"
+        type: string
+      endTime:
+        example: "17:00"
+        type: string
+      highlight:
+        example: This is a highlight
+        type: string
+      id:
+        example: 1
+        type: integer
+      keyTakeaway:
+        example: This is a key takeaway
+        type: string
+      latitude:
+        example: "13.7563"
+        type: string
+      locationName:
+        example: builds CMU
+        type: string
+      longitude:
+        example: "100.5018"
+        type: string
+      name:
+        example: builds IDEA 2024
+        type: string
+      organization_id:
+        example: 1
+        type: integer
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      requirement:
+        example: This is a requirement
+        type: string
+      startDate:
+        example: "2024-11-29"
+        type: string
+      startTime:
+        example: "08:00"
+        type: string
+      timeLine:
+        items:
+          $ref: '#/definitions/models.Timeline'
+        type: array
+    type: object
+  service.NewEventRequest:
+    properties:
+      description:
+        example: This is a description
+        type: string
+      endDate:
+        example: "2024-11-29"
+        type: string
+      endTime:
+        example: "17:00"
+        type: string
+      highlight:
+        example: This is a highlight
+        type: string
+      keyTakeaway:
+        example: This is a key takeaway
+        type: string
+      latitude:
+        example: "13.7563"
+        type: string
+      locationName:
+        example: Bangkok
+        type: string
+      longitude:
+        example: "100.5018"
+        type: string
+      name:
+        example: builds IDEA 2024
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      requirement:
+        example: This is a requirement
+        type: string
+      startDate:
+        example: "2024-11-29"
+        type: string
+      startTime:
+        example: "08:00"
+        type: string
+      timeLine:
+        items:
+          $ref: '#/definitions/models.Timeline'
+        type: array
+    type: object
+  service.OrganizationShortRespones:
+    properties:
+      id:
+        example: 1
+        type: integer
+      name:
+        example: builds CMU
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+    type: object
 info:
-  contact:
-    email: fiber@swagger.io
-    name: API Support
-  description: This is a sample swagger for Fiber
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Fiber Example API
-  version: "1.0"
+  contact: {}
 paths:
+  /events:
+    get:
+      description: Get a list of all events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/service.EventResponses'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: List all events
+      tags:
+      - Events
+  /events-paginate:
+    get:
+      description: Get a paginated list of events
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginatedEventsResponse'
+        "400":
+          description: Bad Request - Invalid page number
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Paginate events
+      tags:
+      - Events
+  /events/first:
+    get:
+      description: Get the first event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.EventShortResponse'
+            type: array
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get the first event
+      tags:
+      - Events
+  /events/q:
+    get:
+      consumes:
+      - application/json
+      description: Search for mock events based on various criteria such as page,
+        search term, category, location type, audience, and price type.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Event category
+        in: query
+        name: category
+        type: string
+      - description: Location type
+        in: query
+        name: location
+        type: string
+      - description: Audience type
+        in: query
+        name: audience
+        type: string
+      - description: Price type
+        in: query
+        name: price
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.EventCardResponses'
+            type: array
+        "400":
+          description: Bad Request - Invalid query parameters
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Not Found - Events not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal server error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Search for mock events
+      tags:
+      - Events
+  /events/upcoming:
+    get:
+      description: Get a list of upcoming events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.EventResponses'
+            type: array
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get upcoming events
+      tags:
+      - Events
+  /orgs:
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization BUT still not create the Contact and
+        OpenJob
+      parameters:
+      - description: Organization
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/models.Organization'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Organization'
+        "400":
+          description: Bad Request - json body is required or invalid / organization
+            name is required
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Create a new organization
+      tags:
+      - Organization
+  /orgs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request - organization id is required / invalid organization
+            id
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Delete an organization by ID
+      tags:
+      - Organization
+    get:
+      consumes:
+      - application/json
+      description: Get an organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organization'
+        "400":
+          description: Bad Request - organization id is required
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Not Found - organization not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get an organization by ID
+      tags:
+      - Organization
+    put:
+      consumes:
+      - application/json
+      description: Update an organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Organization
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/models.Organization'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organization'
+        "400":
+          description: Bad Request - organization id is required / invalid organization
+            ID
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Update an organization by ID
+      tags:
+      - Organization
+  /orgs/{orgID}/events:
+    get:
+      description: Get a list of all events for a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/service.EventResponses'
+              type: array
+            type: array
+        "400":
+          description: Bad Request - Invalid organization id or missing orgID parameters
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: List all events for a specific organization
+      tags:
+      - Events
+    post:
+      consumes:
+      - application/json
+      description: Create a new event for a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Event data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/service.NewEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/service.EventResponses'
+        "400":
+          description: Bad Request - organization id is required or invalid / event
+            body is invalid
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Create a new event
+      tags:
+      - Events
+  /orgs/{orgID}/events/{id}:
+    delete:
+      description: Delete an event by its ID for a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.EventResponses'
+        "400":
+          description: Bad Request - Invalid organization id or missing orgID parameters
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Delete an event
+      tags:
+      - Events
+    get:
+      description: Get an event by its ID for a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.EventResponses'
+            type: array
+        "400":
+          description: Bad Request - Invalid organization id or missing orgID parameters
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get an event by ID
+      tags:
+      - Events
+  /orgs/{orgID}/jobs/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an organization job by ID
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request - organization id & job id is required
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Delete an organization job by ID
+      tags:
+      - Organization Job
+  /orgs/{orgID}/jobs/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an organization open job by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OrgOpenJob'
+        "400":
+          description: Bad Request - organization id & job id is required
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Not Found - jobs not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get an organization open job by ID
+      tags:
+      - Organization Job
+  /orgs/{orgID}/jobs/list:
+    get:
+      consumes:
+      - application/json
+      description: Get all organization open jobs
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OrgOpenJob'
+            type: array
+        "400":
+          description: Bad Request - organization id is required or invalid
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: List all jobs of its organization
+      tags:
+      - Organization Job
+  /orgs/{orgID}/jobs/open:
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization open job
+      parameters:
+      - description: Organization Open Job
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/models.OrgOpenJob'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.OrgOpenJob'
+        "400":
+          description: Bad Request - json body is required or invalid / job title
+            is required
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Create a new organization open job
+      tags:
+      - Organization Job
+  /orgs/{orgID}/jobs/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an organization open job by ID
+      parameters:
+      - description: Organization Open Job
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/models.OrgOpenJob'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OrgOpenJob'
+        "400":
+          description: Bad Request - organization id & job id is required
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Update an organization open job by ID
+      tags:
+      - Organization Job
+  /orgs/jobs/list/all:
+    get:
+      consumes:
+      - application/json
+      description: Get all organization jobs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.OrgOpenJob'
+            type: array
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: List all organization jobs
+      tags:
+      - Organization Job
+  /orgs/list:
+    get:
+      consumes:
+      - application/json
+      description: Get all organizations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Organization'
+            type: array
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: List all organizations
+      tags:
+      - Organization
+  /orgs/paginate:
+    get:
+      consumes:
+      - application/json
+      description: Get a page of organizations
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Organization'
+            type: array
+        "400":
+          description: Bad Request - invalid page
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get a page of organizations
+      tags:
+      - Organization
   /signup:
     post:
       consumes:
@@ -89,18 +1136,40 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: 'message: Sign up successful" "OK'
           schema:
-            $ref: '#/definitions/domain.User'
+            $ref: '#/definitions/fiber.Map'
         "400":
-          description: Bad Request
+          description: Bad Request - Invalid input
           schema:
-            type: string
+            $ref: '#/definitions/fiber.Map'
         "500":
-          description: Internal Server Error
+          description: Internal Server Error - Something went wrong
           schema:
-            type: string
+            $ref: '#/definitions/fiber.Map'
       summary: Sign up a new user
       tags:
       - Authentication
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: List all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all users
+      tags:
+      - users
 swagger: "2.0"
