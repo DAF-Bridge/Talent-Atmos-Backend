@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -47,7 +49,7 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 
 func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	userData, ok := c.Locals("user").(jwt.MapClaims)
-	// fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
+	fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
 
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
@@ -55,10 +57,11 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 
 	// Access the user_id
 	userID, ok := userData["user_id"].(string) // JSON numbers are parsed as string
+
 	if !ok {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id 2 uuid"})
 	}
-	// println(userID)
+	println(userID)
 
 	// Convert user_id to uint
 	currentUserID, err := uuid.Parse(userID)
