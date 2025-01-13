@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -81,11 +82,11 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 	}
 
 	org, err := h.service.GetOrganizationByID(uint(orgID))
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
 	if org == nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "organization not found"})
+	}
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(org)
@@ -143,7 +144,17 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization ID"})
 	}
 
-	if err := h.service.UpdateOrganization(uint(orgID), &org); err != nil {
+	// if err := h.service.UpdateOrganization(uint(orgID), &org); err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	// }
+
+	err = h.service.UpdateOrganization(uint(orgID), &org)
+
+	if err != nil {
+		if err == errs.NewNotFoundError("organization not found") {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "organization not found"})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
