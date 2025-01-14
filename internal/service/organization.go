@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 )
 
@@ -11,12 +13,12 @@ type OrganizationShortRespones struct {
 }
 
 type JobRequest struct {
-	Organization   string             `json:"organization" example:"builds CMU"`
-	JobTitle       string             `json:"job_title" example:"Software Engineer"`
-	Location       string             `json:"location" example:"Chiang Mai"`
+	JobTitle       string             `json:"title" example:"Software Engineer"`
+	Scope          string             `json:"scope" example:"This is a scope"`
+	Prerequisite   []string           `json:"prerequisite" example:"Bachelor's degree in Computer Science"`
 	Workplace      models.Workplace   `json:"workplace" example:"remote"`
-	WorkType       models.WorkType    `json:"worktype" example:"fulltime"`
-	CareerStage    models.CareerStage `json:"career_stage" example:"junior"`
+	WorkType       models.WorkType    `json:"work_type" example:"fulltime"`
+	CareerStage    models.CareerStage `json:"career_stage" example:"entrylevel"`
 	Period         string             `json:"period" example:"1 year"`
 	Description    string             `json:"description" example:"This is a description"`
 	HoursPerDay    string             `json:"hours_per_day" example:"8 hours"`
@@ -24,17 +26,19 @@ type JobRequest struct {
 	Benefits       string             `json:"benefits" example:"Health insurance"`
 	Quantity       int                `json:"quantity" example:"1"`
 	Salary         float64            `json:"salary" example:"30000"`
-	UpdatedAt      string             `json:"updated_at" example:"2024-11-29 08:00:00"`
+	CreatedAt      string             `json:"CreatedAt" example:"2024-11-29T08:00:00Z"`
+	UpdatedAt      string             `json:"UpdatedAt" example:"2024-11-29T08:00:00Z"`
 }
 
 type JobResponses struct {
 	ID             uint               `json:"id" example:"1"`
 	Organization   string             `json:"organization" example:"builds CMU"`
-	JobTitle       string             `json:"job_title" example:"Software Engineer"`
+	JobTitle       string             `json:"title" example:"Software Engineer"`
+	Scope          string             `json:"scope" example:"This is a scope"`
 	Location       string             `json:"location" example:"Chiang Mai"`
 	Workplace      models.Workplace   `json:"workplace" example:"remote"`
-	WorkType       models.WorkType    `json:"worktype" example:"fulltime"`
-	CareerStage    models.CareerStage `json:"career_stage" example:"junior"`
+	WorkType       models.WorkType    `json:"work_type" example:"fulltime"`
+	CareerStage    models.CareerStage `json:"career_stage" example:"entrylevel"`
 	Period         string             `json:"period" example:"1 year"`
 	Description    string             `json:"description" example:"This is a description"`
 	HoursPerDay    string             `json:"hours_per_day" example:"8 hours"`
@@ -42,7 +46,7 @@ type JobResponses struct {
 	Benefits       string             `json:"benefits" example:"Health insurance"`
 	Quantity       int                `json:"quantity" example:"1"`
 	Salary         float64            `json:"salary" example:"30000"`
-	UpdatedAt      string             `json:"updated_at" example:"2024-11-29 08:00:00"`
+	UpdatedAt      string             `json:"UpdatedAt" example:"2024-11-29 08:00:00"`
 }
 
 type OrganizationService interface {
@@ -67,7 +71,6 @@ type OrgOpenJobService interface {
 func convertToJobResponse(job models.OrgOpenJob) JobResponses {
 	return JobResponses{
 		ID:             job.ID,
-		Organization:   job.Organization,
 		JobTitle:       job.Title,
 		Workplace:      job.Workplace,
 		WorkType:       job.WorkType,
@@ -79,25 +82,28 @@ func convertToJobResponse(job models.OrgOpenJob) JobResponses {
 		Benefits:       job.Benefits,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,
-		UpdatedAt:      job.UpdatedAt.Format("2006 01 02 15:04:05"),
+		UpdatedAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
 
-// func convertToJobRequest(orgID uint, jobID uint, job JobRequest) models.OrgOpenJob {
-// 	return models.OrgOpenJob{
-// 		ID:             jobID,
-// 		OrganizationID: orgID,
-// 		Organization:   job.Organization,
-// 		Title:          job.JobTitle,
-// 		Workplace:      job.Workplace,
-// 		WorkType:       job.WorkType,
-// 		CareerStage:    job.CareerStage,
-// 		Period:         job.Period,
-// 		Description:    job.Description,
-// 		HoursPerDay:    job.HoursPerDay,
-// 		Qualifications: job.Qualifications,
-// 		Benefits:       job.Benefits,
-// 		Quantity:       job.Quantity,
-// 		Salary:         job.Salary,
-// 	}
-// }
+func ConvertToJobRequest(orgID uint, job JobRequest) models.OrgOpenJob {
+
+	return models.OrgOpenJob{
+		OrganizationID: orgID,
+		Title:          job.JobTitle,
+		Scope:          job.Scope,
+		Prerequisite:   job.Prerequisite,
+		Workplace:      job.Workplace,
+		WorkType:       job.WorkType,
+		CareerStage:    job.CareerStage,
+		Period:         job.Period,
+		Description:    job.Description,
+		HoursPerDay:    job.HoursPerDay,
+		Qualifications: job.Qualifications,
+		Benefits:       job.Benefits,
+		Quantity:       job.Quantity,
+		Salary:         job.Salary,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+}

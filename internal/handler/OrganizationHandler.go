@@ -1,6 +1,8 @@
 package handler
 
 import (
+	_ "fmt"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
@@ -206,27 +208,40 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 // @Tags Organization Job
 // @Accept json
 // @Produce json
-// @Param org body models.OrgOpenJob true "Organization Open Job"
+// @Param orgID path int true "Organization ID"
+// @Param org body service.JobRequest true "Organization Open Job"
 // @Success 201 {object} models.OrgOpenJob
 // @Failure 400 {object} fiber.Map "Bad Request - json body is required or invalid / job title is required"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/{orgID}/jobs/open [post]
 func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
-	var org models.OrgOpenJob
-	if err := c.BodyParser(&org); err != nil {
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	// var job service.JobRequest
+
+	// reqOrg := service.ConvertToJobRequest(uint(orgID), job)
+
+	var job models.OrgOpenJob
+
+	job.OrganizationID = uint(orgID)
+
+	// Validate required fields
+	// if reqOrg.Title == "" {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job title is required"})
+	// }
+
+	if err := c.BodyParser(&job); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Validate required fields
-	if org.Title == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job title is required"})
-	}
-
-	if err := h.service.NewJob(&org); err != nil {
+	if err := h.service.NewJob(&job); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(org)
+	return c.Status(fiber.StatusCreated).JSON(job)
 }
 
 // @Summary List all organization jobs
@@ -322,7 +337,9 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 // @Tags Organization Job
 // @Accept json
 // @Produce json
-// @Param org body models.OrgOpenJob true "Organization Open Job"
+// @Param orgID path int true "Organization ID"
+// @Param id path int true "Job ID"
+// @Param org body service.JobRequest true "Organization Open Job"
 // @Success 200 {object} models.OrgOpenJob
 // @Failure 400 {object} fiber.Map "Bad Request - organization id & job id is required"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"

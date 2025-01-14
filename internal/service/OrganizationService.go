@@ -215,7 +215,17 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, job *models.OrgOpen
 
 	job.ID = existJob.ID
 	job.OrganizationID = existJob.OrganizationID
-	job.Organization = existJob.Organization
+
+	_, err = s.jobRepo.UpdateJob(job)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("job not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
 
 	return nil
 }

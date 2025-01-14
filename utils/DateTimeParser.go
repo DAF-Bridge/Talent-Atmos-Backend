@@ -15,6 +15,11 @@ func TimeParser(timeStr string) time.Time {
 	return parsedTime
 }
 
+func ISO8601Parser(isoStr string) time.Time {
+	parsedTime, _ := time.Parse(time.RFC3339, isoStr)
+	return parsedTime
+}
+
 type DateOnly struct {
 	time.Time
 }

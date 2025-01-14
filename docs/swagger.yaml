@@ -81,10 +81,12 @@ definitions:
     enum:
     - entrylevel
     - senior
+    - junior
     type: string
     x-enum-varnames:
     - CareerStageEntryLevel
     - CareerStageSenior
+    - CareerStageJunior
   models.Industry:
     properties:
       createdAt:
@@ -128,7 +130,10 @@ definitions:
       career_stage:
         allOf:
         - $ref: '#/definitions/models.CareerStage'
-        example: junior
+        example: entrylevel
+      created_at:
+        example: "2024-11-29T08:00:00Z"
+        type: string
       createdAt:
         type: string
       deletedAt:
@@ -142,9 +147,6 @@ definitions:
       id:
         example: 1
         type: integer
-      organization:
-        example: builds CMU
-        type: string
       organization_id:
         example: 1
         type: integer
@@ -173,6 +175,9 @@ definitions:
         type: string
       title:
         example: Software Engineer
+        type: string
+      updated_at:
+        example: "2024-11-29T08:00:00Z"
         type: string
       updatedAt:
         type: string
@@ -426,6 +431,60 @@ definitions:
         items:
           $ref: '#/definitions/models.Timeline'
         type: array
+    type: object
+  service.JobRequest:
+    properties:
+      CreatedAt:
+        example: "2024-11-29T08:00:00Z"
+        type: string
+      UpdatedAt:
+        example: "2024-11-29T08:00:00Z"
+        type: string
+      benefits:
+        example: Health insurance
+        type: string
+      career_stage:
+        allOf:
+        - $ref: '#/definitions/models.CareerStage'
+        example: entrylevel
+      description:
+        example: This is a description
+        type: string
+      hours_per_day:
+        example: 8 hours
+        type: string
+      period:
+        example: 1 year
+        type: string
+      prerequisite:
+        example:
+        - Bachelor's degree in Computer Science
+        items:
+          type: string
+        type: array
+      qualifications:
+        example: Bachelor's degree in Computer Science
+        type: string
+      quantity:
+        example: 1
+        type: integer
+      salary:
+        example: 30000
+        type: number
+      scope:
+        example: This is a scope
+        type: string
+      title:
+        example: Software Engineer
+        type: string
+      work_type:
+        allOf:
+        - $ref: '#/definitions/models.WorkType'
+        example: fulltime
+      workplace:
+        allOf:
+        - $ref: '#/definitions/models.Workplace'
+        example: remote
     type: object
   service.NewEventRequest:
     properties:
@@ -992,12 +1051,17 @@ paths:
       - application/json
       description: Create a new organization open job
       parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
       - description: Organization Open Job
         in: body
         name: org
         required: true
         schema:
-          $ref: '#/definitions/models.OrgOpenJob'
+          $ref: '#/definitions/service.JobRequest'
       produces:
       - application/json
       responses:
@@ -1023,12 +1087,22 @@ paths:
       - application/json
       description: Update an organization open job by ID
       parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Organization Open Job
         in: body
         name: org
         required: true
         schema:
-          $ref: '#/definitions/models.OrgOpenJob'
+          $ref: '#/definitions/service.JobRequest'
       produces:
       - application/json
       responses:

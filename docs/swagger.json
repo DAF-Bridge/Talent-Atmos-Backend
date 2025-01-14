@@ -869,12 +869,19 @@
                 "summary": "Create a new organization open job",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Organization Open Job",
                         "name": "org",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.OrgOpenJob"
+                            "$ref": "#/definitions/service.JobRequest"
                         }
                     }
                 ],
@@ -915,12 +922,26 @@
                 "summary": "Update an organization open job by ID",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Organization Open Job",
                         "name": "org",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.OrgOpenJob"
+                            "$ref": "#/definitions/service.JobRequest"
                         }
                     }
                 ],
@@ -1145,11 +1166,13 @@
             "type": "string",
             "enum": [
                 "entrylevel",
-                "senior"
+                "senior",
+                "junior"
             ],
             "x-enum-varnames": [
                 "CareerStageEntryLevel",
-                "CareerStageSenior"
+                "CareerStageSenior",
+                "CareerStageJunior"
             ]
         },
         "models.Industry": {
@@ -1212,10 +1235,14 @@
                             "$ref": "#/definitions/models.CareerStage"
                         }
                     ],
-                    "example": "junior"
+                    "example": "entrylevel"
                 },
                 "createdAt": {
                     "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-11-29T08:00:00Z"
                 },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
@@ -1231,10 +1258,6 @@
                 "id": {
                     "type": "integer",
                     "example": 1
-                },
-                "organization": {
-                    "type": "string",
-                    "example": "builds CMU"
                 },
                 "organization_id": {
                     "type": "integer",
@@ -1277,6 +1300,10 @@
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-11-29T08:00:00Z"
                 },
                 "work_type": {
                     "allOf": [
@@ -1634,6 +1661,88 @@
                     "items": {
                         "$ref": "#/definitions/models.Timeline"
                     }
+                }
+            }
+        },
+        "service.JobRequest": {
+            "type": "object",
+            "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-11-29T08:00:00Z"
+                },
+                "UpdatedAt": {
+                    "type": "string",
+                    "example": "2024-11-29T08:00:00Z"
+                },
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "prerequisite": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Bachelor's degree in Computer Science"
+                    ]
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "This is a scope"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
                 }
             }
         },
