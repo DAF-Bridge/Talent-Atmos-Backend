@@ -16,10 +16,10 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB) {
 
 	org := app.Group("/orgs")
 
+	org.Get("/paginate", organizationHandler.GetOrganizationPaginate)
 	org.Get("/list", organizationHandler.ListOrganizations)
 	org.Post("/", organizationHandler.CreateOrganization)
 	org.Get("/:id", organizationHandler.GetOrganizationByID)
-	app.Get("/paginate", organizationHandler.GetOrganizationPaginate)
 	org.Put("/:id", organizationHandler.UpdateOrganization)
 	org.Delete("/:id", organizationHandler.DeleteOrganization)
 

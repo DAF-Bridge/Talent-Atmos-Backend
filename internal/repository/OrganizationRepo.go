@@ -32,9 +32,20 @@ func (r organizationRepository) GetByOrgID(id uint) (*models.Organization, error
 }
 
 func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.Organization, error) {
+
 	var orgs []models.Organization
-	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&orgs).Error
-	return orgs, err
+	offset := int((page - 1) * size)
+
+	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
+		Order("created_at desc").Limit(int(size)).
+		Offset(int(offset)).
+		Find(&orgs).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return orgs, nil
 }
 
 func (r organizationRepository) GetAllOrganizations() ([]models.Organization, error) {

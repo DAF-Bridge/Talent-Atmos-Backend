@@ -1172,7 +1172,6 @@ paths:
       - description: Page number
         in: query
         name: page
-        required: true
         type: integer
       produces:
       - application/json

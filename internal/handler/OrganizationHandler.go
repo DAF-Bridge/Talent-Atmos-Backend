@@ -99,7 +99,7 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 // @Tags Organization
 // @Accept json
 // @Produce json
-// @Param page query int true "Page number"
+// @Param page query int false "Page number"
 // @Success 200 {array} models.Organization
 // @Failure 400 {object} fiber.Map "Bad Request - invalid page"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
@@ -112,8 +112,9 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 	}
 
 	organizations, err := h.service.GetPaginateOrganization(uint(page))
+
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error bad": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(organizations)
