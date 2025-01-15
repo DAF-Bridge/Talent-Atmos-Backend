@@ -293,7 +293,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.OrgOpenJob"
+                                "$ref": "#/definitions/service.JobResponses"
                             }
                         }
                     },
@@ -735,6 +735,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Job ID",
                         "name": "id",
                         "in": "path",
@@ -793,7 +800,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.OrgOpenJob"
+                            "$ref": "#/definitions/service.JobResponses"
                         }
                     },
                     "400": {
@@ -845,7 +852,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.OrgOpenJob"
+                                "$ref": "#/definitions/service.JobResponses"
                             }
                         }
                     },
@@ -1717,6 +1724,87 @@ const docTemplate = `{
                     "example": [
                         "Bachelor's degree in Computer Science"
                     ]
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "This is a scope"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
+                }
+            }
+        },
+        "service.JobResponses": {
+            "type": "object",
+            "properties": {
+                "UpdatedAt": {
+                    "type": "string",
+                    "example": "2024-11-29 08:00:00"
+                },
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "organization": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
                 },
                 "qualifications": {
                     "type": "string",

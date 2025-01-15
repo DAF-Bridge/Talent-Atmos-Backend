@@ -250,7 +250,7 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 // @Tags Organization Job
 // @Accept json
 // @Produce json
-// @Success 200 {array} models.OrgOpenJob "OK"
+// @Success 200 {array} service.JobResponses "OK"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/jobs/list/all [get]
 func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
@@ -268,7 +268,7 @@ func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Success 200 {array} models.OrgOpenJob
+// @Success 200 {array} service.JobResponses "OK"
 // @Failure 400 {object} fiber.Map "Bad Request - organization id is required or invalid"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/{orgID}/jobs/list [get]
@@ -297,7 +297,7 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Job ID"
-// @Success 200 {object} models.OrgOpenJob
+// @Success 200 {object} service.JobResponses "OK"
 // @Failure 400 {object} fiber.Map "Bad Request - organization id & job id is required"
 // @Failure 404 {object} fiber.Map "Not Found - jobs not found"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
@@ -387,6 +387,7 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 // @Tags Organization Job
 // @Accept json
 // @Produce json
+// @Param orgID path int true "Organization ID"
 // @Param id path int true "Job ID"
 // @Success 200 {object} nil "OK"
 // @Failure 400 {object} fiber.Map "Bad Request - organization id & job id is required"
@@ -411,13 +412,13 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid job id (id)"})
 	}
 
-	job, err := h.service.RemoveJob(uint(orgID), uint(jobID))
+	err = h.service.RemoveJob(uint(orgID), uint(jobID))
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(job)
+	return c.SendStatus(fiber.StatusOK)
 }
 
 // --------------------------------------------------------------------------

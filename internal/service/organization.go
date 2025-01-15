@@ -65,7 +65,7 @@ type OrgOpenJobService interface {
 	GetJobByID(orgID uint, jobID uint) (*JobResponses, error)
 	GetJobPaginate(page uint) ([]JobResponses, error)
 	UpdateJob(orgID uint, jobID uint, org *models.OrgOpenJob) error
-	RemoveJob(orgID uint, jobID uint) (*JobResponses, error)
+	RemoveJob(orgID uint, jobID uint) error
 }
 
 func convertToJobResponse(job models.OrgOpenJob) JobResponses {

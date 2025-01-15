@@ -230,19 +230,17 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, job *models.OrgOpen
 	return nil
 }
 
-func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) (*JobResponses, error) {
-	job, err := s.jobRepo.DeleteJob(orgID, jobID)
+func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {
+	err := s.jobRepo.DeleteJob(orgID, jobID)
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("job not found")
+			return errs.NewNotFoundError("job not found")
 		}
 
 		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
+		return errs.NewUnexpectedError()
 	}
 
-	jobResponse := convertToJobResponse(*job)
-
-	return &jobResponse, nil
+	return nil
 }

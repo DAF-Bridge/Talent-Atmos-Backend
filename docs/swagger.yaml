@@ -486,6 +486,60 @@ definitions:
         - $ref: '#/definitions/models.Workplace'
         example: remote
     type: object
+  service.JobResponses:
+    properties:
+      UpdatedAt:
+        example: "2024-11-29 08:00:00"
+        type: string
+      benefits:
+        example: Health insurance
+        type: string
+      career_stage:
+        allOf:
+        - $ref: '#/definitions/models.CareerStage'
+        example: entrylevel
+      description:
+        example: This is a description
+        type: string
+      hours_per_day:
+        example: 8 hours
+        type: string
+      id:
+        example: 1
+        type: integer
+      location:
+        example: Chiang Mai
+        type: string
+      organization:
+        example: builds CMU
+        type: string
+      period:
+        example: 1 year
+        type: string
+      qualifications:
+        example: Bachelor's degree in Computer Science
+        type: string
+      quantity:
+        example: 1
+        type: integer
+      salary:
+        example: 30000
+        type: number
+      scope:
+        example: This is a scope
+        type: string
+      title:
+        example: Software Engineer
+        type: string
+      work_type:
+        allOf:
+        - $ref: '#/definitions/models.WorkType'
+        example: fulltime
+      workplace:
+        allOf:
+        - $ref: '#/definitions/models.Workplace'
+        example: remote
+    type: object
   service.NewEventRequest:
     properties:
       description:
@@ -955,6 +1009,11 @@ paths:
       - application/json
       description: Delete an organization job by ID
       parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
       - description: Job ID
         in: path
         name: id
@@ -998,7 +1057,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.OrgOpenJob'
+            $ref: '#/definitions/service.JobResponses'
         "400":
           description: Bad Request - organization id & job id is required
           schema:
@@ -1032,7 +1091,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.OrgOpenJob'
+              $ref: '#/definitions/service.JobResponses'
             type: array
         "400":
           description: Bad Request - organization id is required or invalid
@@ -1133,7 +1192,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.OrgOpenJob'
+              $ref: '#/definitions/service.JobResponses'
             type: array
         "500":
           description: Internal Server Error - Something went wrong

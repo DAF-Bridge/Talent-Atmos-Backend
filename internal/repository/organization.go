@@ -20,5 +20,5 @@ type OrgOpenJobRepository interface {
 	GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob, error)
 	GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error)
 	UpdateJob(org *models.OrgOpenJob) (*models.OrgOpenJob, error)
-	DeleteJob(orgID uint, jobID uint) (*models.OrgOpenJob, error)
+	DeleteJob(orgID uint, jobID uint) error
 }

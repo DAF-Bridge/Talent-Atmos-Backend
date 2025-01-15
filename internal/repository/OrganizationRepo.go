@@ -153,17 +153,19 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 	return job, nil
 }
 
-func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) error {
 
 	var job models.OrgOpenJob
 
-	err := r.db.Where("organization_id = ?", orgID).Delete("id = ?", jobID).First(&job).Error
+	// err := r.db.Where("organization_id = ?", orgID).Delete("id = ?", jobID).First(&job).Error
+
+	err := r.db.Where("organization_id = ? AND id = ?", orgID, jobID).Delete(&job).Error
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &job, nil
+	return nil
 }
 
 // --------------------------------------------------------------------------
