@@ -8,37 +8,37 @@ import (
 )
 
 type Profile struct {
-	ID          uint           `gorm:"primaryKey;autoIncrement" json:"id"`
-	HeadLine    string         `gorm:"type:varchar(255)" json:"headline"`
-	FirstName   string         `gorm:"type:varchar(100)" json:"fname"`
-	LastName    string         `gorm:"type:varchar(100)" json:"lname"`
-	Email       string         `gorm:"type:varchar(255)" json:"email"`
-	Phone       string         `gorm:"type:varchar(20)" json:"phone"`
-	PicUrl      string         `gorm:"type:varchar(255)" json:"pic_url"`
-	Bio         string         `gorm:"type:text" json:"bio"`
-	Skill       string         `gorm:"type:varchar(255)" json:"skill"`
-	Language    string         `gorm:"type:varchar(255)" json:"language"`
-	Education   string         `gorm:"type:varchar(255)" json:"education"`
-	FocusField  string         `gorm:"type:varchar(255)" json:"focusField"` //field of expertise
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-	UserID      uuid.UUID      `gorm:"type:uuid;not null" json:"user_id"`
+	ID          uint           `gorm:"primaryKey;autoIncrement" db:"id"`
+	HeadLine    string         `gorm:"type:varchar(255)" db:"headline"`
+	FirstName   string         `gorm:"type:varchar(100)" db:"fname"`
+	LastName    string         `gorm:"type:varchar(100)" db:"lname"`
+	Email       string         `gorm:"type:varchar(255)" db:"email"`
+	Phone       string         `gorm:"type:varchar(20)" db:"phone"`
+	PicUrl      string         `gorm:"type:varchar(255)" db:"pic_url"`
+	Bio         string         `gorm:"type:text" db:"bio"`
+	Skill       string         `gorm:"type:varchar(255)" db:"skill"`
+	Language    string         `gorm:"type:varchar(255)" db:"language"`
+	Education   string         `gorm:"type:varchar(255)" db:"education"`
+	FocusField  string         `gorm:"type:varchar(255)" db:"focusField"` //field of expertise
+	CreatedAt   time.Time      `gorm:"autoCreateTime" db:"created_at"`
+	UpdatedAt   time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" db:"deleted_at"`
+	UserID      uuid.UUID      `gorm:"type:uuid;not null" db:"user_id"`
 	User        User           `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`    // One-to-One relationship (has one, use UserID as foreign key)
 	Experiences []Experience   `gorm:"foreignKey:ProfileID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-Many relationship (has many)
 }
 
 type Experience struct {
-	ID          uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primarykey" json:"id"`
-	ProfileID   uint           `gorm:"type:uuid;not null" json:"profile_id"`
-	Currently   bool           `gorm:"default:false;not null" json:"currently"`
-	StartDate   time.Time      `gorm:"time:DATE" json:"start_date"`
-	EndDate     time.Time      `gorm:"time:DATE" json:"end_date"`
-	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
-	PicUrl      string         `gorm:"type:varchar(255)" json:"pic_url"`
-	Description string         `gorm:"type:text" json:"description"`
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	UUID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primarykey" db:"uuid"`
+	ProfileID   uint           `gorm:"type:uint;not null" db:"profile_id"`
+	Currently   bool           `gorm:"default:false;not null" db:"currently"`
+	StartDate   time.Time      `gorm:"time:DATE" db:"start_date"`
+	EndDate     time.Time      `gorm:"time:DATE" db:"end_date"`
+	Title       string         `gorm:"type:varchar(255);not null" db:"title"`
+	PicUrl      string         `gorm:"type:varchar(255)" db:"pic_url"`
+	Description string         `gorm:"type:text" db:"description"`
+	CreatedAt   time.Time      `gorm:"autoCreateTime" db:"created_at"`
+	UpdatedAt   time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 

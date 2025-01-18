@@ -32,27 +32,22 @@ const (
 //---------------------------------------------------------------------------
 
 type User struct {
-	ID         uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	Name       string         `gorm:"type:varchar(255);not null" json:"name"`
-	Email      string         `gorm:"type:varchar(255);not null" json:"email"`
-	Password   *string        `gorm:"type:varchar(255)" json:"-"` // Hashed password for traditional login
-	Role       Role           `gorm:"type:Role;default:'User'" json:"role"`
-	Provider   Provider       `gorm:"type:Provider;not null" json:"provider"` // e.g., "google"
-	ProviderID string         `gorm:"type:varchar(255);not null" json:"provider_id"`
-	CreatedAt  time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt  time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	UUID       uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" db:"uuid"`
+	Name       string         `gorm:"type:varchar(255);not null" db:"name"`
+	PicUrl     string         `gorm:"type:varchar(255);" db:"pic_url"`
+	Email      string         `gorm:"type:varchar(255);not null" db:"email"`
+	Password   *string        `gorm:"type:varchar(255)" db:"-"` // Hashed password for traditional login
+	Role       Role           `gorm:"type:Role;default:'User'" db:"role"`
+	Provider   Provider       `gorm:"type:Provider;not null" db:"provider"` // e.g., "google"
+	ProviderID string         `gorm:"type:varchar(255);not null" db:"provider_id"`
+	CreatedAt  time.Time      `gorm:"autoCreateTime" db:"created_at"`
+	UpdatedAt  time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
+	DeletedAt  gorm.DeletedAt `gorm:"index" db:"deleted_at"`
 }
 
 //---------------------------------------------------------------------------
 // Interfaces
 //---------------------------------------------------------------------------
-
-type UserRepository interface {
-	Create(user *User) error
-	GetAll() ([]User, error)
-	GetProfileByUserID(userId uuid.UUID) (*Profile, error)
-}
 
 type UserService interface {
 	CreateUser(user *User) error

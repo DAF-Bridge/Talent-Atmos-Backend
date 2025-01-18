@@ -6,16 +6,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	db *gorm.DB
 }
 
 // Constructor
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return &userRepository{db: db}
 }
 
-func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
+func (r userRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) FindByProviderID(providerID string) (*models.User, error) {
+func (r userRepository) FindByProviderID(providerID string) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("provider_id = ?", providerID).First(&user).Error; err != nil {
 		return nil, err
@@ -31,17 +31,17 @@ func (r *UserRepository) FindByProviderID(providerID string) (*models.User, erro
 	return &user, nil
 }
 
-func (r *UserRepository) Create(user *models.User) error {
+func (r userRepository) Create(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *UserRepository) GetAll() ([]models.User, error) {
+func (r userRepository) GetAll() ([]models.User, error) {
 	var users []models.User
 	err := r.db.Find(&users).Error
 	return users, err
 }
 
-func (r *UserRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, error) {
+func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, error) {
 	var userProfile models.Profile
 	if err := r.db.Preload("User").Where("User_ID = ?", userId).First(&userProfile).Error; err != nil {
 		return nil, err
@@ -49,7 +49,11 @@ func (r *UserRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, 
 	return &userProfile, nil
 }
 
+func (r userRepository) UpdateUserPic(userID string, picURL string) error {
+	return r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error
+}
+
 // begin transaction
-func (r *UserRepository) BeginTransaction() *gorm.DB {
+func (r userRepository) BeginTransaction() *gorm.DB {
 	return r.db.Begin()
 }

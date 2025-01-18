@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"time"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -10,12 +11,12 @@ import (
 )
 
 type OauthService struct {
-	userRepo    *repository.UserRepository
+	userRepo    repository.UserRepository
 	profileRepo *repository.ProfileRepository
 	jwtSecret   string
 }
 
-func NewOauthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *OauthService {
+func NewOauthService(userRepo repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *OauthService {
 	return &OauthService{userRepo: userRepo, profileRepo: profileRepo, jwtSecret: jwtSecret}
 }
 
@@ -40,7 +41,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 
 	// check if email is already taken
 	if existedUser, err := s.userRepo.FindByEmail(email); err == nil {
-		user.ID = existedUser.ID
+		user.UUID = existedUser.UUID
 		return s.generateJWT(user)
 	}
 
@@ -59,7 +60,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 		return "", err
 	}
 
-	profile.UserID = user.ID
+	profile.UserID = user.UUID
 
 	// Create the profile
 	if err := s.profileRepo.Create(profile); err != nil {
@@ -80,7 +81,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 func (s *OauthService) generateJWT(user *models.User) (string, error) {
 	// Generate JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
+		"user_id": user.UUID,
 		"email":   user.Email,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})

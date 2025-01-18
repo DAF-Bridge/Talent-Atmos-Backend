@@ -2,8 +2,9 @@ package service
 
 import (
 	"errors"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"time"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/customerrors"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -13,12 +14,12 @@ import (
 )
 
 type AuthService struct {
-	userRepo    *repository.UserRepository
+	userRepo    repository.UserRepository
 	profileRepo *repository.ProfileRepository
 	jwtSecret   string
 }
 
-func NewAuthService(userRepo *repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *AuthService {
+func NewAuthService(userRepo repository.UserRepository, profileRepo *repository.ProfileRepository, jwtSecret string) *AuthService {
 	return &AuthService{userRepo: userRepo, profileRepo: profileRepo, jwtSecret: jwtSecret}
 }
 
@@ -68,7 +69,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 		Email:     email,
 		Phone:     phone,
 		PicUrl:    "",
-		UserID:    user.ID,
+		UserID:    user.UUID,
 	}
 
 	// Create the profile
@@ -111,7 +112,7 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 func (s *AuthService) generateJWT(user *models.User) (string, error) {
 	// Generate JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
+		"user_id": user.UUID,
 		"email":   user.Email,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})

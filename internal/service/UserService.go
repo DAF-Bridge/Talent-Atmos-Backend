@@ -2,15 +2,16 @@ package service
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/google/uuid"
 )
 
 type UserService struct {
-	repo models.UserRepository
+	repo repository.UserRepository
 }
 
 // NewUserService returns a new instance of UserService with the given repository
-func NewUserService(repo models.UserRepository) *UserService {
+func NewUserService(repo repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
