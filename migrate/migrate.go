@@ -28,10 +28,12 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	// initializers.DB.AutoMigrate(&domain.Organization{})
-	// initializers.DB.AutoMigrate(&domain.OrganizationContact{})
-	// initializers.DB.AutoMigrate(&domain.OrgOpenJob{})
-	// initializers.DB.AutoMigrate(&domain.Industry{})
+	initializers.DB.AutoMigrate(&models.User{})
+	initializers.DB.AutoMigrate(&models.Organization{})
+	initializers.DB.AutoMigrate(&models.OrganizationContact{})
+	initializers.DB.AutoMigrate(&models.OrgOpenJob{})
+	initializers.DB.AutoMigrate(&models.Industry{})
+	initializers.DB.AutoMigrate(&models.Event{})
 
 	// for i:=0; i<10; i++{
 	// initializers.DB.Create(&domain.Event{
@@ -55,6 +57,6 @@ func main() {
 	// }
 
 	// drop column headling on event
-	initializers.DB.Migrator().DropColumn(&models.Event{}, "head_line")
+	// initializers.DB.Migrator().DropColumn(&models.Event{}, "head_line")
 
 }
