@@ -42,7 +42,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			Latitude:     "13.7563",
 			Longitude:    "100.5018",
 			Province:     "Bangkok",
-			Category:     "workshop",
+			CategoryMock: "workshop",
 			LocationType: "onsite",
 			Audience:     "students",
 			PriceType:    "free",
@@ -80,7 +80,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			Latitude:     "37.7749",
 			Longitude:    "-122.4194",
 			Province:     "San Francisco",
-			Category:     "conference",
+			CategoryMock: "conference",
 			LocationType: "onsite",
 			Audience:     "professionals",
 			PriceType:    "free",
@@ -117,7 +117,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			Latitude:     "40.7128",
 			Longitude:    "-74.0060",
 			Province:     "New York",
-			Category:     "workshop",
+			CategoryMock: "workshop",
 			LocationType: "onsite",
 			Audience:     "general",
 			PriceType:    "paid",
@@ -154,7 +154,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			Latitude:     "51.5074",
 			Longitude:    "-0.1278",
 			Province:     "London",
-			Category:     "exhibition",
+			CategoryMock: "exhibition",
 			LocationType: "onsite",
 			Audience:     "students",
 			PriceType:    "free",
@@ -192,7 +192,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			Latitude:     "13.7563",
 			Longitude:    "100.5018",
 			Province:     "Bangkok",
-			Category:     "workshop",
+			CategoryMock: "workshop",
 			LocationType: "onsite",
 			Audience:     "students",
 			PriceType:    "free",
@@ -311,7 +311,7 @@ func (e *eventRepositoryMock) Search(params map[string]string) ([]models.MockEve
 			match = false
 		}
 
-		if params["category"] != "" && string(event.Category) != params["category"] {
+		if params["category"] != "" && string(event.CategoryMock) != params["category"] {
 			match = false
 		}
 
