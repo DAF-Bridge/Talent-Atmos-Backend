@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/elasticsearch"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -33,7 +33,7 @@ func (s *SyncService) SyncEventElasticSearch() error {
 		return fmt.Errorf("failed to fetching events: %w", err)
 	}
 
-	elasticsearch.NewElasticSearchClient(s.esClient).SyncEventsAndJobs(events, nil)
+	infrastructure.NewElasticSearchClient(s.esClient).SyncEventsAndJobs(events, nil)
 
 	return nil
 }
@@ -46,7 +46,7 @@ func (s *SyncService) SyncJobElasticSearch() error {
 		return fmt.Errorf("failed to fetching jobs: %w", err)
 	}
 
-	elasticsearch.NewElasticSearchClient(s.esClient).SyncEventsAndJobs(nil, jobs)
+	infrastructure.NewElasticSearchClient(s.esClient).SyncEventsAndJobs(nil, jobs)
 
 	return nil
 }
@@ -66,7 +66,7 @@ func (s *SyncService) SyncAllElasticSearch() error {
 		return fmt.Errorf("failed to fetching jobs: %w", err)
 	}
 
-	err = elasticsearch.NewElasticSearchClient(s.esClient).SyncEventsAndJobs(events, jobs)
+	err = infrastructure.NewElasticSearchClient(s.esClient).SyncEventsAndJobs(events, jobs)
 	if err != nil {
 		return fmt.Errorf("failed to sync events and jobs: %w", err)
 	}
