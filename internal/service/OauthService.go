@@ -41,7 +41,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 
 	// check if email is already taken
 	if existedUser, err := s.userRepo.FindByEmail(email); err == nil {
-		user.UUID = existedUser.UUID
+		user.ID = existedUser.ID
 		return s.generateJWT(user)
 	}
 
@@ -60,7 +60,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 		return "", err
 	}
 
-	profile.UserID = user.UUID
+	profile.UserID = user.ID
 
 	// Create the profile
 	if err := s.profileRepo.Create(profile); err != nil {
@@ -81,7 +81,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 func (s *OauthService) generateJWT(user *models.User) (string, error) {
 	// Generate JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.UUID,
+		"user_id": user.ID,
 		"email":   user.Email,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})

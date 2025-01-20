@@ -51,6 +51,48 @@ func NewEventHandler(eventService service.EventService) eventHandler {
 	return eventHandler{eventService: eventService}
 }
 
+// @Summary Search for events
+// @Description Search for events based on various criteria such as search term, category, location type, audience, and price type.
+// @Tags Events
+// @Accept json
+// @Produce json
+// @Param search query string false "Search term"
+// @Param category query string false "Event category"
+// @Param location query string false "Location type"
+// @Param audience query string false "Audience type"
+// @Param price query string false "Price type"
+// @Success 200 {array} service.EventCardResponses
+// @Failure 400 {object} fiber.Map "Bad Request - Invalid query parameters"
+// @Failure 404 {object} fiber.Map "Not Found - Events not found"
+// @Failure 500 {object} fiber.Map "Internal server error - Something went wrong"
+// @Router /events/q [get]
+func (h eventHandler) SearchEvent(c *fiber.Ctx) error {
+	var query dto.EventSearchCriteria
+
+	if err := c.QueryParser(&query); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid query parameters"})
+	}
+
+	queryMap := map[string]string{
+		"search":   query.Search,
+		"category": query.Category,
+		"location": query.LocationType,
+		"audience": query.Audience,
+		"price":    query.PriceType,
+	}
+
+	events, err := h.eventService.SearchEvents(queryMap)
+	if err != nil {
+		if len(events) == 0 {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "events not found"})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(events)
+}
+
 // @Summary Create a new event
 // @Description Create a new event for a specific organization
 // @Tags Events
@@ -272,49 +314,32 @@ func NewMockEventHandler(eventService service.MockEventService) mockEventHandler
 	return mockEventHandler{eventService: eventService}
 }
 
-// @Summary Search for mock events
-// @Description Search for mock events based on various criteria such as page, search term, category, location type, audience, and price type.
-// @Tags Events
-// @Accept json
-// @Produce json
-// @Param page query string false "Page number"
-// @Param search query string false "Search term"
-// @Param category query string false "Event category"
-// @Param location query string false "Location type"
-// @Param audience query string false "Audience type"
-// @Param price query string false "Price type"
-// @Success 200 {array} service.EventCardResponses
-// @Failure 400 {object} fiber.Map "Bad Request - Invalid query parameters"
-// @Failure 404 {object} fiber.Map "Not Found - Events not found"
-// @Failure 500 {object} fiber.Map "Internal server error - Something went wrong"
-// @Router /events/q [get]
-func (h mockEventHandler) SearchMockEvent(c *fiber.Ctx) error {
-	var query dto.EventSearchCriteria
+// func (h mockEventHandler) SearchMockEvent(c *fiber.Ctx) error {
+// 	var query dto.EventSearchCriteria
 
-	if err := c.QueryParser(&query); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid query parameters"})
-	}
+// 	if err := c.QueryParser(&query); err != nil {
+// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid query parameters"})
+// 	}
 
-	queryMap := map[string]string{
-		"page":     query.Page,
-		"search":   query.Search,
-		"category": query.Category,
-		"location": query.LocationType,
-		"audience": query.Audience,
-		"price":    query.PriceType,
-	}
+// 	queryMap := map[string]string{
+// 		"search":   query.Search,
+// 		"category": query.Category,
+// 		"location": query.LocationType,
+// 		"audience": query.Audience,
+// 		"price":    query.PriceType,
+// 	}
 
-	events, err := h.eventService.SearchMockEvent(queryMap)
-	if err != nil {
-		if len(events) == 0 {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "events not found"})
-		}
+// 	events, err := h.eventService.SearchMockEvent(queryMap)
+// 	if err != nil {
+// 		if len(events) == 0 {
+// 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "events not found"})
+// 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
+// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+// 	}
 
-	return c.JSON(events)
-}
+// 	return c.JSON(events)
+// }
 
 func (h mockEventHandler) CreateMockEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")

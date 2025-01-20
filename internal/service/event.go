@@ -18,8 +18,8 @@ type NewEventRequest struct {
 	Requirement  string            `json:"requirement" example:"This is a requirement"`
 	KeyTakeaway  string            `json:"keyTakeaway" example:"This is a key takeaway"`
 	LocationName string            `json:"locationName" example:"Bangkok"`
-	Latitude     string            `json:"latitude" example:"13.7563"`
-	Longitude    string            `json:"longitude" example:"100.5018"`
+	Latitude     float64           `json:"latitude" example:"13.7563"`
+	Longitude    float64           `json:"longitude" example:"100.5018"`
 	Province     string            `json:"province" example:"Chiang Mai"`
 }
 
@@ -38,8 +38,8 @@ type EventResponses struct {
 	Requirement    string            `json:"requirement" example:"This is a requirement"`
 	KeyTakeaway    string            `json:"keyTakeaway" example:"This is a key takeaway"`
 	LocationName   string            `json:"locationName" example:"builds CMU"`
-	Latitude       string            `json:"latitude" example:"13.7563"`
-	Longitude      string            `json:"longitude" example:"100.5018"`
+	Latitude       float64           `json:"latitude" example:"13.7563"`
+	Longitude      float64           `json:"longitude" example:"100.5018"`
 	Province       string            `json:"province" example:"Chiang Mai"`
 }
 
@@ -63,7 +63,7 @@ type EventService interface {
 	GetAllEventsByOrgID(orgID uint) ([]EventResponses, error)
 	GetEventByID(orgID uint, eventID uint) (*EventResponses, error)
 	GetEventPaginate(page uint) ([]EventResponses, error)
-	// Search(query string) ([]EventResponses, error)
+	SearchEvents(params map[string]string) ([]EventResponses, error)
 	GetFirst() (*EventResponses, error)
 	CountEvent() (int64, error)
 	// Update(event *Event) error

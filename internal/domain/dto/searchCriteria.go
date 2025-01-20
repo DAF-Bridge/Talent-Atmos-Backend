@@ -1,7 +1,6 @@
 package dto
 
 type EventSearchCriteria struct {
-	Page         string `json:"page" query:"page"`
 	Search       string `json:"search" query:"search"`
 	Category     string `json:"category" query:"category"`
 	DateRange    string `json:"dateRange" query:"dateRange"`

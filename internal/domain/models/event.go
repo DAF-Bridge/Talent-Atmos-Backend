@@ -22,9 +22,8 @@ const (
 )
 
 const (
-	Free   PriceType = "free"
-	Paid   PriceType = "paid"
-	Credit PriceType = "credit"
+	Free PriceType = "free"
+	Paid PriceType = "paid"
 )
 
 const (
@@ -43,38 +42,39 @@ type Timeline struct {
 
 type Event struct {
 	gorm.Model
-	Name            string       `gorm:"type:varchar(255)" db:"event_name"`
-	PicUrl          string       `db:"pic_url"`
-	StartDate       time.Time    `gorm:"time:date" db:"start_date"`
-	EndDate         time.Time    `gorm:"time:date" db:"end_date"`
-	StartTime       time.Time    `gorm:"time:time" db:"start_time"`
-	EndTime         time.Time    `gorm:"time:time" db:"end_time"`
-	Description     string       `gorm:"type:text" db:"description"`
-	Highlight       string       `gorm:"type:text" db:"highlight"`
-	Requirement     string       `gorm:"type:text" db:"requirement"`
-	KeyTakeaway     string       `gorm:"type:text" db:"key_takeaway"`
-	Timeline        []Timeline   `gorm:"serializer:json" db:"timeline"`
-	LocationName    string       `gorm:"type:varchar(255)" db:"location_name"`
-	Latitude        string       `db:"latitude"`
-	Longitude       string       `db:"longitude"`
-	Province        string       `gorm:"type:varchar(255)" db:"province"`
-	Category        Category     `db:"category"`
-	LocationType    LocationType `gorm:"type:enum('online', 'onsite')"`
-	Audience        Audience
-	PriceType       PriceType
-	OrganizationID  uint              `db:"organization_id"`
-	Organization    Organization      `db:"organization"`
+	Name            string            `gorm:"type:varchar(255);not null" db:"event_name"`
+	PicUrl          string            `gorm:"type:text" db:"pic_url"`
+	StartDate       time.Time         `gorm:"time:date" db:"start_date"`
+	EndDate         time.Time         `gorm:"time:date" db:"end_date"`
+	StartTime       time.Time         `gorm:"time:time" db:"start_time"`
+	EndTime         time.Time         `gorm:"time:time" db:"end_time"`
+	Description     string            `gorm:"type:text" db:"description"`
+	Highlight       string            `gorm:"type:text" db:"highlight"`
+	Requirement     string            `gorm:"type:text" db:"requirement"`
+	KeyTakeaway     string            `gorm:"type:text" db:"key_takeaway"`
+	Timeline        []Timeline        `gorm:"serializer:json" db:"timeline"`
+	LocationName    string            `gorm:"type:varchar(255)" db:"location_name"`
+	Latitude        float64           `gorm:"type:decimal(10,8)" db:"latitude"`
+	Longitude       float64           `gorm:"type:decimal(11,8)" db:"longitude"`
+	Province        string            `gorm:"type:varchar(255)" db:"province"`
+	LocationType    LocationType      `gorm:"type:varchar(50)" db:"location_type"`
+	Audience        Audience          `gorm:"type:varchar(50)" db:"audience"`
+	PriceType       PriceType         `gorm:"type:varchar(50)" db:"price_type"`
+	CategoryID      uint              `gorm:"not null" db:"category_id"`
+	Category        Category          `gorm:"foreignKey:CategoryID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"categories"`
+	OrganizationID  uint              `gorm:"not null" db:"organization_id"`
+	Organization    Organization      `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"organizations"`
 	TicketAvailable []TicketAvailable `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"ticket_available"`
 }
 
 type TicketAvailable struct {
 	gorm.Model
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Quantity    int     `json:"quantity"`
-	Price       float64 `json:"price"`
-	EventID     uint    `json:"event_id"`
-	Event       Event   `json:"event"`
+	Title       string  `gorm:"type:varchar(255);not null" db:"title"`
+	Description string  `gorm:"type:text" db:"description"`
+	Quantity    int     `gorm:"not null;check:quantity >= 0" db:"quantity"`
+	Price       float64 `gorm:"not null;check:price >= 0" db:"price"`
+	EventID     uint    `gorm:"not null" db:"event_id"`
+	Event       Event   `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"  db:"event"`
 }
 
 //---------------------------------------------------------------------------
@@ -130,8 +130,8 @@ type MockEvent struct {
 	KeyTakeaway    string         `gorm:"type:text" `
 	Timeline       []Timeline
 	LocationName   string
-	Latitude       string
-	Longitude      string
+	Latitude       float64
+	Longitude      float64
 	Province       string
 	CategoryMock   CategoryMock
 	LocationType   LocationType
