@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -40,6 +41,7 @@ func (s *S3Uploader) UploadFile(ctx context.Context, file multipart.File, fileHe
 
 	buffer := bytes.NewBuffer(nil)
 	if _, err := buffer.ReadFrom(file); err != nil {
+		logs.Error(err)
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
@@ -50,9 +52,11 @@ func (s *S3Uploader) UploadFile(ctx context.Context, file multipart.File, fileHe
 		ACL:    "public-read",
 	})
 	if err != nil {
+		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
 	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
 	return fileURL, nil
 }
