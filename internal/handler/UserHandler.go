@@ -77,3 +77,27 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 
 	return c.JSON(currentUserProfile)
 }
+
+// func (h *UserHandler) UploadProfilePicture(c *fiber.Ctx) error {
+// 	userID := c.Params("id")
+
+// 	file, err := c.FormFile("image")
+// 	if err != nil {
+// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file"})
+// 	}
+
+// 	src, err := file.Open()
+// 	if err != nil {
+// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+// 	}
+// 	defer src.Close()
+
+// 	// Upload to S3 & Update DB
+// 	picURL, err := h.service.(c.Context(), userID, file.Filename)
+// 	if err != nil {
+// 		log.Println("Failed to update profile picture:", err)
+// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update profile picture"})
+// 	}
+
+// 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"picUrl": picURL})
+// }

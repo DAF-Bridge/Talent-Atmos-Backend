@@ -69,7 +69,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 		Email:     email,
 		Phone:     phone,
 		PicUrl:    "",
-		UserID:    user.UUID,
+		UserID:    user.ID,
 	}
 
 	// Create the profile
@@ -112,7 +112,7 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 func (s *AuthService) generateJWT(user *models.User) (string, error) {
 	// Generate JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.UUID,
+		"user_id": user.ID,
 		"email":   user.Email,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	})

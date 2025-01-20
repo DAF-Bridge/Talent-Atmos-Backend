@@ -32,9 +32,9 @@ const (
 //---------------------------------------------------------------------------
 
 type User struct {
-	UUID       uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" db:"uuid"`
+	ID         uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" db:"id"`
 	Name       string         `gorm:"type:varchar(255);not null" db:"name"`
-	PicUrl     string         `gorm:"type:varchar(255);" db:"pic_url"`
+	PicUrl     string         `gorm:"type:text;" db:"pic_url"`
 	Email      string         `gorm:"type:varchar(255);not null" db:"email"`
 	Password   *string        `gorm:"type:varchar(255)" db:"-"` // Hashed password for traditional login
 	Role       Role           `gorm:"type:Role;default:'User'" db:"role"`
@@ -53,4 +53,5 @@ type UserService interface {
 	CreateUser(user *User) error
 	ListUsers() ([]User, error)
 	GetCurrentUserProfile(userId uuid.UUID) (*Profile, error)
+	// UpdateUserPicture(ctx context.Context, userID string, picURL string) (string, error)
 }

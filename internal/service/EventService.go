@@ -37,6 +37,28 @@ func (s eventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses
 	return &eventResponse, nil
 }
 
+func (s eventService) SearchEvents(params map[string]string) ([]EventResponses, error) {
+
+	events, err := s.eventRepo.Search(params)
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.NewNotFoundError("events not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponses := []EventResponses{}
+	for _, event := range events {
+		eventResponse := convertToEventResponse(event)
+		eventResponses = append(eventResponses, eventResponse)
+	}
+
+	return eventResponses, nil
+}
+
 func (s eventService) GetAllEvents() ([]EventResponses, error) {
 	events, err := s.eventRepo.GetAll()
 
@@ -63,7 +85,7 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) 
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("events not found")
+			return nil, errs.NewNotFoundError("events not found")
 		}
 
 		logs.Error(err)
@@ -84,7 +106,7 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, e
 	if err != nil {
 
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("event not found")
+			return nil, errs.NewNotFoundError("event not found")
 		}
 
 		logs.Error(err)
@@ -101,7 +123,7 @@ func (s eventService) GetEventPaginate(page uint) ([]EventResponses, error) {
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("events not found")
+			return nil, errs.NewNotFoundError("events not found")
 		}
 
 		logs.Error(err)
@@ -146,7 +168,7 @@ func (s eventService) DeleteEvent(orgID uint, eventID uint) (*EventResponses, er
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("event not found")
+			return nil, errs.NewNotFoundError("event not found")
 		}
 
 		logs.Error(err)
@@ -215,7 +237,7 @@ func (s mockEventService) GetAllMockEventsByOrgID(orgID uint) ([]EventResponses,
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("events not found")
+			return nil, errs.NewNotFoundError("events not found")
 		}
 
 		logs.Error(err)
@@ -237,7 +259,7 @@ func (s mockEventService) GetMockEventByID(orgID uint, eventID uint) (*EventResp
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("event not found")
+			return nil, errs.NewNotFoundError("event not found")
 		}
 
 		logs.Error(err)
@@ -270,7 +292,7 @@ func (s mockEventService) SearchMockEvent(params map[string]string) ([]EventCard
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("events not found")
+			return nil, errs.NewNotFoundError("events not found")
 		}
 
 		logs.Error(err)
@@ -314,7 +336,7 @@ func (s mockEventService) DeleteMockEvent(orgID uint, eventID uint) (*EventRespo
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("event not found")
+			return nil, errs.NewNotFoundError("event not found")
 		}
 
 		logs.Error(err)

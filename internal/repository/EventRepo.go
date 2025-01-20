@@ -19,16 +19,6 @@ func (r eventRepository) Search(params map[string]string) ([]models.Event, error
 	events := []models.Event{}
 	query := r.db
 
-	// if name, ok := params["name"]; ok && name != "" {
-	// 	query = query.Where("name ILIKE ?", "%"+name+"%")
-	// }
-	// if location, ok := params["location"]; ok && location != "" {
-	// 	query = query.Where("location_name = ?", location)
-	// }
-	// if category, ok := params["category"]; ok && category != "all" {
-	// 	query = query.Where("category = ?", category)
-	// }
-
 	if search, ok := params["search"]; ok && search != "" {
 		query = query.Where("name ILIKE ? OR location_name ILIKE ? OR category ILIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%")
 	}

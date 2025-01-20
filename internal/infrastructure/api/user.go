@@ -12,6 +12,7 @@ import (
 func NewUserRouter(app *fiber.App, db *gorm.DB, jwtSecret string) {
 	// Dependencies Injections for User
 	userRepo := repository.NewUserRepository(db)
+	// s3 := infrastructure.NewS3Uploader()
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
@@ -19,6 +20,6 @@ func NewUserRouter(app *fiber.App, db *gorm.DB, jwtSecret string) {
 
 	user.Post("/", userHandler.CreateUser)
 	user.Get("/", userHandler.ListUsers)
-	
+
 	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret), userHandler.GetCurrentUser)
 }
