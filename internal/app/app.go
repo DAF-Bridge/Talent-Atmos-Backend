@@ -21,7 +21,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToElasticSearch()
 	// initializers.ConnectToRedis()
@@ -82,7 +82,7 @@ func Start() {
 	api.NewEventRouter(app, initializers.DB)
 
 	// Define routes for Search
-	api.NewSearchRouter(app, initializers.ESClient)
+	api.NewSearchRouter(app, initializers.DB, initializers.ESClient)
 
 	// api.NewSyncDataRouter(app, initializers.DB, initializers.ESClient)
 

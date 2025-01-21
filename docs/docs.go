@@ -15,52 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/current-user-profile": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get current user profile",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Get current user profile",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Profile"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - Invalid user_id",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid token",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error - Failed to get user profile",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            }
-        },
         "/events": {
             "get": {
                 "description": "Get a list of all events",
@@ -165,7 +119,7 @@ const docTemplate = `{
         },
         "/events/q": {
             "get": {
-                "description": "Search for events based on various criteria such as search term, category, location type, audience, and price type.",
+                "description": "Search events by keyword",
                 "consumes": [
                     "application/json"
                 ],
@@ -173,38 +127,39 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Events"
+                    "Searching"
                 ],
-                "summary": "Search for events",
+                "summary": "Search events",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Search term",
+                        "description": "Keyword to search for events",
                         "name": "search",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Event category",
+                        "description": "Category of events",
                         "name": "category",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Location type",
-                        "name": "location",
+                        "description": "Location Type of events",
+                        "name": "locationType",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Audience type",
+                        "description": "Main Audience of events",
                         "name": "audience",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Price type",
-                        "name": "price",
+                        "description": "Price Type of events",
+                        "name": "priceType",
                         "in": "query"
                     }
                 ],
@@ -214,24 +169,24 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.EventCardResponses"
+                                "$ref": "#/definitions/models.Event"
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid query parameters",
+                        "description": "error - Bad Request\"}",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "404": {
-                        "description": "Not Found - Events not found",
+                        "description": "error - events not found\"}",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal server error - Something went wrong",
+                        "description": "error - Internal Server Error\"}",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
@@ -609,7 +564,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/orgs/{orgID}/events/{catID}": {
             "post": {
                 "description": "Create a new event for a specific organization",
                 "consumes": [
@@ -621,12 +578,19 @@ const docTemplate = `{
                 "tags": [
                     "Events"
                 ],
-                "summary": "Create a new event",
+                "summary": "Create a new event (Not Finished!!!! Cannot add locationType, audience, and priceType)",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "Organization ID",
                         "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "catID",
                         "in": "path",
                         "required": true
                     },
@@ -1322,6 +1286,19 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Audience": {
+            "type": "string",
+            "enum": [
+                "general",
+                "students",
+                "professionals"
+            ],
+            "x-enum-varnames": [
+                "General",
+                "Students",
+                "Professionals"
+            ]
+        },
         "models.CareerStage": {
             "type": "string",
             "enum": [
@@ -1335,14 +1312,61 @@ const docTemplate = `{
                 "CareerStageJunior"
             ]
         },
-        "models.Experience": {
+        "models.Category": {
             "type": "object",
             "properties": {
                 "createdAt": {
                     "type": "string"
                 },
-                "currently": {
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
                     "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "description": "ParentID is a Self-referencing foreign key If categories can be nested (e.g., \"Technology\" → \"AI\"), add a ParentID field for self-referencing categories.",
+                    "type": "integer"
+                },
+                "slug": {
+                    "description": "A Slug field helps create readable URLs (/category/artificial-intelligence instead of /category/123).",
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "description": "For sorting categories in a preferred order: e.g., \"Technology\" should come before \"Business\"",
+                    "type": "integer"
+                },
+                "sub_categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Event": {
+            "type": "object",
+            "properties": {
+                "audience": {
+                    "$ref": "#/definitions/models.Audience"
+                },
+                "category": {
+                    "$ref": "#/definitions/models.Category"
+                },
+                "categoryID": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
                 },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
@@ -1353,22 +1377,70 @@ const docTemplate = `{
                 "endDate": {
                     "type": "string"
                 },
+                "endTime": {
+                    "type": "string"
+                },
+                "highlight": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyTakeaway": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "locationName": {
+                    "type": "string"
+                },
+                "locationType": {
+                    "$ref": "#/definitions/models.LocationType"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization": {
+                    "$ref": "#/definitions/models.Organization"
+                },
+                "organizationID": {
+                    "type": "integer"
+                },
                 "picUrl": {
                     "type": "string"
                 },
-                "profileID": {
-                    "type": "integer"
+                "priceType": {
+                    "$ref": "#/definitions/models.PriceType"
+                },
+                "province": {
+                    "type": "string"
+                },
+                "requirement": {
+                    "type": "string"
                 },
                 "startDate": {
                     "type": "string"
                 },
-                "title": {
+                "startTime": {
                     "type": "string"
+                },
+                "ticketAvailable": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TicketAvailable"
+                    }
+                },
+                "timeline": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
                 },
                 "updatedAt": {
-                    "type": "string"
-                },
-                "uuid": {
                     "type": "string"
                 }
             }
@@ -1398,6 +1470,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.LocationType": {
+            "type": "string",
+            "enum": [
+                "online",
+                "onsite"
+            ],
+            "x-enum-varnames": [
+                "Online",
+                "Onsite"
+            ]
         },
         "models.Media": {
             "type": "string",
@@ -1637,74 +1720,16 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Profile": {
-            "type": "object",
-            "properties": {
-                "bio": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "education": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "experiences": {
-                    "description": "One-to-Many relationship (has many)",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Experience"
-                    }
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "focusField": {
-                    "description": "field of expertise",
-                    "type": "string"
-                },
-                "headLine": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "language": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "picUrl": {
-                    "type": "string"
-                },
-                "skill": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "user": {
-                    "description": "One-to-One relationship (has one, use UserID as foreign key)",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    ]
-                },
-                "userID": {
-                    "type": "string"
-                }
-            }
+        "models.PriceType": {
+            "type": "string",
+            "enum": [
+                "free",
+                "paid"
+            ],
+            "x-enum-varnames": [
+                "Free",
+                "Paid"
+            ]
         },
         "models.Provider": {
             "type": "string",
@@ -1729,6 +1754,41 @@ const docTemplate = `{
                 "RoleUser",
                 "RoleAdmin"
             ]
+        },
+        "models.TicketAvailable": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "event": {
+                    "$ref": "#/definitions/models.Event"
+                },
+                "eventID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
         },
         "models.Timeline": {
             "type": "object",
@@ -1866,6 +1926,18 @@ const docTemplate = `{
         "service.EventResponses": {
             "type": "object",
             "properties": {
+                "audience": {
+                    "type": "string",
+                    "example": "genteral"
+                },
+                "category": {
+                    "type": "string",
+                    "example": "all"
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
+                },
                 "description": {
                     "type": "string",
                     "example": "This is a description"
@@ -1898,6 +1970,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "builds CMU"
                 },
+                "locationType": {
+                    "type": "string",
+                    "example": "onsite"
+                },
                 "longitude": {
                     "type": "number",
                     "example": 100.5018
@@ -1913,6 +1989,10 @@ const docTemplate = `{
                 "picUrl": {
                     "type": "string",
                     "example": "https://example.com/image.jpg"
+                },
+                "priceType": {
+                    "type": "string",
+                    "example": "free"
                 },
                 "province": {
                     "type": "string",
@@ -2104,13 +2184,17 @@ const docTemplate = `{
         "service.NewEventRequest": {
             "type": "object",
             "properties": {
+                "audience": {
+                    "type": "string",
+                    "example": "general"
+                },
                 "description": {
                     "type": "string",
                     "example": "This is a description"
                 },
                 "endDate": {
                     "type": "string",
-                    "example": "2024-11-29"
+                    "example": "2025-01-22"
                 },
                 "endTime": {
                     "type": "string",
@@ -2132,6 +2216,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Bangkok"
                 },
+                "locationType": {
+                    "type": "string",
+                    "example": "onsite"
+                },
                 "longitude": {
                     "type": "number",
                     "example": 100.5018
@@ -2144,6 +2232,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/image.jpg"
                 },
+                "priceType": {
+                    "type": "string",
+                    "example": "free"
+                },
                 "province": {
                     "type": "string",
                     "example": "Chiang Mai"
@@ -2154,7 +2246,7 @@ const docTemplate = `{
                 },
                 "startDate": {
                     "type": "string",
-                    "example": "2024-11-29"
+                    "example": "2025-01-25"
                 },
                 "startTime": {
                     "type": "string",

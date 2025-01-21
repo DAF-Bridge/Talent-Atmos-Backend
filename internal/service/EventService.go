@@ -4,6 +4,9 @@ import (
 	"errors"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/sync"
+	"github.com/opensearch-project/opensearch-go"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -22,10 +25,10 @@ func NewEventService(eventRepo repository.EventRepository) EventService {
 	return eventService{eventRepo: eventRepo}
 }
 
-func (s eventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses, error) {
-	event := requestConvertToEvent(int(orgID), req)
+func (s eventService) NewEvent(orgID uint, catID uint, req NewEventRequest) (*EventResponses, error) {
+	event := requestConvertToEvent(orgID, catID, req)
 
-	newEvent, err := s.eventRepo.Create(uint(orgID), &event)
+	newEvent, err := s.eventRepo.Create(uint(orgID), uint(catID), &event)
 
 	if err != nil {
 		logs.Error(err)
@@ -185,6 +188,26 @@ func (s eventService) DeleteEvent(orgID uint, eventID uint) (*EventResponses, er
 
 	return &eventResponse, nil
 }
+
+// Event Opensearch Service //
+type EventOpensearchService struct {
+	DB *gorm.DB
+	OS *opensearch.Client
+}
+
+func NewEventOpensearchService(db *gorm.DB, os *opensearch.Client) *EventOpensearchService {
+	return &EventOpensearchService{DB: db, OS: os}
+}
+
+func (s *EventOpensearchService) SyncEvents() error {
+	return sync.SyncEventsToOpenSearch(s.DB, s.OS)
+}
+
+func (s *EventOpensearchService) SearchEvents(query models.SearchQuery, page int, perPage int) ([]map[string]interface{}, error) {
+	return search.SearchEvents(s.OS, query, page, perPage)
+}
+
+//--------------------------------------------//
 
 type mockEventService struct {
 	mockEventRepo repository.MockEventRepository

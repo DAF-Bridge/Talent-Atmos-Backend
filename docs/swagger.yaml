@@ -83,6 +83,16 @@ definitions:
       phone:
         type: string
     type: object
+  models.Audience:
+    enum:
+    - general
+    - students
+    - professionals
+    type: string
+    x-enum-varnames:
+    - General
+    - Students
+    - Professionals
   models.CareerStage:
     enum:
     - entrylevel
@@ -93,29 +103,97 @@ definitions:
     - CareerStageEntryLevel
     - CareerStageSenior
     - CareerStageJunior
-  models.Experience:
+  models.Category:
     properties:
       createdAt:
         type: string
-      currently:
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      isActive:
         type: boolean
+      name:
+        type: string
+      parentID:
+        description: ParentID is a Self-referencing foreign key If categories can
+          be nested (e.g., "Technology" → "AI"), add a ParentID field for self-referencing
+          categories.
+        type: integer
+      slug:
+        description: A Slug field helps create readable URLs (/category/artificial-intelligence
+          instead of /category/123).
+        type: string
+      sortOrder:
+        description: 'For sorting categories in a preferred order: e.g., "Technology"
+          should come before "Business"'
+        type: integer
+      sub_categories:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  models.Event:
+    properties:
+      audience:
+        $ref: '#/definitions/models.Audience'
+      category:
+        $ref: '#/definitions/models.Category'
+      categoryID:
+        type: integer
+      createdAt:
+        type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       description:
         type: string
       endDate:
         type: string
+      endTime:
+        type: string
+      highlight:
+        type: string
+      id:
+        type: integer
+      keyTakeaway:
+        type: string
+      latitude:
+        type: number
+      locationName:
+        type: string
+      locationType:
+        $ref: '#/definitions/models.LocationType'
+      longitude:
+        type: number
+      name:
+        type: string
+      organization:
+        $ref: '#/definitions/models.Organization'
+      organizationID:
+        type: integer
       picUrl:
         type: string
-      profileID:
-        type: integer
+      priceType:
+        $ref: '#/definitions/models.PriceType'
+      province:
+        type: string
+      requirement:
+        type: string
       startDate:
         type: string
-      title:
+      startTime:
         type: string
+      ticketAvailable:
+        items:
+          $ref: '#/definitions/models.TicketAvailable'
+        type: array
+      timeline:
+        items:
+          $ref: '#/definitions/models.Timeline'
+        type: array
       updatedAt:
-        type: string
-      uuid:
         type: string
     type: object
   models.Industry:
@@ -135,6 +213,14 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.LocationType:
+    enum:
+    - online
+    - onsite
+    type: string
+    x-enum-varnames:
+    - Online
+    - Onsite
   models.Media:
     enum:
     - website
@@ -301,51 +387,14 @@ definitions:
       updatedAt:
         type: string
     type: object
-  models.Profile:
-    properties:
-      bio:
-        type: string
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      education:
-        type: string
-      email:
-        type: string
-      experiences:
-        description: One-to-Many relationship (has many)
-        items:
-          $ref: '#/definitions/models.Experience'
-        type: array
-      firstName:
-        type: string
-      focusField:
-        description: field of expertise
-        type: string
-      headLine:
-        type: string
-      id:
-        type: integer
-      language:
-        type: string
-      lastName:
-        type: string
-      phone:
-        type: string
-      picUrl:
-        type: string
-      skill:
-        type: string
-      updatedAt:
-        type: string
-      user:
-        allOf:
-        - $ref: '#/definitions/models.User'
-        description: One-to-One relationship (has one, use UserID as foreign key)
-      userID:
-        type: string
-    type: object
+  models.PriceType:
+    enum:
+    - free
+    - paid
+    type: string
+    x-enum-varnames:
+    - Free
+    - Paid
   models.Provider:
     enum:
     - google
@@ -364,6 +413,29 @@ definitions:
     x-enum-varnames:
     - RoleUser
     - RoleAdmin
+  models.TicketAvailable:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      event:
+        $ref: '#/definitions/models.Event'
+      eventID:
+        type: integer
+      id:
+        type: integer
+      price:
+        type: number
+      quantity:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   models.Timeline:
     properties:
       activity:
@@ -460,6 +532,15 @@ definitions:
     type: object
   service.EventResponses:
     properties:
+      audience:
+        example: genteral
+        type: string
+      category:
+        example: all
+        type: string
+      category_id:
+        example: 2
+        type: integer
       description:
         example: This is a description
         type: string
@@ -484,6 +565,9 @@ definitions:
       locationName:
         example: builds CMU
         type: string
+      locationType:
+        example: onsite
+        type: string
       longitude:
         example: 100.5018
         type: number
@@ -495,6 +579,9 @@ definitions:
         type: integer
       picUrl:
         example: https://example.com/image.jpg
+        type: string
+      priceType:
+        example: free
         type: string
       province:
         example: Chiang Mai
@@ -623,11 +710,14 @@ definitions:
     type: object
   service.NewEventRequest:
     properties:
+      audience:
+        example: general
+        type: string
       description:
         example: This is a description
         type: string
       endDate:
-        example: "2024-11-29"
+        example: "2025-01-22"
         type: string
       endTime:
         example: "17:00"
@@ -644,6 +734,9 @@ definitions:
       locationName:
         example: Bangkok
         type: string
+      locationType:
+        example: onsite
+        type: string
       longitude:
         example: 100.5018
         type: number
@@ -653,6 +746,9 @@ definitions:
       picUrl:
         example: https://example.com/image.jpg
         type: string
+      priceType:
+        example: free
+        type: string
       province:
         example: Chiang Mai
         type: string
@@ -660,7 +756,7 @@ definitions:
         example: This is a requirement
         type: string
       startDate:
-        example: "2024-11-29"
+        example: "2025-01-25"
         type: string
       startTime:
         example: "08:00"
@@ -685,35 +781,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /current-user-profile:
-    get:
-      consumes:
-      - application/json
-      description: Get current user profile
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Profile'
-        "400":
-          description: Bad request - Invalid user_id
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "401":
-          description: Unauthorized - Invalid token
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "500":
-          description: Internal server error - Failed to get user profile
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      security:
-      - BearerAuth: []
-      summary: Get current user profile
-      tags:
-      - Users
   /events:
     get:
       description: Get a list of all events
@@ -785,28 +852,28 @@ paths:
     get:
       consumes:
       - application/json
-      description: Search for events based on various criteria such as search term,
-        category, location type, audience, and price type.
+      description: Search events by keyword
       parameters:
-      - description: Search term
+      - description: Keyword to search for events
         in: query
         name: search
+        required: true
         type: string
-      - description: Event category
+      - description: Category of events
         in: query
         name: category
         type: string
-      - description: Location type
+      - description: Location Type of events
         in: query
-        name: location
+        name: locationType
         type: string
-      - description: Audience type
+      - description: Main Audience of events
         in: query
         name: audience
         type: string
-      - description: Price type
+      - description: Price Type of events
         in: query
-        name: price
+        name: priceType
         type: string
       produces:
       - application/json
@@ -815,23 +882,23 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.EventCardResponses'
+              $ref: '#/definitions/models.Event'
             type: array
         "400":
-          description: Bad Request - Invalid query parameters
+          description: error - Bad Request"}
           schema:
             $ref: '#/definitions/fiber.Map'
         "404":
-          description: Not Found - Events not found
+          description: error - events not found"}
           schema:
             $ref: '#/definitions/fiber.Map'
         "500":
-          description: Internal server error - Something went wrong
+          description: error - Internal Server Error"}
           schema:
             $ref: '#/definitions/fiber.Map'
-      summary: Search for events
+      summary: Search events
       tags:
-      - Events
+      - Searching
   /events/upcoming:
     get:
       description: Get a list of upcoming events
@@ -1009,6 +1076,7 @@ paths:
       summary: List all events for a specific organization
       tags:
       - Events
+  /orgs/{orgID}/events/{catID}:
     post:
       consumes:
       - application/json
@@ -1017,6 +1085,11 @@ paths:
       - description: Organization ID
         in: path
         name: orgID
+        required: true
+        type: integer
+      - description: Category ID
+        in: path
+        name: catID
         required: true
         type: integer
       - description: Event data
@@ -1041,7 +1114,8 @@ paths:
           description: Internal Server Error - Something went wrong
           schema:
             $ref: '#/definitions/fiber.Map'
-      summary: Create a new event
+      summary: Create a new event (Not Finished!!!! Cannot add locationType, audience,
+        and priceType)
       tags:
       - Events
   /orgs/{orgID}/events/{id}:

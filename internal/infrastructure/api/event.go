@@ -14,14 +14,13 @@ func NewEventRouter(app *fiber.App, db *gorm.DB) {
 	eventService := service.NewEventService(eventRepo)
 	eventHandler := handler.NewEventHandler(eventService)
 
-	event := app.Group("/org/:orgID/events")
+	event := app.Group("/orgs/:orgID/events")
 
 	app.Get("/events", eventHandler.ListEvents)
 	event.Get("/", eventHandler.ListEventsByOrgID)
-	event.Post("/", eventHandler.CreateEvent)
+	event.Post("/:catID", eventHandler.CreateEvent)
 	event.Get("/:id", eventHandler.GetEventByID)
 	app.Get("/events-paginate", eventHandler.EventPaginate)
-	app.Get("/events/q", eventHandler.SearchEvent)
 	event.Delete("/:id", eventHandler.DeleteEvent)
 
 	// mockEventRepo := repository.NewEventRepositoryMock()

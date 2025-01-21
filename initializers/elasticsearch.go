@@ -12,7 +12,7 @@ import (
 // var ESClient *elasticsearch.Client
 var ESClient *opensearch.Client
 
-func ConnectToElasticSearch() {
+func ConnectToElasticSearch() *opensearch.Client {
 	bonsaiURL := os.Getenv("ELASTICSEARCH_URL")
 	username := os.Getenv("ELASTICSEARCH_USERNAME")
 	password := os.Getenv("ELASTICSEARCH_PASSWORD")
@@ -40,4 +40,6 @@ func ConnectToElasticSearch() {
 	status := res.Status()
 	logs.Info(fmt.Sprint("Successfully connected to Elasticsearch!, Response status: " + status))
 	// fmt.Println("Successfully connected to Elasticsearch!, Response status:", res.Status())
+
+	return ESClient
 }

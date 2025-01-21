@@ -8,8 +8,8 @@ import (
 type NewEventRequest struct {
 	Name         string            `json:"name" example:"builds IDEA 2024"`
 	PicUrl       string            `json:"picUrl" example:"https://example.com/image.jpg"`
-	StartDate    string            `json:"startDate" example:"2024-11-29"`
-	EndDate      string            `json:"endDate" example:"2024-11-29"`
+	StartDate    string            `json:"startDate" example:"2025-01-25"`
+	EndDate      string            `json:"endDate" example:"2025-01-22"`
 	StartTime    string            `json:"startTime" example:"08:00"`
 	EndTime      string            `json:"endTime" example:"17:00"`
 	TimeLine     []models.Timeline `json:"timeLine"`
@@ -21,6 +21,9 @@ type NewEventRequest struct {
 	Latitude     float64           `json:"latitude" example:"13.7563"`
 	Longitude    float64           `json:"longitude" example:"100.5018"`
 	Province     string            `json:"province" example:"Chiang Mai"`
+	LocationType string            `json:"locationType" example:"onsite"`
+	Audience     string            `json:"audience" example:"general"`
+	PriceType    string            `json:"priceType" example:"free"`
 }
 
 type EventResponses struct {
@@ -41,6 +44,11 @@ type EventResponses struct {
 	Latitude       float64           `json:"latitude" example:"13.7563"`
 	Longitude      float64           `json:"longitude" example:"100.5018"`
 	Province       string            `json:"province" example:"Chiang Mai"`
+	LocationType   string            `json:"locationType" example:"onsite"`
+	Audience       string            `json:"audience" example:"genteral"`
+	PriceType      string            `json:"priceType" example:"free"`
+	CategoryID     int               `json:"category_id" example:"2"`
+	Category       string            `json:"category" example:"all"`
 }
 
 type EventCardResponses struct {
@@ -58,7 +66,7 @@ type EventCardResponses struct {
 }
 
 type EventService interface {
-	NewEvent(orgID uint, event NewEventRequest) (*EventResponses, error)
+	NewEvent(orgID uint, catID uint, event NewEventRequest) (*EventResponses, error)
 	GetAllEvents() ([]EventResponses, error)
 	GetAllEventsByOrgID(orgID uint) ([]EventResponses, error)
 	GetEventByID(orgID uint, eventID uint) (*EventResponses, error)
@@ -74,6 +82,7 @@ func convertToEventResponse(event models.Event) EventResponses {
 	return EventResponses{
 		ID:             int(event.ID),
 		OrganizationID: int(event.OrganizationID),
+		CategoryID:     int(event.CategoryID),
 		Name:           event.Name,
 		PicUrl:         event.PicUrl,
 		StartDate:      event.StartDate.Format("2006-01-02"),
@@ -89,6 +98,10 @@ func convertToEventResponse(event models.Event) EventResponses {
 		Latitude:       event.Latitude,
 		Longitude:      event.Longitude,
 		Province:       event.Province,
+		LocationType:   string(event.LocationType),
+		Audience:       string(event.Audience),
+		PriceType:      string(event.PriceType),
+		Category:       event.Category.Name,
 	}
 }
 
@@ -105,9 +118,10 @@ type MockEventService interface {
 	DeleteMockEvent(orgID uint, eventID uint) (*EventResponses, error)
 }
 
-func requestConvertToEvent(orgID int, reqEvent NewEventRequest) models.Event {
+func requestConvertToEvent(orgID uint, catID uint, reqEvent NewEventRequest) models.Event {
 	return models.Event{
-		OrganizationID: uint(orgID),
+		OrganizationID: orgID,
+		CategoryID:     catID,
 		Name:           reqEvent.Name,
 		PicUrl:         reqEvent.PicUrl,
 		StartDate:      utils.DateParser(reqEvent.StartDate),

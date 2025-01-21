@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -93,22 +95,27 @@ func (h eventHandler) SearchEvent(c *fiber.Ctx) error {
 	return c.JSON(events)
 }
 
-// @Summary Create a new event
+// @Summary Create a new event (Not Finished!!!! Cannot add locationType, audience, and priceType)
 // @Description Create a new event for a specific organization
 // @Tags Events
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
+// @Param catID path int true "Category ID"
 // @Param event body service.NewEventRequest true "Event data"
 // @Success 201 {object} service.EventResponses
 // @Failure 400 {object} fiber.Map "Bad Request - organization id is required or invalid / event body is invalid"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
-// @Router /orgs/{orgID}/events [post]
+// @Router /orgs/{orgID}/events/{catID} [post]
 func (h eventHandler) CreateEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
-
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	catID, err := c.ParamsInt("catID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "category id is required"})
 	}
 
 	event := service.NewEventRequest{}
@@ -117,11 +124,13 @@ func (h eventHandler) CreateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	createdEvent, err := h.eventService.NewEvent(uint(orgID), event)
+	createdEvent, err := h.eventService.NewEvent(uint(orgID), uint(catID), event)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+
+	fmt.Printf("Mapped Struct Before Save: %+v\n", createdEvent)
 
 	return c.Status(fiber.StatusCreated).JSON(createdEvent)
 }
