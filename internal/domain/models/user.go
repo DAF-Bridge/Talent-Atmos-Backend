@@ -1,6 +1,8 @@
 package models
 
 import (
+	"context"
+	"mime/multipart"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,5 +55,5 @@ type UserService interface {
 	CreateUser(user *User) error
 	ListUsers() ([]User, error)
 	GetCurrentUserProfile(userId uuid.UUID) (*Profile, error)
-	// UpdateUserPicture(ctx context.Context, userID string, picURL string) (string, error)
+	UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error)
 }

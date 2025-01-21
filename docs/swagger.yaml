@@ -36,6 +36,12 @@ definitions:
         example: 1
         type: integer
     type: object
+  dto.UploadResponse:
+    properties:
+      pic_url:
+        example: https://s3.amazonaws.com/your-bucket/your-object
+        type: string
+    type: object
   fiber.Map:
     additionalProperties: true
     type: object
@@ -87,6 +93,31 @@ definitions:
     - CareerStageEntryLevel
     - CareerStageSenior
     - CareerStageJunior
+  models.Experience:
+    properties:
+      createdAt:
+        type: string
+      currently:
+        type: boolean
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      endDate:
+        type: string
+      picUrl:
+        type: string
+      profileID:
+        type: integer
+      startDate:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      uuid:
+        type: string
+    type: object
   models.Industry:
     properties:
       createdAt:
@@ -270,6 +301,51 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.Profile:
+    properties:
+      bio:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      education:
+        type: string
+      email:
+        type: string
+      experiences:
+        description: One-to-Many relationship (has many)
+        items:
+          $ref: '#/definitions/models.Experience'
+        type: array
+      firstName:
+        type: string
+      focusField:
+        description: field of expertise
+        type: string
+      headLine:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      lastName:
+        type: string
+      phone:
+        type: string
+      picUrl:
+        type: string
+      skill:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: One-to-One relationship (has one, use UserID as foreign key)
+      userID:
+        type: string
+    type: object
   models.Provider:
     enum:
     - google
@@ -299,9 +375,9 @@ definitions:
     type: object
   models.User:
     properties:
-      created_at:
+      createdAt:
         type: string
-      deleted_at:
+      deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       email:
         type: string
@@ -309,15 +385,20 @@ definitions:
         type: string
       name:
         type: string
+      password:
+        description: Hashed password for traditional login
+        type: string
+      picUrl:
+        type: string
       provider:
         allOf:
         - $ref: '#/definitions/models.Provider'
         description: e.g., "google"
-      provider_id:
+      providerID:
         type: string
       role:
         $ref: '#/definitions/models.Role'
-      updated_at:
+      updatedAt:
         type: string
     type: object
   models.WorkType:
@@ -398,14 +479,14 @@ definitions:
         example: This is a key takeaway
         type: string
       latitude:
-        example: "13.7563"
-        type: string
+        example: 13.7563
+        type: number
       locationName:
         example: builds CMU
         type: string
       longitude:
-        example: "100.5018"
-        type: string
+        example: 100.5018
+        type: number
       name:
         example: builds IDEA 2024
         type: string
@@ -558,14 +639,14 @@ definitions:
         example: This is a key takeaway
         type: string
       latitude:
-        example: "13.7563"
-        type: string
+        example: 13.7563
+        type: number
       locationName:
         example: Bangkok
         type: string
       longitude:
-        example: "100.5018"
-        type: string
+        example: 100.5018
+        type: number
       name:
         example: builds IDEA 2024
         type: string
@@ -604,6 +685,35 @@ definitions:
 info:
   contact: {}
 paths:
+  /current-user-profile:
+    get:
+      consumes:
+      - application/json
+      description: Get current user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Profile'
+        "400":
+          description: Bad request - Invalid user_id
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "401":
+          description: Unauthorized - Invalid token
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal server error - Failed to get user profile
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Users
   /events:
     get:
       description: Get a list of all events
@@ -675,13 +785,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: Search for mock events based on various criteria such as page,
-        search term, category, location type, audience, and price type.
+      description: Search for events based on various criteria such as search term,
+        category, location type, audience, and price type.
       parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: string
       - description: Search term
         in: query
         name: search
@@ -723,7 +829,7 @@ paths:
           description: Internal server error - Something went wrong
           schema:
             $ref: '#/definitions/fiber.Map'
-      summary: Search for mock events
+      summary: Search for events
       tags:
       - Events
   /events/upcoming:
@@ -1297,11 +1403,73 @@ paths:
               $ref: '#/definitions/models.User'
             type: array
         "500":
-          description: Internal Server Error
+          description: Internal server error - Something went wrong
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/fiber.Map'
       summary: List all users
       tags:
-      - users
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request - Invalid user object
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal server error - Failed to create user
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Create a new user
+      tags:
+      - Users
+  /users/{id}/upload-profile:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload profile picture for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Profile picture file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uploaded image URL
+          schema:
+            $ref: '#/definitions/dto.UploadResponse'
+        "400":
+          description: Bad request - Invalid file/user ID
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal server error - Failed to update profile picture
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Upload profile picture
+      tags:
+      - Users
 swagger: "2.0"

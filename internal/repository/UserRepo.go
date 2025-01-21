@@ -49,7 +49,7 @@ func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, e
 	return &userProfile, nil
 }
 
-func (r userRepository) UpdateUserPic(userID string, picURL string) error {
+func (r userRepository) UpdateUserPic(userID uuid.UUID, picURL string) error {
 	return r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error
 }
 

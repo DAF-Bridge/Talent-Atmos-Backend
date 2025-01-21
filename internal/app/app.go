@@ -10,6 +10,7 @@ import (
 	_ "github.com/spf13/viper"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/api"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -71,7 +72,8 @@ func Start() {
 	api.NewAuthRouter(app, initializers.DB, jwtSecret)
 
 	// Define routes for Users
-	api.NewUserRouter(app, initializers.DB, jwtSecret)
+	s3 := infrastructure.NewS3Uploader(os.Getenv("S3_BUCKET_NAME"))
+	api.NewUserRouter(app, initializers.DB, s3, jwtSecret)
 
 	// Define routes for Organizations && Organization Open Jobs
 	api.NewOrganizationRouter(app, initializers.DB)

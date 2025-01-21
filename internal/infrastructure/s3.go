@@ -7,12 +7,12 @@ import (
 	"log"
 	"mime/multipart"
 	"path/filepath"
-	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 )
 
 type S3Uploader struct {
@@ -22,6 +22,7 @@ type S3Uploader struct {
 
 func NewS3Uploader(bucketName string) *S3Uploader {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
+
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
@@ -35,9 +36,9 @@ func NewS3Uploader(bucketName string) *S3Uploader {
 }
 
 // Upload file to S3
-func (s *S3Uploader) UploadFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, userID string) (string, error) {
+func (s *S3Uploader) UploadFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, userID uuid.UUID) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
-	objectKey := fmt.Sprintf("users/%s_%d%s", userID, time.Now().Unix(), fileExt)
+	objectKey := fmt.Sprintf("users/profile-pic/%s%s", userID, fileExt)
 
 	buffer := bytes.NewBuffer(nil)
 	if _, err := buffer.ReadFrom(file); err != nil {

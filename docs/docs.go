@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/current-user-profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get current user profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Profile"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid user_id",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to get user profile",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
         "/events": {
             "get": {
                 "description": "Get a list of all events",
@@ -119,7 +165,7 @@ const docTemplate = `{
         },
         "/events/q": {
             "get": {
-                "description": "Search for mock events based on various criteria such as page, search term, category, location type, audience, and price type.",
+                "description": "Search for events based on various criteria such as search term, category, location type, audience, and price type.",
                 "consumes": [
                     "application/json"
                 ],
@@ -129,14 +175,8 @@ const docTemplate = `{
                 "tags": [
                     "Events"
                 ],
-                "summary": "Search for mock events",
+                "summary": "Search for events",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
                     {
                         "type": "string",
                         "description": "Search term",
@@ -1040,7 +1080,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Users"
                 ],
                 "summary": "List all users",
                 "responses": {
@@ -1054,10 +1094,104 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error - Something went wrong",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User object",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid user object",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to create user",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/upload-profile": {
+            "post": {
+                "description": "Upload profile picture for a user",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Upload profile picture",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Profile picture file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uploaded image URL",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid file/user ID",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to update profile picture",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
@@ -1114,6 +1248,15 @@ const docTemplate = `{
                 "total_events": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "dto.UploadResponse": {
+            "type": "object",
+            "properties": {
+                "pic_url": {
+                    "type": "string",
+                    "example": "https://s3.amazonaws.com/your-bucket/your-object"
                 }
             }
         },
@@ -1191,6 +1334,44 @@ const docTemplate = `{
                 "CareerStageSenior",
                 "CareerStageJunior"
             ]
+        },
+        "models.Experience": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "currently": {
+                    "type": "boolean"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "picUrl": {
+                    "type": "string"
+                },
+                "profileID": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
         },
         "models.Industry": {
             "type": "object",
@@ -1456,6 +1637,75 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Profile": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "education": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "experiences": {
+                    "description": "One-to-Many relationship (has many)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Experience"
+                    }
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "focusField": {
+                    "description": "field of expertise",
+                    "type": "string"
+                },
+                "headLine": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "picUrl": {
+                    "type": "string"
+                },
+                "skill": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "description": "One-to-One relationship (has one, use UserID as foreign key)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Provider": {
             "type": "string",
             "enum": [
@@ -1496,10 +1746,10 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "email": {
@@ -1511,6 +1761,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "password": {
+                    "description": "Hashed password for traditional login",
+                    "type": "string"
+                },
+                "picUrl": {
+                    "type": "string"
+                },
                 "provider": {
                     "description": "e.g., \"google\"",
                     "allOf": [
@@ -1519,13 +1776,13 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "provider_id": {
+                "providerID": {
                     "type": "string"
                 },
                 "role": {
                     "$ref": "#/definitions/models.Role"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1634,16 +1891,16 @@ const docTemplate = `{
                     "example": "This is a key takeaway"
                 },
                 "latitude": {
-                    "type": "string",
-                    "example": "13.7563"
+                    "type": "number",
+                    "example": 13.7563
                 },
                 "locationName": {
                     "type": "string",
                     "example": "builds CMU"
                 },
                 "longitude": {
-                    "type": "string",
-                    "example": "100.5018"
+                    "type": "number",
+                    "example": 100.5018
                 },
                 "name": {
                     "type": "string",
@@ -1868,16 +2125,16 @@ const docTemplate = `{
                     "example": "This is a key takeaway"
                 },
                 "latitude": {
-                    "type": "string",
-                    "example": "13.7563"
+                    "type": "number",
+                    "example": 13.7563
                 },
                 "locationName": {
                     "type": "string",
                     "example": "Bangkok"
                 },
                 "longitude": {
-                    "type": "string",
-                    "example": "100.5018"
+                    "type": "number",
+                    "example": 100.5018
                 },
                 "name": {
                     "type": "string",

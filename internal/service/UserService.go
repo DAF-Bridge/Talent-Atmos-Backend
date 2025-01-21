@@ -16,20 +16,20 @@ type UserService struct {
 }
 
 // NewUserService returns a new instance of UserService with the given repository
-func NewUserService(userRepo repository.UserRepository) UserService {
-	return UserService{
-		userRepo: userRepo,
-	}
-}
-
-// func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) *UserService {
-// 	return &UserService{
-// 		userRepo:   userRepo,
-// 		S3Uploader: s3Uploader,
+// func NewUserService(userRepo repository.UserRepository) UserService {
+// 	return UserService{
+// 		userRepo: userRepo,
 // 	}
 // }
 
-func (s *UserService) UpdateUserPicture(ctx context.Context, userID string, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) *UserService {
+	return &UserService{
+		userRepo:   userRepo,
+		S3Uploader: s3Uploader,
+	}
+}
+
+func (s *UserService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
 	// Upload image to S3
 	picURL, err := s.S3Uploader.UploadFile(ctx, file, fileHeader, userID)
 	if err != nil {
@@ -48,10 +48,6 @@ func (s *UserService) UpdateUserPicture(ctx context.Context, userID string, file
 func (s UserService) CreateUser(user *models.User) error {
 	return s.userRepo.Create(user)
 }
-
-// func (s *UserService) CreateUser(user *models.User) error {
-// 	return s.userRepo.Create(user)
-// }
 
 func (s UserService) ListUsers() ([]models.User, error) {
 	return s.userRepo.GetAll()
