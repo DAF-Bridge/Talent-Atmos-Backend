@@ -1,6 +1,10 @@
 package initializers
 
 import (
+	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
+	"github.com/opensearch-project/opensearch-go"
+	"io"
 	"log"
 	"os"
 
@@ -11,6 +15,9 @@ import (
 )
 
 var DB *gorm.DB
+
+// var ESClient *elasticsearch.Client
+var ESClient *opensearch.Client
 
 func ConnectToDB() {
 	// Define the PostgreSQL connection details
@@ -49,4 +56,53 @@ func ConnectToDB() {
 
 	// fmt.Println("Successfully connected to PostgreSQL!")
 	logs.Info("Successfully connected to PostgreSQL!")
+}
+
+func ConnectToS3() {
+	// Define the S3 bucket name
+	bucketName := os.Getenv("S3_BUCKET_NAME")
+
+	// Initialize the S3 uploader
+	s3Uploader := infrastructure.NewS3Uploader(bucketName)
+	if s3Uploader == nil {
+		log.Fatal("Failed to initialize S3 uploader")
+	}
+
+	logs.Info("Successfully connected to S3!")
+}
+
+func ConnectToElasticSearch() *opensearch.Client {
+	bonsaiURL := os.Getenv("ELASTICSEARCH_URL")
+	username := os.Getenv("ELASTICSEARCH_USERNAME")
+	password := os.Getenv("ELASTICSEARCH_PASSWORD")
+
+	cfg := opensearch.Config{
+		Addresses: []string{bonsaiURL},
+		Username:  username,
+		Password:  password,
+	}
+
+	// Create the client
+	var err error
+	ESClient, err = opensearch.NewClient(cfg)
+	if err != nil {
+		log.Fatalf("Error creating the Elasticsearch client: %s", err)
+	}
+
+	// Test connection
+	res, err := ESClient.Info()
+	if err != nil {
+		log.Fatalf("Error getting info from Elasticsearch: %s", err)
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatalf("Error closing the response body: %s", err)
+		}
+	}(res.Body)
+
+	status := res.Status()
+	logs.Info(fmt.Sprintf("Successfully connected to Elasticsearch!, %s", status))
+
+	return ESClient
 }

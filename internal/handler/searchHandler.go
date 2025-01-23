@@ -22,7 +22,7 @@ func NewOpensearchHandler(searchSrv service.EventOpensearchService) OpensearchHa
 // @Tags Searching
 // @Accept json
 // @Produce json
-// @Param search query string true "Keyword to search for events"
+// @Param q query string true "Keyword to search for events"
 // @Param category query string false "Category of events"
 // @Param locationType query string false "Location Type of events"
 // @Param audience query string false "Main Audience of events"
@@ -31,13 +31,13 @@ func NewOpensearchHandler(searchSrv service.EventOpensearchService) OpensearchHa
 // @Failure 400 {object} fiber.Map "error - Bad Request"}
 // @Failure 404 {object} fiber.Map "error - events not found"}
 // @Failure 500 {object} fiber.Map "error - Internal Server Error"}
-// @Router /events-paginate/q [get]
+// @Router /events-paginate/search [get]
 func (h *OpensearchHandler) SearchEvents(c *fiber.Ctx) error {
-	// keyword := c.Query("keyword")
 	page := 1
 	Offset := 12
 
 	var query models.SearchQuery
+
 	if err := c.QueryParser(&query); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid query parameters",

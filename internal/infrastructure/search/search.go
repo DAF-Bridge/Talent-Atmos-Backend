@@ -12,10 +12,14 @@ import (
 	"github.com/opensearch-project/opensearch-go"
 )
 
-func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, Offset int) (map[string]interface{}, error) {
+func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, offset int) (map[string]interface{}, error) {
 	searchQuery := buildSearchQuery(query)
 
-	queryBody, _ := json.Marshal(searchQuery)
+	queryBody, err := json.Marshal(searchQuery)
+	if err != nil {
+		logs.Error(fmt.Sprintf("failed to marshal search query: %v", err))
+		return nil, err
+	}
 
 	res, err := client.Search(
 		client.Search.WithIndex("events"),
@@ -70,12 +74,12 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 	// Construct the query map based on the filters
 	searchQuery := make(map[string]interface{})
 	boolQuery := make(map[string]interface{})
-	must := []map[string]interface{}{}
+	var must []map[string]interface{}
 
-	if query.Search != "" {
+	if query.Q != "" {
 		must = append(must, map[string]interface{}{
 			"multi_match": map[string]interface{}{
-				"query":  query.Search,
+				"query":  query.Q,
 				"fields": []string{"name", "description", "keyTakeaway", "highlight", "location"},
 				"type":   "best_fields", // Can be changed to "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
 			},
@@ -119,17 +123,12 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 			},
 		})
 	}
-	// if query.Page != 0 {
-	// 	searchQuery["from"] = query.Page
-	// }
 	if query.Page != 0 {
 		searchQuery["from"] = (query.Page - 1) * query.Offset
 	}
 	if query.Offset != 0 {
 		searchQuery["size"] = query.Offset
 	}
-
-	// Add other filters similarly...
 
 	boolQuery["must"] = must
 	searchQuery["query"] = map[string]interface{}{

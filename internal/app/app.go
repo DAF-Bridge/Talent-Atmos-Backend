@@ -24,6 +24,7 @@ import (
 func init() {
 	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
+	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
 	// initializers.ConnectToRedis()
 	// initializers.SyncDB()
@@ -75,13 +76,6 @@ func Start() {
 		AllowCredentials: true, // Allow credentials (cookies) to be sent
 	}))
 
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     viper.GetString("cors.AllowOrigins"), // Ensure this is not a wildcard
-	// 	AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
-	// 	AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
-	// 	AllowCredentials: true, // Allow credentials (cookies) to be sent
-	// }))
-
 	jwtSecret := os.Getenv("JWT_SECRET")
 	// jwtSecret := viper.GetString("middleware.jwtSecret")
 
@@ -100,7 +94,7 @@ func Start() {
 	api.NewOrganizationRouter(app, initializers.DB)
 
 	// Define routes for Events
-	api.NewEventRouter(app, initializers.DB)
+	api.NewEventRouter(app, initializers.DB, initializers.ESClient)
 
 	// Define routes for Search
 	api.NewSearchRouter(app, initializers.DB, initializers.ESClient)

@@ -105,6 +105,9 @@ func convertToEventResponse(event models.Event) EventResponses {
 	}
 }
 
+
+// -------------------------------- Mock Event -------------------------------------- //
+
 type MockEventService interface {
 	NewEvent(orgID uint, event NewEventRequest) (*EventResponses, error)
 	GetAllMockEvents() ([]EventResponses, error)

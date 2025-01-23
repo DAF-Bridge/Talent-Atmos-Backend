@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
-type eventHandler struct {
+type EventHandler struct {
 	eventService service.EventService
 }
 
@@ -48,50 +47,8 @@ func newListEventShortResponse(events []service.EventResponses) []EventShortResp
 }
 
 // NewEventHandler creates a new eventHandler
-func NewEventHandler(eventService service.EventService) eventHandler {
-	return eventHandler{eventService: eventService}
-}
-
-// @Summary Search for events
-// @Description Search for events based on various criteria such as search term, category, location type, audience, and price type.
-// @Tags Events
-// @Accept json
-// @Produce json
-// @Param search query string false "Search term"
-// @Param category query string false "Event category"
-// @Param location query string false "Location type"
-// @Param audience query string false "Audience type"
-// @Param price query string false "Price type"
-// @Success 200 {array} service.EventCardResponses
-// @Failure 400 {object} fiber.Map "Bad Request - Invalid query parameters"
-// @Failure 404 {object} fiber.Map "Not Found - Events not found"
-// @Failure 500 {object} fiber.Map "Internal server error - Something went wrong"
-// @Router /events/q [get]
-func (h eventHandler) SearchEvent(c *fiber.Ctx) error {
-	var query dto.EventSearchCriteria
-
-	if err := c.QueryParser(&query); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid query parameters"})
-	}
-
-	queryMap := map[string]string{
-		"search":   query.Search,
-		"category": query.Category,
-		"location": query.LocationType,
-		"audience": query.Audience,
-		"price":    query.PriceType,
-	}
-
-	events, err := h.eventService.SearchEvents(queryMap)
-	if err != nil {
-		if len(events) == 0 {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "events not found"})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(events)
+func NewEventHandler(eventService service.EventService) EventHandler {
+	return EventHandler{eventService: eventService}
 }
 
 // @Summary Create a new event (Not Finished!!!! Cannot add locationType, audience, and priceType)
@@ -106,7 +63,7 @@ func (h eventHandler) SearchEvent(c *fiber.Ctx) error {
 // @Failure 400 {object} fiber.Map "Bad Request - organization id is required or invalid / event body is invalid"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/{orgID}/events/{catID} [post]
-func (h eventHandler) CreateEvent(c *fiber.Ctx) error {
+func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
@@ -145,7 +102,7 @@ func (h eventHandler) CreateEvent(c *fiber.Ctx) error {
 // @Success 200 {array} []service.EventResponses
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /events [get]
-func (h eventHandler) ListEvents(c *fiber.Ctx) error {
+func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 
 	events, err := h.eventService.GetAllEvents()
 
@@ -165,7 +122,7 @@ func (h eventHandler) ListEvents(c *fiber.Ctx) error {
 // @Failure 400 {object} fiber.Map "Bad Request - Invalid organization id or missing orgID parameters"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/{orgID}/events [get]
-func (h eventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
+func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -191,7 +148,7 @@ func (h eventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 // @Failure 400 {object} fiber.Map "Bad Request - Invalid organization id or missing orgID parameters"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [get]
-func (h eventHandler) GetEventByID(c *fiber.Ctx) error {
+func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -224,7 +181,7 @@ func (h eventHandler) GetEventByID(c *fiber.Ctx) error {
 // @Failure 400 {object} fiber.Map "Bad Request - Invalid page number"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /events-paginate [get]
-func (h eventHandler) EventPaginate(c *fiber.Ctx) error {
+func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	if page < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page"})
@@ -251,7 +208,7 @@ func (h eventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Success 200 {object} []EventShortResponse
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /events/first [get]
-func (h eventHandler) EventFirst(c *fiber.Ctx) error {
+func (h EventHandler) EventFirst(c *fiber.Ctx) error {
 	event, err := h.eventService.GetFirst()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -267,7 +224,7 @@ func (h eventHandler) EventFirst(c *fiber.Ctx) error {
 // @Success 200 {object} []service.EventResponses
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /events/upcoming [get]
-func (h eventHandler) UpcomingEvent(c *fiber.Ctx) error {
+func (h EventHandler) UpcomingEvent(c *fiber.Ctx) error {
 	events, err := h.eventService.GetEventPaginate(1)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -288,7 +245,7 @@ func (h eventHandler) UpcomingEvent(c *fiber.Ctx) error {
 // @Failure 400 {object} fiber.Map "Bad Request - Invalid organization id or missing orgID parameters"
 // @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [delete]
-func (h eventHandler) DeleteEvent(c *fiber.Ctx) error {
+func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -318,12 +275,12 @@ func (h eventHandler) DeleteEvent(c *fiber.Ctx) error {
 
 // ----- Mock Event Handler -----
 
-type mockEventHandler struct {
+type MockEventHandler struct {
 	eventService service.MockEventService
 }
 
-func NewMockEventHandler(eventService service.MockEventService) mockEventHandler {
-	return mockEventHandler{eventService: eventService}
+func NewMockEventHandler(eventService service.MockEventService) MockEventHandler {
+	return MockEventHandler{eventService: eventService}
 }
 
 // func (h mockEventHandler) SearchMockEvent(c *fiber.Ctx) error {
@@ -353,7 +310,7 @@ func NewMockEventHandler(eventService service.MockEventService) mockEventHandler
 // 	return c.JSON(events)
 // }
 
-func (h mockEventHandler) CreateMockEvent(c *fiber.Ctx) error {
+func (h MockEventHandler) CreateMockEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -375,7 +332,7 @@ func (h mockEventHandler) CreateMockEvent(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(createdEvent)
 }
 
-func (h mockEventHandler) ListMockEvents(c *fiber.Ctx) error {
+func (h MockEventHandler) ListMockEvents(c *fiber.Ctx) error {
 
 	events, err := h.eventService.GetAllMockEvents()
 
@@ -386,7 +343,7 @@ func (h mockEventHandler) ListMockEvents(c *fiber.Ctx) error {
 	return c.JSON(events)
 }
 
-func (h mockEventHandler) ListMockEventsByOrgID(c *fiber.Ctx) error {
+func (h MockEventHandler) ListMockEventsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -402,7 +359,7 @@ func (h mockEventHandler) ListMockEventsByOrgID(c *fiber.Ctx) error {
 	return c.JSON(events)
 }
 
-func (h mockEventHandler) GetMockEventByID(c *fiber.Ctx) error {
+func (h MockEventHandler) GetMockEventByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -426,7 +383,7 @@ func (h mockEventHandler) GetMockEventByID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(event)
 }
 
-func (h mockEventHandler) EventMockPaginate(c *fiber.Ctx) error {
+func (h MockEventHandler) EventMockPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	if page < 1 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page"})
@@ -446,7 +403,7 @@ func (h mockEventHandler) EventMockPaginate(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"events": listEvent, "total_events": total})
 }
 
-func (h mockEventHandler) MockEventFirst(c *fiber.Ctx) error {
+func (h MockEventHandler) MockEventFirst(c *fiber.Ctx) error {
 	event, err := h.eventService.GetFirst()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -455,7 +412,7 @@ func (h mockEventHandler) MockEventFirst(c *fiber.Ctx) error {
 	return c.JSON(newEventShortResponse(*event))
 }
 
-func (h mockEventHandler) MockUpcomingEvent(c *fiber.Ctx) error {
+func (h MockEventHandler) MockUpcomingEvent(c *fiber.Ctx) error {
 	events, err := h.eventService.GetMockEventPaginate(1)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -465,7 +422,7 @@ func (h mockEventHandler) MockUpcomingEvent(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"events": listEvent})
 }
 
-func (h mockEventHandler) DeleteMockEvent(c *fiber.Ctx) error {
+func (h MockEventHandler) DeleteMockEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
