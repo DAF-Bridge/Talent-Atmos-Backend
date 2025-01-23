@@ -88,36 +88,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/events/first": {
-            "get": {
-                "description": "Get the first event",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get the first event",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handler.EventShortResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error - Something went wrong",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            }
-        },
-        "/events/q": {
+        "/events-paginate/search": {
             "get": {
                 "description": "Search events by keyword",
                 "consumes": [
@@ -134,7 +105,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Keyword to search for events",
-                        "name": "search",
+                        "name": "q",
                         "in": "query",
                         "required": true
                     },
@@ -187,6 +158,111 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error - Internal Server Error\"}",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/first": {
+            "get": {
+                "description": "Get the first event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get the first event",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.EventShortResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/q": {
+            "get": {
+                "description": "Search for events based on various criteria such as search term, category, location type, audience, and price type.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Search for events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Location type",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Audience type",
+                        "name": "audience",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Price type",
+                        "name": "price",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.EventCardResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid query parameters",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Events not found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Something went wrong",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
@@ -1518,6 +1594,12 @@ const docTemplate = `{
                     ],
                     "example": "entrylevel"
                 },
+                "category": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2183,6 +2265,25 @@ const docTemplate = `{
         },
         "service.NewEventRequest": {
             "type": "object",
+            "required": [
+                "audience",
+                "description",
+                "endDate",
+                "endTime",
+                "highlight",
+                "keyTakeaway",
+                "latitude",
+                "locationName",
+                "locationType",
+                "longitude",
+                "name",
+                "picUrl",
+                "priceType",
+                "province",
+                "requirement",
+                "startDate",
+                "startTime"
+            ],
             "properties": {
                 "audience": {
                     "type": "string",

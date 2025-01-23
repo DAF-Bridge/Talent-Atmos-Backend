@@ -248,6 +248,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.CareerStage'
         example: entrylevel
+      category:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
       created_at:
         example: "2024-11-29T08:00:00Z"
         type: string
@@ -765,6 +769,24 @@ definitions:
         items:
           $ref: '#/definitions/models.Timeline'
         type: array
+    required:
+    - audience
+    - description
+    - endDate
+    - endTime
+    - highlight
+    - keyTakeaway
+    - latitude
+    - locationName
+    - locationType
+    - longitude
+    - name
+    - picUrl
+    - priceType
+    - province
+    - requirement
+    - startDate
+    - startTime
     type: object
   service.OrganizationShortRespones:
     properties:
@@ -829,26 +851,7 @@ paths:
       summary: Paginate events
       tags:
       - Events
-  /events/first:
-    get:
-      description: Get the first event
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/handler.EventShortResponse'
-            type: array
-        "500":
-          description: Internal Server Error - Something went wrong
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Get the first event
-      tags:
-      - Events
-  /events/q:
+  /events-paginate/search:
     get:
       consumes:
       - application/json
@@ -856,7 +859,7 @@ paths:
       parameters:
       - description: Keyword to search for events
         in: query
-        name: search
+        name: q
         required: true
         type: string
       - description: Category of events
@@ -899,6 +902,76 @@ paths:
       summary: Search events
       tags:
       - Searching
+  /events/first:
+    get:
+      description: Get the first event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.EventShortResponse'
+            type: array
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Get the first event
+      tags:
+      - Events
+  /events/q:
+    get:
+      consumes:
+      - application/json
+      description: Search for events based on various criteria such as search term,
+        category, location type, audience, and price type.
+      parameters:
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Event category
+        in: query
+        name: category
+        type: string
+      - description: Location type
+        in: query
+        name: location
+        type: string
+      - description: Audience type
+        in: query
+        name: audience
+        type: string
+      - description: Price type
+        in: query
+        name: price
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.EventCardResponses'
+            type: array
+        "400":
+          description: Bad Request - Invalid query parameters
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "404":
+          description: Not Found - Events not found
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal server error - Something went wrong
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Search for events
+      tags:
+      - Events
   /events/upcoming:
     get:
       description: Get a list of upcoming events
