@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -9,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewEventRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client) {
+func NewEventRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, es *opensearch.Client) {
 	// Dependencies Injections for Event
 	eventRepo := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepo)

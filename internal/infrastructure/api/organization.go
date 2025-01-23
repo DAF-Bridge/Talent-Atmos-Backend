@@ -2,13 +2,15 @@ package api
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"github.com/opensearch-project/opensearch-go"
 	"gorm.io/gorm"
 )
 
-func NewOrganizationRouter(app *fiber.App, db *gorm.DB) {
+func NewOrganizationRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, es *opensearch.Client) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
 	organizationService := service.NewOrganizationService(organizationRepo)
