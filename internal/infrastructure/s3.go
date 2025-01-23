@@ -36,7 +36,7 @@ func NewS3Uploader(bucketName string) *S3Uploader {
 }
 
 // Upload file to S3
-func (s *S3Uploader) UploadFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, userID uuid.UUID) (string, error) {
+func (s *S3Uploader) UploadUserPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, userID uuid.UUID) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
 	objectKey := fmt.Sprintf("users/profile-pic/%s%s", userID, fileExt)
 
@@ -52,6 +52,59 @@ func (s *S3Uploader) UploadFile(ctx context.Context, file multipart.File, fileHe
 		Body:   buffer,
 		ACL:    "public-read",
 	})
+	if err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to upload file: %w", err)
+	}
+
+	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
+	return fileURL, nil
+}
+
+func (s *S3Uploader) UploadOrgPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID int) (string, error) {
+	fileExt := filepath.Ext(fileHeader.Filename)
+	objectKey := fmt.Sprintf("organizations/profile-pic/%v%s", orgID, fileExt)
+
+	buffer := bytes.NewBuffer(nil)
+	if _, err := buffer.ReadFrom(file); err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(objectKey),
+		Body:   buffer,
+		ACL:    "public-read",
+	})
+	if err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to upload file: %w", err)
+	}
+
+	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
+	return fileURL, nil
+}
+
+func (s *S3Uploader) UploadEventPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, eventID int) (string, error) {
+	fileExt := filepath.Ext(fileHeader.Filename)
+	objectKey := fmt.Sprintf("events/picture/%v%s", eventID, fileExt)
+
+	buffer := bytes.NewBuffer(nil)
+	if _, err := buffer.ReadFrom(file); err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(objectKey),
+		Body:   buffer,
+		ACL:    "public-read",
+	})
+
 	if err != nil {
 		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/docs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/types"
 	"github.com/gofiber/swagger"
 	_ "github.com/spf13/viper"
 
@@ -44,7 +45,27 @@ func Start() {
 	utils.InitConfig()
 
 	// Instantiate Goth
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			var statusCode int
+			var message string
+
+			// Check if error is of type *fiber.Error
+			if e, ok := err.(*fiber.Error); ok {
+				statusCode = e.Code
+				message = e.Message
+			} else {
+				// Default to internal server error for unexpected errors
+				statusCode = fiber.StatusInternalServerError
+				message = "Internal Server Error"
+			}
+
+			return c.Status(statusCode).JSON(types.GlobalErrorHandlerResp{
+				Success: false,
+				Message: message,
+			})
+		},
+	})
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
