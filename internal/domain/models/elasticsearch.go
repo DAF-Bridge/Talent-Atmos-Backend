@@ -1,14 +1,25 @@
 package models
 
 type SearchQuery struct {
-	Page      int    `json:"page" form:"page"`           // The page number
-	Offset    int    `json:"offset" form:"offset"`       // The number of items per page
-	Category  string `json:"category" form:"category"`   // The category filter
-	Q         string `json:"q" form:"q"`                 // The search keyword
-	DateRange string `json:"dateRange" form:"dateRange"` // The date range (e.g., 'thisWeek', 'today', 'tomorrow', `thisMonth`, `nextMonth`)
-	Location  string `json:"location" form:"location"`   // Location filter (e.g., 'online')
-	Audience  string `json:"audience" form:"audience"`   // Audience type (e.g., 'general')
-	PriceType string `json:"price" form:"price"`         // Price type (e.g., 'free')
+	Page      int    `json:"page" form:"page"`               // The page number
+	Offset    int    `json:"offset" form:"offset"`           // The number of items per page
+	Category  string `json:"category" form:"category"`       // The category filter
+	Q         string `json:"q" form:"q" validate:"required"` // The search keyword
+	DateRange string `json:"dateRange" form:"dateRange"`     // The date range (e.g., 'thisWeek', 'today', 'tomorrow', `thisMonth`, `nextMonth`)
+	Location  string `json:"location" form:"location"`       // Location filter (e.g., 'online')
+	Audience  string `json:"audience" form:"audience"`       // Audience type (e.g., 'general')
+	Price     string `json:"price" form:"price"`             // Price type (e.g., 'free')
+}
+
+type SearchJobQuery struct {
+	Page        int    `json:"page" form:"page"`               // The page number
+	Offset      int    `json:"offset" form:"offset"`           // The number of items per page
+	Category    string `json:"category" form:"category"`       // The category filter
+	Q           string `json:"q" form:"q"`                     // The search keyword
+	Location    string `json:"location" form:"location"`       // Location filter (e.g., 'online')
+	WorkType    string `json:"workType" form:"workType"`       // Work type (e.g., 'full-time')
+	CareerStage string `json:"careerStage" form:"careerStage"` // Career stage (e.g., 'entry-level')
+	Salary      string `json:"salary" form:"salary"`           // Salary range (e.g., '1000-2000')
 }
 
 type EventDocument struct {
@@ -30,5 +41,20 @@ type EventDocument struct {
 	OrganizationPicUrl string  `json:"orgPicUrl"`
 	Category           string  `json:"category"`
 	Audience           string  `json:"audience"`
-	PriceType          string  `json:"price"`
+	Price              string  `json:"price"`
+}
+
+type JobDocument struct {
+	ID           uint    `json:"id"`
+	Title        string  `json:"title"`
+	PicUrl       string  `json:"picUrl"`
+	Description  string  `json:"description"`
+	Location     string  `json:"location"`
+	Workplace    string  `json:"workplace"`
+	WorkType     string  `json:"workType"`
+	CareerStage  string  `json:"careerStage"`
+	Salary       float64 `json:"salary"`
+	Category     string  `json:"category"`
+	Organization string  `json:"organization"`
+	OrgPicUrl    string  `json:"orgPicUrl"`
 }

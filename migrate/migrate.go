@@ -1,13 +1,10 @@
 package main
 
 import (
-	// "fmt"
-
 	"log"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
-	// "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
 
@@ -29,13 +26,13 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	// initializers.DB.AutoMigrate(&models.User{})
-	// initializers.DB.AutoMigrate(&models.Organization{})
-	// initializers.DB.AutoMigrate(&models.OrganizationContact{})
+	initializers.DB.AutoMigrate(&models.User{})
+	initializers.DB.AutoMigrate(&models.Organization{})
+	initializers.DB.AutoMigrate(&models.OrganizationContact{})
 	initializers.DB.AutoMigrate(&models.OrgOpenJob{})
-	// initializers.DB.AutoMigrate(&models.Industry{})
-	// initializers.DB.AutoMigrate(&models.Event{})
-	// initializers.DB.AutoMigrate(&models.Category{})
+	initializers.DB.AutoMigrate(&models.Industry{})
+	initializers.DB.AutoMigrate(&models.Event{})
+	initializers.DB.AutoMigrate(&models.Category{})
 
 	// // Define default values
 	// defaultLocationType := "online"
@@ -100,24 +97,24 @@ func main() {
 
 	// for i := 0; i < 10; i++ {
 	// 	initializers.DB.Create(&models.Event{
-	// 		Name:           "Renewable Energy Summit",
+	// 		Name:           "Builds CMU 2025",
 	// 		PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
-	// 		StartDate:      utils.DateParser("2024-01-15"),
-	// 		EndDate:        utils.DateParser("2024-01-16"),
+	// 		StartDate:      utils.DateParser("2025-01-25"),
+	// 		EndDate:        utils.DateParser("2025-01-26"),
 	// 		StartTime:      utils.TimeParser("09:00:00"),
 	// 		EndTime:        utils.TimeParser("17:00:00"),
-	// 		Description:    "Explore advancements in renewable energy technologies.",
-	// 		Highlight:      "Top speakers from the renewable energy sector.",
-	// 		Requirement:    "Open to professionals in the energy sector.",
-	// 		KeyTakeaway:    "Learn about the latest trends in solar and wind energy.",
+	// 		Description:    "CMU is a university in Chiang Mai, Thailand.",
+	// 		Highlight:      "CK Cheong will be the speaker",
+	// 		Requirement:    "None",
+	// 		KeyTakeaway:    "Learn about the strategic plan for CMU builds in 2025 & startup plan.",
 	// 		Timeline:       []models.Timeline{{Time: "09:00 AM", Activity: "Opening Ceremony"}, {Time: "09:00 AM", Activity: "Opening Ceremony"}},
-	// 		LocationName:   "Conference Hall A",
+	// 		LocationName:   "Conference Hall CMU",
 	// 		Latitude:       13.7563,
 	// 		Longitude:      100.5018,
-	// 		Province:       "Bangkok",
-	// 		LocationType:   models.LocationType("online"),
-	// 		Audience:       models.Audience("general"),
-	// 		PriceType:      models.PriceType("free"),
+	// 		Province:       "Chiang Mai",
+	// 		LocationType:   "onsite",
+	// 		Audience:       "general",
+	// 		PriceType:      "free",
 	// 		OrganizationID: 1,
 	// 		CategoryID:     2,
 	// 	})

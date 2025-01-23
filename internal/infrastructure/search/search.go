@@ -6,19 +6,20 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/opensearch-project/opensearch-go"
 )
 
-func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, offset int) (map[string]interface{}, error) {
+func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, offset int) (dto.SearchEventResponse, error) {
 	searchQuery := buildSearchQuery(query)
 
 	queryBody, err := json.Marshal(searchQuery)
 	if err != nil {
 		logs.Error(fmt.Sprintf("failed to marshal search query: %v", err))
-		return nil, err
+		return dto.SearchEventResponse{}, err
 	}
 
 	res, err := client.Search(
@@ -28,7 +29,8 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 	)
 	if err != nil {
 		logs.Error(fmt.Sprintf("failed to execute search on: %v", err))
-		return nil, err
+		// return nil, err
+		return dto.SearchEventResponse{}, err
 	}
 	defer res.Body.Close()
 
@@ -38,31 +40,36 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	if !ok {
 		logs.Error("No search results found")
-		return nil, nil
+		// return nil,
+		return dto.SearchEventResponse{}, nil
 	}
 
-	var results []map[string]interface{}
+	var results []models.EventDocument
 	for _, hit := range hits {
 		source := hit.(map[string]interface{})["_source"].(map[string]interface{})
-		results = append(results, source)
+		event := models.EventDocument{}
+		jsonString, _ := json.Marshal(source)
+		json.Unmarshal(jsonString, &event)
+		results = append(results, event)
 	}
 
-	var responses map[string]interface{}
+	var responses dto.SearchEventResponse
 
 	// if there does not exist data in the hits, then we can return an empty response
 	if len(hits) == 0 {
-		responses = map[string]interface{}{
-			"total_events": 0,
-			"events":       []map[string]interface{}{},
+		responses = dto.SearchEventResponse{
+			TotalEvent: 0,
+			Events:     []models.EventDocument{},
 		}
+
 		return responses, nil
 	}
 
 	// if there exist data in the hits, then we can get the total hits
 	totalHits := result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)
-	responses = map[string]interface{}{
-		"total_events": totalHits,
-		"events":       results,
+	responses = dto.SearchEventResponse{
+		TotalEvent: int(totalHits),
+		Events:     results,
 	}
 
 	return responses, nil
@@ -81,7 +88,9 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 			"multi_match": map[string]interface{}{
 				"query":  query.Q,
 				"fields": []string{"name", "description", "keyTakeaway", "highlight", "location"},
-				"type":   "best_fields", // Can be changed to "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
+				// "type":   "best_fields", // Can be changed to "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
+				"fuzziness": "AUTO",
+				"operator":  "and",
 			},
 		})
 	}
@@ -92,7 +101,11 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 			},
 		})
 	}
-	if query.Category != "" {
+	if query.Category == "all" {
+		must = append(must, map[string]interface{}{
+			"match_all": map[string]interface{}{},
+		})
+	} else {
 		must = append(must, map[string]interface{}{
 			"match": map[string]interface{}{
 				"category": query.Category,
@@ -106,10 +119,10 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 			},
 		})
 	}
-	if query.PriceType != "" {
+	if query.Price != "" {
 		must = append(must, map[string]interface{}{
 			"match": map[string]interface{}{
-				"priceType": query.PriceType,
+				"price": query.Price,
 			},
 		})
 	}
@@ -134,6 +147,17 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 	searchQuery["query"] = map[string]interface{}{
 		"bool": boolQuery,
 	}
+
+	searchQuery["min_score"] = 0.65 // filter out low score results
+
+	sort := []map[string]interface{}{
+		{
+			"startDate": map[string]interface{}{
+				"order": "desc",
+			},
+		},
+	}
+	searchQuery["sort"] = sort
 
 	return searchQuery
 }

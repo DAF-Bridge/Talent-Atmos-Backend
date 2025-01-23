@@ -21,7 +21,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	//initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
@@ -93,9 +93,6 @@ func Start() {
 
 	// Define routes for Events
 	api.NewEventRouter(app, initializers.DB, initializers.S3, initializers.ESClient)
-
-	// Define routes for Search
-	api.NewSearchRouter(app, initializers.DB, initializers.ESClient)
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)     // default

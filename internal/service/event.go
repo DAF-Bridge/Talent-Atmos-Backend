@@ -1,9 +1,24 @@
 package service
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
+
+type EventService interface {
+	NewEvent(orgID uint, catID uint, event NewEventRequest) (*EventResponses, error)
+	SyncEvents() error
+	SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error)
+	GetAllEvents() ([]EventResponses, error)
+	GetAllEventsByOrgID(orgID uint) ([]EventResponses, error)
+	GetEventByID(orgID uint, eventID uint) (*EventResponses, error)
+	GetEventPaginate(page uint) ([]EventResponses, error)
+	GetFirst() (*EventResponses, error)
+	CountEvent() (int64, error)
+	// Update(event *Event) error
+	DeleteEvent(orgID uint, eventID uint) (*EventResponses, error)
+}
 
 type NewEventRequest struct {
 	Name         string            `json:"name" example:"builds IDEA 2024" validate:"required"`
@@ -65,62 +80,6 @@ type EventCardResponses struct {
 	Province       string                    `json:"province" example:"Chiang Mai"`
 }
 
-type EventService interface {
-	NewEvent(orgID uint, catID uint, event NewEventRequest) (*EventResponses, error)
-	GetAllEvents() ([]EventResponses, error)
-	GetAllEventsByOrgID(orgID uint) ([]EventResponses, error)
-	GetEventByID(orgID uint, eventID uint) (*EventResponses, error)
-	GetEventPaginate(page uint) ([]EventResponses, error)
-	SearchEvents(params map[string]string) ([]EventResponses, error)
-	GetFirst() (*EventResponses, error)
-	CountEvent() (int64, error)
-	// Update(event *Event) error
-	DeleteEvent(orgID uint, eventID uint) (*EventResponses, error)
-}
-
-func convertToEventResponse(event models.Event) EventResponses {
-	return EventResponses{
-		ID:             int(event.ID),
-		OrganizationID: int(event.OrganizationID),
-		CategoryID:     int(event.CategoryID),
-		Name:           event.Name,
-		PicUrl:         event.PicUrl,
-		StartDate:      event.StartDate.Format("2006-01-02"),
-		EndDate:        event.EndDate.Format("2006-01-02"),
-		StartTime:      event.StartTime.Format("15:04:05"),
-		EndTime:        event.EndTime.Format("15:04:05"),
-		TimeLine:       event.Timeline,
-		Description:    event.Description,
-		Highlight:      event.Highlight,
-		Requirement:    event.Requirement,
-		KeyTakeaway:    event.KeyTakeaway,
-		LocationName:   event.LocationName,
-		Latitude:       event.Latitude,
-		Longitude:      event.Longitude,
-		Province:       event.Province,
-		LocationType:   string(event.LocationType),
-		Audience:       string(event.Audience),
-		PriceType:      string(event.PriceType),
-		Category:       event.Category.Name,
-	}
-}
-
-
-// -------------------------------- Mock Event -------------------------------------- //
-
-type MockEventService interface {
-	NewEvent(orgID uint, event NewEventRequest) (*EventResponses, error)
-	GetAllMockEvents() ([]EventResponses, error)
-	GetAllMockEventsByOrgID(orgID uint) ([]EventResponses, error)
-	GetMockEventByID(orgID uint, eventID uint) (*EventResponses, error)
-	GetMockEventPaginate(page uint) ([]EventResponses, error)
-	SearchMockEvent(params map[string]string) ([]EventCardResponses, error)
-	GetFirst() (*EventResponses, error)
-	CountMockEvent() (int64, error)
-	// Update(event *Event) error
-	DeleteMockEvent(orgID uint, eventID uint) (*EventResponses, error)
-}
-
 func requestConvertToEvent(orgID uint, catID uint, reqEvent NewEventRequest) models.Event {
 	return models.Event{
 		OrganizationID: orgID,
@@ -140,7 +99,51 @@ func requestConvertToEvent(orgID uint, catID uint, reqEvent NewEventRequest) mod
 		Latitude:       reqEvent.Latitude,
 		Longitude:      reqEvent.Longitude,
 		Province:       reqEvent.Province,
+		LocationType:   reqEvent.LocationType,
+		Audience:       reqEvent.Audience,
+		PriceType:      reqEvent.PriceType,
 	}
+}
+
+func convertToEventResponse(event models.Event) EventResponses {
+	return EventResponses{
+		ID:             int(event.ID),
+		OrganizationID: int(event.OrganizationID),
+		CategoryID:     int(event.CategoryID),
+		Name:           event.Name,
+		PicUrl:         event.PicUrl,
+		StartDate:      event.StartDate.Format("2006-01-02"),
+		EndDate:        event.EndDate.Format("2006-01-02"),
+		StartTime:      event.StartTime.Format("15:04:05"),
+		EndTime:        event.EndTime.Format("15:04:05"),
+		TimeLine:       event.Timeline,
+		Description:    event.Description,
+		Highlight:      event.Highlight,
+		Requirement:    event.Requirement,
+		LocationName:   event.LocationName,
+		Latitude:       event.Latitude,
+		Longitude:      event.Longitude,
+		Province:       event.Province,
+		LocationType:   event.LocationType,
+		Audience:       event.Audience,
+		PriceType:      event.PriceType,
+		Category:       event.Category.Name,
+	}
+}
+
+// -------------------------------- Mock Event -------------------------------------- //
+
+type MockEventService interface {
+	NewEvent(orgID uint, event NewEventRequest) (*EventResponses, error)
+	GetAllMockEvents() ([]EventResponses, error)
+	GetAllMockEventsByOrgID(orgID uint) ([]EventResponses, error)
+	GetMockEventByID(orgID uint, eventID uint) (*EventResponses, error)
+	GetMockEventPaginate(page uint) ([]EventResponses, error)
+	SearchMockEvent(params map[string]string) ([]EventCardResponses, error)
+	GetFirst() (*EventResponses, error)
+	CountMockEvent() (int64, error)
+	// Update(event *Event) error
+	DeleteMockEvent(orgID uint, eventID uint) (*EventResponses, error)
 }
 
 func requestConvertToMockEvent(orgID int, reqEvent NewEventRequest) models.MockEvent {

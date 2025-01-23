@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
@@ -83,14 +84,11 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	createdEvent, err := h.eventService.NewEvent(uint(orgID), uint(catID), event)
 
 	if err != nil {
-		// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		return &fiber.Error{
 			Code:    fiber.StatusInternalServerError,
 			Message: err.Error(),
 		}
 	}
-
-	// fmt.Printf("Mapped Struct Before Save: %+v\n", createdEvent)
 
 	return c.Status(fiber.StatusCreated).JSON(createdEvent)
 }
@@ -271,6 +269,59 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(event)
+}
+
+// SearchEvents godoc
+// @Summary Search events
+// @Description Search events by keyword
+// @Tags Searching
+// @Accept json
+// @Produce json
+// @Param q query string true "Keyword to search for events"
+// @Param category query string false "Category of events"
+// @Param locationType query string false "Location Type of events"
+// @Param audience query string false "Main Audience of events"
+// @Param priceType query string false "Price Type of events"
+// @Success 200 {array} models.Event
+// @Failure 400 {object} fiber.Map "error - Bad Request"}
+// @Failure 404 {object} fiber.Map "error - events not found"}
+// @Failure 500 {object} fiber.Map "error - Internal Server Error"}
+// @Router /events-paginate/search [get]
+func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
+	page := 1
+	Offset := 12
+
+	var query models.SearchQuery
+
+	if err := c.QueryParser(&query); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid query parameters",
+		})
+	}
+	// Use the provided or default pagination values
+	if query.Page > 0 {
+		page = query.Page
+	}
+	if query.Offset > 0 {
+		Offset = query.Offset
+	}
+
+	events, err := h.eventService.SearchEvents(query, page, Offset)
+
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(events)
+}
+
+func (h EventHandler) SyncEvents(c *fiber.Ctx) error {
+	err := h.eventService.SyncEvents()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ----- Mock Event Handler -----

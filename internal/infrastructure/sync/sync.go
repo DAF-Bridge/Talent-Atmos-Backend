@@ -27,17 +27,16 @@ func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			KeyTakeaway:        event.KeyTakeaway,
 			LocationName:       event.LocationName,
 			Latitude:           event.Latitude,
-			Longitude:          event.Longitude,
 			StartDate:          event.StartDate.Format("2006-01-02"),
 			EndDate:            event.EndDate.Format("2006-01-02"),
 			StartTime:          event.StartTime.Format("15:04:05"),
 			EndTime:            event.EndTime.Format("15:04:05"),
-			LocationType:       string(event.LocationType),
+			LocationType:       event.LocationType,
+			Audience:           event.Audience,
+			Price:              event.PriceType,
 			Category:           event.Category.Name,
 			Organization:       event.Organization.Name,
 			OrganizationPicUrl: event.Organization.PicUrl,
-			Audience:           string(event.Audience),
-			PriceType:          string(event.PriceType),
 		}
 
 		jsonData, _ := json.Marshal(doc)

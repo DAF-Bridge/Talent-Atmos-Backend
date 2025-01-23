@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/sync"
@@ -19,10 +20,34 @@ const numberOfEvent = 12
 // EventService is a service that provides operations on events.
 type eventService struct {
 	eventRepo repository.EventRepository
+	DB        *gorm.DB
+	OS        *opensearch.Client
 }
 
-func NewEventService(eventRepo repository.EventRepository) EventService {
-	return eventService{eventRepo: eventRepo}
+//--------------------------------------------//
+
+func NewEventService(eventRepo repository.EventRepository, db *gorm.DB, os *opensearch.Client) EventService {
+	return eventService{
+		eventRepo: eventRepo,
+		DB:        db,
+		OS:        os}
+}
+
+func (s eventService) SyncEvents() error {
+	return sync.SyncEventsToOpenSearch(s.DB, s.OS)
+}
+
+func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
+	eventsRes, err := search.SearchEvents(s.OS, query, page, Offset)
+	if err != nil {
+		if len(eventsRes.Events) == 0 {
+			return dto.SearchEventResponse{}, errs.NewFiberNotFoundError("No search results found")
+		}
+
+		return dto.SearchEventResponse{}, errs.NewFiberUnexpectedError()
+	}
+
+	return eventsRes, nil
 }
 
 func (s eventService) NewEvent(orgID uint, catID uint, req NewEventRequest) (*EventResponses, error) {
@@ -38,28 +63,6 @@ func (s eventService) NewEvent(orgID uint, catID uint, req NewEventRequest) (*Ev
 	eventResponse := convertToEventResponse(*newEvent)
 
 	return &eventResponse, nil
-}
-
-func (s eventService) SearchEvents(params map[string]string) ([]EventResponses, error) {
-
-	events, err := s.eventRepo.Search(params)
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NewNotFoundError("events not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponses := []EventResponses{}
-	for _, event := range events {
-		eventResponse := convertToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
-	}
-
-	return eventResponses, nil
 }
 
 func (s eventService) GetAllEvents() ([]EventResponses, error) {
@@ -188,26 +191,6 @@ func (s eventService) DeleteEvent(orgID uint, eventID uint) (*EventResponses, er
 
 	return &eventResponse, nil
 }
-
-// Event Opensearch Service //
-type EventOpensearchService struct {
-	DB *gorm.DB
-	OS *opensearch.Client
-}
-
-func NewEventOpensearchService(db *gorm.DB, os *opensearch.Client) *EventOpensearchService {
-	return &EventOpensearchService{DB: db, OS: os}
-}
-
-func (s *EventOpensearchService) SyncEvents() error {
-	return sync.SyncEventsToOpenSearch(s.DB, s.OS)
-}
-
-func (s *EventOpensearchService) SearchEvents(query models.SearchQuery, page int, Offset int) (map[string]interface{}, error) {
-	return search.SearchEvents(s.OS, query, page, Offset)
-}
-
-//--------------------------------------------//
 
 type mockEventService struct {
 	mockEventRepo repository.MockEventRepository

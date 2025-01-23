@@ -13,7 +13,7 @@ import (
 func NewEventRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, es *opensearch.Client) {
 	// Dependencies Injections for Event
 	eventRepo := repository.NewEventRepository(db)
-	eventService := service.NewEventService(eventRepo)
+	eventService := service.NewEventService(eventRepo, db, es)
 	eventHandler := handler.NewEventHandler(eventService)
 
 	event := app.Group("/orgs/:orgID/events")
@@ -24,6 +24,11 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, 
 	event.Get("/:id", eventHandler.GetEventByID)
 	app.Get("/events-paginate", eventHandler.EventPaginate)
 	event.Delete("/:id", eventHandler.DeleteEvent)
+
+	// Searching
+	app.Get("/events-paginate/search", eventHandler.SearchEvents)
+	// Sync PostGres to OpenSearch
+	app.Get("/sync-events", eventHandler.SyncEvents)
 
 	// mockEventRepo := repository.NewEventRepositoryMock()
 	// mockEventService := service.NewMockEventService(mockEventRepo)

@@ -9,7 +9,6 @@ type EventRepository interface {
 	GetAll() ([]models.Event, error)
 	GetAllByOrgID(orgID uint) ([]models.Event, error)
 	GetByID(orgID uint, eventID uint) (*models.Event, error)
-	Search(params map[string]string) ([]models.Event, error)
 	GetPaginate(page uint, size uint) ([]models.Event, error)
 	GetFirst() (*models.Event, error)
 	Count() (int64, error)
