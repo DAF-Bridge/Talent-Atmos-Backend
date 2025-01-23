@@ -19,6 +19,8 @@ var DB *gorm.DB
 // var ESClient *elasticsearch.Client
 var ESClient *opensearch.Client
 
+var S3 *infrastructure.S3Uploader
+
 func ConnectToDB() {
 	// Define the PostgreSQL connection details
 	dsn := os.Getenv("DATABASE_URL")
@@ -63,10 +65,13 @@ func ConnectToS3() {
 	bucketName := os.Getenv("S3_BUCKET_NAME")
 
 	// Initialize the S3 uploader
-	s3Uploader := infrastructure.NewS3Uploader(bucketName)
-	if s3Uploader == nil {
-		log.Fatal("Failed to initialize S3 uploader")
+	s3, err := infrastructure.NewS3Uploader(bucketName)
+	if err != nil {
+		log.Fatalf("Failed to connect to S3: %s", err)
 	}
+
+	// Assign the S3 instance to the global S3 variable
+	S3 = s3
 
 	logs.Info("Successfully connected to S3!")
 }

@@ -11,7 +11,6 @@ import (
 	_ "github.com/spf13/viper"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/api"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -87,31 +86,16 @@ func Start() {
 	api.NewAuthRouter(app, initializers.DB, jwtSecret)
 
 	// Define routes for Users
-	s3 := infrastructure.NewS3Uploader(os.Getenv("S3_BUCKET_NAME"))
-	api.NewUserRouter(app, initializers.DB, s3, jwtSecret)
+	api.NewUserRouter(app, initializers.DB, initializers.S3, jwtSecret)
 
 	// Define routes for Organizations && Organization Open Jobs
-	api.NewOrganizationRouter(app, initializers.DB)
+	api.NewOrganizationRouter(app, initializers.DB, initializers.S3, initializers.ESClient)
 
 	// Define routes for Events
-	api.NewEventRouter(app, initializers.DB, initializers.ESClient)
+	api.NewEventRouter(app, initializers.DB, initializers.S3, initializers.ESClient)
 
 	// Define routes for Search
-	api.NewSearchRouter(app, initializers.DB, initializers.ESClient)
-
-	// api.NewSyncDataRouter(app, initializers.DB, initializers.ESClient)
-
-	// eventRepo := repository.NewEventRepository(initializers.DB)
-	// jobRepo := repository.NewOrgOpenJobRepository(initializers.DB)
-
-	// syncService := service.NewSyncService(eventRepo, jobRepo, initializers.ESClient)
-
-	// fmt.Println("Starting one-time sync...")
-	// err2 := syncService.SyncAllElasticSearch()
-	// if err2 != nil {
-	// 	panic(fmt.Sprintf("Error syncing data: %v", err2))
-	// }
-	// fmt.Println("Sync completed successfully!")
+	//api.NewSearchRouter(app, initializers.DB, initializers.ESClient)
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)     // default

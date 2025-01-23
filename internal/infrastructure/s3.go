@@ -20,11 +20,12 @@ type S3Uploader struct {
 	bucketName string
 }
 
-func NewS3Uploader(bucketName string) *S3Uploader {
+func NewS3Uploader(bucketName string) (*S3Uploader, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
+		return nil, err
 	}
 
 	client := s3.NewFromConfig(cfg)
@@ -32,7 +33,7 @@ func NewS3Uploader(bucketName string) *S3Uploader {
 	return &S3Uploader{
 		client:     client,
 		bucketName: bucketName,
-	}
+	}, nil
 }
 
 // UploadUserPictureFile Upload file to S3
