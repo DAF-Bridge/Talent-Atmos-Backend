@@ -12,18 +12,7 @@ import (
 	"github.com/opensearch-project/opensearch-go"
 )
 
-// type SearchQuery struct {
-// 	Query struct {
-// 		Match struct {
-// 			Name string `json:"name"`
-// 		} `json:"match"`
-// 	} `json:"query"`
-// }
-
-func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, perPage int) ([]map[string]interface{}, error) {
-	// query := SearchQuery{}
-	// query.Query.Match.Name = keyword
-
+func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, Offset int) (map[string]interface{}, error) {
 	searchQuery := buildSearchQuery(query)
 
 	queryBody, _ := json.Marshal(searchQuery)
@@ -34,7 +23,7 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 		client.Search.WithContext(context.Background()),
 	)
 	if err != nil {
-		logs.Error(fmt.Sprintf("failed to execute search: %v", err))
+		logs.Error(fmt.Sprintf("failed to execute search on: %v", err))
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -54,7 +43,25 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 		results = append(results, source)
 	}
 
-	return results, nil
+	var responses map[string]interface{}
+
+	// if there does not exist data in the hits, then we can return an empty response
+	if len(hits) == 0 {
+		responses = map[string]interface{}{
+			"total_events": 0,
+			"events":       []map[string]interface{}{},
+		}
+		return responses, nil
+	}
+
+	// if there exist data in the hits, then we can get the total hits
+	totalHits := result["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)
+	responses = map[string]interface{}{
+		"total_events": totalHits,
+		"events":       results,
+	}
+
+	return responses, nil
 }
 
 func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
@@ -69,7 +76,7 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 		must = append(must, map[string]interface{}{
 			"multi_match": map[string]interface{}{
 				"query":  query.Search,
-				"fields": []string{"name", "description", "key_takeaway", "highlight", "location_name"},
+				"fields": []string{"name", "description", "keyTakeaway", "highlight", "location"},
 				"type":   "best_fields", // Can be changed to "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
 			},
 		})
@@ -77,7 +84,7 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 	if query.Location != "" {
 		must = append(must, map[string]interface{}{
 			"match": map[string]interface{}{
-				"location_type": query.Location,
+				"locationType": query.Location,
 			},
 		})
 	}
@@ -98,26 +105,28 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 	if query.PriceType != "" {
 		must = append(must, map[string]interface{}{
 			"match": map[string]interface{}{
-				"price_type": query.PriceType,
+				"priceType": query.PriceType,
 			},
 		})
 	}
 	if !startDate.IsZero() && !endDate.IsZero() {
 		must = append(must, map[string]interface{}{
 			"range": map[string]interface{}{
-				"start_date": map[string]interface{}{
+				"startDate": map[string]interface{}{
 					"gte": startDate,
 					"lte": endDate,
 				},
 			},
 		})
 	}
-
+	// if query.Page != 0 {
+	// 	searchQuery["from"] = query.Page
+	// }
 	if query.Page != 0 {
-		searchQuery["from"] = query.Page
+		searchQuery["from"] = (query.Page - 1) * query.Offset
 	}
-	if query.PerPage != 0 {
-		searchQuery["size"] = query.PerPage
+	if query.Offset != 0 {
+		searchQuery["size"] = query.Offset
 	}
 
 	// Add other filters similarly...

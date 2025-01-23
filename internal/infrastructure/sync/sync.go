@@ -13,28 +13,31 @@ import (
 
 func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	var events []models.Event
-	if err := db.Preload("Category").Find(&events).Error; err != nil {
+	if err := db.Preload("Organization").Preload("Category").Find(&events).Error; err != nil {
 		return fmt.Errorf("failed to fetch events: %v", err)
 	}
 
 	for _, event := range events {
 		doc := models.EventDocument{
-			ID:           event.ID,
-			Name:         event.Name,
-			Description:  event.Description,
-			Highlight:    event.Highlight,
-			KeyTakeaway:  event.KeyTakeaway,
-			LocationName: event.LocationName,
-			Latitude:     event.Latitude,
-			Longitude:    event.Longitude,
-			StartDate:    event.StartDate.Format("2006-01-02"),
-			EndDate:      event.EndDate.Format("2006-01-02"),
-			StartTime:    event.StartTime.Format("15:04:05"),
-			EndTime:      event.EndTime.Format("15:04:05"),
-			LocationType: string(event.LocationType),
-			Category:     string(event.Category.Name),
-			Audience:     string(event.Audience),
-			PriceType:    string(event.PriceType),
+			ID:                 event.ID,
+			Name:               event.Name,
+			PicUrl:             event.PicUrl,
+			Description:        event.Description,
+			Highlight:          event.Highlight,
+			KeyTakeaway:        event.KeyTakeaway,
+			LocationName:       event.LocationName,
+			Latitude:           event.Latitude,
+			Longitude:          event.Longitude,
+			StartDate:          event.StartDate.Format("2006-01-02"),
+			EndDate:            event.EndDate.Format("2006-01-02"),
+			StartTime:          event.StartTime.Format("15:04:05"),
+			EndTime:            event.EndTime.Format("15:04:05"),
+			LocationType:       string(event.LocationType),
+			Category:           event.Category.Name,
+			Organization:       event.Organization.Name,
+			OrganizationPicUrl: event.Organization.PicUrl,
+			Audience:           string(event.Audience),
+			PriceType:          string(event.PriceType),
 		}
 
 		jsonData, _ := json.Marshal(doc)

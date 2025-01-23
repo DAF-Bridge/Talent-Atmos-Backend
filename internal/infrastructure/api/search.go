@@ -25,5 +25,5 @@ func NewSearchRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client) {
 	opensearchHandler := handler.NewOpensearchHandler(*opensearchService)
 
 	app.Get("/sync-events", opensearchHandler.SyncEvents)
-	app.Get("/events/q", opensearchHandler.SearchEvents)
+	app.Get("/events-paginate/q", opensearchHandler.SearchEvents)
 }

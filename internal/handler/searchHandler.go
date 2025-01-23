@@ -31,11 +31,11 @@ func NewOpensearchHandler(searchSrv service.EventOpensearchService) OpensearchHa
 // @Failure 400 {object} fiber.Map "error - Bad Request"}
 // @Failure 404 {object} fiber.Map "error - events not found"}
 // @Failure 500 {object} fiber.Map "error - Internal Server Error"}
-// @Router /events/q [get]
+// @Router /events-paginate/q [get]
 func (h *OpensearchHandler) SearchEvents(c *fiber.Ctx) error {
 	// keyword := c.Query("keyword")
 	page := 1
-    perPage := 10
+	Offset := 12
 
 	var query models.SearchQuery
 	if err := c.QueryParser(&query); err != nil {
@@ -45,14 +45,14 @@ func (h *OpensearchHandler) SearchEvents(c *fiber.Ctx) error {
 	}
 
 	// Use the provided or default pagination values
-    if query.Page > 0 {
-        page = query.Page
-    }
-    if query.PerPage > 0 {
-        perPage = query.PerPage
-    }
+	if query.Page > 0 {
+		page = query.Page
+	}
+	if query.Offset > 0 {
+		Offset = query.Offset
+	}
 
-	events, err := h.searchSrv.SearchEvents(query, page, perPage)
+	events, err := h.searchSrv.SearchEvents(query, page, Offset)
 
 	if err != nil {
 		if len(events) == 0 {

@@ -110,6 +110,7 @@ type OrgOpenJob struct {
 	ID             uint           `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
 	CreatedAt      time.Time      `gorm:"autoCreateTime" json:"created_at" example:"2024-11-29T08:00:00Z"`
 	UpdatedAt      time.Time      `gorm:"autoUpdateTime" json:"updated_at" example:"2024-11-29T08:00:00Z"`
+	Category       []Category     `gorm:"many2many:categories;"`
 }
 
 //---------------------------------------------------------------------------

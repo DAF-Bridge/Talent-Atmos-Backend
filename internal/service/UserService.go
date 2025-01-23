@@ -31,7 +31,7 @@ func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructu
 
 func (s *UserService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
 	// Upload image to S3
-	picURL, err := s.S3Uploader.UploadFile(ctx, file, fileHeader, userID)
+	picURL, err := s.S3Uploader.UploadUserPictureFile(ctx, file, fileHeader, userID)
 	if err != nil {
 		return "", err
 	}

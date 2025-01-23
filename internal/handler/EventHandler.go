@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -120,17 +119,21 @@ func (h eventHandler) CreateEvent(c *fiber.Ctx) error {
 
 	event := service.NewEventRequest{}
 
-	if err := c.BodyParser(&event); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
+		return err
 	}
 
 	createdEvent, err := h.eventService.NewEvent(uint(orgID), uint(catID), event)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return &fiber.Error{
+			Code:    fiber.StatusInternalServerError,
+			Message: err.Error(),
+		}
 	}
 
-	fmt.Printf("Mapped Struct Before Save: %+v\n", createdEvent)
+	// fmt.Printf("Mapped Struct Before Save: %+v\n", createdEvent)
 
 	return c.Status(fiber.StatusCreated).JSON(createdEvent)
 }

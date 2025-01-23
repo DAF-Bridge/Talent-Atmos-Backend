@@ -57,9 +57,9 @@ type Event struct {
 	Latitude        float64           `gorm:"type:decimal(10,8)" db:"latitude"`
 	Longitude       float64           `gorm:"type:decimal(11,8)" db:"longitude"`
 	Province        string            `gorm:"type:varchar(255)" db:"province"`
-	LocationType    LocationType      `gorm:"type:varchar(50) column:location_type" db:"location_type" json:"locationType"`
-	Audience        Audience          `gorm:"type:varchar(50) column:audience" db:"audience" json:"audience"`
-	PriceType       PriceType         `gorm:"type:varchar(50) column:price_type" db:"price_type" json:"priceType"`
+	LocationType    LocationType      `gorm:"type:location_type column:location_type" db:"location_type" json:"locationType"`
+	Audience        Audience          `gorm:"type:audience column:audience" db:"audience" json:"audience"`
+	PriceType       PriceType         `gorm:"type:price_type column:price_type" db:"price_type" json:"priceType"`
 	CategoryID      uint              `gorm:"not null" db:"category_id"`
 	Category        Category          `gorm:"foreignKey:CategoryID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"categories"`
 	OrganizationID  uint              `gorm:"not null" db:"organization_id"`

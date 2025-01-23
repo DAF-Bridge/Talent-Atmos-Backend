@@ -203,8 +203,8 @@ func (s *EventOpensearchService) SyncEvents() error {
 	return sync.SyncEventsToOpenSearch(s.DB, s.OS)
 }
 
-func (s *EventOpensearchService) SearchEvents(query models.SearchQuery, page int, perPage int) ([]map[string]interface{}, error) {
-	return search.SearchEvents(s.OS, query, page, perPage)
+func (s *EventOpensearchService) SearchEvents(query models.SearchQuery, page int, Offset int) (map[string]interface{}, error) {
+	return search.SearchEvents(s.OS, query, page, Offset)
 }
 
 //--------------------------------------------//
