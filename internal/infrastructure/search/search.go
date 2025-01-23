@@ -72,10 +72,10 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 	boolQuery := make(map[string]interface{})
 	must := []map[string]interface{}{}
 
-	if query.Search != "" {
+	if query.Query != "" {
 		must = append(must, map[string]interface{}{
 			"multi_match": map[string]interface{}{
-				"query":  query.Search,
+				"query":  query.Query,
 				"fields": []string{"name", "description", "keyTakeaway", "highlight", "location"},
 				"type":   "best_fields", // Can be changed to "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
 			},

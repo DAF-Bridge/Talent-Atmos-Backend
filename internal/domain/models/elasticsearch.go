@@ -4,7 +4,7 @@ type SearchQuery struct {
 	Page      int    `json:"page" form:"page"`           // The page number
 	Offset    int    `json:"offset" form:"offset"`       // The number of items per page
 	Category  string `json:"category" form:"category"`   // The category filter
-	Search    string `json:"search" form:"search"`       // The search keyword
+	Query     string `json:"q" form:"q"`                 // The search keyword
 	DateRange string `json:"dateRange" form:"dateRange"` // The date range (e.g., 'thisWeek', 'today', 'tomorrow', `thisMonth`, `nextMonth`)
 	Location  string `json:"location" form:"location"`   // Location filter (e.g., 'online')
 	Audience  string `json:"audience" form:"audience"`   // Audience type (e.g., 'general')
