@@ -130,7 +130,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Price Type of events",
-                        "name": "priceType",
+                        "name": "price",
                         "in": "query"
                     }
                 ],
@@ -636,7 +636,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Events"
+                    "Organization Events"
                 ],
                 "summary": "Delete an event",
                 "parameters": [

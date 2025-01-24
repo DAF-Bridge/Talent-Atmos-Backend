@@ -248,7 +248,7 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 // @Param category query string false "Category of events"
 // @Param locationType query string false "Location Type of events"
 // @Param audience query string false "Main Audience of events"
-// @Param priceType query string false "Price Type of events"
+// @Param price query string false "Price Type of events"
 // @Success 200 {array} models.Event
 // @Failure 400 {object} map[string]string "error - Invalid query parameters"
 // @Failure 404 {object} map[string]string "error - events not found"

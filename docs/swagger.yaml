@@ -782,7 +782,7 @@ paths:
         type: string
       - description: Price Type of events
         in: query
-        name: priceType
+        name: price
         type: string
       produces:
       - application/json
@@ -1053,7 +1053,7 @@ paths:
             type: object
       summary: Delete an event
       tags:
-      - Events
+      - Organization Events
     get:
       description: Get an event by its ID for a specific organization
       parameters:
