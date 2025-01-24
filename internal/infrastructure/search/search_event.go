@@ -87,10 +87,11 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 		must = append(must, map[string]interface{}{
 			"multi_match": map[string]interface{}{
 				"query":  query.Q,
-				"fields": []string{"name", "description", "keyTakeaway", "highlight", "location"},
-				// "type":   "best_fields", // Can be changed to "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
-				"fuzziness": "AUTO",
-				"operator":  "and",
+				"fields": []string{"name", "description", "location"},
+				// "type":                 "most_fields", // Can be changed to "best_fields" / "most_fields" / "cross_fields" / "phrase" / "phrase_prefix" for optimization
+				"fuzziness":            "AUTO",
+				"operator":             "or",
+				"fuzzy_transpositions": true,
 			},
 		})
 	}
