@@ -17,7 +17,7 @@ type EventService interface {
 	GetFirst() (*EventResponses, error)
 	CountEvent() (int64, error)
 	// Update(event *Event) error
-	DeleteEvent(orgID uint, eventID uint) (*EventResponses, error)
+	DeleteEvent(orgID uint, eventID uint) error
 }
 
 type NewEventRequest struct {

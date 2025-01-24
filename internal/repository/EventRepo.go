@@ -114,11 +114,8 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 }
 
 func (r eventRepository) Delete(orgID uint, eventID uint) error {
-
-	event := models.Event{}
-
-	err := r.db.Where("organization_id = ?", int(orgID)).Delete("id = ?", int(eventID)).First(&event).Error
-
+	// Soft delete
+	err := r.db.Where("organization_id = ? AND id = ?", orgID, eventID).Delete(&models.Event{}).Error
 	if err != nil {
 		return err
 	}

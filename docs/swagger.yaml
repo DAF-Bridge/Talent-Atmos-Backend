@@ -53,25 +53,6 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
-  handler.EventShortResponse:
-    properties:
-      endDate:
-        type: string
-      endTime:
-        type: string
-      id:
-        type: integer
-      location:
-        type: string
-      name:
-        type: string
-      picUrl:
-        type: string
-      startDate:
-        type: string
-      startTime:
-        type: string
-    type: object
   handler.SignUpHandlerRequest:
     properties:
       email:
@@ -83,16 +64,6 @@ definitions:
       phone:
         type: string
     type: object
-  models.Audience:
-    enum:
-    - general
-    - students
-    - professionals
-    type: string
-    x-enum-varnames:
-    - General
-    - Students
-    - Professionals
   models.CareerStage:
     enum:
     - entrylevel
@@ -113,6 +84,10 @@ definitions:
         type: integer
       isActive:
         type: boolean
+      jobs:
+        items:
+          $ref: '#/definitions/models.OrgOpenJob'
+        type: array
       name:
         type: string
       parentID:
@@ -138,7 +113,7 @@ definitions:
   models.Event:
     properties:
       audience:
-        $ref: '#/definitions/models.Audience'
+        type: string
       category:
         $ref: '#/definitions/models.Category'
       categoryID:
@@ -164,7 +139,7 @@ definitions:
       locationName:
         type: string
       locationType:
-        $ref: '#/definitions/models.LocationType'
+        type: string
       longitude:
         type: number
       name:
@@ -176,7 +151,7 @@ definitions:
       picUrl:
         type: string
       priceType:
-        $ref: '#/definitions/models.PriceType'
+        type: string
       province:
         type: string
       requirement:
@@ -213,14 +188,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  models.LocationType:
-    enum:
-    - online
-    - onsite
-    type: string
-    x-enum-varnames:
-    - Online
-    - Onsite
   models.Media:
     enum:
     - website
@@ -391,14 +358,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  models.PriceType:
-    enum:
-    - free
-    - paid
-    type: string
-    x-enum-varnames:
-    - Free
-    - Paid
   models.Provider:
     enum:
     - google
@@ -499,41 +458,6 @@ definitions:
     - WorkplaceOnsite
     - WorkplaceRemote
     - WorkplaceHybrid
-  service.EventCardResponses:
-    properties:
-      endDate:
-        example: "2024-11-29"
-        type: string
-      endTime:
-        example: "17:00"
-        type: string
-      id:
-        example: 1
-        type: integer
-      location:
-        example: builds CMU
-        type: string
-      name:
-        example: builds IDEA 2024
-        type: string
-      organization:
-        $ref: '#/definitions/service.OrganizationShortRespones'
-      organization_id:
-        example: 1
-        type: integer
-      picUrl:
-        example: https://example.com/image.jpg
-        type: string
-      province:
-        example: Chiang Mai
-        type: string
-      startDate:
-        example: "2024-11-29"
-        type: string
-      startTime:
-        example: "08:00"
-        type: string
-    type: object
   service.EventResponses:
     properties:
       audience:
@@ -606,12 +530,6 @@ definitions:
     type: object
   service.JobRequest:
     properties:
-      CreatedAt:
-        example: "2024-11-29T08:00:00Z"
-        type: string
-      UpdatedAt:
-        example: "2024-11-29T08:00:00Z"
-        type: string
       benefits:
         example: Health insurance
         type: string
@@ -788,18 +706,6 @@ definitions:
     - startDate
     - startTime
     type: object
-  service.OrganizationShortRespones:
-    properties:
-      id:
-        example: 1
-        type: integer
-      name:
-        example: builds CMU
-        type: string
-      picUrl:
-        example: https://example.com/image.jpg
-        type: string
-    type: object
 info:
   contact: {}
 paths:
@@ -888,107 +794,24 @@ paths:
               $ref: '#/definitions/models.Event'
             type: array
         "400":
-          description: error - Bad Request"}
+          description: error - Invalid query parameters
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "404":
-          description: error - events not found"}
+          description: error - events not found
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: error - Internal Server Error"}
+          description: error - Something went wrong
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Search events
-      tags:
-      - Searching
-  /events/first:
-    get:
-      description: Get the first event
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/handler.EventShortResponse'
-            type: array
-        "500":
-          description: Internal Server Error - Something went wrong
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Get the first event
-      tags:
-      - Events
-  /events/q:
-    get:
-      consumes:
-      - application/json
-      description: Search for events based on various criteria such as search term,
-        category, location type, audience, and price type.
-      parameters:
-      - description: Search term
-        in: query
-        name: search
-        type: string
-      - description: Event category
-        in: query
-        name: category
-        type: string
-      - description: Location type
-        in: query
-        name: location
-        type: string
-      - description: Audience type
-        in: query
-        name: audience
-        type: string
-      - description: Price type
-        in: query
-        name: price
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/service.EventCardResponses'
-            type: array
-        "400":
-          description: Bad Request - Invalid query parameters
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "404":
-          description: Not Found - Events not found
-          schema:
-            $ref: '#/definitions/fiber.Map'
-        "500":
-          description: Internal server error - Something went wrong
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Search for events
-      tags:
-      - Events
-  /events/upcoming:
-    get:
-      description: Get a list of upcoming events
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/service.EventResponses'
-            type: array
-        "500":
-          description: Internal Server Error - Something went wrong
-          schema:
-            $ref: '#/definitions/fiber.Map'
-      summary: Get upcoming events
       tags:
       - Events
   /orgs:
@@ -1148,7 +971,7 @@ paths:
             $ref: '#/definitions/fiber.Map'
       summary: List all events for a specific organization
       tags:
-      - Events
+      - Organization Events
   /orgs/{orgID}/events/{catID}:
     post:
       consumes:
@@ -1187,13 +1010,14 @@ paths:
           description: Internal Server Error - Something went wrong
           schema:
             $ref: '#/definitions/fiber.Map'
-      summary: Create a new event (Not Finished!!!! Cannot add locationType, audience,
-        and priceType)
+      summary: Create a new event
       tags:
-      - Events
+      - Organization Events
   /orgs/{orgID}/events/{id}:
     delete:
-      description: Delete an event by its ID for a specific organization
+      consumes:
+      - application/json
+      description: Deletes an event for a given organization and event ID.
       parameters:
       - description: Organization ID
         in: path
@@ -1209,17 +1033,24 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: 'message: event deleted successfully'
           schema:
-            $ref: '#/definitions/service.EventResponses'
+            additionalProperties:
+              type: string
+            type: object
         "400":
-          description: Bad Request - Invalid organization id or missing orgID parameters
+          description: 'error: organization id is required / invalid organization
+            id / event id is required / invalid event id'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Delete an event
       tags:
       - Events
@@ -1255,7 +1086,7 @@ paths:
             $ref: '#/definitions/fiber.Map'
       summary: Get an event by ID
       tags:
-      - Events
+      - Organization Events
   /orgs/{orgID}/jobs/delete/{id}:
     delete:
       consumes:

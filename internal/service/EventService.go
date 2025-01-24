@@ -161,6 +161,7 @@ func (s eventService) GetFirst() (*EventResponses, error) {
 
 func (s eventService) CountEvent() (int64, error) {
 	count, err := s.eventRepo.Count()
+
 	if err != nil {
 		logs.Error(err)
 		return 0, errs.NewUnexpectedError()
@@ -169,27 +170,19 @@ func (s eventService) CountEvent() (int64, error) {
 	return count, nil
 }
 
-func (s eventService) DeleteEvent(orgID uint, eventID uint) (*EventResponses, error) {
+func (s eventService) DeleteEvent(orgID uint, eventID uint) error {
 	err := s.eventRepo.Delete(orgID, eventID)
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NewNotFoundError("event not found")
+			return errs.NewNotFoundError("event not found")
 		}
 
 		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
+		return errs.NewUnexpectedError()
 	}
 
-	event, err := s.eventRepo.GetByID(orgID, eventID)
-	if err != nil {
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponse := convertToEventResponse(*event)
-
-	return &eventResponse, nil
+	return nil
 }
 
 type mockEventService struct {

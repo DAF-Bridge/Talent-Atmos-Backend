@@ -98,7 +98,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Searching"
+                    "Events"
                 ],
                 "summary": "Search events",
                 "parameters": [
@@ -145,155 +145,30 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "error - Bad Request\"}",
+                        "description": "error - Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
-                        "description": "error - events not found\"}",
+                        "description": "error - events not found",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "500": {
-                        "description": "error - Internal Server Error\"}",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            }
-        },
-        "/events/first": {
-            "get": {
-                "description": "Get the first event",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get the first event",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handler.EventShortResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error - Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            }
-        },
-        "/events/q": {
-            "get": {
-                "description": "Search for events based on various criteria such as search term, category, location type, audience, and price type.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Search for events",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Search term",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Event category",
-                        "name": "category",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Location type",
-                        "name": "location",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Audience type",
-                        "name": "audience",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Price type",
-                        "name": "price",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/service.EventCardResponses"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid query parameters",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found - Events not found",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error - Something went wrong",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
-                        }
-                    }
-                }
-            }
-        },
-        "/events/upcoming": {
-            "get": {
-                "description": "Get a list of upcoming events",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get upcoming events",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/service.EventResponses"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error - Something went wrong",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
@@ -602,7 +477,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Events"
+                    "Organization Events"
                 ],
                 "summary": "List all events for a specific organization",
                 "parameters": [
@@ -652,9 +527,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Events"
+                    "Organization Events"
                 ],
-                "summary": "Create a new event (Not Finished!!!! Cannot add locationType, audience, and priceType)",
+                "summary": "Create a new event",
                 "parameters": [
                     {
                         "type": "integer",
@@ -709,7 +584,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Events"
+                    "Organization Events"
                 ],
                 "summary": "Get an event by ID",
                 "parameters": [
@@ -753,7 +628,10 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete an event by its ID for a specific organization",
+                "description": "Deletes an event for a given organization and event ID.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -779,21 +657,30 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "message: event deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/service.EventResponses"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid organization id or missing orgID parameters",
+                        "description": "error: organization id is required / invalid organization id / event id is required / invalid event id",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -1316,35 +1203,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.EventShortResponse": {
-            "type": "object",
-            "properties": {
-                "endDate": {
-                    "type": "string"
-                },
-                "endTime": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "picUrl": {
-                    "type": "string"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "startTime": {
-                    "type": "string"
-                }
-            }
-        },
         "handler.SignUpHandlerRequest": {
             "type": "object",
             "properties": {
@@ -1361,19 +1219,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "models.Audience": {
-            "type": "string",
-            "enum": [
-                "general",
-                "students",
-                "professionals"
-            ],
-            "x-enum-varnames": [
-                "General",
-                "Students",
-                "Professionals"
-            ]
         },
         "models.CareerStage": {
             "type": "string",
@@ -1402,6 +1247,12 @@ const docTemplate = `{
                 },
                 "isActive": {
                     "type": "boolean"
+                },
+                "jobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrgOpenJob"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -1433,7 +1284,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "audience": {
-                    "$ref": "#/definitions/models.Audience"
+                    "type": "string"
                 },
                 "category": {
                     "$ref": "#/definitions/models.Category"
@@ -1472,7 +1323,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "locationType": {
-                    "$ref": "#/definitions/models.LocationType"
+                    "type": "string"
                 },
                 "longitude": {
                     "type": "number"
@@ -1490,7 +1341,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "priceType": {
-                    "$ref": "#/definitions/models.PriceType"
+                    "type": "string"
                 },
                 "province": {
                     "type": "string"
@@ -1546,17 +1397,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "models.LocationType": {
-            "type": "string",
-            "enum": [
-                "online",
-                "onsite"
-            ],
-            "x-enum-varnames": [
-                "Online",
-                "Onsite"
-            ]
         },
         "models.Media": {
             "type": "string",
@@ -1802,17 +1642,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.PriceType": {
-            "type": "string",
-            "enum": [
-                "free",
-                "paid"
-            ],
-            "x-enum-varnames": [
-                "Free",
-                "Paid"
-            ]
-        },
         "models.Provider": {
             "type": "string",
             "enum": [
@@ -1957,54 +1786,6 @@ const docTemplate = `{
                 "WorkplaceHybrid"
             ]
         },
-        "service.EventCardResponses": {
-            "type": "object",
-            "properties": {
-                "endDate": {
-                    "type": "string",
-                    "example": "2024-11-29"
-                },
-                "endTime": {
-                    "type": "string",
-                    "example": "17:00"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "location": {
-                    "type": "string",
-                    "example": "builds CMU"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "builds IDEA 2024"
-                },
-                "organization": {
-                    "$ref": "#/definitions/service.OrganizationShortRespones"
-                },
-                "organization_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                },
-                "province": {
-                    "type": "string",
-                    "example": "Chiang Mai"
-                },
-                "startDate": {
-                    "type": "string",
-                    "example": "2024-11-29"
-                },
-                "startTime": {
-                    "type": "string",
-                    "example": "08:00"
-                }
-            }
-        },
         "service.EventResponses": {
             "type": "object",
             "properties": {
@@ -2103,14 +1884,6 @@ const docTemplate = `{
         "service.JobRequest": {
             "type": "object",
             "properties": {
-                "CreatedAt": {
-                    "type": "string",
-                    "example": "2024-11-29T08:00:00Z"
-                },
-                "UpdatedAt": {
-                    "type": "string",
-                    "example": "2024-11-29T08:00:00Z"
-                },
                 "benefits": {
                     "type": "string",
                     "example": "Health insurance"
@@ -2358,23 +2131,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Timeline"
                     }
-                }
-            }
-        },
-        "service.OrganizationShortRespones": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "name": {
-                    "type": "string",
-                    "example": "builds CMU"
-                },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
                 }
             }
         }
