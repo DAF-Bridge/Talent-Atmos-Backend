@@ -63,7 +63,8 @@ jobs:
           discovery.type: single-node
         ports:
           - 9200:9200
-        options: --health-cmd curl -s --show-error --fail http://localhost:9200/_cluster/health?wait_for_status=yellow
+        options: --health-cmd "curl --show-error --fail http://localhost:9200/_cluster/health?wait_for_status=yellow"
+
 
       minio:
         image: minio/minio
@@ -72,7 +73,7 @@ jobs:
           MINIO_SECRET_KEY: minio123
         ports:
           - 9000:9000
-        options: --health-cmd curl -s --show-error --fail http://localhost:9000/minio/health/ready
+        options: --health-cmd "curl --show-error --fail http://localhost:9000/minio/health/ready"
 
     steps:
       - uses: actions/checkout@v4
