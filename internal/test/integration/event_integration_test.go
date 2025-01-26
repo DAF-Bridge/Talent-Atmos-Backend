@@ -15,6 +15,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/test"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
@@ -62,7 +63,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 
 		// Integration interface
 		eventRepo := repository.NewEventRepositoryMock()
-		eventService := service.NewEventService(eventRepo, initializers.DB, initializers.ESClient)
+		eventService := service.NewEventService(eventRepo, test.DB_TEST, test.ESClient_TEST, initializers.S3)
 		eventHandler := handler.NewEventHandler(eventService)
 
 		app := fiber.New()
