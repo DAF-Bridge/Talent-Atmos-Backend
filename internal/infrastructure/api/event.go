@@ -10,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewEventRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, es *opensearch.Client) {
+func NewEventRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
 	// Dependencies Injections for Event
 	eventRepo := repository.NewEventRepository(db)
-	eventService := service.NewEventService(eventRepo, db, es)
+	eventService := service.NewEventService(eventRepo, db, es, s3)
 	eventHandler := handler.NewEventHandler(eventService)
 
 	event := app.Group("/orgs/:orgID/events")

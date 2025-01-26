@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/sync"
 	"github.com/opensearch-project/opensearch-go"
@@ -20,15 +21,17 @@ type eventService struct {
 	eventRepo repository.EventRepository
 	DB        *gorm.DB
 	OS        *opensearch.Client
+	S3        *infrastructure.S3Uploader
 }
 
 //--------------------------------------------//
 
-func NewEventService(eventRepo repository.EventRepository, db *gorm.DB, os *opensearch.Client) EventService {
+func NewEventService(eventRepo repository.EventRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) EventService {
 	return eventService{
 		eventRepo: eventRepo,
 		DB:        db,
-		OS:        os}
+		OS:        os,
+		S3:        s3}
 }
 
 func (s eventService) SyncEvents() error {
