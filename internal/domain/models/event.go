@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
@@ -44,10 +42,10 @@ type Event struct {
 	gorm.Model
 	Name            string            `gorm:"type:varchar(255);not null" db:"event_name"`
 	PicUrl          string            `gorm:"type:text" db:"pic_url"`
-	StartDate       time.Time         `gorm:"time:date" db:"start_date"`
-	EndDate         time.Time         `gorm:"time:date" db:"end_date"`
-	StartTime       time.Time         `gorm:"time:time" db:"start_time"`
-	EndTime         time.Time         `gorm:"time:time" db:"end_time"`
+	StartDate       utils.DateOnly    `gorm:"type:date;not null" db:"start_date"`
+	EndDate         utils.DateOnly    `gorm:"type:date;not null" db:"end_date"`
+	StartTime       utils.TimeOnly    `gorm:"type:time without time zone" db:"start_time"`
+	EndTime         utils.TimeOnly    `gorm:"type:time without time zone" db:"end_time"`
 	Description     string            `gorm:"type:text" db:"description"`
 	Highlight       string            `gorm:"type:text" db:"highlight"`
 	Requirement     string            `gorm:"type:text" db:"requirement"`
@@ -57,9 +55,9 @@ type Event struct {
 	Latitude        float64           `gorm:"type:decimal(10,8)" db:"latitude"`
 	Longitude       float64           `gorm:"type:decimal(11,8)" db:"longitude"`
 	Province        string            `gorm:"type:varchar(255)" db:"province"`
-	LocationType    string            `gorm:"type:varchar(50) column:location_type" db:"location_type" json:"locationType"`
-	Audience        string            `gorm:"type:varchar(50) column:audience" db:"audience" json:"audience"`
-	PriceType       string            `gorm:"type:varchar(50) column:price_type" db:"price_type" json:"priceType"`
+	LocationType    string            `gorm:"type:varchar(50)" db:"location_type" json:"locationType"`
+	Audience        string            `gorm:"type:varchar(50)" db:"audience" json:"audience"`
+	PriceType       string            `gorm:"type:varchar(50)" db:"price_type" json:"priceType"`
 	CategoryID      uint              `gorm:"not null" db:"category_id"`
 	Category        Category          `gorm:"foreignKey:CategoryID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"categories"`
 	OrganizationID  uint              `gorm:"not null" db:"organization_id"`
@@ -122,8 +120,8 @@ type MockEvent struct {
 	PicUrl         string
 	StartDate      utils.DateOnly `gorm:"time:date" `
 	EndDate        utils.DateOnly `gorm:"time:date" `
-	StartTime      time.Time      `gorm:"time:time" `
-	EndTime        time.Time      `gorm:"time:time" `
+	StartTime      utils.TimeOnly `gorm:"time:time" `
+	EndTime        utils.TimeOnly `gorm:"time:time" `
 	Description    string         `gorm:"type:text" `
 	Highlight      string         `gorm:"type:text" `
 	Requirement    string         `gorm:"type:text"`
@@ -134,6 +132,7 @@ type MockEvent struct {
 	Longitude      float64
 	Province       string
 	CategoryMock   CategoryMock
+	CategoryID     uint
 	LocationType   LocationType
 	Audience       Audience
 	PriceType      PriceType

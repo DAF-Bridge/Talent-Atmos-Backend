@@ -1,8 +1,6 @@
 package service
 
 import (
-	"errors"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
@@ -60,7 +58,7 @@ func (s eventService) NewEvent(orgID uint, catID uint, req NewEventRequest) (*Ev
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponse := convertToEventResponse(*newEvent)
+	eventResponse := ConvertToEventResponse(*newEvent)
 
 	return &eventResponse, nil
 }
@@ -79,7 +77,7 @@ func (s eventService) GetAllEvents() ([]EventResponses, error) {
 
 	eventResponses := []EventResponses{}
 	for _, event := range events {
-		eventResponse := convertToEventResponse(event)
+		eventResponse := ConvertToEventResponse(event)
 		eventResponses = append(eventResponses, eventResponse)
 	}
 
@@ -100,7 +98,7 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) 
 
 	eventResponses := []EventResponses{}
 	for _, event := range events {
-		eventResponse := convertToEventResponse(event)
+		eventResponse := ConvertToEventResponse(event)
 		eventResponses = append(eventResponses, eventResponse)
 	}
 
@@ -119,7 +117,7 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, e
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponse := convertToEventResponse(*event)
+	eventResponse := ConvertToEventResponse(*event)
 
 	return &eventResponse, nil
 }
@@ -138,7 +136,7 @@ func (s eventService) GetEventPaginate(page uint) ([]EventResponses, error) {
 
 	eventResponses := []EventResponses{}
 	for _, event := range events {
-		eventResponse := convertToEventResponse(event)
+		eventResponse := ConvertToEventResponse(event)
 		eventResponses = append(eventResponses, eventResponse)
 	}
 
@@ -154,7 +152,7 @@ func (s eventService) GetFirst() (*EventResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponse := convertToEventResponse(*event)
+	eventResponse := ConvertToEventResponse(*event)
 
 	return &eventResponse, nil
 }
@@ -183,172 +181,4 @@ func (s eventService) DeleteEvent(orgID uint, eventID uint) error {
 	}
 
 	return nil
-}
-
-type mockEventService struct {
-	mockEventRepo repository.MockEventRepository
-}
-
-func NewMockEventService(mockEventRepo repository.MockEventRepository) mockEventService {
-	return mockEventService{mockEventRepo: mockEventRepo}
-}
-
-func (s mockEventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses, error) {
-	event := requestConvertToMockEvent(int(orgID), req)
-
-	mockEvent := models.MockEvent(event)
-
-	newEvent, err := s.mockEventRepo.Create(uint(orgID), &mockEvent)
-
-	if err != nil {
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponse := convertMockEventToEventResponse(*newEvent)
-
-	return &eventResponse, nil
-}
-
-func (s mockEventService) GetAllMockEvents() ([]EventResponses, error) {
-	events, err := s.mockEventRepo.GetAll()
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NewNotFoundError("events not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponses := []EventResponses{}
-	for _, event := range events {
-		eventResponse := convertMockEventToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
-	}
-
-	return eventResponses, nil
-}
-
-func (s mockEventService) GetAllMockEventsByOrgID(orgID uint) ([]EventResponses, error) {
-	events, err := s.mockEventRepo.GetAllByOrgID(orgID)
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NewNotFoundError("events not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponses := []EventResponses{}
-	for _, event := range events {
-		eventResponse := convertMockEventToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
-	}
-
-	return eventResponses, nil
-}
-
-func (s mockEventService) GetMockEventByID(orgID uint, eventID uint) (*EventResponses, error) {
-	event, err := s.mockEventRepo.GetByID(orgID, eventID)
-
-	if err != nil {
-
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errs.NewNotFoundError("event not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponse := convertMockEventToEventResponse(*event)
-
-	return &eventResponse, nil
-}
-
-func (s mockEventService) GetMockEventPaginate(page uint) ([]EventResponses, error) {
-	events, err := s.mockEventRepo.GetPaginate(page, numberOfEvent)
-	if err != nil {
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponses := []EventResponses{}
-	for _, event := range events {
-		eventResponse := convertMockEventToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
-	}
-
-	return eventResponses, nil
-}
-
-func (s mockEventService) SearchMockEvent(params map[string]string) ([]EventCardResponses, error) {
-	events, err := s.mockEventRepo.Search(params)
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NewNotFoundError("events not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponses := []EventCardResponses{}
-	for _, event := range events {
-		eventResponse := convertMockEventToEventCardResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
-	}
-
-	return eventResponses, nil
-}
-
-func (s mockEventService) GetFirst() (*EventResponses, error) {
-	event, err := s.mockEventRepo.GetFirst()
-
-	if err != nil {
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponse := convertMockEventToEventResponse(*event)
-
-	return &eventResponse, nil
-}
-
-func (s mockEventService) CountMockEvent() (int64, error) {
-	count, err := s.mockEventRepo.Count()
-	if err != nil {
-		logs.Error(err)
-		return 0, errs.NewUnexpectedError()
-	}
-
-	return count, nil
-}
-
-func (s mockEventService) DeleteMockEvent(orgID uint, eventID uint) (*EventResponses, error) {
-	err := s.mockEventRepo.Delete(orgID, eventID)
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errs.NewNotFoundError("event not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	event, err := s.mockEventRepo.GetByID(orgID, eventID)
-	if err != nil {
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	eventResponse := convertMockEventToEventResponse(*event)
-
-	return &eventResponse, nil
 }

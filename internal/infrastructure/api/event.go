@@ -29,20 +29,4 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, 
 	app.Get("/events-paginate/search", eventHandler.SearchEvents)
 	// Sync PostGres to OpenSearch
 	app.Get("/sync-events", eventHandler.SyncEvents)
-
-	// mockEventRepo := repository.NewEventRepositoryMock()
-	// mockEventService := service.NewMockEventService(mockEventRepo)
-	// mockEventHandler := handler.NewMockEventHandler(mockEventService)
-
-	// event := app.Group("/orgs/:orgID/events")
-
-	// app.Get("/events", mockEventHandler.ListMockEvents)
-	// event.Get("/", mockEventHandler.ListMockEventsByOrgID)
-	// event.Post("/", mockEventHandler.CreateMockEvent)
-	// event.Get("/first", mockEventHandler.MockEventFirst)
-	// event.Get("/:id", mockEventHandler.GetMockEventByID)
-	// app.Get("/events/upcoming", mockEventHandler.MockUpcomingEvent)
-	// app.Get("/events-paginate", mockEventHandler.EventMockPaginate)
-	// app.Get("/events/q", mockEventHandler.SearchMockEvent)
-	// event.Delete("/:id", mockEventHandler.DeleteMockEvent)
 }

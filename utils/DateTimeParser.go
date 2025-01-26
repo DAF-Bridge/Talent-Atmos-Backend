@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"time"
 )
@@ -18,6 +19,64 @@ func TimeParser(timeStr string) time.Time {
 func ISO8601Parser(isoStr string) time.Time {
 	parsedTime, _ := time.Parse(time.RFC3339, isoStr)
 	return parsedTime
+}
+
+type TimeOnly struct {
+	time.Time
+}
+
+func (t TimeOnly) MarshalJSON() ([]byte, error) {
+	// Format the time as "HH:MM"
+	formatted := fmt.Sprintf(`"%s"`, t.Format("15:04:05"))
+	return []byte(formatted), nil
+}
+
+func (t *TimeOnly) UnmarshalJSON(b []byte) error {
+	// Parse time in "HH:MM" format
+	parsedTime, err := time.Parse(`"15:04:05"`, string(b))
+	if err != nil {
+		return err
+	}
+	t.Time = parsedTime
+	return nil
+}
+
+// Convert to a database value (for GORM)
+func (t TimeOnly) Value() (driver.Value, error) {
+	return t.Format("15:04:05"), nil
+}
+
+// Convert from database value to struct
+//
+//	func (t *TimeOnly) Scan(value interface{}) error {
+//		if v, ok := value.(time.Time); ok {
+//			t.Time = v
+//			return nil
+//		}
+//		return fmt.Errorf("cannot convert %v to TimeOnly", value)
+//	}
+//
+// Ensure TimeOnly implements sql.Scanner
+func (t *TimeOnly) Scan(value interface{}) error {
+	if value == nil {
+		*t = TimeOnly{}
+		return nil
+	}
+
+	switch v := value.(type) {
+	case time.Time:
+		*t = TimeOnly{Time: v}
+		return nil
+	case string:
+		parsedTime, err := time.Parse("15:04:05", v)
+		if err != nil {
+			return fmt.Errorf("cannot parse time: %v", err)
+		}
+		*t = TimeOnly{Time: parsedTime}
+		return nil
+	default:
+		return fmt.Errorf("cannot convert %T to TimeOnly", value)
+	}
 }
 
 type DateOnly struct {
@@ -40,6 +99,40 @@ func (d *DateOnly) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (d DateOnly) Value() (driver.Value, error) {
+	return d.Format("2006-01-02"), nil
+}
+
+//	func (d *DateOnly) Scan(value interface{}) error {
+//		if v, ok := value.(time.Time); ok {
+//			d.Time = v
+//			return nil
+//		}
+//		return fmt.Errorf("cannot convert %v to DateOnly", value)
+//	}
+func (d *DateOnly) Scan(value interface{}) error {
+	if value == nil {
+		*d = DateOnly{}
+		return nil
+	}
+
+	switch v := value.(type) {
+	case time.Time:
+		*d = DateOnly{Time: v}
+		return nil
+	case string:
+		parsedDate, err := time.Parse("2006-01-02", v)
+		if err != nil {
+			return fmt.Errorf("cannot parse date: %v", err)
+		}
+		*d = DateOnly{Time: parsedDate}
+		return nil
+	default:
+		return fmt.Errorf("cannot convert %T to DateOnly", value)
+	}
+}
+
+// Searching Service Utils
 // GetDateRange converts a predefined date range string into a start and end time.
 func GetDateRange(dateRange string) (start time.Time, end time.Time) {
 	now := time.Now()

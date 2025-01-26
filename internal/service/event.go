@@ -86,10 +86,10 @@ func requestConvertToEvent(orgID uint, catID uint, reqEvent NewEventRequest) mod
 		CategoryID:     catID,
 		Name:           reqEvent.Name,
 		PicUrl:         reqEvent.PicUrl,
-		StartDate:      utils.DateParser(reqEvent.StartDate),
-		EndDate:        utils.DateParser(reqEvent.EndDate),
-		StartTime:      utils.TimeParser(reqEvent.StartTime),
-		EndTime:        utils.TimeParser(reqEvent.EndTime),
+		StartDate:      utils.DateOnly{Time: utils.DateParser(reqEvent.StartDate)},
+		EndDate:        utils.DateOnly{Time: utils.DateParser(reqEvent.EndDate)},
+		StartTime:      utils.TimeOnly{Time: utils.TimeParser(reqEvent.StartTime)},
+		EndTime:        utils.TimeOnly{Time: utils.TimeParser(reqEvent.EndTime)},
 		Timeline:       reqEvent.TimeLine,
 		Description:    reqEvent.Description,
 		Highlight:      reqEvent.Highlight,
@@ -105,7 +105,7 @@ func requestConvertToEvent(orgID uint, catID uint, reqEvent NewEventRequest) mod
 	}
 }
 
-func convertToEventResponse(event models.Event) EventResponses {
+func ConvertToEventResponse(event models.Event) EventResponses {
 	return EventResponses{
 		ID:             int(event.ID),
 		OrganizationID: int(event.OrganizationID),
@@ -131,6 +131,26 @@ func convertToEventResponse(event models.Event) EventResponses {
 	}
 }
 
+func convertMockEventToEventCardResponse(event models.MockEvent) EventCardResponses {
+	return EventCardResponses{
+		ID:             int(event.EventID),
+		OrganizationID: int(event.OrganizationID),
+		Name:           event.Name,
+		PicUrl:         event.PicUrl,
+		StartDate:      event.StartDate.Format("2006-01-02"),
+		EndDate:        event.EndDate.Format("2006-01-02"),
+		StartTime:      event.StartTime.Format("15:04:05"),
+		EndTime:        event.EndTime.Format("15:04:05"),
+		LocationName:   event.LocationName,
+		Province:       event.Province,
+		Organization: OrganizationShortRespones{
+			ID:     event.OrganizationID,
+			Name:   event.Organization.Name,
+			PicUrl: event.Organization.PicUrl,
+		},
+	}
+}
+
 // -------------------------------- Mock Event -------------------------------------- //
 
 type MockEventService interface {
@@ -153,8 +173,8 @@ func requestConvertToMockEvent(orgID int, reqEvent NewEventRequest) models.MockE
 		PicUrl:         reqEvent.PicUrl,
 		StartDate:      utils.DateOnly{Time: utils.DateParser(reqEvent.StartDate)},
 		EndDate:        utils.DateOnly{Time: utils.DateParser(reqEvent.EndDate)},
-		StartTime:      utils.TimeParser(reqEvent.StartTime),
-		EndTime:        utils.TimeParser(reqEvent.EndTime),
+		StartTime:      utils.TimeOnly{Time: utils.TimeParser(reqEvent.StartTime)},
+		EndTime:        utils.TimeOnly{Time: utils.TimeParser(reqEvent.EndTime)},
 		Timeline:       reqEvent.TimeLine,
 		Description:    reqEvent.Description,
 		Highlight:      reqEvent.Highlight,
@@ -186,25 +206,8 @@ func convertMockEventToEventResponse(event models.MockEvent) EventResponses {
 		Latitude:       event.Latitude,
 		Longitude:      event.Longitude,
 		Province:       event.Province,
-	}
-}
-
-func convertMockEventToEventCardResponse(event models.MockEvent) EventCardResponses {
-	return EventCardResponses{
-		ID:             int(event.EventID),
-		OrganizationID: int(event.OrganizationID),
-		Name:           event.Name,
-		PicUrl:         event.PicUrl,
-		StartDate:      event.StartDate.Format("2006-01-02"),
-		EndDate:        event.EndDate.Format("2006-01-02"),
-		StartTime:      event.StartTime.Format("15:04:05"),
-		EndTime:        event.EndTime.Format("15:04:05"),
-		LocationName:   event.LocationName,
-		Province:       event.Province,
-		Organization: OrganizationShortRespones{
-			ID:     event.OrganizationID,
-			Name:   event.Organization.Name,
-			PicUrl: event.Organization.PicUrl,
-		},
+		Category:       string(event.CategoryMock),
+		LocationType:   string(event.LocationType),
+		Audience:       string(event.Audience),
 	}
 }
