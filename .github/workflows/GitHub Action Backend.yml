@@ -27,9 +27,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Clean Go module cache
-        run: |
-          rm -rf ~/go/pkg/mod
+      - name: Tidy Go modules
+        run: go mod tidy
+
+      - name: Clear Go module cache if needed
+        run: go clean -modcache
+        if: failure()
 
       # - name: Cache Go modules
       #   uses: actions/cache@v3
