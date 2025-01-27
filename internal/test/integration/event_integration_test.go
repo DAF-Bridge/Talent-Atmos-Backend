@@ -63,7 +63,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 
 		// Integration interface
 		eventRepo := repository.NewEventRepositoryMock()
-		eventService := service.NewEventService(eventRepo, test.DB_TEST, test.ESClient_TEST, initializers.S3)
+		eventService := service.NewEventService(eventRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
 		eventHandler := handler.NewEventHandler(eventService)
 
 		app := fiber.New()

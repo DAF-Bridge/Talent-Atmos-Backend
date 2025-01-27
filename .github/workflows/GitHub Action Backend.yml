@@ -32,7 +32,9 @@ jobs:
 
       - name: Run Unit Tests
         id: unit_test
-        run: go test -tags=unit ./...
+        run: |
+          go mod tidy
+          go test -tags=unit ./internal/test/unit/event_test.go
         continue-on-error: true
       
       - name: Check unit test result

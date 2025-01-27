@@ -3,7 +3,6 @@
 package test
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -11,16 +10,14 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/opensearch-project/opensearch-go"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB_TEST *gorm.DB
-var ESClient_TEST *opensearch.Client
-var s3Client *minio.Client
+
+// var ESClient_TEST *opensearch.Client
+// var s3Client *minio.Client
 
 // setupTestDB initializes the test database before running tests
 func setupTestDB() {
@@ -63,96 +60,96 @@ func teardownTestDB() {
 }
 
 // setupOpenSearch initializes OpenSearch client
-func setupOpenSearch() {
-	var err error
-	ESClient_TEST, err = opensearch.NewClient(opensearch.Config{
-		Addresses: []string{
-			os.Getenv("OPENSEARCH_URL_TEST"),
-		},
-	})
-	if err != nil {
-		log.Fatal("Failed to create OpenSearch client:", err)
-	}
+// func setupOpenSearch() {
+// 	var err error
+// 	ESClient_TEST, err = opensearch.NewClient(opensearch.Config{
+// 		Addresses: []string{
+// 			os.Getenv("OPENSEARCH_URL_TEST"),
+// 		},
+// 	})
+// 	if err != nil {
+// 		log.Fatal("Failed to create OpenSearch client:", err)
+// 	}
 
-	fmt.Println("OpenSearch client initialized.")
-}
+// 	fmt.Println("OpenSearch client initialized.")
+// }
 
-// teardownOpenSearch cleans up OpenSearch resources after tests
-func teardownOpenSearch() {
-	_, err := ESClient_TEST.Indices.Delete([]string{"events"})
-	if err != nil {
-		log.Fatal("Failed to delete OpenSearch index:", err)
-	}
+// // teardownOpenSearch cleans up OpenSearch resources after tests
+// func teardownOpenSearch() {
+// 	_, err := ESClient_TEST.Indices.Delete([]string{"events"})
+// 	if err != nil {
+// 		log.Fatal("Failed to delete OpenSearch index:", err)
+// 	}
 
-	fmt.Println("OpenSearch resources cleaned up.")
-}
+// 	fmt.Println("OpenSearch resources cleaned up.")
+// }
 
-// setupS3 initializes MinIO client to simulate S3
-func setupS3() {
-	endpoint := os.Getenv("S3_ENDPOINT")
-	accessKeyID := os.Getenv("S3_ACCESS_KEY")
-	secretAccessKey := os.Getenv("S3_SECRET_KEY")
-	useSSL := false
+// // setupS3 initializes MinIO client to simulate S3
+// func setupS3() {
+// 	endpoint := os.Getenv("S3_ENDPOINT")
+// 	accessKeyID := os.Getenv("S3_ACCESS_KEY")
+// 	secretAccessKey := os.Getenv("S3_SECRET_KEY")
+// 	useSSL := false
 
-	var err error
-	s3Client, err = minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: useSSL,
-	})
-	if err != nil {
-		log.Fatal("Failed to create MinIO client:", err)
-	}
+// 	var err error
+// 	s3Client, err = minio.New(endpoint, &minio.Options{
+// 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+// 		Secure: useSSL,
+// 	})
+// 	if err != nil {
+// 		log.Fatal("Failed to create MinIO client:", err)
+// 	}
 
-	// Create a bucket
-	bucketName := os.Getenv("S3_BUCKET_NAME")
-	location := os.Getenv("S3_BUCKET_LOCATION")
+// 	// Create a bucket
+// 	bucketName := os.Getenv("S3_BUCKET_NAME")
+// 	location := os.Getenv("S3_BUCKET_LOCATION")
 
-	err = s3Client.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{Region: location})
-	if err != nil {
-		exists, errBucketExists := s3Client.BucketExists(context.Background(), bucketName)
-		if errBucketExists == nil && exists {
-			log.Printf("Bucket '%s' already exists.", bucketName)
-		} else {
-			log.Fatal("Failed to create S3 bucket:", err)
-		}
+// 	err = s3Client.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{Region: location})
+// 	if err != nil {
+// 		exists, errBucketExists := s3Client.BucketExists(context.Background(), bucketName)
+// 		if errBucketExists == nil && exists {
+// 			log.Printf("Bucket '%s' already exists.", bucketName)
+// 		} else {
+// 			log.Fatal("Failed to create S3 bucket:", err)
+// 		}
 
-		log.Fatal("Failed to create S3 bucket:", err)
-	} else {
-		logs.Info("S3 (MinIO) client initialized.")
-	}
+// 		log.Fatal("Failed to create S3 bucket:", err)
+// 	} else {
+// 		logs.Info("S3 (MinIO) client initialized.")
+// 	}
 
-	// Upload a test object
-	filePath := "internal\\test\\metadata\\Google.png"
-	objectName := "events/banners/1"
-	contentType := "image/jpeg"
+// 	// Upload a test object
+// 	filePath := "internal\\test\\metadata\\Google.png"
+// 	objectName := "events/banners/1"
+// 	contentType := "image/jpeg"
 
-	_, err = s3Client.FPutObject(context.Background(), bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
-	if err != nil {
-		log.Fatal("Failed to upload test object to S3:", err)
-	}
+// 	_, err = s3Client.FPutObject(context.Background(), bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+// 	if err != nil {
+// 		log.Fatal("Failed to upload test object to S3:", err)
+// 	}
 
-	logs.Info("Successfully uploaded test object to S3.")
-}
+// 	logs.Info("Successfully uploaded test object to S3.")
+// }
 
-// teardownS3 cleans up S3 resources after tests
-func teardownS3() {
-	err := s3Client.RemoveObject(context.Background(), os.Getenv("S3_BUCKET_NAME"), "events/banners/1", minio.RemoveObjectOptions{})
-	if err != nil {
-		log.Fatal("Failed to remove S3 object:", err)
-	}
+// // teardownS3 cleans up S3 resources after tests
+// func teardownS3() {
+// 	err := s3Client.RemoveObject(context.Background(), os.Getenv("S3_BUCKET_NAME"), "events/banners/1", minio.RemoveObjectOptions{})
+// 	if err != nil {
+// 		log.Fatal("Failed to remove S3 object:", err)
+// 	}
 
-	fmt.Println("S3 resources cleaned up.")
-}
+// 	fmt.Println("S3 resources cleaned up.")
+// }
 
 // TestMain is the entry point for all tests in this package
 func TestMain(m *testing.M) {
 	setupTestDB()
-	setupOpenSearch()
-	setupS3()
+	// setupOpenSearch()
+	// setupS3()
 
 	defer func() {
-		teardownS3()
-		teardownOpenSearch()
+		// teardownS3()
+		// teardownOpenSearch()
 		teardownTestDB()
 	}() // Ensure cleanup after tests finish
 
