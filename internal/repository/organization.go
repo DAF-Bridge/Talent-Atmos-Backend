@@ -14,11 +14,12 @@ type OrganizationRepository interface {
 }
 
 type OrgOpenJobRepository interface {
-	CreateJob(org *models.OrgOpenJob) error
+	CreateJob(orgID uint, job *models.OrgOpenJob) error
+	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
 	GetJobByID(orgID uint, jobID uint) (*models.OrgOpenJob, error)
 	GetAllJobs() ([]models.OrgOpenJob, error)
 	GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob, error)
 	GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error)
-	UpdateJob(org *models.OrgOpenJob) (*models.OrgOpenJob, error)
+	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
 	DeleteJob(orgID uint, jobID uint) error
 }

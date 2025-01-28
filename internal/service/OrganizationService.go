@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -115,7 +116,24 @@ func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository) OrgOpenJobSer
 	return orgOpenJobService{jobRepo: jobRepo}
 }
 
-func (s orgOpenJobService) ListAllJobs() ([]JobResponses, error) {
+func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest) error {
+	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("categories not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	job := ConvertToJobRequest(orgID, dto, categories)
+
+	return s.jobRepo.CreateJob(orgID, &job)
+}
+
+func (s orgOpenJobService) ListAllJobs() ([]dto.JobResponses, error) {
+	var jobs []models.OrgOpenJob
 	jobs, err := s.jobRepo.GetAllJobs()
 
 	if err != nil {
@@ -127,7 +145,7 @@ func (s orgOpenJobService) ListAllJobs() ([]JobResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []JobResponses{}
+	var jobsResponse []dto.JobResponses
 
 	for _, job := range jobs {
 		jobResponse := convertToJobResponse(job)
@@ -137,7 +155,7 @@ func (s orgOpenJobService) ListAllJobs() ([]JobResponses, error) {
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]JobResponses, error) {
+func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error) {
 	jobs, err := s.jobRepo.GetAllJobsByOrgID(OrgId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -148,7 +166,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]JobResponses, error)
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []JobResponses{}
+	jobsResponse := []dto.JobResponses{}
 
 	for _, job := range jobs {
 		jobResponse := convertToJobResponse(job)
@@ -158,7 +176,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]JobResponses, error)
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*JobResponses, error) {
+func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*dto.JobResponses, error) {
 	job, err := s.jobRepo.GetJobByID(orgID, jobID)
 
 	if err != nil {
@@ -175,7 +193,7 @@ func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*JobResponses, er
 	return &JobResponse, nil
 }
 
-func (s orgOpenJobService) GetJobPaginate(page uint) ([]JobResponses, error) {
+func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error) {
 	jobs, err := s.jobRepo.GetJobsPaginate(page, numberOfOrganization)
 
 	if err != nil {
@@ -187,7 +205,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]JobResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []JobResponses{}
+	jobsResponse := []dto.JobResponses{}
 
 	for _, job := range jobs {
 		jobResponse := convertToJobResponse(job)
@@ -197,37 +215,38 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]JobResponses, error) {
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) NewJob(org *models.OrgOpenJob) error {
-	return s.jobRepo.CreateJob(org)
-}
-
-func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, job *models.OrgOpenJob) error {
-
+func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error) {
 	existJob, err := s.jobRepo.GetJobByID(orgID, jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("job not found")
+			return nil, errors.New("job not found")
 		}
 
 		logs.Error(err)
-		return errs.NewUnexpectedError()
+		return nil, errs.NewUnexpectedError()
 	}
 
-	job.ID = existJob.ID
-	job.OrganizationID = existJob.OrganizationID
-
-	_, err = s.jobRepo.UpdateJob(job)
-
+	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("job not found")
+			return nil, errors.New("categories not found")
 		}
-
 		logs.Error(err)
-		return errs.NewUnexpectedError()
+		return nil, errs.NewUnexpectedError()
 	}
 
-	return nil
+	job := ConvertToJobRequest(orgID, dto, categories)
+	job.ID = existJob.ID
+
+	updatedJob, err := s.jobRepo.UpdateJob(&job)
+	if err != nil {
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	jobResponse := convertToJobResponse(*updatedJob)
+
+	return &jobResponse, nil
 }
 
 func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {

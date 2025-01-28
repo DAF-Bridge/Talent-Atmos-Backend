@@ -93,10 +93,13 @@ type OrganizationContact struct {
 
 type OrgOpenJob struct {
 	gorm.Model
-	OrganizationID uint           `gorm:"foreignKey:OrganizationID;not null" json:"organization_id" example:"1"`
+	OrganizationID uint           `gorm:"not null" json:"organization_id" example:"1"`
+	Organization   Organization   `gorm:"foreignKey:OrganizationID" json:"organization"`
 	Title          string         `gorm:"type:varchar(255);not null" json:"title" example:"Software Engineer"`
+	PicUrl         string         `gorm:"type:text" json:"picUrl"`
 	Scope          string         `gorm:"type:varchar(255);not null" json:"scope" example:"Software Development"`
 	Prerequisite   pq.StringArray `gorm:"type:text[]" json:"prerequisite" example:"Great at problem solving,Reliable"` // Required qualifications or skills
+	Location       string         `gorm:"type:varchar(255);not null" json:"location" example:"Chiang Mai"`
 	Workplace      Workplace      `gorm:"type:workplace;not null" json:"workplace" example:"remote"`
 	WorkType       WorkType       `gorm:"type:work_type;not null" json:"work_type" example:"fulltime"`
 	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"career_stage" example:"entrylevel"`
@@ -107,10 +110,7 @@ type OrgOpenJob struct {
 	Benefits       string         `gorm:"type:text" json:"benefits" example:"Health insurance"`
 	Quantity       int            `json:"quantity" example:"1"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
-	ID             uint           `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
-	CreatedAt      time.Time      `gorm:"autoCreateTime" json:"created_at" example:"2024-11-29T08:00:00Z"`
-	UpdatedAt      time.Time      `gorm:"autoUpdateTime" json:"updated_at" example:"2024-11-29T08:00:00Z"`
-	Category       []Category     `gorm:"many2many:categories;"`
+	Categories     []Category     `gorm:"many2many:category_job;"`
 }
 
 //---------------------------------------------------------------------------
