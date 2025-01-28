@@ -126,13 +126,11 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 
 	organizations, err := h.service.GetPaginateOrganization(uint(page))
 	if err != nil {
-		if err != nil {
-			if appErr, ok := err.(errs.FiberError); ok {
-				return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-			}
-
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(organizations)
@@ -164,13 +162,11 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	err = h.service.UpdateOrganization(uint(orgID), &org)
 
 	if err != nil {
-		if err != nil {
-			if appErr, ok := err.(errs.FiberError); ok {
-				return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-			}
-
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(org)
@@ -197,13 +193,11 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.DeleteOrganization(uint(orgID)); err != nil {
-		if err != nil {
-			if appErr, ok := err.(errs.FiberError); ok {
-				return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-			}
-
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(nil)
@@ -247,13 +241,11 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.NewJob(uint(orgID), req); err != nil {
-		if err != nil {
-			if appErr, ok := err.(errs.FiberError); ok {
-				return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-			}
-
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Job created successfully"})
