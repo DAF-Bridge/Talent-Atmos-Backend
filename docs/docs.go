@@ -38,10 +38,22 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                    "404": {
+                        "description": "error: events not found",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -74,15 +86,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid page number",
+                        "description": "error: Invalid parameters",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -111,9 +129,10 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Category of events",
+                        "description": "Category of events: all, incubation, exhibition, competition, etc.",
                         "name": "category",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -206,15 +225,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - json body is required or invalid / organization name is required",
+                        "description": "error: Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -239,14 +264,17 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.JobResponses"
+                                "$ref": "#/definitions/dto.JobResponses"
                             }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -276,9 +304,12 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -316,15 +347,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - invalid page",
+                        "description": "error: invalid page",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -360,21 +397,30 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - organization id is required",
+                        "description": "error: organization id is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
-                        "description": "Not Found - organization not found",
+                        "description": "error: organization not found",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -417,15 +463,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - organization id is required / invalid organization ID",
+                        "description": "error: Bad Request - json body is required or invalid / organization name is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -456,15 +508,21 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request - organization id is required / invalid organization id",
+                        "description": "error: Bad Request - organization id is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -503,15 +561,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid organization id or missing orgID parameters",
+                        "description": "error: Invalid parameters",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -539,13 +603,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Category ID",
-                        "name": "catID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "Event data",
                         "name": "event",
                         "in": "body",
@@ -563,15 +620,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - organization id is required or invalid / event body is invalid",
+                        "description": "error: Invalid json body parameters",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -614,15 +677,85 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid organization id or missing orgID parameters",
+                        "description": "error: Invalid parameters",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an event with the given ID for the specified organization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Events"
+                ],
+                "summary": "Update an event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event data",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.NewEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.EventResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid json body parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -638,7 +771,7 @@ const docTemplate = `{
                 "tags": [
                     "Organization Events"
                 ],
-                "summary": "Delete an event",
+                "summary": "Delete an eventh",
                 "parameters": [
                     {
                         "type": "integer",
@@ -666,7 +799,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "error: organization id is required / invalid organization id / event id is required / invalid event id",
+                        "description": "error: Invalid parameters",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -720,15 +853,21 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request - organization id \u0026 job id is required",
+                        "description": "error: Bad Request - organization id \u0026 job id is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -767,25 +906,34 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.JobResponses"
+                            "$ref": "#/definitions/dto.JobResponses"
                         }
                     },
                     "400": {
-                        "description": "Bad Request - organization id \u0026 job id is required",
+                        "description": "error: Bad Request - organization id \u0026 job id is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
-                        "description": "Not Found - jobs not found",
+                        "description": "error: jobs not found",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -819,20 +967,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.JobResponses"
+                                "$ref": "#/definitions/dto.JobResponses"
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad Request - organization id is required or invalid",
+                        "description": "error: Bad Request - organization id is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -865,27 +1019,36 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.JobRequest"
+                            "$ref": "#/definitions/dto.JobRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "message: Job created successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.OrgOpenJob"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
                         "description": "Bad Request - json body is required or invalid / job title is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error - Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -925,7 +1088,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.JobRequest"
+                            "$ref": "#/definitions/dto.JobRequest"
                         }
                     }
                 ],
@@ -933,19 +1096,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.OrgOpenJob"
+                            "$ref": "#/definitions/dto.JobResponses"
                         }
                     },
                     "400": {
-                        "description": "Bad Request - organization id \u0026 job id is required",
+                        "description": "error: Bad Request - organization id \u0026 job id is required",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "error: Something went wrong",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Map"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -1126,6 +1295,19 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.CategoryResponses": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                }
+            }
+        },
         "dto.EventShortResponseDTO": {
             "type": "object",
             "properties": {
@@ -1160,6 +1342,210 @@ const docTemplate = `{
                 "startTime": {
                     "type": "string",
                     "example": "08:00"
+                }
+            }
+        },
+        "dto.JobRequest": {
+            "type": "object",
+            "required": [
+                "benefits",
+                "career_stage",
+                "category_ids",
+                "description",
+                "hours_per_day",
+                "location",
+                "period",
+                "picUrl",
+                "prerequisite",
+                "qualifications",
+                "quantity",
+                "salary",
+                "scope",
+                "title",
+                "work_type",
+                "workplace"
+            ],
+            "properties": {
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "category_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "prerequisite": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Bachelor's degree in Computer Science"
+                    ]
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "This is a scope"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3,
+                    "example": "Software Engineer"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
+                }
+            }
+        },
+        "dto.JobResponses": {
+            "type": "object",
+            "properties": {
+                "UpdatedAt": {
+                    "type": "string",
+                    "example": "2024-11-29 08:00:00"
+                },
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CategoryResponses"
+                    }
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "organization": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "This is a scope"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
                 }
             }
         },
@@ -1302,10 +1688,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "endDate": {
-                    "type": "string"
+                    "$ref": "#/definitions/utils.DateOnly"
                 },
                 "endTime": {
-                    "type": "string"
+                    "$ref": "#/definitions/utils.TimeOnly"
                 },
                 "highlight": {
                     "type": "string"
@@ -1350,10 +1736,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startDate": {
-                    "type": "string"
+                    "$ref": "#/definitions/utils.DateOnly"
                 },
                 "startTime": {
-                    "type": "string"
+                    "$ref": "#/definitions/utils.TimeOnly"
                 },
                 "ticketAvailable": {
                     "type": "array",
@@ -1434,7 +1820,7 @@ const docTemplate = `{
                     ],
                     "example": "entrylevel"
                 },
-                "category": {
+                "categories": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Category"
@@ -1442,10 +1828,6 @@ const docTemplate = `{
                 },
                 "createdAt": {
                     "type": "string"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-11-29T08:00:00Z"
                 },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
@@ -1459,8 +1841,14 @@ const docTemplate = `{
                     "example": "8 hours"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "organization": {
+                    "$ref": "#/definitions/models.Organization"
                 },
                 "organization_id": {
                     "type": "integer",
@@ -1469,6 +1857,9 @@ const docTemplate = `{
                 "period": {
                     "type": "string",
                     "example": "1 year"
+                },
+                "picUrl": {
+                    "type": "string"
                 },
                 "prerequisite": {
                     "description": "Required qualifications or skills",
@@ -1503,10 +1894,6 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-11-29T08:00:00Z"
                 },
                 "work_type": {
                     "allOf": [
@@ -1881,165 +2268,11 @@ const docTemplate = `{
                 }
             }
         },
-        "service.JobRequest": {
-            "type": "object",
-            "properties": {
-                "benefits": {
-                    "type": "string",
-                    "example": "Health insurance"
-                },
-                "career_stage": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.CareerStage"
-                        }
-                    ],
-                    "example": "entrylevel"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "This is a description"
-                },
-                "hours_per_day": {
-                    "type": "string",
-                    "example": "8 hours"
-                },
-                "period": {
-                    "type": "string",
-                    "example": "1 year"
-                },
-                "prerequisite": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "Bachelor's degree in Computer Science"
-                    ]
-                },
-                "qualifications": {
-                    "type": "string",
-                    "example": "Bachelor's degree in Computer Science"
-                },
-                "quantity": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "salary": {
-                    "type": "number",
-                    "example": 30000
-                },
-                "scope": {
-                    "type": "string",
-                    "example": "This is a scope"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Software Engineer"
-                },
-                "work_type": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.WorkType"
-                        }
-                    ],
-                    "example": "fulltime"
-                },
-                "workplace": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Workplace"
-                        }
-                    ],
-                    "example": "remote"
-                }
-            }
-        },
-        "service.JobResponses": {
-            "type": "object",
-            "properties": {
-                "UpdatedAt": {
-                    "type": "string",
-                    "example": "2024-11-29 08:00:00"
-                },
-                "benefits": {
-                    "type": "string",
-                    "example": "Health insurance"
-                },
-                "career_stage": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.CareerStage"
-                        }
-                    ],
-                    "example": "entrylevel"
-                },
-                "description": {
-                    "type": "string",
-                    "example": "This is a description"
-                },
-                "hours_per_day": {
-                    "type": "string",
-                    "example": "8 hours"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "location": {
-                    "type": "string",
-                    "example": "Chiang Mai"
-                },
-                "organization": {
-                    "type": "string",
-                    "example": "builds CMU"
-                },
-                "period": {
-                    "type": "string",
-                    "example": "1 year"
-                },
-                "qualifications": {
-                    "type": "string",
-                    "example": "Bachelor's degree in Computer Science"
-                },
-                "quantity": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "salary": {
-                    "type": "number",
-                    "example": 30000
-                },
-                "scope": {
-                    "type": "string",
-                    "example": "This is a scope"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Software Engineer"
-                },
-                "work_type": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.WorkType"
-                        }
-                    ],
-                    "example": "fulltime"
-                },
-                "workplace": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Workplace"
-                        }
-                    ],
-                    "example": "remote"
-                }
-            }
-        },
         "service.NewEventRequest": {
             "type": "object",
             "required": [
                 "audience",
+                "category_id",
                 "description",
                 "endDate",
                 "endTime",
@@ -2061,6 +2294,10 @@ const docTemplate = `{
                 "audience": {
                     "type": "string",
                     "example": "general"
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
                 },
                 "description": {
                     "type": "string",
@@ -2131,6 +2368,22 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Timeline"
                     }
+                }
+            }
+        },
+        "utils.DateOnly": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
+        "utils.TimeOnly": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
                 }
             }
         }

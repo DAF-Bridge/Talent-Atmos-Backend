@@ -1,4 +1,13 @@
 definitions:
+  dto.CategoryResponses:
+    properties:
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Software Engineer
+        type: string
+    type: object
   dto.EventShortResponseDTO:
     properties:
       endDate:
@@ -25,6 +34,148 @@ definitions:
       startTime:
         example: "08:00"
         type: string
+    type: object
+  dto.JobRequest:
+    properties:
+      benefits:
+        example: Health insurance
+        type: string
+      career_stage:
+        allOf:
+        - $ref: '#/definitions/models.CareerStage'
+        example: entrylevel
+      category_ids:
+        example:
+        - 1
+        - 2
+        - 3
+        items:
+          type: integer
+        type: array
+      description:
+        example: This is a description
+        type: string
+      hours_per_day:
+        example: 8 hours
+        type: string
+      location:
+        example: Chiang Mai
+        type: string
+      period:
+        example: 1 year
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      prerequisite:
+        example:
+        - Bachelor's degree in Computer Science
+        items:
+          type: string
+        type: array
+      qualifications:
+        example: Bachelor's degree in Computer Science
+        type: string
+      quantity:
+        example: 1
+        type: integer
+      salary:
+        example: 30000
+        type: number
+      scope:
+        example: This is a scope
+        type: string
+      title:
+        example: Software Engineer
+        maxLength: 255
+        minLength: 3
+        type: string
+      work_type:
+        allOf:
+        - $ref: '#/definitions/models.WorkType'
+        example: fulltime
+      workplace:
+        allOf:
+        - $ref: '#/definitions/models.Workplace'
+        example: remote
+    required:
+    - benefits
+    - career_stage
+    - category_ids
+    - description
+    - hours_per_day
+    - location
+    - period
+    - picUrl
+    - prerequisite
+    - qualifications
+    - quantity
+    - salary
+    - scope
+    - title
+    - work_type
+    - workplace
+    type: object
+  dto.JobResponses:
+    properties:
+      UpdatedAt:
+        example: "2024-11-29 08:00:00"
+        type: string
+      benefits:
+        example: Health insurance
+        type: string
+      career_stage:
+        allOf:
+        - $ref: '#/definitions/models.CareerStage'
+        example: entrylevel
+      categories:
+        items:
+          $ref: '#/definitions/dto.CategoryResponses'
+        type: array
+      description:
+        example: This is a description
+        type: string
+      hours_per_day:
+        example: 8 hours
+        type: string
+      id:
+        example: 1
+        type: integer
+      location:
+        example: Chiang Mai
+        type: string
+      organization:
+        example: builds CMU
+        type: string
+      period:
+        example: 1 year
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      qualifications:
+        example: Bachelor's degree in Computer Science
+        type: string
+      quantity:
+        example: 1
+        type: integer
+      salary:
+        example: 30000
+        type: number
+      scope:
+        example: This is a scope
+        type: string
+      title:
+        example: Software Engineer
+        type: string
+      work_type:
+        allOf:
+        - $ref: '#/definitions/models.WorkType'
+        example: fulltime
+      workplace:
+        allOf:
+        - $ref: '#/definitions/models.Workplace'
+        example: remote
     type: object
   dto.PaginatedEventsResponse:
     properties:
@@ -125,9 +276,9 @@ definitions:
       description:
         type: string
       endDate:
-        type: string
+        $ref: '#/definitions/utils.DateOnly'
       endTime:
-        type: string
+        $ref: '#/definitions/utils.TimeOnly'
       highlight:
         type: string
       id:
@@ -157,9 +308,9 @@ definitions:
       requirement:
         type: string
       startDate:
-        type: string
+        $ref: '#/definitions/utils.DateOnly'
       startTime:
-        type: string
+        $ref: '#/definitions/utils.TimeOnly'
       ticketAvailable:
         items:
           $ref: '#/definitions/models.TicketAvailable'
@@ -215,13 +366,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.CareerStage'
         example: entrylevel
-      category:
+      categories:
         items:
           $ref: '#/definitions/models.Category'
         type: array
-      created_at:
-        example: "2024-11-29T08:00:00Z"
-        type: string
       createdAt:
         type: string
       deletedAt:
@@ -233,13 +381,19 @@ definitions:
         example: 8 hours
         type: string
       id:
-        example: 1
         type: integer
+      location:
+        example: Chiang Mai
+        type: string
+      organization:
+        $ref: '#/definitions/models.Organization'
       organization_id:
         example: 1
         type: integer
       period:
         example: 1 year
+        type: string
+      picUrl:
         type: string
       prerequisite:
         description: Required qualifications or skills
@@ -263,9 +417,6 @@ definitions:
         type: string
       title:
         example: Software Engineer
-        type: string
-      updated_at:
-        example: "2024-11-29T08:00:00Z"
         type: string
       updatedAt:
         type: string
@@ -528,113 +679,14 @@ definitions:
           $ref: '#/definitions/models.Timeline'
         type: array
     type: object
-  service.JobRequest:
-    properties:
-      benefits:
-        example: Health insurance
-        type: string
-      career_stage:
-        allOf:
-        - $ref: '#/definitions/models.CareerStage'
-        example: entrylevel
-      description:
-        example: This is a description
-        type: string
-      hours_per_day:
-        example: 8 hours
-        type: string
-      period:
-        example: 1 year
-        type: string
-      prerequisite:
-        example:
-        - Bachelor's degree in Computer Science
-        items:
-          type: string
-        type: array
-      qualifications:
-        example: Bachelor's degree in Computer Science
-        type: string
-      quantity:
-        example: 1
-        type: integer
-      salary:
-        example: 30000
-        type: number
-      scope:
-        example: This is a scope
-        type: string
-      title:
-        example: Software Engineer
-        type: string
-      work_type:
-        allOf:
-        - $ref: '#/definitions/models.WorkType'
-        example: fulltime
-      workplace:
-        allOf:
-        - $ref: '#/definitions/models.Workplace'
-        example: remote
-    type: object
-  service.JobResponses:
-    properties:
-      UpdatedAt:
-        example: "2024-11-29 08:00:00"
-        type: string
-      benefits:
-        example: Health insurance
-        type: string
-      career_stage:
-        allOf:
-        - $ref: '#/definitions/models.CareerStage'
-        example: entrylevel
-      description:
-        example: This is a description
-        type: string
-      hours_per_day:
-        example: 8 hours
-        type: string
-      id:
-        example: 1
-        type: integer
-      location:
-        example: Chiang Mai
-        type: string
-      organization:
-        example: builds CMU
-        type: string
-      period:
-        example: 1 year
-        type: string
-      qualifications:
-        example: Bachelor's degree in Computer Science
-        type: string
-      quantity:
-        example: 1
-        type: integer
-      salary:
-        example: 30000
-        type: number
-      scope:
-        example: This is a scope
-        type: string
-      title:
-        example: Software Engineer
-        type: string
-      work_type:
-        allOf:
-        - $ref: '#/definitions/models.WorkType'
-        example: fulltime
-      workplace:
-        allOf:
-        - $ref: '#/definitions/models.Workplace'
-        example: remote
-    type: object
   service.NewEventRequest:
     properties:
       audience:
         example: general
         type: string
+      category_id:
+        example: 2
+        type: integer
       description:
         example: This is a description
         type: string
@@ -689,6 +741,7 @@ definitions:
         type: array
     required:
     - audience
+    - category_id
     - description
     - endDate
     - endTime
@@ -705,6 +758,16 @@ definitions:
     - requirement
     - startDate
     - startTime
+    type: object
+  utils.DateOnly:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  utils.TimeOnly:
+    properties:
+      time.Time:
+        type: string
     type: object
 info:
   contact: {}
@@ -723,10 +786,18 @@ paths:
                 $ref: '#/definitions/service.EventResponses'
               type: array
             type: array
-        "500":
-          description: Internal Server Error - Something went wrong
+        "404":
+          description: 'error: events not found'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: List all events
       tags:
       - Events
@@ -747,13 +818,17 @@ paths:
           schema:
             $ref: '#/definitions/dto.PaginatedEventsResponse'
         "400":
-          description: Bad Request - Invalid page number
+          description: 'error: Invalid parameters'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Paginate events
       tags:
       - Events
@@ -768,9 +843,11 @@ paths:
         name: q
         required: true
         type: string
-      - description: Category of events
+      - description: 'Category of events: all, incubation, exhibition, competition,
+          etc.'
         in: query
         name: category
+        required: true
         type: string
       - description: Location Type of events
         in: query
@@ -835,14 +912,17 @@ paths:
           schema:
             $ref: '#/definitions/models.Organization'
         "400":
-          description: Bad Request - json body is required or invalid / organization
-            name is required
+          description: 'error: Bad Request'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Create a new organization
       tags:
       - Organization
@@ -863,14 +943,17 @@ paths:
         "200":
           description: OK
         "400":
-          description: Bad Request - organization id is required / invalid organization
-            id
+          description: 'error: Bad Request - organization id is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Delete an organization by ID
       tags:
       - Organization
@@ -892,17 +975,23 @@ paths:
           schema:
             $ref: '#/definitions/models.Organization'
         "400":
-          description: Bad Request - organization id is required
+          description: 'error: organization id is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "404":
-          description: Not Found - organization not found
+          description: 'error: organization not found'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Get an organization by ID
       tags:
       - Organization
@@ -930,14 +1019,18 @@ paths:
           schema:
             $ref: '#/definitions/models.Organization'
         "400":
-          description: Bad Request - organization id is required / invalid organization
-            ID
+          description: 'error: Bad Request - json body is required or invalid / organization
+            name is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Update an organization by ID
       tags:
       - Organization
@@ -962,13 +1055,17 @@ paths:
               type: array
             type: array
         "400":
-          description: Bad Request - Invalid organization id or missing orgID parameters
+          description: 'error: Invalid parameters'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: List all events for a specific organization
       tags:
       - Organization Events
@@ -981,11 +1078,6 @@ paths:
       - description: Organization ID
         in: path
         name: orgID
-        required: true
-        type: integer
-      - description: Category ID
-        in: path
-        name: catID
         required: true
         type: integer
       - description: Event data
@@ -1002,14 +1094,17 @@ paths:
           schema:
             $ref: '#/definitions/service.EventResponses'
         "400":
-          description: Bad Request - organization id is required or invalid / event
-            body is invalid
+          description: 'error: Invalid json body parameters'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Create a new event
       tags:
       - Organization Events
@@ -1039,8 +1134,7 @@ paths:
               type: string
             type: object
         "400":
-          description: 'error: organization id is required / invalid organization
-            id / event id is required / invalid event id'
+          description: 'error: Invalid parameters'
           schema:
             additionalProperties:
               type: string
@@ -1051,7 +1145,7 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Delete an event
+      summary: Delete an eventh
       tags:
       - Organization Events
     get:
@@ -1077,14 +1171,61 @@ paths:
               $ref: '#/definitions/service.EventResponses'
             type: array
         "400":
-          description: Bad Request - Invalid organization id or missing orgID parameters
+          description: 'error: Invalid parameters'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Get an event by ID
+      tags:
+      - Organization Events
+    put:
+      consumes:
+      - application/json
+      description: Update an event with the given ID for the specified organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Event data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/service.NewEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.EventResponses'
+        "400":
+          description: 'error: Invalid json body parameters'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an event
       tags:
       - Organization Events
   /orgs/{orgID}/jobs/delete/{id}:
@@ -1109,13 +1250,17 @@ paths:
         "200":
           description: OK
         "400":
-          description: Bad Request - organization id & job id is required
+          description: 'error: Bad Request - organization id & job id is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Delete an organization job by ID
       tags:
       - Organization Job
@@ -1141,19 +1286,25 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.JobResponses'
+            $ref: '#/definitions/dto.JobResponses'
         "400":
-          description: Bad Request - organization id & job id is required
+          description: 'error: Bad Request - organization id & job id is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "404":
-          description: Not Found - jobs not found
+          description: 'error: jobs not found'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Get an organization open job by ID
       tags:
       - Organization Job
@@ -1175,16 +1326,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.JobResponses'
+              $ref: '#/definitions/dto.JobResponses'
             type: array
         "400":
-          description: Bad Request - organization id is required or invalid
+          description: 'error: Bad Request - organization id is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: List all jobs of its organization
       tags:
       - Organization Job
@@ -1204,23 +1359,29 @@ paths:
         name: org
         required: true
         schema:
-          $ref: '#/definitions/service.JobRequest'
+          $ref: '#/definitions/dto.JobRequest'
       produces:
       - application/json
       responses:
         "201":
-          description: Created
+          description: 'message: Job created successfully'
           schema:
-            $ref: '#/definitions/models.OrgOpenJob'
+            additionalProperties:
+              type: string
+            type: object
         "400":
           description: Bad Request - json body is required or invalid / job title
             is required
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error - Something went wrong
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Create a new organization open job
       tags:
       - Organization Job
@@ -1245,22 +1406,26 @@ paths:
         name: org
         required: true
         schema:
-          $ref: '#/definitions/service.JobRequest'
+          $ref: '#/definitions/dto.JobRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.OrgOpenJob'
+            $ref: '#/definitions/dto.JobResponses'
         "400":
-          description: Bad Request - organization id & job id is required
+          description: 'error: Bad Request - organization id & job id is required'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Update an organization open job by ID
       tags:
       - Organization Job
@@ -1276,12 +1441,14 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.JobResponses'
+              $ref: '#/definitions/dto.JobResponses'
             type: array
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: List all organization jobs
       tags:
       - Organization Job
@@ -1300,9 +1467,11 @@ paths:
               $ref: '#/definitions/models.Organization'
             type: array
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: List all organizations
       tags:
       - Organization
@@ -1326,13 +1495,17 @@ paths:
               $ref: '#/definitions/models.Organization'
             type: array
         "400":
-          description: Bad Request - invalid page
+          description: 'error: invalid page'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: 'error: Something went wrong'
           schema:
-            $ref: '#/definitions/fiber.Map'
+            additionalProperties:
+              type: string
+            type: object
       summary: Get a page of organizations
       tags:
       - Organization
