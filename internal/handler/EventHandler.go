@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -58,36 +59,34 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Param catID path int true "Category ID"
 // @Param event body service.NewEventRequest true "Event data"
 // @Success 201 {object} service.EventResponses
-// @Failure 400 {object} fiber.Map "Bad Request - organization id is required or invalid / event body is invalid"
-// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Failure 400 {object} map[string]string "error: Invalid json body parameters"
+// @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events/{catID} [post]
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
+	// event := service.NewEventRequest{}
+	var event service.NewEventRequest
+
+	// validate request body
+	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
+		return err
+	}
+
 	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
 
-	catID, err := c.ParamsInt("catID")
+	createdEvent, err := h.eventService.NewEvent(uint(orgID), event)
+
+	// error from service
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "category id is required"})
-	}
-
-	event := service.NewEventRequest{}
-
-	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
-		return err
-	}
-
-	createdEvent, err := h.eventService.NewEvent(uint(orgID), uint(catID), event)
-
-	if err != nil {
-		return &fiber.Error{
-			Code:    fiber.StatusInternalServerError,
-			Message: err.Error(),
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(createdEvent)
@@ -98,13 +97,18 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 // @Tags Events
 // @Produce json
 // @Success 200 {array} []service.EventResponses
-// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Failure 404 {object} map[string]string "error: events not found"
+// @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /events [get]
 func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 
 	events, err := h.eventService.GetAllEvents()
 
 	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -117,8 +121,8 @@ func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Success 200 {array} []service.EventResponses
-// @Failure 400 {object} fiber.Map "Bad Request - Invalid organization id or missing orgID parameters"
-// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Failure 400 {object} map[string]string "error: Invalid parameters"
+// @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events [get]
 func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -130,6 +134,10 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 	events, err := h.eventService.GetAllEventsByOrgID(uint(orgID))
 
 	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -143,8 +151,8 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Event ID"
 // @Success 200 {object} []service.EventResponses
-// @Failure 400 {object} fiber.Map "Bad Request - Invalid organization id or missing orgID parameters"
-// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Failure 400 {object} map[string]string "error: Invalid parameters"
+// @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [get]
 func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -158,12 +166,13 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
 	}
-	if eventID < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid event id"})
-	}
 
 	event, err := h.eventService.GetEventByID(uint(orgID), uint(eventID))
 	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -175,9 +184,9 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 // @Tags Events
 // @Produce json
 // @Param page query int true "Page number"
-// @Success 200 {object} dto.PaginatedEventsResponse "OK"
-// @Failure 400 {object} fiber.Map "Bad Request - Invalid page number"
-// @Failure 500 {object} fiber.Map "Internal Server Error - Something went wrong"
+// @Success 200 {object} dto.PaginatedEventsResponse
+// @Failure 400 {object} map[string]string "error: Invalid parameters"
+// @Failure 500 {object} map[string]string "error: something went wrong"
 // @Router /events-paginate [get]
 func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
@@ -187,8 +196,13 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 
 	events, err := h.eventService.GetEventPaginate(uint(page))
 	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+
 	total, err := h.eventService.CountEvent()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -199,7 +213,49 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"events": listEvent, "total_events": total})
 }
 
-// @Summary Delete an event
+// @Summary Update an event
+// @Description Update an event with the given ID for the specified organization
+// @Tags Organization Events
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Param id path int true "Event ID"
+// @Param event body service.NewEventRequest true "Event data"
+// @Success 200 {object} service.EventResponses
+// @Failure 400 {object} map[string]string "error: Invalid json body parameters"
+// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Router /orgs/{orgID}/events/{id} [put]
+func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
+	var req service.NewEventRequest
+	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
+		return err
+	}
+
+	orgID, err := c.ParamsInt("orgID")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	eventID, err := c.ParamsInt("id")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
+	}
+
+	eventUpdated, err := h.eventService.UpdateEvent(uint(orgID), uint(eventID), req)
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(eventUpdated)
+}
+
+// @Summary Delete an eventh
 // @Description Deletes an event for a given organization and event ID.
 // @Tags Organization Events
 // @Accept json
@@ -207,7 +263,7 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Event ID"
 // @Success 200 {object} map[string]string "message: event deleted successfully"
-// @Failure 400 {object} map[string]string "error: organization id is required / invalid organization id / event id is required / invalid event id"
+// @Failure 400 {object} map[string]string "error: Invalid parameters"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [delete]
 func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
@@ -230,8 +286,11 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 	}
 
 	err = h.eventService.DeleteEvent(uint(orgID), uint(eventID))
-
 	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -245,7 +304,7 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param q query string true "Keyword to search for events"
-// @Param category query string false "Category of events"
+// @Param category query string true "Category of events: all, incubation, exhibition, competition, etc."
 // @Param locationType query string false "Location Type of events"
 // @Param audience query string false "Main Audience of events"
 // @Param price query string false "Price Type of events"
@@ -276,7 +335,11 @@ func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
 	events, err := h.eventService.SearchEvents(query, page, Offset)
 
 	if err != nil {
-		return err
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(events)

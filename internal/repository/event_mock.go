@@ -219,10 +219,9 @@ func (e *eventRepositoryMock) Count() (int64, error) {
 }
 
 // Create implements EventRepository.
-func (e *eventRepositoryMock) Create(orgID uint, catID uint, event *models.Event) (*models.Event, error) {
+func (e *eventRepositoryMock) Create(orgID uint, event *models.Event) (*models.Event, error) {
 	// eventResponse := convertToEventResponse(event)
 	event.OrganizationID = orgID
-	event.CategoryID = catID
 
 	// Increment the EventID based on the last event in the list
 	var lastEventID uint

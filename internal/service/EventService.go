@@ -51,10 +51,9 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 	return eventsRes, nil
 }
 
-func (s eventService) NewEvent(orgID uint, catID uint, req NewEventRequest) (*EventResponses, error) {
-	event := requestConvertToEvent(orgID, catID, req)
-
-	newEvent, err := s.eventRepo.Create(uint(orgID), uint(catID), &event)
+func (s eventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses, error) {
+	event := requestConvertToEvent(orgID, req)
+	newEvent, err := s.eventRepo.Create(uint(orgID), &event)
 
 	if err != nil {
 		logs.Error(err)
@@ -169,6 +168,24 @@ func (s eventService) CountEvent() (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (s eventService) UpdateEvent(orgID uint, eventID uint, req NewEventRequest) (*EventResponses, error) {
+	event := requestConvertToEvent(orgID, req)
+
+	updatedEvent, err := s.eventRepo.Update(orgID, eventID, &event)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.NewNotFoundError("event not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponse := ConvertToEventResponse(*updatedEvent)
+
+	return &eventResponse, nil
 }
 
 func (s eventService) DeleteEvent(orgID uint, eventID uint) error {
