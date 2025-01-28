@@ -42,13 +42,11 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.CreateOrganization(&org); err != nil {
-		if err != nil {
-			if appErr, ok := err.(errs.FiberError); ok {
-				return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-			}
-
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(org)
