@@ -261,67 +261,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  models.Event:
-    properties:
-      audience:
-        type: string
-      category:
-        $ref: '#/definitions/models.Category'
-      categoryID:
-        type: integer
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      description:
-        type: string
-      endDate:
-        $ref: '#/definitions/utils.DateOnly'
-      endTime:
-        $ref: '#/definitions/utils.TimeOnly'
-      highlight:
-        type: string
-      id:
-        type: integer
-      keyTakeaway:
-        type: string
-      latitude:
-        type: number
-      locationName:
-        type: string
-      locationType:
-        type: string
-      longitude:
-        type: number
-      name:
-        type: string
-      organization:
-        $ref: '#/definitions/models.Organization'
-      organizationID:
-        type: integer
-      picUrl:
-        type: string
-      priceType:
-        type: string
-      province:
-        type: string
-      requirement:
-        type: string
-      startDate:
-        $ref: '#/definitions/utils.DateOnly'
-      startTime:
-        $ref: '#/definitions/utils.TimeOnly'
-      ticketAvailable:
-        items:
-          $ref: '#/definitions/models.TicketAvailable'
-        type: array
-      timeline:
-        items:
-          $ref: '#/definitions/models.Timeline'
-        type: array
-      updatedAt:
-        type: string
-    type: object
   models.Industry:
     properties:
       createdAt:
@@ -527,27 +466,34 @@ definitions:
     x-enum-varnames:
     - RoleUser
     - RoleAdmin
-  models.TicketAvailable:
+  models.SearchJobQuery:
     properties:
-      createdAt:
+      careerStage:
+        description: Career stage (e.g., 'entry-level')
         type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      description:
+      categories:
+        description: The category filter
         type: string
-      event:
-        $ref: '#/definitions/models.Event'
-      eventID:
-        type: integer
-      id:
-        type: integer
-      price:
-        type: number
-      quantity:
-        type: integer
-      title:
+      location:
+        description: Location filter (e.g., 'chiang mai')
         type: string
-      updatedAt:
+      offset:
+        description: The number of items per page
+        type: integer
+      page:
+        description: The page number
+        type: integer
+      q:
+        description: The search keyword
+        type: string
+      salary:
+        description: Salary range (e.g., '1000-2000')
+        type: string
+      workType:
+        description: Work type (e.g., 'full-time')
+        type: string
+      workplace:
+        description: Workplace filter (e.g., 'remote')
         type: string
     type: object
   models.Timeline:
@@ -759,16 +705,6 @@ definitions:
     - startDate
     - startTime
     type: object
-  utils.DateOnly:
-    properties:
-      time.Time:
-        type: string
-    type: object
-  utils.TimeOnly:
-    properties:
-      time.Time:
-        type: string
-    type: object
 info:
   contact: {}
 paths:
@@ -868,7 +804,9 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Event'
+              items:
+                $ref: '#/definitions/service.EventResponses'
+              type: array
             type: array
         "400":
           description: error - Invalid query parameters
@@ -891,6 +829,74 @@ paths:
       summary: Search events
       tags:
       - Events
+  /jobs/search:
+    get:
+      consumes:
+      - application/json
+      description: Search for job postings using various query parameters such as
+        page and offset for pagination.
+      parameters:
+      - description: 'Keyword to search for jobs (Support: title, description, location,
+          organization)'
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: 'Category of jobs: all, environment, social, governance'
+        in: query
+        name: categories
+        required: true
+        type: string
+      - description: 'Workplace of jobs: all, remote'
+        in: query
+        name: workplace
+        required: true
+        type: string
+      - description: 'Work type of jobs: all, fulltime'
+        in: query
+        name: workType
+        required: true
+        type: string
+      - default: 1
+        description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - default: 12
+        description: Number of items per page
+        in: query
+        name: offset
+        type: integer
+      - description: Search job query parameters
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/models.SearchJobQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.JobResponses'
+            type: array
+        "400":
+          description: 'error: Bad Request - invalid query parameters'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Bad Request - something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Search for job postings
+      tags:
+      - jobs
   /orgs:
     post:
       consumes:

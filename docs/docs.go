@@ -159,7 +159,10 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Event"
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/service.EventResponses"
+                                }
                             }
                         }
                     },
@@ -183,6 +186,103 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/jobs/search": {
+            "get": {
+                "description": "Search for job postings using various query parameters such as page and offset for pagination.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobs"
+                ],
+                "summary": "Search for job postings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Keyword to search for jobs (Support: title, description, location, organization)",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category of jobs: all, environment, social, governance",
+                        "name": "categories",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Workplace of jobs: all, remote",
+                        "name": "workplace",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Work type of jobs: all, fulltime",
+                        "name": "workType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 12,
+                        "description": "Number of items per page",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "description": "Search job query parameters",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchJobQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.JobResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - invalid query parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Bad Request - something went wrong",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1666,98 +1766,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Event": {
-            "type": "object",
-            "properties": {
-                "audience": {
-                    "type": "string"
-                },
-                "category": {
-                    "$ref": "#/definitions/models.Category"
-                },
-                "categoryID": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "endDate": {
-                    "$ref": "#/definitions/utils.DateOnly"
-                },
-                "endTime": {
-                    "$ref": "#/definitions/utils.TimeOnly"
-                },
-                "highlight": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "keyTakeaway": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "locationName": {
-                    "type": "string"
-                },
-                "locationType": {
-                    "type": "string"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "organization": {
-                    "$ref": "#/definitions/models.Organization"
-                },
-                "organizationID": {
-                    "type": "integer"
-                },
-                "picUrl": {
-                    "type": "string"
-                },
-                "priceType": {
-                    "type": "string"
-                },
-                "province": {
-                    "type": "string"
-                },
-                "requirement": {
-                    "type": "string"
-                },
-                "startDate": {
-                    "$ref": "#/definitions/utils.DateOnly"
-                },
-                "startTime": {
-                    "$ref": "#/definitions/utils.TimeOnly"
-                },
-                "ticketAvailable": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.TicketAvailable"
-                    }
-                },
-                "timeline": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Timeline"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Industry": {
             "type": "object",
             "properties": {
@@ -2053,37 +2061,43 @@ const docTemplate = `{
                 "RoleAdmin"
             ]
         },
-        "models.TicketAvailable": {
+        "models.SearchJobQuery": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "careerStage": {
+                    "description": "Career stage (e.g., 'entry-level')",
                     "type": "string"
                 },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "description": {
+                "categories": {
+                    "description": "The category filter",
                     "type": "string"
                 },
-                "event": {
-                    "$ref": "#/definitions/models.Event"
-                },
-                "eventID": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "quantity": {
-                    "type": "integer"
-                },
-                "title": {
+                "location": {
+                    "description": "Location filter (e.g., 'chiang mai')",
                     "type": "string"
                 },
-                "updatedAt": {
+                "offset": {
+                    "description": "The number of items per page",
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "The page number",
+                    "type": "integer"
+                },
+                "q": {
+                    "description": "The search keyword",
+                    "type": "string"
+                },
+                "salary": {
+                    "description": "Salary range (e.g., '1000-2000')",
+                    "type": "string"
+                },
+                "workType": {
+                    "description": "Work type (e.g., 'full-time')",
+                    "type": "string"
+                },
+                "workplace": {
+                    "description": "Workplace filter (e.g., 'remote')",
                     "type": "string"
                 }
             }
@@ -2368,22 +2382,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Timeline"
                     }
-                }
-            }
-        },
-        "utils.DateOnly": {
-            "type": "object",
-            "properties": {
-                "time.Time": {
-                    "type": "string"
-                }
-            }
-        },
-        "utils.TimeOnly": {
-            "type": "object",
-            "properties": {
-                "time.Time": {
-                    "type": "string"
                 }
             }
         }
