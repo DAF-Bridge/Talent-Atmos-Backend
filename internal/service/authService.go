@@ -6,7 +6,7 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/customerrors"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -37,7 +37,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 
 	// check if email is already taken
 	if _, err := s.userRepo.FindByEmail(email); err == nil {
-		return "", customerrors.ErrEmailAlreadyRegistered
+		return "", errs.ErrEmailAlreadyRegistered
 	}
 
 	// Hash Password

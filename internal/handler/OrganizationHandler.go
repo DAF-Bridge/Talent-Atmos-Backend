@@ -425,7 +425,6 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 // @Param salaryUpperBound query float64 false "Salary upper bound"
 // @Param page query int false "Page number for pagination" default(1)
 // @Param offset query int false "Number of items per page" default(12)
-// @Param query body models.SearchJobQuery true "Search job query parameters"
 // @Success 200 {object} []dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - invalid query parameters"
 // @Failure 500 {object} map[string]string "error: Bad Request - something went wrong"

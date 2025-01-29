@@ -52,7 +52,6 @@ const (
 
 type Organization struct {
 	gorm.Model
-	ID                   uint                  `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name                 string                `gorm:"type:varchar(255);not null" json:"org_name"`
 	PicUrl               string                `gorm:"type:varchar(255)" json:"pic_url"`          // URL to organization's logo
 	Goal                 pq.StringArray        `gorm:"type:text[];not null" json:"goal"`          // Detailed description of the organization's goal
@@ -65,18 +64,16 @@ type Organization struct {
 	Longitude            string                `gorm:"type:varchar(50)" json:"longitude"`         // Geographic longitude (stored as string for precision)
 	Email                string                `gorm:"type:varchar(255);unique" json:"org_email"` // Email address (unique constraint)
 	Phone                string                `gorm:"type:varchar(20)" json:"org_phone"`
-	CreatedAt            time.Time             `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt            time.Time             `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt            gorm.DeletedAt        `gorm:"index"`
 	OrganizationContacts []OrganizationContact `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs          []OrgOpenJob          `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
-	Industry             []*Industry           `gorm:"many2many:organization_industry;"`
+	Industries           []*Industry           `gorm:"many2many:organization_industry;"`
 }
 
 type Industry struct {
 	gorm.Model
-	Industry     string          `gorm:"type:varchar(255);not null" json:"industry"`
-	Organization []*Organization `gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	Industry      string          `gorm:"type:varchar(255);not null" json:"industry"`
+	Organizations []*Organization `gorm:"many2many:organization_industry;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 }
 
 type OrganizationIndustry struct {
@@ -111,35 +108,4 @@ type OrgOpenJob struct {
 	Quantity       int            `json:"quantity" example:"1"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
 	Categories     []Category     `gorm:"many2many:category_job;"`
-}
-
-//---------------------------------------------------------------------------
-// Interfaces
-//---------------------------------------------------------------------------
-
-// Organization
-// type OrganizationRepository interface {
-// 	GetByID(id uint) (*Organization, error)
-// 	GetAll() ([]Organization, error)
-// 	GetPaginate(page uint, size uint) ([]Organization, error)
-// 	Create(org *Organization) error
-// 	Update(org *Organization) error
-// 	Delete(id uint) error
-// }
-
-// type OrganizationService interface {
-// 	GetOrganizationByID(id uint) (*Organization, error)
-// 	ListAllOrganizations() ([]Organization, error)
-// 	GetPaginateOrganization(page uint) ([]Organization, error)
-// 	CreateOrganization(org *Organization) error
-// 	UpdateOrganization(org *Organization) error
-// 	DeleteOrganization(id uint) error
-// }
-
-// --------------------------------------------------------------------------
-// OrganizationContact
-type OrganizationContactRepository interface {
-	Create(org *OrganizationContact) error
-	// Update(org *OrganizationContact) error
-	// Delete(id uint) error
 }

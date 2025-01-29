@@ -256,15 +256,6 @@
                         "description": "Number of items per page",
                         "name": "offset",
                         "in": "query"
-                    },
-                    {
-                        "description": "Search job query parameters",
-                        "name": "query",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.SearchJobQuery"
-                        }
                     }
                 ],
                 "responses": {
@@ -2062,51 +2053,6 @@
                 "RoleUser",
                 "RoleAdmin"
             ]
-        },
-        "models.SearchJobQuery": {
-            "type": "object",
-            "properties": {
-                "careerStage": {
-                    "description": "Career stage (e.g., 'entry-level')",
-                    "type": "string"
-                },
-                "categories": {
-                    "description": "The category filter",
-                    "type": "string"
-                },
-                "location": {
-                    "description": "Location filter (e.g., 'chiang mai')",
-                    "type": "string"
-                },
-                "offset": {
-                    "description": "The number of items per page",
-                    "type": "integer"
-                },
-                "page": {
-                    "description": "The page number",
-                    "type": "integer"
-                },
-                "q": {
-                    "description": "The search keyword",
-                    "type": "string"
-                },
-                "salaryLowerBound": {
-                    "description": "Salary range (e.g., '1000-2000')",
-                    "type": "number"
-                },
-                "salaryUpperBound": {
-                    "description": "Salary upper bound",
-                    "type": "number"
-                },
-                "workType": {
-                    "description": "Work type (e.g., 'full-time')",
-                    "type": "string"
-                },
-                "workplace": {
-                    "description": "Workplace filter (e.g., 'remote')",
-                    "type": "string"
-                }
-            }
         },
         "models.Timeline": {
             "type": "object",

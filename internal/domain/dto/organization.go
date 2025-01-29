@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+)
 
 type JobShortResponseDTO struct {
 	ID        int    `json:"id" example:"1"`
@@ -60,4 +62,63 @@ type JobResponses struct {
 type PaginatedJobsResponse struct {
 	Jobs      []JobShortResponseDTO `json:"jobs"`
 	TotalJobs int64                 `json:"total_jobs" example:"1"`
+}
+
+type OrganizationContactRequest struct {
+	Media     string `json:"media" example:"Facebook" validate:"required"`
+	MediaLink string `json:"mediaLink" example:"https://facebook.com" validate:"required"`
+}
+
+type OrganizationContactResponse struct {
+	Media     string `json:"media" example:"Facebook"`
+	MediaLink string `json:"mediaLink" example:"https://facebook.com"`
+}
+
+type OrganizationIndustryRequest struct {
+	Industries []uint `json:"industries" example:"1,2,3" validate:"required"`
+}
+
+type OrganizationIndustryResponse struct {
+	Industries []string `json:"industries" example:"1,2,3"`
+}
+
+type OrganizationRequest struct {
+	Name                 string                       `json:"name" example:"builds CMU" validate:"required,min=3,max=255"`
+	PicUrl               string                       `json:"picUrl" example:"https://example.com/image.jpg" validate:"required"`
+	Goal                 []string                     `json:"goal" example:"This is a goal" validate:"required"`
+	Expertise            string                       `json:"expertise" example:"This is an expertise" validate:"required"`
+	Location             string                       `json:"location" example:"Chiang Mai" validate:"required"`
+	Subdistrict          string                       `json:"subdistrict" example:"Mueang" validate:"required"`
+	Province             string                       `json:"province" example:"Chiang Mai" validate:"required"`
+	PostalCode           string                       `json:"postalCode" example:"50000" validate:"required"`
+	Latitude             string                       `json:"latitude" example:"18.7876" validate:"required"`
+	Longitude            string                       `json:"longitude" example:"98.9937" validate:"required"`
+	Email                string                       `json:"email" example:"andaraiwin@gmail.com" validate:"required"`
+	Phone                string                       `json:"phone" example:"0812345678" validate:"required"`
+	OrganizationContacts []OrganizationContactRequest `json:"organizationContacts" validate:"required"`
+	Industries           []uint                       `json:"industries" example:"1,2,3" validate:"required"`
+}
+
+type OrganizationResponse struct {
+	ID                  uint                          `json:"id" example:"1"`
+	Name                string                        `json:"name" example:"builds CMU"`
+	PicUrl              string                        `json:"picUrl" example:"https://example.com/image.jpg"`
+	Goal                []string                      `json:"goal" example:"This is a goal"`
+	Expertise           string                        `json:"expertise" example:"This is an expertise"`
+	Location            string                        `json:"location" example:"Chiang Mai"`
+	Subdistrict         string                        `json:"subdistrict" example:"Mueang"`
+	Province            string                        `json:"province" example:"Chiang Mai"`
+	PostalCode          string                        `json:"postalCode" example:"50000"`
+	Latitude            string                        `json:"latitude" example:"18.7876"`
+	Longitude           string                        `json:"longitude" example:"98.9937"`
+	Email               string                        `json:"email" example:"daf_bridge@egat.co.th"`
+	Phone               string                        `json:"phone" example:"0812345678"`
+	OrganizationContact []OrganizationContactResponse `json:"organizationContacts"`
+	Industries          []string                      `json:"industries" example:"1,2,3"`
+	UpdatedAt           string                        `json:"updatedAt" example:"2024-11-29 08:00:00"`
+}
+
+type PaginateOrganizationResponse struct {
+	Organizations []OrganizationShortRespones `json:"organizations"`
+	TotalOrgs     int                         `json:"total_orgs" example:"1"`
 }

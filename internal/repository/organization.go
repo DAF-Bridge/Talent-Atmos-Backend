@@ -23,3 +23,9 @@ type OrgOpenJobRepository interface {
 	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
 	DeleteJob(orgID uint, jobID uint) error
 }
+
+type OrganizationContactRepository interface {
+	Create(org *models.OrganizationContact) error
+	Update(org *models.OrganizationContact) (*models.OrganizationContact, error)
+	Delete(orgID uint, id uint) error
+}
