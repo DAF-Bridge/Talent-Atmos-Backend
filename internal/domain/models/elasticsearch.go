@@ -14,9 +14,10 @@ type SearchQuery struct {
 type SearchJobQuery struct {
 	Page        int    `json:"page" form:"page"`               // The page number
 	Offset      int    `json:"offset" form:"offset"`           // The number of items per page
-	Category    string `json:"category" form:"category"`       // The category filter
+	Categories  string `json:"categories" form:"categories"`   // The category filter
 	Q           string `json:"q" form:"q"`                     // The search keyword
-	Location    string `json:"location" form:"location"`       // Location filter (e.g., 'online')
+	Location    string `json:"location" form:"location"`       // Location filter (e.g., 'chiang mai')
+	Workplace   string `json:"workplace" form:"workplace"`     // Workplace filter (e.g., 'remote')
 	WorkType    string `json:"workType" form:"workType"`       // Work type (e.g., 'full-time')
 	CareerStage string `json:"careerStage" form:"careerStage"` // Career stage (e.g., 'entry-level')
 	Salary      string `json:"salary" form:"salary"`           // Salary range (e.g., '1000-2000')
@@ -45,16 +46,16 @@ type EventDocument struct {
 }
 
 type JobDocument struct {
-	ID           uint    `json:"id"`
-	Title        string  `json:"title"`
-	PicUrl       string  `json:"picUrl"`
-	Description  string  `json:"description"`
-	Location     string  `json:"location"`
-	Workplace    string  `json:"workplace"`
-	WorkType     string  `json:"workType"`
-	CareerStage  string  `json:"careerStage"`
-	Salary       float64 `json:"salary"`
-	Category     string  `json:"category"`
-	Organization string  `json:"organization"`
-	OrgPicUrl    string  `json:"orgPicUrl"`
+	ID           uint     `json:"id"`
+	Title        string   `json:"title"`
+	PicUrl       string   `json:"picUrl"`
+	Description  string   `json:"description"`
+	Location     string   `json:"location"`
+	Workplace    string   `json:"workplace"`
+	WorkType     string   `json:"workType"`
+	CareerStage  string   `json:"careerStage"`
+	Salary       float64  `json:"salary"`
+	Categories   []string `json:"categories"`
+	Organization string   `json:"organization"`
+	OrgPicUrl    string   `json:"orgPicUrl"`
 }

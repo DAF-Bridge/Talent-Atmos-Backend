@@ -410,4 +410,49 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+func (h *OrgOpenJobHandler) SearchJobs(c *fiber.Ctx) error {
+	page := 1
+	Offset := 12
+
+	var query models.SearchJobQuery
+
+	if err := c.QueryParser(&query); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid query parameters",
+		})
+	}
+	// Use the provided or default pagination values
+	if query.Page > 0 {
+		page = query.Page
+	}
+	if query.Offset > 0 {
+		Offset = query.Offset
+	}
+
+	events, err := h.service.SearchJobs(query, page, Offset)
+
+	if err != nil {
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(events)
+}
+
+func (h *OrgOpenJobHandler) SyncJobs(c *fiber.Ctx) error {
+	err := h.service.SyncJobs()
+	if err != nil {
+		if appErr, ok := err.(errs.FiberError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return nil
+}
+
 // --------------------------------------------------------------------------

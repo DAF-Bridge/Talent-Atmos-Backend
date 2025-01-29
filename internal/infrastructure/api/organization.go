@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewOrganizationRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, es *opensearch.Client) {
+func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
 	organizationService := service.NewOrganizationService(organizationRepo)
@@ -27,7 +27,7 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Upl
 
 	// Dependencies Injections for Organization Open Jobs
 	orgOpenJobRepo := repository.NewOrgOpenJobRepository(db)
-	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo)
+	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo, db, es, s3)
 	orgOpenJobHandler := handler.NewOrgOpenJobHandler(orgOpenJobService)
 
 	// Define routes for Organization Open Jobs
@@ -37,4 +37,10 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Upl
 	org.Get("/:orgID/jobs/get/:id", orgOpenJobHandler.GetOrgOpenJobByID)
 	org.Put("/:orgID/jobs/update/:id", orgOpenJobHandler.UpdateOrgOpenJob)
 	org.Delete("/:orgID/jobs/delete/:id", orgOpenJobHandler.DeleteOrgOpenJob)
+
+
+	// Searching
+	app.Get("/jobs-paginate/search", orgOpenJobHandler.SearchJobs)
+	// Sync PostGres to OpenSearch
+	app.Get("/sync-orgs-jobs", orgOpenJobHandler.SyncJobs)
 }

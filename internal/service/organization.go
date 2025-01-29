@@ -18,6 +18,8 @@ type OrganizationService interface {
 }
 
 type OrgOpenJobService interface {
+	SyncJobs() error
+	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
 	NewJob(orgID uint, dto dto.JobRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)

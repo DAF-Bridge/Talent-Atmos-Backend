@@ -5,6 +5,10 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/sync"
+	"github.com/opensearch-project/opensearch-go"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -109,11 +113,42 @@ func (s organizationService) DeleteOrganization(id uint) error {
 
 type orgOpenJobService struct {
 	jobRepo repository.OrgOpenJobRepository
+	DB      *gorm.DB
+	OS      *opensearch.Client
+	S3      *infrastructure.S3Uploader
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository) OrgOpenJobService {
-	return orgOpenJobService{jobRepo: jobRepo}
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
+	return orgOpenJobService{
+		jobRepo: jobRepo,
+		DB:      db,
+		OS:      os,
+		S3:      s3,
+	}
+}
+
+func (s orgOpenJobService) SyncJobs() error {
+	err := sync.SyncJobsToOpenSearch(s.DB, s.OS)
+	if err != nil {
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error) {
+	jobsRes, err := search.SearchJobs(s.OS, query, page, Offset)
+	if err != nil {
+		if len(jobsRes.Jobs) == 0 {
+			return dto.SearchJobResponse{}, errs.NewFiberNotFoundError("No search results found")
+		}
+
+		return dto.SearchJobResponse{}, errs.NewFiberUnexpectedError()
+	}
+
+	return jobsRes, nil
 }
 
 func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest) error {
