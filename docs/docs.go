@@ -196,7 +196,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/jobs/search": {
+        "/jobs-paginate/search": {
             "get": {
                 "description": "Search for job postings using various query parameters such as page and offset for pagination.",
                 "consumes": [
@@ -206,7 +206,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "jobs"
+                    "Organization Job"
                 ],
                 "summary": "Search for job postings",
                 "parameters": [
@@ -226,17 +226,33 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Workplace of jobs: all, remote",
+                        "description": "Workplace of jobs:  remote",
                         "name": "workplace",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Work type of jobs: all, fulltime",
+                        "description": "Work type of jobs:  fulltime",
                         "name": "workType",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Career stage of jobs:  entrylevel",
+                        "name": "careerStage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Salary lower bound",
+                        "name": "salaryLowerBound",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Salary upper bound",
+                        "name": "salaryUpperBound",
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -1781,7 +1797,7 @@ const docTemplate = `{
                 "industry": {
                     "type": "string"
                 },
-                "organization": {
+                "organizations": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Organization"
@@ -1927,9 +1943,6 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "created_at": {
-                    "type": "string"
-                },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
@@ -1947,7 +1960,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "industry": {
+                "industries": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Industry"
@@ -2088,9 +2101,13 @@ const docTemplate = `{
                     "description": "The search keyword",
                     "type": "string"
                 },
-                "salary": {
+                "salaryLowerBound": {
                     "description": "Salary range (e.g., '1000-2000')",
-                    "type": "string"
+                    "type": "number"
+                },
+                "salaryUpperBound": {
+                    "description": "Salary upper bound",
+                    "type": "number"
                 },
                 "workType": {
                     "description": "Work type (e.g., 'full-time')",

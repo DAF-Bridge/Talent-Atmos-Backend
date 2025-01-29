@@ -16,7 +16,7 @@ import (
 func SearchJobs(client *opensearch.Client, query models.SearchJobQuery, page int, offset int) (dto.SearchJobResponse, error) {
 	searchQuery := buildSearchJobQuery(query)
 
-	fmt.Println(searchQuery)
+	// fmt.Println(searchQuery)
 	queryBody, err := json.Marshal(searchQuery)
 	if err != nil {
 		logs.Error(fmt.Sprintf("failed to marshal search query: %v", err))
@@ -100,13 +100,6 @@ func buildSearchJobQuery(query models.SearchJobQuery) map[string]interface{} {
 			},
 		})
 	}
-	// if len(query.Categories) > 0 && query.Categories != "all" {
-	// 	must = append(must, map[string]interface{}{
-	// 		"terms": map[string]interface{}{
-	// 			"categories": query.Categories, // Supports multiple categories
-	// 		},
-	// 	})
-	// }
 	if query.Categories == "all" {
 		must = append(must, map[string]interface{}{
 			"match_all": map[string]interface{}{},
@@ -142,6 +135,20 @@ func buildSearchJobQuery(query models.SearchJobQuery) map[string]interface{} {
 			},
 		})
 	}
+	if query.SalaryLowerBound != 0 || query.SalaryUpperBound != 0 {
+		salaryRange := make(map[string]interface{})
+		if query.SalaryLowerBound != 0 {
+			salaryRange["gte"] = query.SalaryLowerBound
+		}
+		if query.SalaryUpperBound != 0 {
+			salaryRange["lte"] = query.SalaryUpperBound
+		}
+		must = append(must, map[string]interface{}{
+			"range": map[string]interface{}{
+				"salary": salaryRange,
+			},
+		})
+	}
 	if query.Page != 0 {
 		searchQuery["from"] = (query.Page - 1) * query.Offset
 	}
@@ -155,15 +162,6 @@ func buildSearchJobQuery(query models.SearchJobQuery) map[string]interface{} {
 	}
 
 	searchQuery["min_score"] = 0.65 // filter out low score results
-
-	// sort := []map[string]interface{}{
-	// 	{
-	// 		"startDate": map[string]interface{}{
-	// 			"order": "desc",
-	// 		},
-	// 	},
-	// }
-	// searchQuery["sort"] = sort
 
 	return searchQuery
 }

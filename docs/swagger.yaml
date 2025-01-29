@@ -271,7 +271,7 @@ definitions:
         type: integer
       industry:
         type: string
-      organization:
+      organizations:
         items:
           $ref: '#/definitions/models.Organization'
         type: array
@@ -370,8 +370,6 @@ definitions:
     type: object
   models.Organization:
     properties:
-      created_at:
-        type: string
       createdAt:
         type: string
       deletedAt:
@@ -386,7 +384,7 @@ definitions:
         type: array
       id:
         type: integer
-      industry:
+      industries:
         items:
           $ref: '#/definitions/models.Industry'
         type: array
@@ -486,9 +484,12 @@ definitions:
       q:
         description: The search keyword
         type: string
-      salary:
+      salaryLowerBound:
         description: Salary range (e.g., '1000-2000')
-        type: string
+        type: number
+      salaryUpperBound:
+        description: Salary upper bound
+        type: number
       workType:
         description: Work type (e.g., 'full-time')
         type: string
@@ -829,7 +830,7 @@ paths:
       summary: Search events
       tags:
       - Events
-  /jobs/search:
+  /jobs-paginate/search:
     get:
       consumes:
       - application/json
@@ -847,16 +848,26 @@ paths:
         name: categories
         required: true
         type: string
-      - description: 'Workplace of jobs: all, remote'
+      - description: 'Workplace of jobs:  remote'
         in: query
         name: workplace
-        required: true
         type: string
-      - description: 'Work type of jobs: all, fulltime'
+      - description: 'Work type of jobs:  fulltime'
         in: query
         name: workType
-        required: true
         type: string
+      - description: 'Career stage of jobs:  entrylevel'
+        in: query
+        name: careerStage
+        type: string
+      - description: Salary lower bound
+        in: query
+        name: salaryLowerBound
+        type: number
+      - description: Salary upper bound
+        in: query
+        name: salaryUpperBound
+        type: number
       - default: 1
         description: Page number for pagination
         in: query
@@ -896,7 +907,7 @@ paths:
             type: object
       summary: Search for job postings
       tags:
-      - jobs
+      - Organization Job
   /orgs:
     post:
       consumes:

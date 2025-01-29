@@ -413,20 +413,23 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 // SearchJobs handles the search for job postings based on the provided query parameters.
 // @Summary Search for job postings
 // @Description Search for job postings using various query parameters such as page and offset for pagination.
-// @Tags jobs
+// @Tags Organization Job
 // @Accept json
 // @Produce json
 // @Param q query string true "Keyword to search for jobs (Support: title, description, location, organization)"
 // @Param categories query string true "Category of jobs: all, environment, social, governance"
-// @Param workplace query string true "Workplace of jobs: all, remote"
-// @Param workType query string true "Work type of jobs: all, fulltime"
+// @Param workplace query string false "Workplace of jobs:  remote"
+// @Param workType query string false "Work type of jobs:  fulltime"
+// @Param careerStage query string false "Career stage of jobs:  entrylevel"
+// @Param salaryLowerBound query float64 false "Salary lower bound"
+// @Param salaryUpperBound query float64 false "Salary upper bound"
 // @Param page query int false "Page number for pagination" default(1)
 // @Param offset query int false "Number of items per page" default(12)
 // @Param query body models.SearchJobQuery true "Search job query parameters"
 // @Success 200 {object} []dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - invalid query parameters"
 // @Failure 500 {object} map[string]string "error: Bad Request - something went wrong"
-// @Router /jobs/search [get]
+// @Router /jobs-paginate/search [get]
 func (h *OrgOpenJobHandler) SearchJobs(c *fiber.Ctx) error {
 	page := 1
 	Offset := 12
@@ -472,4 +475,4 @@ func (h *OrgOpenJobHandler) SyncJobs(c *fiber.Ctx) error {
 	return nil
 }
 
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------

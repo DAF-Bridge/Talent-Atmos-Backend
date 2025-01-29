@@ -64,7 +64,6 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) err
 
 func (r organizationRepository) DeleteOrganization(id uint) error {
 	var org models.Organization
-
 	err := r.db.Delete("id = ?", id).First(&org).Error
 
 	if err != nil {

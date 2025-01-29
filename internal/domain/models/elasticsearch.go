@@ -12,15 +12,16 @@ type SearchQuery struct {
 }
 
 type SearchJobQuery struct {
-	Page        int    `json:"page" form:"page"`               // The page number
-	Offset      int    `json:"offset" form:"offset"`           // The number of items per page
-	Categories  string `json:"categories" form:"categories"`   // The category filter
-	Q           string `json:"q" form:"q"`                     // The search keyword
-	Location    string `json:"location" form:"location"`       // Location filter (e.g., 'chiang mai')
-	Workplace   string `json:"workplace" form:"workplace"`     // Workplace filter (e.g., 'remote')
-	WorkType    string `json:"workType" form:"workType"`       // Work type (e.g., 'full-time')
-	CareerStage string `json:"careerStage" form:"careerStage"` // Career stage (e.g., 'entry-level')
-	Salary      string `json:"salary" form:"salary"`           // Salary range (e.g., '1000-2000')
+	Page             int     `json:"page" form:"page"`                         // The page number
+	Offset           int     `json:"offset" form:"offset"`                     // The number of items per page
+	Categories       string  `json:"categories" form:"categories"`             // The category filter
+	Q                string  `json:"q" form:"q"`                               // The search keyword
+	Location         string  `json:"location" form:"location"`                 // Location filter (e.g., 'chiang mai')
+	Workplace        string  `json:"workplace" form:"workplace"`               // Workplace filter (e.g., 'remote')
+	WorkType         string  `json:"workType" form:"workType"`                 // Work type (e.g., 'full-time')
+	CareerStage      string  `json:"careerStage" form:"careerStage"`           // Career stage (e.g., 'entry-level')
+	SalaryLowerBound float64 `json:"salaryLowerBound" form:"salaryLowerBound"` // Salary range (e.g., '1000-2000')
+	SalaryUpperBound float64 `json:"salaryUpperBound" form:"salaryUpperBound"` // Salary upper bound
 }
 
 type EventDocument struct {
