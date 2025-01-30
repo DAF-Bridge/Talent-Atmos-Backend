@@ -3,59 +3,79 @@ package repository
 import (
 	"fmt"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
 
-type OrganizationRepository struct {
+type organizationRepository struct {
 	db *gorm.DB
 }
 
 // Constructor
-func NewOrganizationRepository(db *gorm.DB) *OrganizationRepository {
-	return &OrganizationRepository{db: db}
+func NewOrganizationRepository(db *gorm.DB) OrganizationRepository {
+	return organizationRepository{db: db}
 }
 
-func (r *OrganizationRepository) Create(org *domain.Organization) error {
+func (r organizationRepository) CreateOrganization(org *models.Organization) error {
 	return r.db.Create(org).Error
 }
 
-func (r *OrganizationRepository) GetByID(id uint) (*domain.Organization, error) {
-	org := &domain.Organization{}
+func (r organizationRepository) GetByOrgID(id uint) (*models.Organization, error) {
+	org := &models.Organization{}
 	if err := r.db.First(org, id).Error; err != nil {
 		return nil, err
 	}
 	return org, nil
 }
 
-func (r *OrganizationRepository) GetPaginate(page uint, size uint) ([]domain.Organization, error) {
-	var orgs []domain.Organization
-	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).Order("created_at desc").Limit(int(size)).Offset(int(page)).Find(&orgs).Error
-	return orgs, err
+func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.Organization, error) {
+
+	var orgs []models.Organization
+	offset := int((page - 1) * size)
+
+	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
+		Order("created_at desc").Limit(int(size)).
+		Offset(int(offset)).
+		Find(&orgs).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return orgs, nil
 }
 
-func (r *OrganizationRepository) GetAll() ([]domain.Organization, error) {
-	var orgs []domain.Organization
+func (r organizationRepository) GetAllOrganizations() ([]models.Organization, error) {
+	var orgs []models.Organization
 	err := r.db.Find(&orgs).Error
 	return orgs, err
 }
 
-func (r *OrganizationRepository) Update(org *domain.Organization) error {
+func (r organizationRepository) UpdateOrganization(org *models.Organization) error {
 	if err := r.db.Save(org).Error; err != nil {
 		return fmt.Errorf("failed to update organization: %w", err)
 	}
+
 	return nil
-	// return r.db.Save(org).Error
 }
 
-func (r *OrganizationRepository) Delete(id uint) error {
-	if err := r.db.Delete(&domain.Organization{}, id).Error; err != nil {
-		return fmt.Errorf("failed to delete organization: %w", err)
-	}
-	return nil
+func (r organizationRepository) DeleteOrganization(id uint) error {
+	var org models.Organization
+	err := r.db.Delete("id = ?", id).First(&org).Error
 
-	// return r.db.Delete(&domain.Organization{}, id).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fmt.Errorf("organization not found: %w", err)
+		}
+
+		logs.Error(err)
+		return err
+	}
+
+	return nil
 }
 
 // GetListByID
@@ -69,46 +89,136 @@ func (r *OrganizationRepository) GetListByID(ids []uint) ([]domain.Organization,
 // OrgOpenJob Repository
 // --------------------------------------------------------------------------
 
-type OrgOpenJobRepository struct {
+type orgOpenJobRepository struct {
 	db *gorm.DB
 }
 
 // Constructor
-func NewOrgOpenJobRepository(db *gorm.DB) *OrgOpenJobRepository {
-	return &OrgOpenJobRepository{db: db}
+func NewOrgOpenJobRepository(db *gorm.DB) OrgOpenJobRepository {
+	return orgOpenJobRepository{db: db}
 }
 
-func (r *OrgOpenJobRepository) Create(org *domain.OrgOpenJob) error {
-	return r.db.Create(org).Error
-}
-
-func (r *OrgOpenJobRepository) GetByID(id uint) (*domain.OrgOpenJob, error) {
-	org := &domain.OrgOpenJob{}
-	if err := r.db.First(org, id).Error; err != nil {
-		return nil, err
-	}
-	return org, nil
-}
-
-func (r *OrgOpenJobRepository) GetAllByID(OrgId uint) ([]domain.OrgOpenJob, error) {
-	var orgs []domain.OrgOpenJob
-
-	// fmt.Println(orgs)
-	err := r.db.Where("organization_id = ?", OrgId).Find(&orgs).Error
-	return orgs, err
-}
-
-func (r *OrgOpenJobRepository) Update(org *domain.OrgOpenJob) error {
-	if err := r.db.Save(org).Error; err != nil {
-		return fmt.Errorf("failed to update organization open job: %w", err)
+func (r orgOpenJobRepository) CreateJob(orgID uint, job *models.OrgOpenJob) error {
+	job.OrganizationID = orgID
+	err := r.db.Create(job).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func (r *OrgOpenJobRepository) Delete(id uint) error {
-	if err := r.db.Delete(&domain.OrgOpenJob{}, id).Error; err != nil {
-		return fmt.Errorf("failed to delete organization open job: %w", err)
+func (r orgOpenJobRepository) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {
+	var categories []models.Category
+	err := r.db.Find(&categories, catIDs).Error
+	if err != nil {
+		return nil, err
 	}
+	return categories, nil
+}
+
+func (r orgOpenJobRepository) GetAllJobs() ([]models.OrgOpenJob, error) {
+	var orgs []models.OrgOpenJob
+	err := r.db.
+		Preload("Organization").
+		Preload("Categories").
+		Find(&orgs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return orgs, nil
+}
+
+func (r orgOpenJobRepository) GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob, error) {
+	var orgs []models.OrgOpenJob
+	if err := r.db.
+		Preload("Organization").
+		Preload("Categories").
+		Where("organization_id = ?", OrgId).
+		Find(&orgs).Error; err != nil {
+		return nil, err
+	}
+
+	return orgs, nil
+}
+
+func (r orgOpenJobRepository) GetJobByID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+	org := &models.OrgOpenJob{}
+
+	if err := r.db.
+		Preload("Organization").
+		Preload("Categories").
+		Where("organization_id = ?", orgID).
+		Where("id = ?", jobID).
+		First(&org).Error; err != nil {
+		return nil, err
+	}
+
+	return org, nil
+}
+
+func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error) {
+	var orgs []models.OrgOpenJob
+
+	offset := int((page - 1) * size)
+	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
+		Preload("Organization").
+		Preload("Categories").
+		Order("created_at desc").
+		Limit(int(size)).
+		Offset(int(offset)).
+		Find(&orgs).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return orgs, nil
+}
+
+func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error) {
+	var existJob models.OrgOpenJob
+	if err := r.db.
+		Where("organization_id = ? AND id = ?", job.OrganizationID, job.ID).
+		Preload("Categories").
+		First(&existJob).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.Model(&existJob).Association("Categories").Clear(); err != nil {
+		return nil, err
+	}
+
+	err := r.db.Model(&existJob).Association("Categories").Replace(job.Categories)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.db.Model(&existJob).Updates(job).Error; err != nil {
+		return nil, err
+	}
+
+	var updatedJob models.OrgOpenJob
+	if err := r.db.
+		Preload("Organization").
+		Preload("Categories").
+		Where("organization_id = ? AND id = ?", job.OrganizationID, job.ID).
+		First(&updatedJob).Error; err != nil {
+		return nil, err
+	}
+
+	return &updatedJob, nil
+}
+
+func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) error {
+	var job models.OrgOpenJob
+	// err := r.db.Model(&job).Where("organization_id = ? AND id = ?", orgID, jobID).First(&job).Association("Categories").
+	err := r.db.Where("organization_id = ? AND id = ?", orgID, jobID).Delete(&job).Error
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

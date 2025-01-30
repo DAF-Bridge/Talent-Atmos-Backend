@@ -1,4 +1,11 @@
 # env file
 .env
+*.yaml
 .idea
 .vscode
+
+# temp files
+/tmp
+/tmp/*
+build-erros.log
+main.exe

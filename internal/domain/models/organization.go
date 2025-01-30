@@ -1,9 +1,10 @@
-package domain
+package models
 
 import (
+	"time"
+
 	"github.com/lib/pq"
 	"gorm.io/gorm"
-	"time"
 )
 
 //---------------------------------------------------------------------------
@@ -42,6 +43,7 @@ const (
 const (
 	CareerStageEntryLevel CareerStage = "entrylevel"
 	CareerStageSenior     CareerStage = "senior"
+	CareerStageJunior     CareerStage = "junior"
 )
 
 //---------------------------------------------------------------------------
@@ -49,8 +51,10 @@ const (
 //---------------------------------------------------------------------------
 
 type Organization struct {
+	gorm.Model
 	ID                   uint                  `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name                 string                `gorm:"type:varchar(255);not null" json:"org_name"`
+	PicUrl               string                `gorm:"type:varchar(255)" json:"pic_url"`          // URL to organization's logo
 	Goal                 pq.StringArray        `gorm:"type:text[];not null" json:"goal"`          // Detailed description of the organization's goal
 	Expertise            string                `gorm:"type:varchar(255)" json:"expertise"`        // Organization's area of expertise
 	Location             string                `gorm:"type:varchar(255)" json:"location"`         // General location
@@ -89,20 +93,24 @@ type OrganizationContact struct {
 
 type OrgOpenJob struct {
 	gorm.Model
-	OrganizationID uint           `json:"organization_id"`
-	Title          string         `gorm:"type:varchar(255);not null" json:"title"`
-	Scope          string         `gorm:"type:varchar(255);not null" json:"scope"`
-	Prerequisite   pq.StringArray `gorm:"type:text[]" json:"prerequisite"` // Required qualifications or skills
-	Workplace      Workplace      `gorm:"type:workplace;not null" json:"workplace"`
-	WorkType       WorkType       `gorm:"type:work_type;not null" json:"work_type"`
-	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"career_stage"`
-	Period         string         `gorm:"type:varchar(255);not null" json:"period"`
-	Description    string         `gorm:"type:text" json:"description"`
-	HoursPerDay    string         `gorm:"type:varchar(255);not null" json:"hours_per_day"`
-	Qualifications string         `gorm:"type:text" json:"qualifications"`
-	Benefits       string         `gorm:"type:text" json:"benefits"`
-	Quantity       int            `json:"quantity"`
-	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary"`
+	OrganizationID uint           `gorm:"not null" json:"organization_id" example:"1"`
+	Organization   Organization   `gorm:"foreignKey:OrganizationID" json:"organization"`
+	Title          string         `gorm:"type:varchar(255);not null" json:"title" example:"Software Engineer"`
+	PicUrl         string         `gorm:"type:text" json:"picUrl"`
+	Scope          string         `gorm:"type:varchar(255);not null" json:"scope" example:"Software Development"`
+	Prerequisite   pq.StringArray `gorm:"type:text[]" json:"prerequisite" example:"Great at problem solving,Reliable"` // Required qualifications or skills
+	Location       string         `gorm:"type:varchar(255);not null" json:"location" example:"Chiang Mai"`
+	Workplace      Workplace      `gorm:"type:workplace;not null" json:"workplace" example:"remote"`
+	WorkType       WorkType       `gorm:"type:work_type;not null" json:"work_type" example:"fulltime"`
+	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"career_stage" example:"entrylevel"`
+	Period         string         `gorm:"type:varchar(255);not null" json:"period" example:"1 year"`
+	Description    string         `gorm:"type:text" json:"description" example:"This is a description"`
+	HoursPerDay    string         `gorm:"type:varchar(255);not null" json:"hours_per_day" example:"8 hours"`
+	Qualifications string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
+	Benefits       string         `gorm:"type:text" json:"benefits" example:"Health insurance"`
+	Quantity       int            `json:"quantity" example:"1"`
+	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
+	Categories     []Category     `gorm:"many2many:category_job;"`
 }
 
 //---------------------------------------------------------------------------
@@ -110,42 +118,23 @@ type OrgOpenJob struct {
 //---------------------------------------------------------------------------
 
 // Organization
-type OrganizationRepository interface {
-	GetByID(id uint) (*Organization, error)
-	GetAll() ([]Organization, error)
-	GetListByID(ids []uint) ([]Organization, error)
-	GetPaginate(page uint, size uint) ([]Organization, error)
-	Create(org *Organization) error
-	Update(org *Organization) error
-	Delete(id uint) error
-}
+// type OrganizationRepository interface {
+// 	GetByID(id uint) (*Organization, error)
+// 	GetAll() ([]Organization, error)
+// 	GetPaginate(page uint, size uint) ([]Organization, error)
+// 	Create(org *Organization) error
+// 	Update(org *Organization) error
+// 	Delete(id uint) error
+// }
 
-type OrganizationService interface {
-	GetOrganizationByID(id uint) (*Organization, error)
-	ListAllOrganizations() ([]Organization, error)
-	GetPaginateOrganization(page uint) ([]Organization, error)
-	CreateOrganization(org *Organization) error
-	UpdateOrganization(org *Organization) error
-	DeleteOrganization(id uint) error
-}
-
-// ---------------------------------------------------------------------------
-// OrgOpenJob
-type OrgOpenJobRepository interface {
-	GetByID(id uint) (*OrgOpenJob, error)
-	GetAllByID(OrgId uint) ([]OrgOpenJob, error)
-	Create(org *OrgOpenJob) error
-	Update(org *OrgOpenJob) error
-	Delete(id uint) error
-}
-
-type OrgOpenJobService interface {
-	GetByID(id uint) (*OrgOpenJob, error)
-	GetAllByID(OrgId uint) ([]OrgOpenJob, error)
-	Create(org *OrgOpenJob) error
-	Update(org *OrgOpenJob) error
-	Delete(id uint) error
-}
+// type OrganizationService interface {
+// 	GetOrganizationByID(id uint) (*Organization, error)
+// 	ListAllOrganizations() ([]Organization, error)
+// 	GetPaginateOrganization(page uint) ([]Organization, error)
+// 	CreateOrganization(org *Organization) error
+// 	UpdateOrganization(org *Organization) error
+// 	DeleteOrganization(id uint) error
+// }
 
 // --------------------------------------------------------------------------
 // OrganizationContact

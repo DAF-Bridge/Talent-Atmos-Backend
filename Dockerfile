@@ -1,5 +1,5 @@
 # Start from the official Golang base image
-FROM golang:1.23
+FROM golang:1.23.4-alpine
 
 # Set the Current Working Directory inside the container
 WORKDIR /usr/src/app
@@ -12,6 +12,12 @@ RUN go mod download && go mod verify
 
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
+
+# Run tests before building the Go app
+# RUN go test -tags=unit ./...
+
+# Run integration tests
+# RUN go test -tags=integration ./...
 
 # Build the Go app
 RUN go build -v -o /usr/local/bin/app ./

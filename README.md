@@ -3,7 +3,7 @@
 ## swagger
 
 ```
-swag init -g .\internal\app\app.go -o ./docs --parseDependency --parseInternal
+swag init -g .\main.go -o ./docs --parseDependency --parseInternal
 ```
 
 ## Backend Custom Domain

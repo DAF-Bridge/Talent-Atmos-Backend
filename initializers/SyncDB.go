@@ -1,16 +1,15 @@
 package initializers
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"log"
 )
 
 func SyncDB() {
 
-	err := DB.AutoMigrate(&domain.User{})
+	err := DB.AutoMigrate(&models.User{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	
 }

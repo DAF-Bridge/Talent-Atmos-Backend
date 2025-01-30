@@ -1,22 +1,1230 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample swagger for Fiber",
-        "title": "Fiber Example API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "fiber@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/",
     "paths": {
+        "/events": {
+            "get": {
+                "description": "Get a list of all events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List all events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/service.EventResponses"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error: events not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/events-paginate": {
+            "get": {
+                "description": "Get a paginated list of events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Paginate events",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PaginatedEventsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/events-paginate/search": {
+            "get": {
+                "description": "Search events by keyword",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Search events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Keyword to search for events",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category of events: all, incubation, exhibition, competition, etc.",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Location Type of events",
+                        "name": "locationType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Main Audience of events",
+                        "name": "audience",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Price Type of events",
+                        "name": "price",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/service.EventResponses"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error - Invalid query parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error - events not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/jobs-paginate/search": {
+            "get": {
+                "description": "Search for job postings using various query parameters such as page and offset for pagination.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Search for job postings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Keyword to search for jobs (Support: title, description, location, organization)",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category of jobs: all, environment, social, governance",
+                        "name": "categories",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Workplace of jobs:  remote",
+                        "name": "workplace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Work type of jobs:  fulltime",
+                        "name": "workType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Career stage of jobs:  entrylevel",
+                        "name": "careerStage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Salary lower bound",
+                        "name": "salaryLowerBound",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Salary upper bound",
+                        "name": "salaryUpperBound",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 12,
+                        "description": "Number of items per page",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "description": "Search job query parameters",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchJobQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.JobResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - invalid query parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Bad Request - something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs": {
+            "post": {
+                "description": "Create a new organization BUT still not create the Contact and OpenJob",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Create a new organization",
+                "parameters": [
+                    {
+                        "description": "Organization",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/jobs/list/all": {
+            "get": {
+                "description": "Get all organization jobs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "List all organization jobs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.JobResponses"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/list": {
+            "get": {
+                "description": "Get all organizations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "List all organizations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Organization"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/paginate": {
+            "get": {
+                "description": "Get a page of organizations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get a page of organizations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Organization"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: invalid page",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{id}": {
+            "get": {
+                "description": "Get an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    },
+                    "400": {
+                        "description": "error: organization id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error: organization not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Update an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organization",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - json body is required or invalid / organization name is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Delete an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/events": {
+            "get": {
+                "description": "Get a list of all events for a specific organization",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Events"
+                ],
+                "summary": "List all events for a specific organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/service.EventResponses"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/events/{catID}": {
+            "post": {
+                "description": "Create a new event for a specific organization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event data",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.NewEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/service.EventResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid json body parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/events/{id}": {
+            "get": {
+                "description": "Get an event by its ID for a specific organization",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Events"
+                ],
+                "summary": "Get an event by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/service.EventResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an event with the given ID for the specified organization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Events"
+                ],
+                "summary": "Update an event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event data",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.NewEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.EventResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid json body parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an event for a given organization and event ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Events"
+                ],
+                "summary": "Delete an eventh",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: event deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Invalid parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/delete/{id}": {
+            "delete": {
+                "description": "Delete an organization job by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Delete an organization job by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id \u0026 job id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/get/{id}": {
+            "get": {
+                "description": "Get an organization open job by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Get an organization open job by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.JobResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id \u0026 job id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error: jobs not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/list": {
+            "get": {
+                "description": "Get all organization open jobs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "List all jobs of its organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.JobResponses"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/open": {
+            "post": {
+                "description": "Create a new organization open job",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Create a new organization open job",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organization Open Job",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.JobRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "message: Job created successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - json body is required or invalid / job title is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/update/{id}": {
+            "put": {
+                "description": "Update an organization open job by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Update an organization open job by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organization Open Job",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.JobRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.JobResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id \u0026 job id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/signup": {
             "post": {
                 "description": "Create a new user in the system",
@@ -43,21 +1251,148 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "message: Sign up successful\" \"OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.User"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Invalid input",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal Server Error - Something went wrong",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "List all users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "List all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User object",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid user object",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to create user",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/upload-profile": {
+            "post": {
+                "description": "Upload profile picture for a user",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Upload profile picture",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Profile picture file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uploaded image URL",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid file/user ID",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - Failed to update profile picture",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
                         }
                     }
                 }
@@ -65,66 +1400,287 @@
         }
     },
     "definitions": {
-        "domain.Provider": {
-            "type": "string",
-            "enum": [
-                "google",
-                "facebook",
-                "local"
-            ],
-            "x-enum-varnames": [
-                "ProviderGoogle",
-                "ProviderFacebook",
-                "ProviderLocal"
-            ]
-        },
-        "domain.Role": {
-            "type": "string",
-            "enum": [
-                "User",
-                "Admin"
-            ],
-            "x-enum-varnames": [
-                "RoleUser",
-                "RoleAdmin"
-            ]
-        },
-        "domain.User": {
+        "dto.CategoryResponses": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "email": {
-                    "type": "string"
-                },
                 "id": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
-                    "type": "string"
-                },
-                "provider": {
-                    "description": "e.g., \"google\"",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.Provider"
-                        }
-                    ]
-                },
-                "provider_id": {
-                    "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/domain.Role"
-                },
-                "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Software Engineer"
                 }
             }
+        },
+        "dto.EventShortResponseDTO": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                }
+            }
+        },
+        "dto.JobRequest": {
+            "type": "object",
+            "required": [
+                "benefits",
+                "career_stage",
+                "category_ids",
+                "description",
+                "hours_per_day",
+                "location",
+                "period",
+                "picUrl",
+                "prerequisite",
+                "qualifications",
+                "quantity",
+                "salary",
+                "scope",
+                "title",
+                "work_type",
+                "workplace"
+            ],
+            "properties": {
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "category_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "prerequisite": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Bachelor's degree in Computer Science"
+                    ]
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "This is a scope"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3,
+                    "example": "Software Engineer"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
+                }
+            }
+        },
+        "dto.JobResponses": {
+            "type": "object",
+            "properties": {
+                "UpdatedAt": {
+                    "type": "string",
+                    "example": "2024-11-29 08:00:00"
+                },
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CategoryResponses"
+                    }
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "organization": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "This is a scope"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
+                }
+            }
+        },
+        "dto.PaginatedEventsResponse": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventShortResponseDTO"
+                    }
+                },
+                "total_events": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "dto.UploadResponse": {
+            "type": "object",
+            "properties": {
+                "pic_url": {
+                    "type": "string",
+                    "example": "https://s3.amazonaws.com/your-bucket/your-object"
+                }
+            }
+        },
+        "fiber.Map": {
+            "type": "object",
+            "additionalProperties": true
         },
         "gorm.DeletedAt": {
             "type": "object",
@@ -152,6 +1708,686 @@
                 },
                 "phone": {
                     "type": "string"
+                }
+            }
+        },
+        "models.CareerStage": {
+            "type": "string",
+            "enum": [
+                "entrylevel",
+                "senior",
+                "junior"
+            ],
+            "x-enum-varnames": [
+                "CareerStageEntryLevel",
+                "CareerStageSenior",
+                "CareerStageJunior"
+            ]
+        },
+        "models.Category": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "jobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrgOpenJob"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "description": "ParentID is a Self-referencing foreign key If categories can be nested (e.g., \"Technology\" → \"AI\"), add a ParentID field for self-referencing categories.",
+                    "type": "integer"
+                },
+                "slug": {
+                    "description": "A Slug field helps create readable URLs (/category/artificial-intelligence instead of /category/123).",
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "description": "For sorting categories in a preferred order: e.g., \"Technology\" should come before \"Business\"",
+                    "type": "integer"
+                },
+                "sub_categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Industry": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industry": {
+                    "type": "string"
+                },
+                "organizations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Organization"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Media": {
+            "type": "string",
+            "enum": [
+                "website",
+                "facebook",
+                "instagram",
+                "tiktok",
+                "youtube",
+                "linkedin",
+                "line"
+            ],
+            "x-enum-varnames": [
+                "MediaWebsite",
+                "MediaFacebook",
+                "MediaIG",
+                "MediaTikTok",
+                "MediaYoutube",
+                "MediaLinkedin",
+                "MediaLine"
+            ]
+        },
+        "models.OrgOpenJob": {
+            "type": "object",
+            "properties": {
+                "benefits": {
+                    "type": "string",
+                    "example": "Health insurance"
+                },
+                "career_stage": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CareerStage"
+                        }
+                    ],
+                    "example": "entrylevel"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "hours_per_day": {
+                    "type": "string",
+                    "example": "8 hours"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "organization": {
+                    "$ref": "#/definitions/models.Organization"
+                },
+                "organization_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "period": {
+                    "type": "string",
+                    "example": "1 year"
+                },
+                "picUrl": {
+                    "type": "string"
+                },
+                "prerequisite": {
+                    "description": "Required qualifications or skills",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Great at problem solving",
+                        "Reliable"
+                    ]
+                },
+                "qualifications": {
+                    "type": "string",
+                    "example": "Bachelor's degree in Computer Science"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "salary": {
+                    "type": "number",
+                    "example": 30000
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "Software Development"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "work_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.WorkType"
+                        }
+                    ],
+                    "example": "fulltime"
+                },
+                "workplace": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Workplace"
+                        }
+                    ],
+                    "example": "remote"
+                }
+            }
+        },
+        "models.Organization": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "expertise": {
+                    "description": "Organization's area of expertise",
+                    "type": "string"
+                },
+                "goal": {
+                    "description": "Detailed description of the organization's goal",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Industry"
+                    }
+                },
+                "latitude": {
+                    "description": "Geographic latitude (stored as string for precision)",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "General location",
+                    "type": "string"
+                },
+                "longitude": {
+                    "description": "Geographic longitude (stored as string for precision)",
+                    "type": "string"
+                },
+                "orgOpenJobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrgOpenJob"
+                    }
+                },
+                "org_email": {
+                    "description": "Email address (unique constraint)",
+                    "type": "string"
+                },
+                "org_name": {
+                    "type": "string"
+                },
+                "org_phone": {
+                    "type": "string"
+                },
+                "organizationContacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrganizationContact"
+                    }
+                },
+                "pic_url": {
+                    "description": "URL to organization's logo",
+                    "type": "string"
+                },
+                "postal_code": {
+                    "description": "Postal code, allowing for flexibility in format",
+                    "type": "string"
+                },
+                "province": {
+                    "description": "Province name",
+                    "type": "string"
+                },
+                "subdistrict": {
+                    "description": "Subdistrict name",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OrganizationContact": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "media": {
+                    "$ref": "#/definitions/models.Media"
+                },
+                "media_link": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Provider": {
+            "type": "string",
+            "enum": [
+                "google",
+                "facebook",
+                "local"
+            ],
+            "x-enum-varnames": [
+                "ProviderGoogle",
+                "ProviderFacebook",
+                "ProviderLocal"
+            ]
+        },
+        "models.Role": {
+            "type": "string",
+            "enum": [
+                "User",
+                "Admin"
+            ],
+            "x-enum-varnames": [
+                "RoleUser",
+                "RoleAdmin"
+            ]
+        },
+        "models.SearchJobQuery": {
+            "type": "object",
+            "properties": {
+                "careerStage": {
+                    "description": "Career stage (e.g., 'entry-level')",
+                    "type": "string"
+                },
+                "categories": {
+                    "description": "The category filter",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "Location filter (e.g., 'chiang mai')",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "The number of items per page",
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "The page number",
+                    "type": "integer"
+                },
+                "q": {
+                    "description": "The search keyword",
+                    "type": "string"
+                },
+                "salaryLowerBound": {
+                    "description": "Salary range (e.g., '1000-2000')",
+                    "type": "number"
+                },
+                "salaryUpperBound": {
+                    "description": "Salary upper bound",
+                    "type": "number"
+                },
+                "workType": {
+                    "description": "Work type (e.g., 'full-time')",
+                    "type": "string"
+                },
+                "workplace": {
+                    "description": "Workplace filter (e.g., 'remote')",
+                    "type": "string"
+                }
+            }
+        },
+        "models.Timeline": {
+            "type": "object",
+            "properties": {
+                "activity": {
+                    "type": "string",
+                    "example": "Registration"
+                },
+                "time": {
+                    "type": "string",
+                    "example": "08:00"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "description": "Hashed password for traditional login",
+                    "type": "string"
+                },
+                "picUrl": {
+                    "type": "string"
+                },
+                "provider": {
+                    "description": "e.g., \"google\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Provider"
+                        }
+                    ]
+                },
+                "providerID": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WorkType": {
+            "type": "string",
+            "enum": [
+                "fulltime",
+                "parttime",
+                "internship",
+                "volunteer"
+            ],
+            "x-enum-varnames": [
+                "WorkTypeFullTime",
+                "WorkTypePartTime",
+                "WorkTypeInternship",
+                "WorkTypeVolunteer"
+            ]
+        },
+        "models.Workplace": {
+            "type": "string",
+            "enum": [
+                "onsite",
+                "remote",
+                "hybrid"
+            ],
+            "x-enum-varnames": [
+                "WorkplaceOnsite",
+                "WorkplaceRemote",
+                "WorkplaceHybrid"
+            ]
+        },
+        "service.EventResponses": {
+            "type": "object",
+            "properties": {
+                "audience": {
+                    "type": "string",
+                    "example": "genteral"
+                },
+                "category": {
+                    "type": "string",
+                    "example": "all"
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "highlight": {
+                    "type": "string",
+                    "example": "This is a highlight"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "keyTakeaway": {
+                    "type": "string",
+                    "example": "This is a key takeaway"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 13.7563
+                },
+                "locationName": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "locationType": {
+                    "type": "string",
+                    "example": "onsite"
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 100.5018
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "organization_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "priceType": {
+                    "type": "string",
+                    "example": "free"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "requirement": {
+                    "type": "string",
+                    "example": "This is a requirement"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                },
+                "timeLine": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
+                }
+            }
+        },
+        "service.NewEventRequest": {
+            "type": "object",
+            "required": [
+                "audience",
+                "category_id",
+                "description",
+                "endDate",
+                "endTime",
+                "highlight",
+                "keyTakeaway",
+                "latitude",
+                "locationName",
+                "locationType",
+                "longitude",
+                "name",
+                "picUrl",
+                "priceType",
+                "province",
+                "requirement",
+                "startDate",
+                "startTime"
+            ],
+            "properties": {
+                "audience": {
+                    "type": "string",
+                    "example": "general"
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2025-01-22"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "highlight": {
+                    "type": "string",
+                    "example": "This is a highlight"
+                },
+                "keyTakeaway": {
+                    "type": "string",
+                    "example": "This is a key takeaway"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 13.7563
+                },
+                "locationName": {
+                    "type": "string",
+                    "example": "Bangkok"
+                },
+                "locationType": {
+                    "type": "string",
+                    "example": "onsite"
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 100.5018
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "priceType": {
+                    "type": "string",
+                    "example": "free"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "requirement": {
+                    "type": "string",
+                    "example": "This is a requirement"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2025-01-25"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                },
+                "timeLine": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
                 }
             }
         }
