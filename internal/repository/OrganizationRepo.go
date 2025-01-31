@@ -79,9 +79,9 @@ func (r organizationRepository) DeleteOrganization(id uint) error {
 }
 
 // GetListByID
-func (r *OrganizationRepository) GetListByID(ids []uint) ([]domain.Organization, error) {
-	var orgs []domain.Organization
-	err := r.db.Where("id IN (?)", ids).Find(&orgs).Error
+func (r *OrganizationRepository) GetListByID(ids []uint) ([]models.Organization, error) {
+	var orgs []models.Organization
+	err := r.db.Find(&orgs, ids).Error
 	return orgs, err
 }
 
