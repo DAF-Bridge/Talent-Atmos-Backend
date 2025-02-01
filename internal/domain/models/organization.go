@@ -15,6 +15,7 @@ type Media string
 type WorkType string
 type Workplace string
 type CareerStage string
+type JobStatus string
 
 const (
 	// Media Enum
@@ -44,6 +45,12 @@ const (
 	CareerStageEntryLevel CareerStage = "entrylevel"
 	CareerStageSenior     CareerStage = "senior"
 	CareerStageJunior     CareerStage = "junior"
+)
+
+const (
+	JobStatusPublished JobStatus = "published"
+	JobStatusDraft     JobStatus = "draft"
+	JobStatusDeleted   JobStatus = "deleted"
 )
 
 //---------------------------------------------------------------------------
@@ -107,5 +114,6 @@ type OrgOpenJob struct {
 	Benefits       string         `gorm:"type:text" json:"benefits" example:"Health insurance"`
 	Quantity       int            `json:"quantity" example:"1"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
+	Status         string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
 	Categories     []Category     `gorm:"many2many:category_job;"`
 }

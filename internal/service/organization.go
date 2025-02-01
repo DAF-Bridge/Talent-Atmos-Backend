@@ -54,6 +54,7 @@ func convertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		Benefits:       job.Benefits,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,
+		Status:         job.Status,
 		Categories:     categories,
 		UpdatedAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
@@ -77,6 +78,7 @@ func ConvertToJobRequest(orgID uint, job dto.JobRequest, categories []models.Cat
 		Benefits:       job.Benefits,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,
+		Status:         job.Status,
 		Categories:     categories,
 		Model:          gorm.Model{UpdatedAt: time.Now()},
 	}

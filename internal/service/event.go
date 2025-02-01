@@ -39,6 +39,7 @@ type NewEventRequest struct {
 	LocationType string            `json:"locationType" example:"onsite" validate:"required"`
 	Audience     string            `json:"audience" example:"general" validate:"required"`
 	PriceType    string            `json:"priceType" example:"free" validate:"required"`
+	Status       string            `json:"status" example:"draft" validate:"required"`
 	CategoryID   uint              `json:"category_id" example:"2" validate:"required"`
 }
 
@@ -63,6 +64,7 @@ type EventResponses struct {
 	LocationType   string            `json:"locationType" example:"onsite"`
 	Audience       string            `json:"audience" example:"genteral"`
 	PriceType      string            `json:"priceType" example:"free"`
+	Status         string            `json:"status" example:"draft"`
 	CategoryID     int               `json:"category_id" example:"2"`
 	Category       string            `json:"category" example:"all"`
 }
@@ -103,6 +105,7 @@ func requestConvertToEvent(orgID uint, reqEvent NewEventRequest) models.Event {
 		LocationType:   reqEvent.LocationType,
 		Audience:       reqEvent.Audience,
 		PriceType:      reqEvent.PriceType,
+		Status:         reqEvent.Status,
 	}
 }
 
@@ -128,6 +131,7 @@ func ConvertToEventResponse(event models.Event) EventResponses {
 		LocationType:   event.LocationType,
 		Audience:       event.Audience,
 		PriceType:      event.PriceType,
+		Status:         event.Status,
 		Category:       event.Category.Name,
 	}
 }

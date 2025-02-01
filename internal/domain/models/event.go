@@ -12,6 +12,7 @@ import (
 type Audience string
 type PriceType string
 type LocationType string
+type EventStatus string
 
 const (
 	General       Audience = "general"
@@ -27,6 +28,12 @@ const (
 const (
 	Online LocationType = "online"
 	Onsite LocationType = "onsite"
+)
+
+const (
+	Published EventStatus = "published"
+	Draft     EventStatus = "draft"
+	Deleted   EventStatus = "deleted"
 )
 
 //---------------------------------------------------------------------------
@@ -58,6 +65,7 @@ type Event struct {
 	LocationType    string            `gorm:"type:varchar(50)" db:"location_type" json:"locationType"`
 	Audience        string            `gorm:"type:varchar(50)" db:"audience" json:"audience"`
 	PriceType       string            `gorm:"type:varchar(50)" db:"price_type" json:"priceType"`
+	Status          string            `gorm:"type:varchar(50)" db:"status"`
 	CategoryID      uint              `gorm:"not null" db:"category_id"`
 	Category        Category          `gorm:"foreignKey:CategoryID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"categories"`
 	OrganizationID  uint              `gorm:"not null" db:"organization_id"`

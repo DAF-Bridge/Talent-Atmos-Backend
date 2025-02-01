@@ -11,6 +11,7 @@ type JobShortResponseDTO struct {
 	WorkType  string `json:"workType" example:"fulltime"`
 	Quantity  int    `json:"quantity" example:"1"`
 	Salary    string `json:"salary" example:"30000"`
+	Status    string `json:"status" example:"published"`
 }
 
 type OrganizationShortRespones struct {
@@ -35,6 +36,7 @@ type JobRequest struct {
 	Benefits       string             `json:"benefits" example:"Health insurance" validate:"required"`
 	Quantity       int                `json:"quantity" example:"1" validate:"required"`
 	Salary         float64            `json:"salary" example:"30000" validate:"required"`
+	Status         string             `json:"status" example:"draft" validate:"required"`
 	CategoryIDs    []uint             `json:"category_ids" example:"1,2,3" validate:"required"`
 }
 
@@ -55,6 +57,7 @@ type JobResponses struct {
 	Benefits       string              `json:"benefits" example:"Health insurance"`
 	Quantity       int                 `json:"quantity" example:"1"`
 	Salary         float64             `json:"salary" example:"30000"`
+	Status         string              `json:"status" example:"draft"`
 	Categories     []CategoryResponses `json:"categories"`
 	UpdatedAt      string              `json:"UpdatedAt" example:"2024-11-29 08:00:00"`
 }
