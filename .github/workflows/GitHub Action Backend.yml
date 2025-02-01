@@ -161,7 +161,7 @@ jobs:
 
 
           if [ "$UNIT_TEST_STATUS" != "success" ] && [ "$INTEGRATION_TEST_STATUS" != "success" ]; then
-            STAGE="All Test stages"
+            STAGE="All Test"
             STATUS="failure"
           elif [ "$UNIT_TEST_STATUS" != "success" ]; then
             STAGE="Unit Test"
@@ -173,7 +173,7 @@ jobs:
             STAGE="Build"
             STATUS="failure"
           else
-            STAGE="All stages"
+            STAGE="All"
             STATUS="success"
           fi
 
