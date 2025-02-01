@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -79,7 +80,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 		if assert.Equal(t, fiber.StatusOK, res.StatusCode) {
 			body, _ := io.ReadAll(res.Body)
 
-			var actual service.EventResponses
+			var actual dto.EventResponses
 			expectedResponse := service.ConvertToEventResponse(expected)
 
 			err := json.Unmarshal(body, &actual)

@@ -14,20 +14,20 @@ func NewEventServiceMock() *eventServiceMock {
 	return &eventServiceMock{}
 }
 
-func (m *eventServiceMock) NewEvent(orgID uint, event NewEventRequest) (*EventResponses, error) {
+func (m *eventServiceMock) NewEvent(orgID uint, event dto.NewEventRequest) (*dto.EventResponses, error) {
 	ret := m.Called(orgID, event)
 
-	var r0 *EventResponses
-	if rf, ok := ret.Get(0).(func(uint, NewEventRequest) *EventResponses); ok {
+	var r0 *dto.EventResponses
+	if rf, ok := ret.Get(0).(func(uint, dto.NewEventRequest) *dto.EventResponses); ok {
 		r0 = rf(orgID, event)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*EventResponses)
+			r0 = ret.Get(0).(*dto.EventResponses)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint, NewEventRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(uint, dto.NewEventRequest) error); ok {
 		r1 = rf(orgID, event)
 	} else {
 		r1 = ret.Error(1)
@@ -36,15 +36,15 @@ func (m *eventServiceMock) NewEvent(orgID uint, event NewEventRequest) (*EventRe
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetEventByID(orgID uint, eventID uint) (*EventResponses, error) {
+func (m *eventServiceMock) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
 	ret := m.Called(orgID, eventID)
 
-	var r0 *EventResponses
-	if rf, ok := ret.Get(0).(func(uint, uint) *EventResponses); ok {
+	var r0 *dto.EventResponses
+	if rf, ok := ret.Get(0).(func(uint, uint) *dto.EventResponses); ok {
 		r0 = rf(orgID, eventID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*EventResponses)
+			r0 = ret.Get(0).(*dto.EventResponses)
 		}
 	}
 
@@ -58,15 +58,15 @@ func (m *eventServiceMock) GetEventByID(orgID uint, eventID uint) (*EventRespons
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetAllEvents() ([]EventResponses, error) {
+func (m *eventServiceMock) GetAllEvents() ([]dto.EventResponses, error) {
 	ret := m.Called()
 
-	var r0 []EventResponses
-	if rf, ok := ret.Get(0).(func() []EventResponses); ok {
+	var r0 []dto.EventResponses
+	if rf, ok := ret.Get(0).(func() []dto.EventResponses); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]EventResponses)
+			r0 = ret.Get(0).([]dto.EventResponses)
 		}
 	}
 
@@ -80,15 +80,15 @@ func (m *eventServiceMock) GetAllEvents() ([]EventResponses, error) {
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) {
+func (m *eventServiceMock) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, error) {
 	ret := m.Called(orgID)
 
-	var r0 []EventResponses
-	if rf, ok := ret.Get(0).(func(uint) []EventResponses); ok {
+	var r0 []dto.EventResponses
+	if rf, ok := ret.Get(0).(func(uint) []dto.EventResponses); ok {
 		r0 = rf(orgID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]EventResponses)
+			r0 = ret.Get(0).([]dto.EventResponses)
 		}
 	}
 
@@ -102,15 +102,15 @@ func (m *eventServiceMock) GetAllEventsByOrgID(orgID uint) ([]EventResponses, er
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetEventPaginate(page uint) ([]EventResponses, error) {
+func (m *eventServiceMock) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
 	ret := m.Called(page)
 
-	var r0 []EventResponses
-	if rf, ok := ret.Get(0).(func(uint) []EventResponses); ok {
+	var r0 []dto.EventResponses
+	if rf, ok := ret.Get(0).(func(uint) []dto.EventResponses); ok {
 		r0 = rf(page)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]EventResponses)
+			r0 = ret.Get(0).([]dto.EventResponses)
 		}
 	}
 
@@ -124,15 +124,15 @@ func (m *eventServiceMock) GetEventPaginate(page uint) ([]EventResponses, error)
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetFirst() (*EventResponses, error) {
+func (m *eventServiceMock) GetFirst() (*dto.EventResponses, error) {
 	ret := m.Called()
 
-	var r0 *EventResponses
-	if rf, ok := ret.Get(0).(func() *EventResponses); ok {
+	var r0 *dto.EventResponses
+	if rf, ok := ret.Get(0).(func() *dto.EventResponses); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*EventResponses)
+			r0 = ret.Get(0).(*dto.EventResponses)
 		}
 	}
 
@@ -166,20 +166,20 @@ func (m *eventServiceMock) CountEvent() (int64, error) {
 	return r0, r1
 }
 
-func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event NewEventRequest) (*EventResponses, error) {
+func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest) (*dto.EventResponses, error) {
 	ret := m.Called(orgID, eventID, event)
 
-	var r0 *EventResponses
-	if rf, ok := ret.Get(0).(func(uint, uint, NewEventRequest) *EventResponses); ok {
+	var r0 *dto.EventResponses
+	if rf, ok := ret.Get(0).(func(uint, uint, dto.NewEventRequest) *dto.EventResponses); ok {
 		r0 = rf(orgID, eventID, event)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*EventResponses)
+			r0 = ret.Get(0).(*dto.EventResponses)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint, uint, NewEventRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(uint, uint, dto.NewEventRequest) error); ok {
 		r1 = rf(orgID, eventID, event)
 	} else {
 		r1 = ret.Error(1)

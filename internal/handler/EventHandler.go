@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -23,7 +24,7 @@ type EventShortResponse struct {
 	Location  string `json:"location"`
 }
 
-func newEventShortResponse(event service.EventResponses) EventShortResponse {
+func newEventShortResponse(event dto.EventResponses) EventShortResponse {
 	return EventShortResponse{
 		ID:        event.ID,
 		Name:      event.Name,
@@ -38,7 +39,7 @@ func newEventShortResponse(event service.EventResponses) EventShortResponse {
 }
 
 // newListEventShortResponse converts a list of EventResponses to a list of EventShortResponse
-func newListEventShortResponse(events []service.EventResponses) []EventShortResponse {
+func newListEventShortResponse(events []dto.EventResponses) []EventShortResponse {
 	listEvent := make([]EventShortResponse, len(events))
 
 	for i, event := range events {
@@ -66,7 +67,7 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 // @Router /orgs/{orgID}/events/{catID} [post]
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	// event := service.NewEventRequest{}
-	var event service.NewEventRequest
+	var event dto.NewEventRequest
 
 	// validate request body
 	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
@@ -226,7 +227,7 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [put]
 func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
-	var req service.NewEventRequest
+	var req dto.NewEventRequest
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
 		return err
 	}

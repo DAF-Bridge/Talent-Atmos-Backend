@@ -51,7 +51,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 	return eventsRes, nil
 }
 
-func (s eventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses, error) {
+func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest) (*dto.EventResponses, error) {
 	event := requestConvertToEvent(orgID, req)
 	newEvent, err := s.eventRepo.Create(uint(orgID), &event)
 
@@ -65,7 +65,7 @@ func (s eventService) NewEvent(orgID uint, req NewEventRequest) (*EventResponses
 	return &eventResponse, nil
 }
 
-func (s eventService) GetAllEvents() ([]EventResponses, error) {
+func (s eventService) GetAllEvents() ([]dto.EventResponses, error) {
 	events, err := s.eventRepo.GetAll()
 
 	if err != nil {
@@ -77,16 +77,16 @@ func (s eventService) GetAllEvents() ([]EventResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponses := []EventResponses{}
+	EventResponses := []dto.EventResponses{}
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
+		EventResponses = append(EventResponses, eventResponse)
 	}
 
-	return eventResponses, nil
+	return EventResponses, nil
 }
 
-func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) {
+func (s eventService) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, error) {
 	events, err := s.eventRepo.GetAllByOrgID(orgID)
 
 	if err != nil {
@@ -98,16 +98,16 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]EventResponses, error) 
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponses := []EventResponses{}
+	EventResponses := []dto.EventResponses{}
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
+		EventResponses = append(EventResponses, eventResponse)
 	}
 
-	return eventResponses, nil
+	return EventResponses, nil
 }
 
-func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, error) {
+func (s eventService) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
 	event, err := s.eventRepo.GetByID(orgID, eventID)
 	if err != nil {
 
@@ -124,7 +124,7 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*EventResponses, e
 	return &eventResponse, nil
 }
 
-func (s eventService) GetEventPaginate(page uint) ([]EventResponses, error) {
+func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
 	events, err := s.eventRepo.GetPaginate(page, numberOfEvent)
 
 	if err != nil {
@@ -136,16 +136,16 @@ func (s eventService) GetEventPaginate(page uint) ([]EventResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponses := []EventResponses{}
+	EventResponses := []dto.EventResponses{}
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
-		eventResponses = append(eventResponses, eventResponse)
+		EventResponses = append(EventResponses, eventResponse)
 	}
 
-	return eventResponses, nil
+	return EventResponses, nil
 }
 
-func (s eventService) GetFirst() (*EventResponses, error) {
+func (s eventService) GetFirst() (*dto.EventResponses, error) {
 	event, err := s.eventRepo.GetFirst()
 
 	if err != nil {
@@ -170,7 +170,7 @@ func (s eventService) CountEvent() (int64, error) {
 	return count, nil
 }
 
-func (s eventService) UpdateEvent(orgID uint, eventID uint, req NewEventRequest) (*EventResponses, error) {
+func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest) (*dto.EventResponses, error) {
 	event := requestConvertToEvent(orgID, req)
 
 	updatedEvent, err := s.eventRepo.Update(orgID, eventID, &event)
