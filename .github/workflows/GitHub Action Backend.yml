@@ -2,9 +2,9 @@ name: Golang Backend CI
 
 on:
   push:
-    branches: ["main", "develop-did"]
+    branches: ["main", "develop-did", "develop-fong"]
   pull_request:
-    branches: ["main", "develop-did"]
+    branches: ["main", "develop-did", "develop-fong"]
 
 jobs:
   test:
