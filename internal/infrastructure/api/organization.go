@@ -45,7 +45,7 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s
 	org.Get("/:orgID/jobs/get/:id", orgOpenJobHandler.GetOrgOpenJobByID)
 	org.Get("/:orgID/jobs/list", orgOpenJobHandler.ListOrgOpenJobsByOrgID)
 	org.Get("/jobs/list/all", orgOpenJobHandler.ListAllOrganizationJobs)
-	org.Post("/:orgID/jobs/open", orgOpenJobHandler.CreateOrgOpenJob)
+	org.Post("/:orgID/jobs/create", orgOpenJobHandler.CreateOrgOpenJob)
 	org.Put("/:orgID/jobs/update/:id", orgOpenJobHandler.UpdateOrgOpenJob)
 	org.Delete("/:orgID/jobs/delete/:id", orgOpenJobHandler.DeleteOrgOpenJob)
 

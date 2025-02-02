@@ -60,13 +60,12 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Param event body service.NewEventRequest true "Event data"
-// @Success 201 {object} service.EventResponses
+// @Param event body dto.NewEventRequest true "Event data"
+// @Success 201 {object} dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid json body parameters"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
-// @Router /orgs/{orgID}/events/{catID} [post]
+// @Router /orgs/{orgID}/events/create [post]
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
-	// event := service.NewEventRequest{}
 	var event dto.NewEventRequest
 
 	// validate request body
@@ -97,7 +96,7 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 // @Description Get a list of all events
 // @Tags Events
 // @Produce json
-// @Success 200 {array} []service.EventResponses
+// @Success 200 {array} []dto.EventResponses
 // @Failure 404 {object} map[string]string "error: events not found"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /events [get]
@@ -121,7 +120,7 @@ func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 // @Tags Organization Events
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Success 200 {array} []service.EventResponses
+// @Success 200 {array} []dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events [get]
@@ -151,7 +150,7 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Event ID"
-// @Success 200 {object} []service.EventResponses
+// @Success 200 {object} []dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [get]
@@ -221,8 +220,8 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Event ID"
-// @Param event body service.NewEventRequest true "Event data"
-// @Success 200 {object} service.EventResponses
+// @Param event body dto.NewEventRequest true "Event data"
+// @Success 200 {object} dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid json body parameters"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{orgID}/events/{id} [put]
@@ -309,7 +308,7 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 // @Param locationType query string false "Location Type of events"
 // @Param audience query string false "Main Audience of events"
 // @Param price query string false "Price Type of events"
-// @Success 200 {array} []service.EventResponses
+// @Success 200 {array} []dto.EventResponses
 // @Failure 400 {object} map[string]string "error - Invalid query parameters"
 // @Failure 404 {object} map[string]string "error - events not found"
 // @Failure 500 {object} map[string]string "error - Something went wrong"

@@ -8,6 +8,79 @@ definitions:
         example: Software Engineer
         type: string
     type: object
+  dto.EventResponses:
+    properties:
+      audience:
+        example: genteral
+        type: string
+      category:
+        example: all
+        type: string
+      category_id:
+        example: 2
+        type: integer
+      description:
+        example: This is a description
+        type: string
+      endDate:
+        example: "2024-11-29"
+        type: string
+      endTime:
+        example: "17:00"
+        type: string
+      highlight:
+        example: This is a highlight
+        type: string
+      id:
+        example: 1
+        type: integer
+      keyTakeaway:
+        example: This is a key takeaway
+        type: string
+      latitude:
+        example: 13.7563
+        type: number
+      locationName:
+        example: builds CMU
+        type: string
+      locationType:
+        example: onsite
+        type: string
+      longitude:
+        example: 100.5018
+        type: number
+      name:
+        example: builds IDEA 2024
+        type: string
+      organization_id:
+        example: 1
+        type: integer
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      priceType:
+        example: free
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      requirement:
+        example: This is a requirement
+        type: string
+      startDate:
+        example: "2024-11-29"
+        type: string
+      startTime:
+        example: "08:00"
+        type: string
+      status:
+        example: draft
+        type: string
+      timeLine:
+        items:
+          $ref: '#/definitions/models.Timeline'
+        type: array
+    type: object
   dto.EventShortResponseDTO:
     properties:
       endDate:
@@ -33,6 +106,15 @@ definitions:
         type: string
       startTime:
         example: "08:00"
+        type: string
+    type: object
+  dto.IndustryResponses:
+    properties:
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Software
         type: string
     type: object
   dto.JobRequest:
@@ -85,6 +167,9 @@ definitions:
       scope:
         example: This is a scope
         type: string
+      status:
+        example: draft
+        type: string
       title:
         example: Software Engineer
         maxLength: 255
@@ -112,6 +197,7 @@ definitions:
     - quantity
     - salary
     - scope
+    - status
     - title
     - work_type
     - workplace
@@ -165,6 +251,9 @@ definitions:
       scope:
         example: This is a scope
         type: string
+      status:
+        example: draft
+        type: string
       title:
         example: Software Engineer
         type: string
@@ -176,6 +265,238 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.Workplace'
         example: remote
+    type: object
+  dto.NewEventRequest:
+    properties:
+      audience:
+        example: general
+        type: string
+      category_id:
+        example: 2
+        type: integer
+      description:
+        example: This is a description
+        type: string
+      endDate:
+        example: "2025-01-22"
+        type: string
+      endTime:
+        example: "17:00"
+        type: string
+      highlight:
+        example: This is a highlight
+        type: string
+      keyTakeaway:
+        example: This is a key takeaway
+        type: string
+      latitude:
+        example: 13.7563
+        type: number
+      locationName:
+        example: Bangkok
+        type: string
+      locationType:
+        example: onsite
+        type: string
+      longitude:
+        example: 100.5018
+        type: number
+      name:
+        example: builds IDEA 2024
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      priceType:
+        example: free
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      requirement:
+        example: This is a requirement
+        type: string
+      startDate:
+        example: "2025-01-25"
+        type: string
+      startTime:
+        example: "08:00"
+        type: string
+      status:
+        example: draft
+        type: string
+      timeLine:
+        items:
+          $ref: '#/definitions/models.Timeline'
+        type: array
+    required:
+    - audience
+    - category_id
+    - description
+    - endDate
+    - endTime
+    - highlight
+    - keyTakeaway
+    - latitude
+    - locationName
+    - locationType
+    - longitude
+    - name
+    - picUrl
+    - priceType
+    - province
+    - requirement
+    - startDate
+    - startTime
+    - status
+    type: object
+  dto.OrganizationContactRequest:
+    properties:
+      media:
+        example: facebook
+        type: string
+      mediaLink:
+        example: https://facebook.com
+        type: string
+    required:
+    - media
+    - mediaLink
+    type: object
+  dto.OrganizationContactResponses:
+    properties:
+      media:
+        example: facebook
+        type: string
+      mediaLink:
+        example: https://facebook.com
+        type: string
+    type: object
+  dto.OrganizationRequest:
+    properties:
+      email:
+        example: andaraiwin@gmail.com
+        type: string
+      expertise:
+        example: This is an expertise
+        type: string
+      goal:
+        example:
+        - This is a goal
+        items:
+          type: string
+        type: array
+      industries:
+        example:
+        - 1
+        - 2
+        - 3
+        items:
+          type: integer
+        type: array
+      latitude:
+        example: "18.7876"
+        type: string
+      location:
+        example: Chiang Mai
+        type: string
+      longitude:
+        example: "98.9937"
+        type: string
+      name:
+        example: builds CMU
+        maxLength: 255
+        minLength: 3
+        type: string
+      organizationContacts:
+        items:
+          $ref: '#/definitions/dto.OrganizationContactRequest'
+        type: array
+      phone:
+        example: "0812345678"
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      postalCode:
+        example: "50000"
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      subdistrict:
+        example: Mueang
+        type: string
+    required:
+    - email
+    - expertise
+    - goal
+    - industries
+    - latitude
+    - location
+    - longitude
+    - name
+    - organizationContacts
+    - phone
+    - picUrl
+    - postalCode
+    - province
+    - subdistrict
+    type: object
+  dto.OrganizationResponse:
+    properties:
+      email:
+        example: daf_bridge@egat.co.th
+        type: string
+      expertise:
+        example: This is an expertise
+        type: string
+      goal:
+        example:
+        - This is a goal
+        items:
+          type: string
+        type: array
+      id:
+        example: 1
+        type: integer
+      industries:
+        items:
+          $ref: '#/definitions/dto.IndustryResponses'
+        type: array
+      latitude:
+        example: "18.7876"
+        type: string
+      location:
+        example: Chiang Mai
+        type: string
+      longitude:
+        example: "98.9937"
+        type: string
+      name:
+        example: builds CMU
+        type: string
+      organizationContacts:
+        items:
+          $ref: '#/definitions/dto.OrganizationContactResponses'
+        type: array
+      phone:
+        example: "0812345678"
+        type: string
+      picUrl:
+        example: https://example.com/image.jpg
+        type: string
+      postalCode:
+        example: "50000"
+        type: string
+      province:
+        example: Chiang Mai
+        type: string
+      subdistrict:
+        example: Mueang
+        type: string
+      updatedAt:
+        example: "2024-11-29 08:00:00"
+        type: string
     type: object
   dto.PaginatedEventsResponse:
     properties:
@@ -354,6 +675,9 @@ definitions:
       scope:
         example: Software Development
         type: string
+      status:
+        example: draft
+        type: string
       title:
         example: Software Engineer
         type: string
@@ -439,7 +763,7 @@ definitions:
         type: integer
       media:
         $ref: '#/definitions/models.Media'
-      media_link:
+      mediaLink:
         type: string
       organization_id:
         type: integer
@@ -523,156 +847,6 @@ definitions:
     - WorkplaceOnsite
     - WorkplaceRemote
     - WorkplaceHybrid
-  service.EventResponses:
-    properties:
-      audience:
-        example: genteral
-        type: string
-      category:
-        example: all
-        type: string
-      category_id:
-        example: 2
-        type: integer
-      description:
-        example: This is a description
-        type: string
-      endDate:
-        example: "2024-11-29"
-        type: string
-      endTime:
-        example: "17:00"
-        type: string
-      highlight:
-        example: This is a highlight
-        type: string
-      id:
-        example: 1
-        type: integer
-      keyTakeaway:
-        example: This is a key takeaway
-        type: string
-      latitude:
-        example: 13.7563
-        type: number
-      locationName:
-        example: builds CMU
-        type: string
-      locationType:
-        example: onsite
-        type: string
-      longitude:
-        example: 100.5018
-        type: number
-      name:
-        example: builds IDEA 2024
-        type: string
-      organization_id:
-        example: 1
-        type: integer
-      picUrl:
-        example: https://example.com/image.jpg
-        type: string
-      priceType:
-        example: free
-        type: string
-      province:
-        example: Chiang Mai
-        type: string
-      requirement:
-        example: This is a requirement
-        type: string
-      startDate:
-        example: "2024-11-29"
-        type: string
-      startTime:
-        example: "08:00"
-        type: string
-      timeLine:
-        items:
-          $ref: '#/definitions/models.Timeline'
-        type: array
-    type: object
-  service.NewEventRequest:
-    properties:
-      audience:
-        example: general
-        type: string
-      category_id:
-        example: 2
-        type: integer
-      description:
-        example: This is a description
-        type: string
-      endDate:
-        example: "2025-01-22"
-        type: string
-      endTime:
-        example: "17:00"
-        type: string
-      highlight:
-        example: This is a highlight
-        type: string
-      keyTakeaway:
-        example: This is a key takeaway
-        type: string
-      latitude:
-        example: 13.7563
-        type: number
-      locationName:
-        example: Bangkok
-        type: string
-      locationType:
-        example: onsite
-        type: string
-      longitude:
-        example: 100.5018
-        type: number
-      name:
-        example: builds IDEA 2024
-        type: string
-      picUrl:
-        example: https://example.com/image.jpg
-        type: string
-      priceType:
-        example: free
-        type: string
-      province:
-        example: Chiang Mai
-        type: string
-      requirement:
-        example: This is a requirement
-        type: string
-      startDate:
-        example: "2025-01-25"
-        type: string
-      startTime:
-        example: "08:00"
-        type: string
-      timeLine:
-        items:
-          $ref: '#/definitions/models.Timeline'
-        type: array
-    required:
-    - audience
-    - category_id
-    - description
-    - endDate
-    - endTime
-    - highlight
-    - keyTakeaway
-    - latitude
-    - locationName
-    - locationType
-    - longitude
-    - name
-    - picUrl
-    - priceType
-    - province
-    - requirement
-    - startDate
-    - startTime
-    type: object
 info:
   contact: {}
 paths:
@@ -687,7 +861,7 @@ paths:
           schema:
             items:
               items:
-                $ref: '#/definitions/service.EventResponses'
+                $ref: '#/definitions/dto.EventResponses'
               type: array
             type: array
         "404":
@@ -773,7 +947,7 @@ paths:
           schema:
             items:
               items:
-                $ref: '#/definitions/service.EventResponses'
+                $ref: '#/definitions/dto.EventResponses'
               type: array
             type: array
         "400":
@@ -869,48 +1043,54 @@ paths:
       summary: Search for job postings
       tags:
       - Organization Job
-  /orgs:
+  /orgs/{orgID}/contacts/create:
     post:
       consumes:
       - application/json
-      description: Create a new organization BUT still not create the Contact and
-        OpenJob
+      description: Create a new organization contact
       parameters:
-      - description: Organization
-        in: body
-        name: org
+      - description: Organization ID
+        in: path
+        name: orgID
         required: true
-        schema:
-          $ref: '#/definitions/models.Organization'
+        type: integer
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: 'message: Contact created successfully'
           schema:
-            $ref: '#/definitions/models.Organization'
+            additionalProperties:
+              type: string
+            type: object
         "400":
-          description: 'error: Bad Request'
+          description: 'error: Bad Request - json body is required or invalid / contact
+            media is required'
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error - Something went wrong'
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Create a new organization
+      summary: Create a new organization contact
       tags:
-      - Organization
-  /orgs/{id}:
+      - Organization Contacts
+  /orgs/{orgID}/contacts/delete/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete an organization by ID
+      description: Create a new organization contact
       parameters:
       - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Contact ID
         in: path
         name: id
         required: true
@@ -920,6 +1100,85 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: 'error: Bad Request - organization id & contact id is required'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Internal Server Error - Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new organization contact
+      tags:
+      - Organization Contacts
+  /orgs/{orgID}/contacts/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Create a new organization contact
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Contact ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.OrganizationContactResponses'
+        "400":
+          description: 'error: Bad Request - organization id & contact id is required'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: contact not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Internal Server Error - Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new organization contact
+      tags:
+      - Organization Contacts
+  /orgs/{orgID}/contacts/list:
+    get:
+      consumes:
+      - application/json
+      description: Create a new organization contact
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.OrganizationContactResponses'
+            type: array
         "400":
           description: 'error: Bad Request - organization id is required'
           schema:
@@ -927,91 +1186,58 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error - Something went wrong'
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Delete an organization by ID
+      summary: Create a new organization contact
       tags:
-      - Organization
-    get:
-      consumes:
-      - application/json
-      description: Get an organization by ID
-      parameters:
-      - description: Organization ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Organization'
-        "400":
-          description: 'error: organization id is required'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: 'error: organization not found'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'error: Something went wrong'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get an organization by ID
-      tags:
-      - Organization
+      - Organization Contacts
+  /orgs/{orgID}/contacts/update/{id}:
     put:
       consumes:
       - application/json
-      description: Update an organization by ID
+      description: Create a new organization contact
       parameters:
       - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Contact ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Organization
+      - description: Organization Contact
         in: body
         name: org
         required: true
         schema:
-          $ref: '#/definitions/models.Organization'
+          $ref: '#/definitions/dto.OrganizationContactRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Organization'
+            $ref: '#/definitions/dto.OrganizationContactResponses'
         "400":
-          description: 'error: Bad Request - json body is required or invalid / organization
-            name is required'
+          description: 'error: Bad Request - organization id & contact id is required'
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error - Something went wrong'
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Update an organization by ID
+      summary: Create a new organization contact
       tags:
-      - Organization
+      - Organization Contacts
   /orgs/{orgID}/events:
     get:
       description: Get a list of all events for a specific organization
@@ -1029,7 +1255,7 @@ paths:
           schema:
             items:
               items:
-                $ref: '#/definitions/service.EventResponses'
+                $ref: '#/definitions/dto.EventResponses'
               type: array
             type: array
         "400":
@@ -1045,45 +1271,6 @@ paths:
               type: string
             type: object
       summary: List all events for a specific organization
-      tags:
-      - Organization Events
-  /orgs/{orgID}/events/{catID}:
-    post:
-      consumes:
-      - application/json
-      description: Create a new event for a specific organization
-      parameters:
-      - description: Organization ID
-        in: path
-        name: orgID
-        required: true
-        type: integer
-      - description: Event data
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/service.NewEventRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/service.EventResponses'
-        "400":
-          description: 'error: Invalid json body parameters'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'error: Something went wrong'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create a new event
       tags:
       - Organization Events
   /orgs/{orgID}/events/{id}:
@@ -1146,7 +1333,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/service.EventResponses'
+              $ref: '#/definitions/dto.EventResponses'
             type: array
         "400":
           description: 'error: Invalid parameters'
@@ -1183,14 +1370,14 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/service.NewEventRequest'
+          $ref: '#/definitions/dto.NewEventRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.EventResponses'
+            $ref: '#/definitions/dto.EventResponses'
         "400":
           description: 'error: Invalid json body parameters'
           schema:
@@ -1206,6 +1393,87 @@ paths:
       summary: Update an event
       tags:
       - Organization Events
+  /orgs/{orgID}/events/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new event for a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Event data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.EventResponses'
+        "400":
+          description: 'error: Invalid json body parameters'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new event
+      tags:
+      - Organization Events
+  /orgs/{orgID}/jobs/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization open job
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Organization Open Job
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/dto.JobRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'message: Job created successfully'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request - json body is required or invalid / job title
+            is required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error - Something went wrong
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new organization open job
+      tags:
+      - Organization Job
   /orgs/{orgID}/jobs/delete/{id}:
     delete:
       consumes:
@@ -1321,48 +1589,6 @@ paths:
       summary: List all jobs of its organization
       tags:
       - Organization Job
-  /orgs/{orgID}/jobs/open:
-    post:
-      consumes:
-      - application/json
-      description: Create a new organization open job
-      parameters:
-      - description: Organization ID
-        in: path
-        name: orgID
-        required: true
-        type: integer
-      - description: Organization Open Job
-        in: body
-        name: org
-        required: true
-        schema:
-          $ref: '#/definitions/dto.JobRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: 'message: Job created successfully'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request - json body is required or invalid / job title
-            is required
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error - Something went wrong
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create a new organization open job
-      tags:
-      - Organization Job
   /orgs/{orgID}/jobs/update/{id}:
     put:
       consumes:
@@ -1407,6 +1633,111 @@ paths:
       summary: Update an organization open job by ID
       tags:
       - Organization Job
+  /orgs/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization BUT still not create the Contact and
+        OpenJob
+      parameters:
+      - description: Organization
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Organization'
+        "400":
+          description: 'error: Bad Request'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new organization
+      tags:
+      - Organization
+  /orgs/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: 'error: Bad Request - organization id is required'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete an organization by ID
+      tags:
+      - Organization
+  /orgs/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.OrganizationResponse'
+        "400":
+          description: 'error: organization id is required'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: organization not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get an organization by ID
+      tags:
+      - Organization
   /orgs/jobs/list/all:
     get:
       consumes:
@@ -1442,7 +1773,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Organization'
+              $ref: '#/definitions/dto.OrganizationResponse'
             type: array
         "500":
           description: 'error: Something went wrong'
@@ -1470,7 +1801,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Organization'
+              $ref: '#/definitions/dto.OrganizationResponse'
             type: array
         "400":
           description: 'error: invalid page'
@@ -1485,6 +1816,46 @@ paths:
               type: string
             type: object
       summary: Get a page of organizations
+      tags:
+      - Organization
+  /orgs/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Organization
+        in: body
+        name: org
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Organization'
+        "400":
+          description: 'error: Bad Request - json body is required or invalid / organization
+            name is required'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Something went wrong'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an organization by ID
       tags:
       - Organization
   /signup:

@@ -80,9 +80,9 @@ type OrganizationContactResponses struct {
 	MediaLink string `json:"mediaLink" example:"https://facebook.com"`
 }
 
-type OrganizationIndustryRequest struct {
-	Industries []uint `json:"industries" example:"1,2,3" validate:"required"`
-}
+// type OrganizationIndustryRequest struct {
+// 	Industries []uint `json:"industries" example:"1,2,3" validate:"required"`
+// }
 
 type IndustryResponses struct {
 	ID   uint   `json:"id" example:"1"`
@@ -121,7 +121,7 @@ type OrganizationResponse struct {
 	Email               string                         `json:"email" example:"daf_bridge@egat.co.th"`
 	Phone               string                         `json:"phone" example:"0812345678"`
 	OrganizationContact []OrganizationContactResponses `json:"organizationContacts"`
-	Industries          []IndustryResponses            `json:"industries" example:"1,2,3"`
+	Industries          []IndustryResponses            `json:"industries"`
 	UpdatedAt           string                         `json:"updatedAt" example:"2024-11-29 08:00:00"`
 }
 
