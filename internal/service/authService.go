@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -92,14 +91,14 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 	// Find User
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
-		return "", errors.New("invalid email or password")
+		return "", errs.NewUnauthorizedError("invalid email or password")
 	}
 
 	passwordStr := string(*user.Password) // Convert *string to string
 
 	// Check Password
 	if err := bcrypt.CompareHashAndPassword([]byte(passwordStr), []byte(password)); err != nil {
-		return "", errors.New("invalid email or password")
+		return "", errs.NewUnauthorizedError("invalid email or password")
 	}
 
 	// fmt.Println(user.ID)

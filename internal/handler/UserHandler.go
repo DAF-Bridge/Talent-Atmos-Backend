@@ -127,5 +127,5 @@ func (h *UserHandler) UploadProfilePicture(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update profile picture"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"pic_url": picURL})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"picUrl": picURL})
 }

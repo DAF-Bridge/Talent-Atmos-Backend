@@ -75,9 +75,14 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	// Generate token
 	token, err := h.authService.LogIn(req.Email, req.Password)
 	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
 		if errors.Is(err, errs.ErrEmailAlreadyRegistered) {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Email already registered"})
 		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
