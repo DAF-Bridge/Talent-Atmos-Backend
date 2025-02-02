@@ -5,12 +5,21 @@ import (
 )
 
 type OrganizationRepository interface {
-	GetByOrgID(id uint) (*models.Organization, error)
 	CreateOrganization(org *models.Organization) error
+	FindIndustryByIds(industryIDs []uint) ([]models.Industry, error)
+	GetByOrgID(id uint) (*models.Organization, error)
 	GetAllOrganizations() ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
-	UpdateOrganization(org *models.Organization) error
+	UpdateOrganization(org *models.Organization) (*models.Organization, error)
 	DeleteOrganization(id uint) error
+}
+
+type OrganizationContactRepository interface {
+	Create(orgID uint, org *models.OrganizationContact) error
+	GetByID(orgID uint, id uint) (*models.OrganizationContact, error)
+	GetAllByOrgID(orgID uint) ([]models.OrganizationContact, error)
+	Update(org *models.OrganizationContact) (*models.OrganizationContact, error)
+	Delete(orgID uint, id uint) error
 }
 
 type OrgOpenJobRepository interface {
@@ -22,10 +31,4 @@ type OrgOpenJobRepository interface {
 	GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error)
 	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
 	DeleteJob(orgID uint, jobID uint) error
-}
-
-type OrganizationContactRepository interface {
-	Create(org *models.OrganizationContact) error
-	Update(org *models.OrganizationContact) (*models.OrganizationContact, error)
-	Delete(orgID uint, id uint) error
 }

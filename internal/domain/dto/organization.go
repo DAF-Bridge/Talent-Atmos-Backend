@@ -18,6 +18,9 @@ type OrganizationShortRespones struct {
 	ID     uint   `json:"id" example:"1"`
 	Name   string `json:"name" example:"builds CMU"`
 	PicUrl string `json:"picUrl" example:"https://example.com/image.jpg"`
+	Email  string `json:"email" example:"example@gmail.com"`
+	Phone  string `json:"phone" example:"0812345678"`
+	Goal   string `json:"goal" example:"This is a goal"`
 }
 
 type JobRequest struct {
@@ -72,7 +75,7 @@ type OrganizationContactRequest struct {
 	MediaLink string `json:"mediaLink" example:"https://facebook.com" validate:"required"`
 }
 
-type OrganizationContactResponse struct {
+type OrganizationContactResponses struct {
 	Media     string `json:"media" example:"Facebook"`
 	MediaLink string `json:"mediaLink" example:"https://facebook.com"`
 }
@@ -81,8 +84,9 @@ type OrganizationIndustryRequest struct {
 	Industries []uint `json:"industries" example:"1,2,3" validate:"required"`
 }
 
-type OrganizationIndustryResponse struct {
-	Industries []string `json:"industries" example:"1,2,3"`
+type IndustryResponses struct {
+	ID   uint   `json:"id" example:"1"`
+	Name string `json:"name" example:"Software"`
 }
 
 type OrganizationRequest struct {
@@ -99,26 +103,26 @@ type OrganizationRequest struct {
 	Email                string                       `json:"email" example:"andaraiwin@gmail.com" validate:"required"`
 	Phone                string                       `json:"phone" example:"0812345678" validate:"required"`
 	OrganizationContacts []OrganizationContactRequest `json:"organizationContacts" validate:"required"`
-	Industries           []uint                       `json:"industries" example:"1,2,3" validate:"required"`
+	IndustryIDs          []uint                       `json:"industries" example:"1,2,3" validate:"required"`
 }
 
 type OrganizationResponse struct {
-	ID                  uint                          `json:"id" example:"1"`
-	Name                string                        `json:"name" example:"builds CMU"`
-	PicUrl              string                        `json:"picUrl" example:"https://example.com/image.jpg"`
-	Goal                []string                      `json:"goal" example:"This is a goal"`
-	Expertise           string                        `json:"expertise" example:"This is an expertise"`
-	Location            string                        `json:"location" example:"Chiang Mai"`
-	Subdistrict         string                        `json:"subdistrict" example:"Mueang"`
-	Province            string                        `json:"province" example:"Chiang Mai"`
-	PostalCode          string                        `json:"postalCode" example:"50000"`
-	Latitude            string                        `json:"latitude" example:"18.7876"`
-	Longitude           string                        `json:"longitude" example:"98.9937"`
-	Email               string                        `json:"email" example:"daf_bridge@egat.co.th"`
-	Phone               string                        `json:"phone" example:"0812345678"`
-	OrganizationContact []OrganizationContactResponse `json:"organizationContacts"`
-	Industries          []string                      `json:"industries" example:"1,2,3"`
-	UpdatedAt           string                        `json:"updatedAt" example:"2024-11-29 08:00:00"`
+	ID                  uint                           `json:"id" example:"1"`
+	Name                string                         `json:"name" example:"builds CMU"`
+	PicUrl              string                         `json:"picUrl" example:"https://example.com/image.jpg"`
+	Goal                []string                       `json:"goal" example:"This is a goal"`
+	Expertise           string                         `json:"expertise" example:"This is an expertise"`
+	Location            string                         `json:"location" example:"Chiang Mai"`
+	Subdistrict         string                         `json:"subdistrict" example:"Mueang"`
+	Province            string                         `json:"province" example:"Chiang Mai"`
+	PostalCode          string                         `json:"postalCode" example:"50000"`
+	Latitude            string                         `json:"latitude" example:"18.7876"`
+	Longitude           string                         `json:"longitude" example:"98.9937"`
+	Email               string                         `json:"email" example:"daf_bridge@egat.co.th"`
+	Phone               string                         `json:"phone" example:"0812345678"`
+	OrganizationContact []OrganizationContactResponses `json:"organizationContacts"`
+	Industries          []IndustryResponses            `json:"industries" example:"1,2,3"`
+	UpdatedAt           string                         `json:"updatedAt" example:"2024-11-29 08:00:00"`
 }
 
 type PaginateOrganizationResponse struct {

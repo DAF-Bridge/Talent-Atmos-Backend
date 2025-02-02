@@ -25,31 +25,26 @@ func NewOrganizationHandler(service service.OrganizationService) *OrganizationHa
 // @Tags Organization
 // @Accept json
 // @Produce json
-// @Param org body models.Organization true "Organization"
+// @Param org body dto.OrganizationRequest true "Organization"
 // @Success 201 {object} models.Organization
 // @Failure 400 {object} map[string]string "error: Bad Request"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs [post]
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
-	var org models.Organization
-	if err := c.BodyParser(&org); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	var org dto.OrganizationRequest
+	if err := utils.ParseJSONAndValidate(c, &org); err != nil {
+		return err
 	}
 
-	// Validate required fields
-	if org.Name == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization name is required"})
-	}
-
-	if err := h.service.CreateOrganization(&org); err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+	if err := h.service.CreateOrganization(org); err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(org)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Organization created successfully"})
 }
 
 // @Summary List all organizations
@@ -57,13 +52,13 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 // @Tags Organization
 // @Accept json
 // @Produce json
-// @Success 200 {array} models.Organization "OK"
+// @Success 200 {array} dto.OrganizationResponse
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/list [get]
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 	orgs, err := h.service.ListAllOrganizations()
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -79,7 +74,7 @@ func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Success 200 {object} models.Organization
+// @Success 200 {object} dto.OrganizationResponse
 // @Failure 400 {object} map[string]string "error: organization id is required"
 // @Failure 404 {object} map[string]string "error: organization not found"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
@@ -95,7 +90,7 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 
 	org, err := h.service.GetOrganizationByID(uint(orgID))
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -111,7 +106,7 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param page query int false "Page number"
-// @Success 200 {array} models.Organization
+// @Success 200 {array} dto.OrganizationResponse
 // @Failure 400 {object} map[string]string "error: invalid page"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/paginate [get]
@@ -124,7 +119,7 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 
 	organizations, err := h.service.GetPaginateOrganization(uint(page))
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -140,34 +135,34 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Param org body models.Organization true "Organization"
+// @Param org body dto.OrganizationRequest true "Organization"
 // @Success 200 {object} models.Organization
 // @Failure 400 {object} map[string]string "error: Bad Request - json body is required or invalid / organization name is required"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{id} [put]
 func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
-	var org models.Organization
-	if err := c.BodyParser(&org); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	var org dto.OrganizationRequest
+	if err := utils.ParseJSONAndValidate(c, &org); err != nil {
+		return err
 	}
-
 	orgID, err := c.ParamsInt("id")
-
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
+	if orgID < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
+	}
 
-	err = h.service.UpdateOrganization(uint(orgID), &org)
-
+	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org)
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(org)
+	return c.Status(fiber.StatusOK).JSON(updatedOrg)
 }
 
 // @Summary Delete an organization by ID
@@ -176,7 +171,7 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Success 200 {object} nil "OK"
+// @Success 200 {object} nil
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id is required"
 // @Failure 500 {object} map[string]string "error: Something went wrong"
 // @Router /orgs/{id} [delete]
@@ -191,14 +186,14 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.DeleteOrganization(uint(orgID)); err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(nil)
+	return c.SendStatus(fiber.StatusOK)
 }
 
 // --------------------------------------------------------------------------
@@ -239,7 +234,7 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.NewJob(uint(orgID), req); err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -260,7 +255,7 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
 	orgs, err := h.service.ListAllJobs()
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -291,7 +286,7 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 
 	org, err := h.service.GetAllJobsByOrgID(uint(orgID))
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -326,7 +321,7 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 
 	org, err := h.service.GetJobByID(uint(orgID), uint(jobID))
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -366,7 +361,7 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 
 	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req)
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -400,7 +395,7 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 
 	err = h.service.RemoveJob(uint(orgID), uint(jobID))
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 

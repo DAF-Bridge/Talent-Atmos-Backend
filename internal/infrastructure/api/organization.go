@@ -18,12 +18,12 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s
 
 	org := app.Group("/orgs")
 
-	org.Get("/paginate", organizationHandler.GetOrganizationPaginate)
+	app.Get("/orgs-paginate", organizationHandler.GetOrganizationPaginate)
 	org.Get("/list", organizationHandler.ListOrganizations)
-	org.Get("/:id", organizationHandler.GetOrganizationByID)
-	org.Post("/", organizationHandler.CreateOrganization)
-	org.Put("/:id", organizationHandler.UpdateOrganization)
-	org.Delete("/:id", organizationHandler.DeleteOrganization)
+	org.Post("/create", organizationHandler.CreateOrganization)
+	org.Get("/get/:id", organizationHandler.GetOrganizationByID)
+	org.Put("/update/:id", organizationHandler.UpdateOrganization)
+	org.Delete("/delete/:id", organizationHandler.DeleteOrganization)
 
 	// Dependencies Injections for Organization Open Jobs
 	orgOpenJobRepo := repository.NewOrgOpenJobRepository(db)
