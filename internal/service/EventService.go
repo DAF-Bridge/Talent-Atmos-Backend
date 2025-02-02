@@ -47,7 +47,6 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 
 		return dto.SearchEventResponse{}, errs.NewFiberUnexpectedError()
 	}
-
 	return eventsRes, nil
 }
 

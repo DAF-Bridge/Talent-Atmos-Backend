@@ -20,8 +20,6 @@ type EventService interface {
 	DeleteEvent(orgID uint, eventID uint) error
 }
 
-
-
 func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest) models.Event {
 	return models.Event{
 		OrganizationID: orgID,
@@ -33,10 +31,7 @@ func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest) models.Even
 		StartTime:      utils.TimeOnly{Time: utils.TimeParser(reqEvent.StartTime)},
 		EndTime:        utils.TimeOnly{Time: utils.TimeParser(reqEvent.EndTime)},
 		Timeline:       reqEvent.TimeLine,
-		Description:    reqEvent.Description,
-		Highlight:      reqEvent.Highlight,
-		Requirement:    reqEvent.Requirement,
-		KeyTakeaway:    reqEvent.KeyTakeaway,
+		Content:        reqEvent.Content,
 		LocationName:   reqEvent.LocationName,
 		Latitude:       reqEvent.Latitude,
 		Longitude:      reqEvent.Longitude,
@@ -60,9 +55,7 @@ func ConvertToEventResponse(event models.Event) dto.EventResponses {
 		StartTime:      event.StartTime.Format("15:04:05"),
 		EndTime:        event.EndTime.Format("15:04:05"),
 		TimeLine:       event.Timeline,
-		Description:    event.Description,
-		Highlight:      event.Highlight,
-		Requirement:    event.Requirement,
+		Content:        event.Content,
 		LocationName:   event.LocationName,
 		Latitude:       event.Latitude,
 		Longitude:      event.Longitude,

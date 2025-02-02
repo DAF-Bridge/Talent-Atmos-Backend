@@ -42,7 +42,7 @@ func setupTestDB() {
 		log.Fatal("Failed to create test table:", err)
 	}
 
-	if err := DB_TEST.Exec(`INSERT INTO events (id, organization_id, category_id, name, pic_url, start_date, end_date, start_time, end_time, description, highlight, requirement, key_takeaway, location_name, latitude, longitude, province, location_type, audience, price_type) VALUES (1, 1, 1, 'Builds Renewable Energy Summit', 'https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks', '2025-01-15', '2025-01-16', '09:00:00', '17:00:00', 'Explore advancements in renewable energy technologies.', 'Top speakers from the renewable energy sector.', 'Open to professionals in the energy sector.', 'Learn about the latest trends in solar and wind energy.', 'Conference Hall A', 13.7563, 100.5018, 'Bangkok', 'onsite', 'students', 'free');`).Error; err != nil {
+	if err := DB_TEST.Exec(`INSERT INTO events (id, organization_id, category_id, name, pic_url, start_date, end_date, start_time, end_time, content, location_name, latitude, longitude, province, location_type, audience, price_type) VALUES (1, 1, 1, 'Builds Renewable Energy Summit', 'https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks', '2025-01-15', '2025-01-16', '09:00:00', '17:00:00', '{"text": "Explore advancements in renewable energy technologies."}', 'Conference Hall A', 13.7563, 100.5018, 'Bangkok', 'onsite', 'students', 'free');`).Error; err != nil {
 		log.Fatal("Failed to insert test data:", err)
 	}
 

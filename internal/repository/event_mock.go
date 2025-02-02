@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -35,10 +36,7 @@ func NewEventRepositoryMock() MockEventRepository {
 					Activity: "Keynote Speech",
 				},
 			},
-			Description:  "Explore advancements in renewable energy technologies.",
-			Highlight:    "Top speakers from the renewable energy sector.",
-			Requirement:  "Open to professionals in the energy sector.",
-			KeyTakeaway:  "Learn about the latest trends in solar and wind energy.",
+			Content:      json.RawMessage(`{"text" : "Explore advancements in renewable energy technologies."}`),
 			LocationName: "Conference Hall A",
 			Latitude:     13.7563,
 			Longitude:    100.5018,
@@ -73,10 +71,7 @@ func NewEventRepositoryMock() MockEventRepository {
 					Activity: "Tech Innovations",
 				},
 			},
-			Description:  "Discover the latest in technology and innovation.",
-			Highlight:    "Leading tech companies showcasing their products.",
-			Requirement:  "Open to all tech enthusiasts.",
-			KeyTakeaway:  "Gain insights into future tech trends.",
+			Content:      json.RawMessage(`{"text" : "Discover the latest tech innovations and trends."}`),
 			LocationName: "Tech Expo Center",
 			Latitude:     37.7749,
 			Longitude:    -122.4194,
@@ -110,10 +105,7 @@ func NewEventRepositoryMock() MockEventRepository {
 					Activity: "Marketing Strategies",
 				},
 			},
-			Description:  "Explore the latest marketing strategies and trends.",
-			Highlight:    "Industry leaders sharing their insights.",
-			Requirement:  "Open to marketing professionals.",
-			KeyTakeaway:  "Learn about effective marketing techniques.",
+			Content:      json.RawMessage(`{"text" : "Learn about the latest marketing strategies and trends."}`),
 			LocationName: "Marketing Hall B",
 			Latitude:     40.7128,
 			Longitude:    -74.0060,
@@ -147,10 +139,7 @@ func NewEventRepositoryMock() MockEventRepository {
 					Activity: "Startup Pitches",
 				},
 			},
-			Description:  "Discover the latest startups and innovations.",
-			Highlight:    "Top startups showcasing their products.",
-			Requirement:  "Open to investors and entrepreneurs.",
-			KeyTakeaway:  "Learn about the startup ecosystem.",
+			Content:      json.RawMessage(`{"text" : "Discover the latest tech startups and innovations."}`),
 			LocationName: "Startup Hub",
 			Latitude:     51.5074,
 			Longitude:    -0.1278,
@@ -185,10 +174,7 @@ func NewEventRepositoryMock() MockEventRepository {
 					Activity: "Keynote Speech",
 				},
 			},
-			Description:  "Explore advancements in sustainable energy technologies.",
-			Highlight:    "Top speakers from the sustainable energy sector.",
-			Requirement:  "Open to professionals in the energy sector.",
-			KeyTakeaway:  "Learn about the latest trends in solar and wind energy.",
+			Content:      json.RawMessage(`{"text" : "Explore advancements in sustainable energy technologies."}`),
 			LocationName: "Conference Hall A",
 			Latitude:     13.7563,
 			Longitude:    100.5018,
@@ -330,10 +316,7 @@ func (e *eventRepositoryMock) Search(params map[string]string) ([]models.Event, 
 
 		if params["search"] != "" {
 			if !(strings.Contains(strings.ToLower(event.Name), strings.ToLower(params["search"])) ||
-				strings.Contains(strings.ToLower(event.Description), strings.ToLower(params["search"])) ||
-				strings.Contains(strings.ToLower(event.Highlight), strings.ToLower(params["search"])) ||
-				strings.Contains(strings.ToLower(event.Requirement), strings.ToLower(params["search"])) ||
-				strings.Contains(strings.ToLower(event.KeyTakeaway), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(string(event.Content)), strings.ToLower(params["search"])) ||
 				strings.Contains(strings.ToLower(event.LocationName), strings.ToLower(params["search"])) ||
 				strings.Contains(strings.ToLower(event.Province), strings.ToLower(params["search"]))) {
 				match = false

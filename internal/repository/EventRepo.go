@@ -22,7 +22,12 @@ func (r eventRepository) Create(orgID uint, event *models.Event) (*models.Event,
 		return nil, err
 	}
 
-	if err := r.db.Preload("Organization").Preload("Category").Where("organization_id = ? AND id = ?", orgID, event.ID).First(event).Error; err != nil {
+	if err := r.db.
+		Preload("Organization").
+		Preload("Category").
+		Where("organization_id = ? AND id = ?", orgID, event.ID).
+		First(event).Error; err != nil {
+
 		return nil, err
 	}
 
@@ -75,6 +80,7 @@ func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, erro
 	offset := int((page - 1) * size)
 
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
+		Preload("Organization").
 		Preload("Category").
 		Order("created_at desc").
 		Limit(int(size)).
@@ -126,7 +132,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	existingEvent.ID = eventID
 	existingEvent.OrganizationID = orgID
 	existingEvent.Name = event.Name
-	existingEvent.Description = event.Description
+	existingEvent.Content = event.Content
 	existingEvent.Audience = event.Audience
 	existingEvent.CategoryID = event.CategoryID // ensure category_id is updated
 	existingEvent.StartDate = event.StartDate
@@ -138,7 +144,6 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	existingEvent.Longitude = event.Longitude
 	existingEvent.PriceType = event.PriceType
 	existingEvent.Province = event.Province
-	existingEvent.Requirement = event.Requirement
 	existingEvent.Timeline = event.Timeline
 
 	// Save the updated event

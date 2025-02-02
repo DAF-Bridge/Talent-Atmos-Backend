@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+import (
+	"encoding/json"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+)
 
 type EventShortResponseDTO struct {
 	ID        int    `json:"id" example:"1"`
@@ -26,10 +30,7 @@ type NewEventRequest struct {
 	StartTime    string            `json:"startTime" example:"08:00" validate:"required"`
 	EndTime      string            `json:"endTime" example:"17:00" validate:"required"`
 	TimeLine     []models.Timeline `json:"timeLine"`
-	Description  string            `json:"description" example:"This is a description" validate:"required"`
-	Highlight    string            `json:"highlight" example:"This is a highlight" validate:"required"`
-	Requirement  string            `json:"requirement" example:"This is a requirement" validate:"required"`
-	KeyTakeaway  string            `json:"keyTakeaway" example:"This is a key takeaway" validate:"required"`
+	Content      json.RawMessage   `json:"content" example:"{\"key\":\"value\"}" validate:"required"`
 	LocationName string            `json:"locationName" example:"Bangkok" validate:"required"`
 	Latitude     float64           `json:"latitude" example:"13.7563" validate:"required"`
 	Longitude    float64           `json:"longitude" example:"100.5018" validate:"required"`
@@ -51,10 +52,7 @@ type EventResponses struct {
 	StartTime      string            `json:"startTime" example:"08:00"`
 	EndTime        string            `json:"endTime" example:"17:00"`
 	TimeLine       []models.Timeline `json:"timeLine"`
-	Description    string            `json:"description" example:"This is a description"`
-	Highlight      string            `json:"highlight" example:"This is a highlight"`
-	Requirement    string            `json:"requirement" example:"This is a requirement"`
-	KeyTakeaway    string            `json:"keyTakeaway" example:"This is a key takeaway"`
+	Content        json.RawMessage   `json:"content" example:"{\"key\":\"value\"}"`
 	LocationName   string            `json:"locationName" example:"builds CMU"`
 	Latitude       float64           `json:"latitude" example:"13.7563"`
 	Longitude      float64           `json:"longitude" example:"100.5018"`
