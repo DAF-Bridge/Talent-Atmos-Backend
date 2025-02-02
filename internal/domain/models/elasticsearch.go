@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type SearchQuery struct {
 	Page      int    `json:"page" form:"page"`               // The page number
 	Offset    int    `json:"offset" form:"offset"`           // The number of items per page
@@ -25,25 +27,23 @@ type SearchJobQuery struct {
 }
 
 type EventDocument struct {
-	ID                 uint    `json:"id"`
-	Name               string  `json:"name"`
-	PicUrl             string  `json:"picUrl"`
-	Description        string  `json:"description"`
-	KeyTakeaway        string  `json:"keyTakeaway"`
-	Highlight          string  `json:"highlight"`
-	LocationName       string  `json:"location"`
-	Latitude           float64 `json:"latitude"`
-	Longitude          float64 `json:"longitude"`
-	StartDate          string  `json:"startDate"`
-	StartTime          string  `json:"startTime"`
-	EndTime            string  `json:"endTime"`
-	EndDate            string  `json:"endDate"`
-	LocationType       string  `json:"locationType"`
-	Organization       string  `json:"organization"`
-	OrganizationPicUrl string  `json:"orgPicUrl"`
-	Category           string  `json:"category"`
-	Audience           string  `json:"audience"`
-	Price              string  `json:"price"`
+	ID                 uint            `json:"id"`
+	Name               string          `json:"name"`
+	PicUrl             string          `json:"picUrl"`
+	Content            json.RawMessage `json:"content"`
+	LocationName       string          `json:"location"`
+	Latitude           float64         `json:"latitude"`
+	Longitude          float64         `json:"longitude"`
+	StartDate          string          `json:"startDate"`
+	StartTime          string          `json:"startTime"`
+	EndTime            string          `json:"endTime"`
+	EndDate            string          `json:"endDate"`
+	LocationType       string          `json:"locationType"`
+	Organization       string          `json:"organization"`
+	OrganizationPicUrl string          `json:"orgPicUrl"`
+	Category           string          `json:"category"`
+	Audience           string          `json:"audience"`
+	Price              string          `json:"price"`
 }
 
 type JobDocument struct {
@@ -59,4 +59,15 @@ type JobDocument struct {
 	Categories   []string `json:"categories"`
 	Organization string   `json:"organization"`
 	OrgPicUrl    string   `json:"orgPicUrl"`
+}
+
+type OrganizationDocument struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	PicUrl      string `json:"picUrl"`
+	Description string `json:"description"`
+	Location    string `json:"location"`
+	Website     string `json:"website"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
 }
