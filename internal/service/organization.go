@@ -18,11 +18,11 @@ type OrganizationService interface {
 }
 
 type OrganizationContactService interface {
-	Create(orgID uint, org dto.OrganizationContactRequest) error
-	GetByID(orgID uint, id uint) (*dto.OrganizationContactResponses, error)
-	GetAllByOrgID(orgID uint) ([]dto.OrganizationContactResponses, error)
-	Update(orgID uint, org dto.OrganizationContactRequest) (*dto.OrganizationContactResponses, error)
-	Delete(orgID uint, id uint) error
+	CreateContact(orgID uint, org dto.OrganizationContactRequest) error
+	GetContactByID(orgID uint, id uint) (*dto.OrganizationContactResponses, error)
+	GetAllContactsByOrgID(orgID uint) ([]dto.OrganizationContactResponses, error)
+	UpdateContact(orgID uint, contactID uint, org dto.OrganizationContactRequest) (*dto.OrganizationContactResponses, error)
+	DeleteContact(orgID uint, id uint) error
 }
 
 type OrgOpenJobService interface {
@@ -91,6 +91,21 @@ func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.Organiza
 		OrganizationContacts: contacts,
 		Industries:           industries,
 		Model:                gorm.Model{UpdatedAt: time.Now()},
+	}
+}
+
+func convertToOrgContactResponse(contact models.OrganizationContact) dto.OrganizationContactResponses {
+	return dto.OrganizationContactResponses{
+		Media:     string(contact.Media),
+		MediaLink: contact.MediaLink,
+	}
+}
+
+func ConvertToOrgContactRequest(orgID uint, contact dto.OrganizationContactRequest) models.OrganizationContact {
+	return models.OrganizationContact{
+		OrganizationID: orgID,
+		Media:          models.Media(contact.Media),
+		MediaLink:      contact.MediaLink,
 	}
 }
 

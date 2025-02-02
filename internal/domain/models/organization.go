@@ -91,8 +91,8 @@ type OrganizationIndustry struct {
 type OrganizationContact struct {
 	gorm.Model
 	OrganizationID uint   `json:"organization_id"`
-	Media          Media  `gorm:"type:media;not null" json:"media"`
-	MediaLink      string `gorm:"type:varchar(255);not null" json:"media_link"`
+	Media          Media  `gorm:"type:varchar(50);not null" json:"media"`
+	MediaLink      string `gorm:"type:varchar(255);not null" json:"mediaLink"`
 }
 
 type OrgOpenJob struct {

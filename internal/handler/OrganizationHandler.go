@@ -197,6 +197,186 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 }
 
 // --------------------------------------------------------------------------
+// Organization Contact handler
+// --------------------------------------------------------------------------
+
+type OrganizationContactHandler struct {
+	service service.OrganizationContactService
+}
+
+func NewOrganizationContactHandler(service service.OrganizationContactService) *OrganizationContactHandler {
+	return &OrganizationContactHandler{service: service}
+}
+
+// @Summary Create a new organization contact
+// @Description Create a new organization contact
+// @Tags Organization Contacts
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Success 200 {object} map[string]string "message: Contact created successfully"
+// @Failure 400 {object} map[string]string "error: Bad Request - json body is required or invalid / contact media is required"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/contacts/create [post]
+func (h *OrganizationContactHandler) CreateContact(c *fiber.Ctx) error {
+	var req dto.OrganizationContactRequest
+	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
+		return err
+	}
+
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	if err := h.service.CreateContact(uint(orgID), req); err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Contact created successfully"})
+}
+
+// @Summary Create a new organization contact
+// @Description Create a new organization contact
+// @Tags Organization Contacts
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Param id path int true "Contact ID"
+// @Success 200 {object} dto.OrganizationContactResponses
+// @Failure 400 {object} map[string]string "error: Bad Request - organization id & contact id is required"
+// @Failure 404 {object} map[string]string "error: contact not found"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/contacts/get/{id} [get]
+func (h *OrganizationContactHandler) GetContactByID(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	contactID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "contact id is required"})
+	}
+
+	contact, err := h.service.GetContactByID(uint(orgID), uint(contactID))
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(contact)
+}
+
+// @Summary Create a new organization contact
+// @Description Create a new organization contact
+// @Tags Organization Contacts
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Success 200 {array} dto.OrganizationContactResponses
+// @Failure 400 {object} map[string]string "error: Bad Request - organization id is required"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/contacts/list [get]
+func (h *OrganizationContactHandler) GetAllContactsByOrgID(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	contacts, err := h.service.GetAllContactsByOrgID(uint(orgID))
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(contacts)
+}
+
+// @Summary Create a new organization contact
+// @Description Create a new organization contact
+// @Tags Organization Contacts
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Param id path int true "Contact ID"
+// @Param org body dto.OrganizationContactRequest true "Organization Contact"
+// @Success 200 {object} dto.OrganizationContactResponses
+// @Failure 400 {object} map[string]string "error: Bad Request - organization id & contact id is required"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/contacts/update/{id} [put]
+func (h *OrganizationContactHandler) UpdateContact(c *fiber.Ctx) error {
+	var req dto.OrganizationContactRequest
+	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
+		return err
+	}
+
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+	contactID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "contact id is required"})
+	}
+
+	updatedContact, err := h.service.UpdateContact(uint(orgID), uint(contactID), req)
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedContact)
+}
+
+// @Summary Create a new organization contact
+// @Description Create a new organization contact
+// @Tags Organization Contacts
+// @Accept json
+// @Produce json
+// @Param orgID path int true "Organization ID"
+// @Param id path int true "Contact ID"
+// @Success 200 {object} nil
+// @Failure 400 {object} map[string]string "error: Bad Request - organization id & contact id is required"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Router /orgs/{orgID}/contacts/delete/{id} [delete]
+func (h *OrganizationContactHandler) DeleteContact(c *fiber.Ctx) error {
+	orgID, err := c.ParamsInt("orgID")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	contactID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "contact id is required"})
+	}
+
+	err = h.service.DeleteContact(uint(orgID), uint(contactID))
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+// --------------------------------------------------------------------------
 // OrgOpenJob handler
 // --------------------------------------------------------------------------
 

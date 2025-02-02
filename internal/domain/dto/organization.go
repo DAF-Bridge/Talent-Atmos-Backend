@@ -71,12 +71,12 @@ type PaginatedJobsResponse struct {
 }
 
 type OrganizationContactRequest struct {
-	Media     string `json:"media" example:"Facebook" validate:"required"`
+	Media     string `json:"media" example:"facebook" validate:"required"`
 	MediaLink string `json:"mediaLink" example:"https://facebook.com" validate:"required"`
 }
 
 type OrganizationContactResponses struct {
-	Media     string `json:"media" example:"Facebook"`
+	Media     string `json:"media" example:"facebook"`
 	MediaLink string `json:"mediaLink" example:"https://facebook.com"`
 }
 

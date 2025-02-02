@@ -25,6 +25,17 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s
 	org.Put("/update/:id", organizationHandler.UpdateOrganization)
 	org.Delete("/delete/:id", organizationHandler.DeleteOrganization)
 
+	// Dependencies Injections for Organization Contact
+	orgContactRepo := repository.NewOrganizationContactRepository(db)
+	orgContactService := service.NewOrganizationContactService(orgContactRepo)
+	orgContactHandler := handler.NewOrganizationContactHandler(orgContactService)
+
+	org.Post("/:orgID/contacts/create", orgContactHandler.CreateContact)
+	org.Put("/:orgID/contacts/update/:id", orgContactHandler.UpdateContact)
+	org.Delete("/:orgID/contacts/delete/:id", orgContactHandler.DeleteContact)
+	org.Get("/:orgID/contacts/get/:id", orgContactHandler.GetContactByID)
+	org.Get("/:orgID/contacts/list", orgContactHandler.GetAllContactsByOrgID)
+
 	// Dependencies Injections for Organization Open Jobs
 	orgOpenJobRepo := repository.NewOrgOpenJobRepository(db)
 	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo, db, es, s3)

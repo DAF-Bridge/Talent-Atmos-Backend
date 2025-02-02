@@ -144,7 +144,6 @@ func (r organizationContactRepository) Create(orgID uint, contact *models.Organi
 func (r organizationContactRepository) GetByID(orgID uint, id uint) (*models.OrganizationContact, error) {
 	contact := &models.OrganizationContact{}
 	if err := r.db.
-		Preload("Organization").
 		Where("organization_id = ? AND id = ?", orgID, id).
 		First(contact).Error; err != nil {
 
@@ -156,7 +155,6 @@ func (r organizationContactRepository) GetByID(orgID uint, id uint) (*models.Org
 func (r organizationContactRepository) GetAllByOrgID(orgID uint) ([]models.OrganizationContact, error) {
 	var contancts []models.OrganizationContact
 	if err := r.db.
-		Preload("Organization").
 		Where("organization_id = ?", orgID).
 		Find(&contancts).Error; err != nil {
 

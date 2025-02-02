@@ -209,6 +209,117 @@ func (s organizationService) DeleteOrganization(id uint) error {
 }
 
 // --------------------------------------------------------------------------
+// Organization Contact Service
+// --------------------------------------------------------------------------
+type organizationContactService struct {
+	contactRepo repository.OrganizationContactRepository
+}
+
+func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository) OrganizationContactService {
+	return organizationContactService{contactRepo: contactRepo}
+}
+
+func (s organizationContactService) CreateContact(orgID uint, contact dto.OrganizationContactRequest) error {
+	reqContact := ConvertToOrgContactRequest(orgID, contact)
+
+	// Validate Media ENUM before inserting into DB
+	var validMediaTypes = map[string]bool{
+		"website":   true,
+		"tiktok":    true,
+		"youtube":   true,
+		"line":      true,
+		"facebook":  true,
+		"linkedIn":  true,
+		"instagram": true,
+	}
+
+	lowerMedia := strings.ToLower(contact.Media)
+	if !validMediaTypes[lowerMedia] {
+		return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+	}
+
+	reqContact.Media = models.Media(lowerMedia)
+
+	err := s.contactRepo.Create(orgID, &reqContact)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+func (s organizationContactService) GetContactByID(orgID uint, id uint) (*dto.OrganizationContactResponses, error) {
+	contact, err := s.contactRepo.GetByID(orgID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("contact not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	contactResponse := convertToOrgContactResponse(*contact)
+	return &contactResponse, nil
+}
+
+func (s organizationContactService) GetAllContactsByOrgID(orgID uint) ([]dto.OrganizationContactResponses, error) {
+	contacts, err := s.contactRepo.GetAllByOrgID(orgID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("contacts not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var contactsResponse []dto.OrganizationContactResponses
+	for _, contact := range contacts {
+		contactsResponse = append(contactsResponse, convertToOrgContactResponse(contact))
+	}
+
+	return contactsResponse, nil
+}
+
+func (s organizationContactService) UpdateContact(orgID uint, contactID uint, contact dto.OrganizationContactRequest) (*dto.OrganizationContactResponses, error) {
+	reqContact := ConvertToOrgContactRequest(orgID, contact)
+	reqContact.ID = contactID
+
+	updatedContact, err := s.contactRepo.Update(&reqContact)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("contact not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	contactResponse := convertToOrgContactResponse(*updatedContact)
+	return &contactResponse, nil
+}
+
+func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
+	err := s.contactRepo.Delete(orgID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("contact not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+// --------------------------------------------------------------------------
 // OrgOpenJob Service
 // --------------------------------------------------------------------------
 
