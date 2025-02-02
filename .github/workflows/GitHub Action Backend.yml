@@ -182,7 +182,7 @@ jobs:
             "username": "GitHub Actions",
             "embeds": [{
               "title": "Workflow $STATUS - $STAGE Stage",
-              "description": "Workflow: ${{ github.workflow }}\nActor: ${{ github.actor }}\nGithub-Commit-Head: ${{ github.sha }}\nBranch: ${{ github.ref_name }}\nRepository: ${{ github.repository }}\nCommit-msg: ${{ github.event.head_commit.message }}\nStatus: $STATUS\n[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+              "description": "Workflow: **${{ github.workflow }}**\\nActor: ${{ github.actor }}\nGithub-Commit-Head: ${{ github.sha }}\nBranch: **${{ github.ref_name }}**\\nRepository: **${{ github.repository }}**\\nCommit-msg: ${{ github.event.head_commit.message }}\nStatus: $STATUS\n[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
               "color": $(if [ "$STATUS" == "success" ]; then echo "3066993"; else echo "15158332"; fi)
             }]
           }
