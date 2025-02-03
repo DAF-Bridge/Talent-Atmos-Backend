@@ -108,7 +108,8 @@ func (s *AuthHandler) LogOut(c *fiber.Ctx) error {
 		Value:    "",                             // empty value
 		Expires:  time.Now().Add(-1 * time.Hour), // set expiry in the past
 		HTTPOnly: true,
-		SameSite: "Lax",
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",
+		SameSite: fiber.CookieSameSiteNoneMode,
 		Path:     "/", // important: must match the path used when setting
 	})
 	// Optionally, redirect to a logout page or send a response
