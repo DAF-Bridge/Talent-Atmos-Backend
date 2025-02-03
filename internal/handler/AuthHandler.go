@@ -89,12 +89,12 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	// Set the JWT token in a cookie after redirect
 	c.Cookie(&fiber.Cookie{
 		Name:     "authToken",
-		Value:    token,                                    // Token from the auth service
-		Expires:  time.Now().Add(time.Hour * 24 * 7),       // Set expiration for 7 days
-		HTTPOnly: true,                                     // Prevent JavaScript access to the cookie
-		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
-		SameSite: "None",                                   // Allow cross-site cookie sharing
-		Path:     "/",                                      // Path for which the cookie is valid
+		Value:    token,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
+		HTTPOnly: true,                               // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",  // Only send the cookie over HTTPS in production
+		SameSite: fiber.CookieSameSiteNoneMode,       // Allow cross-site cookie sharing
+		Path:     "/",                                // Path for which the cookie is valid
 	})
 
 	// Send response and return nil to ensure proper handling
