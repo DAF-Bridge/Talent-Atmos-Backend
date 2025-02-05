@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -57,6 +58,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 	// Start the transaction for creating the user and profile
 	if err := s.userRepo.Create(user); err != nil {
 		tx.Rollback() // Rollback if user creation fails
+		logs.Error("Failed to create user")
 		return "", err
 	}
 
@@ -65,12 +67,14 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 	// Create the profile
 	if err := s.profileRepo.Create(profile); err != nil {
 		tx.Rollback() // Rollback if profile creation fails
+		logs.Error("Failed to create profile")
 		return "", err
 	}
 
 	// Commit the transaction if everything is successful
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback() // Rollback if commit fails
+		logs.Error("Failed to commit create user transaction")
 		return "", err
 	}
 

@@ -28,7 +28,7 @@ func NewOrganizationHandler(service service.OrganizationService) *OrganizationHa
 // @Param org body dto.OrganizationRequest true "Organization"
 // @Success 201 {object} models.Organization
 // @Failure 400 {object} map[string]string "error: Bad Request"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/create [post]
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	var org dto.OrganizationRequest
@@ -53,7 +53,7 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {array} dto.OrganizationResponse
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/list [get]
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 	orgs, err := h.service.ListAllOrganizations()
@@ -77,7 +77,7 @@ func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 // @Success 200 {object} dto.OrganizationResponse
 // @Failure 400 {object} map[string]string "error: organization id is required"
 // @Failure 404 {object} map[string]string "error: organization not found"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/get/{id} [get]
 func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("id")
@@ -108,7 +108,7 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 // @Param page query int false "Page number"
 // @Success 200 {array} dto.OrganizationResponse
 // @Failure 400 {object} map[string]string "error: invalid page"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/paginate [get]
 func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
@@ -138,7 +138,7 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 // @Param org body dto.OrganizationRequest true "Organization"
 // @Success 200 {object} models.Organization
 // @Failure 400 {object} map[string]string "error: Bad Request - json body is required or invalid / organization name is required"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/update/{id} [put]
 func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	var org dto.OrganizationRequest
@@ -173,7 +173,7 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 // @Param id path int true "Organization ID"
 // @Success 200 {object} nil
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id is required"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/delete/{id} [delete]
 func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("id")
@@ -216,7 +216,7 @@ func NewOrganizationContactHandler(service service.OrganizationContactService) *
 // @Param orgID path int true "Organization ID"
 // @Success 200 {object} map[string]string "message: Contact created successfully"
 // @Failure 400 {object} map[string]string "error: Bad Request - json body is required or invalid / contact media is required"
-// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/contacts/create [post]
 func (h *OrganizationContactHandler) CreateContact(c *fiber.Ctx) error {
 	var req dto.OrganizationContactRequest
@@ -250,7 +250,7 @@ func (h *OrganizationContactHandler) CreateContact(c *fiber.Ctx) error {
 // @Success 200 {object} dto.OrganizationContactResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & contact id is required"
 // @Failure 404 {object} map[string]string "error: contact not found"
-// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/contacts/get/{id} [get]
 func (h *OrganizationContactHandler) GetContactByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -283,7 +283,7 @@ func (h *OrganizationContactHandler) GetContactByID(c *fiber.Ctx) error {
 // @Param orgID path int true "Organization ID"
 // @Success 200 {array} dto.OrganizationContactResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id is required"
-// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/contacts/list [get]
 func (h *OrganizationContactHandler) GetAllContactsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -313,7 +313,7 @@ func (h *OrganizationContactHandler) GetAllContactsByOrgID(c *fiber.Ctx) error {
 // @Param org body dto.OrganizationContactRequest true "Organization Contact"
 // @Success 200 {object} dto.OrganizationContactResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & contact id is required"
-// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/contacts/update/{id} [put]
 func (h *OrganizationContactHandler) UpdateContact(c *fiber.Ctx) error {
 	var req dto.OrganizationContactRequest
@@ -351,7 +351,7 @@ func (h *OrganizationContactHandler) UpdateContact(c *fiber.Ctx) error {
 // @Param id path int true "Contact ID"
 // @Success 200 {object} nil
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & contact id is required"
-// @Failure 500 {object} map[string]string "error: Internal Server Error - Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/contacts/delete/{id} [delete]
 func (h *OrganizationContactHandler) DeleteContact(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -398,7 +398,7 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 // @Param org body dto.JobRequest true "Organization Open Job"
 // @Success 201 {object} map[string]string "message: Job created successfully"
 // @Failure 400 {object} map[string]string "Bad Request - json body is required or invalid / job title is required"
-// @Failure 500 {object} map[string]string "Internal Server Error - Something went wrong"
+// @Failure 500 {object} map[string]string "Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/jobs/create [post]
 func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
@@ -430,7 +430,7 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {array} dto.JobResponses
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/jobs/list/all [get]
 func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
 	orgs, err := h.service.ListAllJobs()
@@ -453,7 +453,7 @@ func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
 // @Param orgID path int true "Organization ID"
 // @Success 200 {array} dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id is required"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/list [get]
 func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -486,7 +486,7 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 // @Success 200 {object} dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & job id is required"
 // @Failure 404 {object} map[string]string "error: jobs not found"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/get/{id} [get]
 func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -521,7 +521,7 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 // @Param org body dto.JobRequest true "Organization Open Job"
 // @Success 200 {object} dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & job id is required"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/update/{id} [put]
 func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
@@ -560,7 +560,7 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 // @Param id path int true "Job ID"
 // @Success 200 {object} nil
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & job id is required"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/delete/{id} [delete]
 func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -602,7 +602,7 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 // @Param offset query int false "Number of items per page" default(12)
 // @Success 200 {object} []dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - invalid query parameters"
-// @Failure 500 {object} map[string]string "error: Bad Request - something went wrong"
+// @Failure 500 {object} map[string]string "error: Bad Request - Internal Server Error"
 // @Router /jobs-paginate/search [get]
 func (h *OrgOpenJobHandler) SearchJobs(c *fiber.Ctx) error {
 	page := 1

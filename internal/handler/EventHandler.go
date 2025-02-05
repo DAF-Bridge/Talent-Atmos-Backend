@@ -63,7 +63,7 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 // @Param event body dto.NewEventRequest true "Event data"
 // @Success 201 {object} dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid json body parameters"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events/create [post]
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	var event dto.NewEventRequest
@@ -98,7 +98,7 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {array} []dto.EventResponses
 // @Failure 404 {object} map[string]string "error: events not found"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /events [get]
 func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 
@@ -122,7 +122,7 @@ func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 // @Param orgID path int true "Organization ID"
 // @Success 200 {array} []dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events [get]
 func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -152,7 +152,7 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 // @Param id path int true "Event ID"
 // @Success 200 {object} []dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events/{id} [get]
 func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -186,7 +186,7 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 // @Param page query int true "Page number"
 // @Success 200 {object} dto.PaginatedEventsResponse
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
-// @Failure 500 {object} map[string]string "error: something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /events-paginate [get]
 func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
@@ -223,7 +223,7 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Param event body dto.NewEventRequest true "Event data"
 // @Success 200 {object} dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid json body parameters"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events/{id} [put]
 func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	var req dto.NewEventRequest
@@ -264,7 +264,7 @@ func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 // @Param id path int true "Event ID"
 // @Success 200 {object} map[string]string "message: event deleted successfully"
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
-// @Failure 500 {object} map[string]string "error: Something went wrong"
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events/{id} [delete]
 func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
@@ -311,7 +311,7 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 // @Success 200 {array} []dto.EventResponses
 // @Failure 400 {object} map[string]string "error - Invalid query parameters"
 // @Failure 404 {object} map[string]string "error - events not found"
-// @Failure 500 {object} map[string]string "error - Something went wrong"
+// @Failure 500 {object} map[string]string "error - Internal Server Error"
 // @Router /events-paginate/search [get]
 func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
 	page := 1

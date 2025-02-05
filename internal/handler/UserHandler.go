@@ -47,7 +47,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {array} models.User
-// @Failure 500 {object} fiber.Map "Internal server error - Something went wrong"
+// @Failure 500 {object} fiber.Map "Internal server error - Internal Server Error"
 // @Router /users [get]
 func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 	users, err := h.service.ListUsers()
@@ -60,9 +60,10 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 
 func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	userData, ok := c.Locals("user").(jwt.MapClaims)
-	fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
+	// fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
 
 	if !ok {
+		logs.Error("Failed to get user data")
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
 	}
 
@@ -70,19 +71,22 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	userID, ok := userData["user_id"].(string) // JSON numbers are parsed as string
 
 	if !ok {
+		logs.Error("Failed to get user_id")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id 2 uuid"})
 	}
-	println(userID)
+	// println(userID)
 
 	// Convert user_id to uint
 	currentUserID, err := uuid.Parse(userID)
 	if err != nil {
-		println(err.Error())
+		// println(err.Error())
+		logs.Error("Failed to parse user_id")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id"})
 	}
 
 	currentUserProfile, err := h.service.GetCurrentUserProfile(currentUserID)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to get current user profile: %v", err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 

@@ -1,0 +1,51 @@
+# Binaries for programs and plugins
+*/tmp
+*/tmp/*
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of the go coverage tool
+*.out
+
+# Logs
+*.log
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# IDE directories
+.idea/
+.vscode/
+
+# Node modules (if any)
+node_modules/
+
+# Docker files
+Dockerfile
+docker-compose.yml
+*.yml
+
+# Environment variables
+.env
+.env.example
+
+# Fiber specific
+fiber.lock
+
+# Readme
+README.md
+
+# Github
+.github/*
+
+# Migrate
+*/migrate
+/migrate
+*/migrate/*

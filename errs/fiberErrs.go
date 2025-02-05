@@ -28,7 +28,7 @@ func NewFiberNotFoundError(message string) error {
 func NewFiberUnexpectedError() error {
 	return FiberError{
 		Code:    fiber.StatusInternalServerError,
-		Message: "something went wrong",
+		Message: "Internal Server Error",
 	}
 }
 

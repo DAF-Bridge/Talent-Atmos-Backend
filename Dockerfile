@@ -1,6 +1,8 @@
 # Start from the official Golang base image
 FROM golang:1.23.4-alpine
 
+#RUN apk add --no-cache git
+
 # Set the Current Working Directory inside the container
 WORKDIR /usr/src/app
 
@@ -14,10 +16,10 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Run tests before building the Go app
-# RUN go test -tags=unit ./...
+# RUN go test -tags=unit ./internal/test/unit/
 
 # Run integration tests
-# RUN go test -tags=integration ./...
+# RUN go test -tags=integration ./internal/test/integration/
 
 # Build the Go app
 RUN go build -v -o /usr/local/bin/app ./
@@ -28,3 +30,4 @@ EXPOSE 8080
 
 # Command to run the executable
 CMD ["go", "run", "./main.go"]
+# ENTRYPOINT ["go", "run", "./main.go"]

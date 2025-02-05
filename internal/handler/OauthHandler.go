@@ -4,12 +4,15 @@ import (
 	// "context"
 	// "encoding/json"
 
+	"fmt"
 	"os"
 
 	// "time"
 
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	// "golang.org/x/oauth2"
@@ -151,6 +154,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	// Complete the OAuth process
 	user, err := goth_fiber.CompleteUserAuth(c)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to complete OAuth: %v", err))
 		return c.Redirect(baseFrontendUrl + "/login") // when user tried to revert the oauth flow
 		// return c.Status(500).SendString("Failed to complete " + err.Error())
 	}
@@ -158,6 +162,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	// create or update a user record in your DB and Generate token
 	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to authenticate user: %v", err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 

@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -54,5 +57,18 @@ func (s UserService) ListUsers() ([]models.User, error) {
 }
 
 func (s UserService) GetCurrentUserProfile(userId uuid.UUID) (*models.Profile, error) {
-	return s.userRepo.GetProfileByUserID(userId)
+	profile, err := s.userRepo.GetProfileByUserID(userId)
+
+	// fmt.Println("profile", profile)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logs.Error("Profile not found")
+			return nil, err
+		}
+
+		logs.Error(fmt.Sprintf("Failed to get profile: %v", err))
+		return nil, err
+	}
+
+	return profile, nil
 }

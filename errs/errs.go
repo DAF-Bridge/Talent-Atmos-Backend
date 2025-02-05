@@ -23,7 +23,7 @@ func NewNotFoundError(message string) error {
 func NewUnexpectedError() error {
 	return AppError{
 		Code:    http.StatusInternalServerError,
-		Message: "Something went wrong",
+		Message: "Internal Server Error",
 	}
 }
 
