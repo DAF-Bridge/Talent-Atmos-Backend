@@ -18,10 +18,7 @@ func InitOAuth() {
 		ClientID:     ClientID,
 		ClientSecret: ClientSecret,
 		RedirectURL:  RedirectURL,
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.profile",
-			"https://www.googleapis.com/auth/userinfo.email",
-		},
+		Scopes: []string{"email", "profile"},
 		Endpoint: google.Endpoint,
 	}
 }

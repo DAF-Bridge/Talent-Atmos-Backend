@@ -30,7 +30,7 @@ func AuthMiddleware(jwtSecret string) fiber.Handler {
 			}
 		}
 
-		println("tokenString: " + tokenString)
+		// println("tokenString: " + tokenString)
 
 		// Verify the token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
