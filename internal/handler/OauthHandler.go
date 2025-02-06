@@ -6,8 +6,7 @@ import (
 
 	"fmt"
 	"os"
-
-	// "time"
+	"time"
 
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
@@ -24,7 +23,7 @@ type OauthHandler struct {
 }
 
 func NewOauthHandler(oauthService *service.OauthService) *OauthHandler {
-	return &OauthHandler{ oauthService: oauthService	}
+	return &OauthHandler{oauthService: oauthService}
 }
 
 // // GoogleLogin starts the Google OAuth process
@@ -56,7 +55,7 @@ func NewOauthHandler(oauthService *service.OauthService) *OauthHandler {
 //             "error": "No state found",
 //         })
 //     }
-    
+
 //     // Clear the oauth state cookie
 //     c.Cookie(&fiber.Cookie{
 //         Name:     "oauth_state",
@@ -129,16 +128,13 @@ func NewOauthHandler(oauthService *service.OauthService) *OauthHandler {
 // 		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
 // 		HTTPOnly: true, // Prevent JavaScript access to the cookie
 // 		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
-// 		SameSite: "None", 
+// 		SameSite: "None",
 // 		Path:     "/", // Path for which the cookie is valid
 // 	})
 
 // 	// Redirect first
 // 	return c.Redirect(baseFrontendURL + "/oauth/callback")
 // }
-
-
-
 
 //  old version
 
@@ -166,19 +162,16 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Set HTTPOnly cookie
-	cookie := new(fiber.Cookie)
-	cookie.Name = "authToken"
-	cookie.Value = token
-	cookie.HTTPOnly = true
-	cookie.Secure = true // Enable if using HTTPS
-	cookie.Path = "/"
-	// Set other cookie options as needed
-	cookie.MaxAge = 24 * 60 * 60 // 24 hours, adjust as needed
-	cookie.Domain = os.Getenv("COOKIE_DOMAIN") // Set your domain
-	cookie.SameSite = "Lax" // Or "Strict" based on your security requirements
-
-	c.Cookie(cookie)
+	c.Cookie(&fiber.Cookie{
+		Name:     "authToken",
+		Value:    token,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
+		HTTPOnly: true,                               // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",  // Only send the cookie over HTTPS in production
+		SameSite: fiber.CookieSameSiteNoneMode,       // Allow cross-site cookie sharing
+		Path:     "/",                                // Path for which the cookie is valid
+		Domain:   os.Getenv("COOKIE_DOMAIN"),         // Domain for which the cookie is valid
+	})
 
 	// Redirect to frontend without token in URL
 	return c.Redirect(baseFrontendUrl + "/oauth/callback")
