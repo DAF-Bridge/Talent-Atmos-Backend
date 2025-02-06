@@ -1,10 +1,12 @@
 # Start from the official Golang base image
-FROM golang:1.23.4-alpine
+FROM golang:1.23.4-alpine AS builder
 
 #RUN apk add --no-cache git
 
 # Set the Current Working Directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /app
+
+RUN apk --no-cache add ca-certificates
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -21,13 +23,21 @@ COPY . .
 # Run integration tests
 # RUN go test -tags=integration ./internal/test/integration/
 
-# Build the Go app
-RUN go build -v -o /usr/local/bin/app ./
-# RUN go build -o main .
+ENV CGO_ENABLED=0 
 
-# Expose port 8080 to the outside world
+# Build the Go app
+RUN go build -ldflags="-s -w" -v -o /usr/local/bin/app ./
+
+# Empty image
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=builder /usr/local/bin/app /usr/local/bin/app
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["go", "run", "./main.go"]
-# ENTRYPOINT ["go", "run", "./main.go"]
+CMD ["/usr/local/bin/app"]
