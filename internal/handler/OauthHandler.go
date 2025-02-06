@@ -11,6 +11,7 @@ import (
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+	"github.com/golang-jwt/jwt/v5"
 
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
@@ -175,6 +176,22 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 
 	// Redirect to frontend without token in URL
 	return c.Redirect(baseFrontendUrl + "/oauth/callback")
+}
+
+func (h *OauthHandler) Me(c *fiber.Ctx) error {
+
+	userClaims, ok := c.Locals("user").(jwt.MapClaims)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	// Return the authenticated user
+	return c.JSON(fiber.Map{
+		"user": fiber.Map{
+			"name":  userClaims["name"],
+			"email": userClaims["email"],
+		},
+	})
 }
 
 // func (h *OauthHandler) GoogleLogOut(c *fiber.Ctx) error {

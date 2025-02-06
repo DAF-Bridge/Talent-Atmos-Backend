@@ -91,3 +91,4 @@ func (s *OauthService) generateJWT(user *models.User) (string, error) {
 	})
 	return token.SignedString([]byte(s.jwtSecret))
 }
+
