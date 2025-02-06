@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -14,7 +15,12 @@ type organizationRepository struct {
 	db *gorm.DB
 }
 
-// Constructor
+func (r organizationRepository) FindInOrgIDList(orgIds []uint) ([]models.Organization, error) {
+	var orgs []models.Organization
+	err := r.db.Where("id IN (?)", orgIds).Find(&orgs).Error
+	return orgs, err
+}
+
 func NewOrganizationRepository(db *gorm.DB) OrganizationRepository {
 	return organizationRepository{db: db}
 }
@@ -38,7 +44,7 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
 		Order("created_at desc").Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&orgs).Error
 
 	if err != nil {
@@ -67,7 +73,7 @@ func (r organizationRepository) DeleteOrganization(id uint) error {
 	err := r.db.Delete("id = ?", id).First(&org).Error
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("organization not found: %w", err)
 		}
 
@@ -78,13 +84,6 @@ func (r organizationRepository) DeleteOrganization(id uint) error {
 	return nil
 }
 
-// GetListByID
-func (r *OrganizationRepository) GetListByID(ids []uint) ([]models.Organization, error) {
-	var orgs []models.Organization
-	err := r.db.Find(&orgs, ids).Error
-	return orgs, err
-}
-
 // --------------------------------------------------------------------------
 // OrgOpenJob Repository
 // --------------------------------------------------------------------------
@@ -93,7 +92,6 @@ type orgOpenJobRepository struct {
 	db *gorm.DB
 }
 
-// Constructor
 func NewOrgOpenJobRepository(db *gorm.DB) OrgOpenJobRepository {
 	return orgOpenJobRepository{db: db}
 }
@@ -166,7 +164,7 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 		Preload("Categories").
 		Order("created_at desc").
 		Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&orgs).Error
 
 	if err != nil {

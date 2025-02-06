@@ -20,7 +20,7 @@ type OauthHandler struct {
 }
 
 func NewOauthHandler(oauthService *service.OauthService) *OauthHandler {
-	return &OauthHandler{ oauthService: oauthService	}
+	return &OauthHandler{oauthService: oauthService}
 }
 
 // GoogleLogin starts the Google OAuth process
@@ -28,16 +28,16 @@ func (h *OauthHandler) GoogleLogin(c *fiber.Ctx) error {
 	// Generate a new state string for each OAuth flow to prevent CSRF attacks
 	state := utils.GenerateStateString()
 
-    // Store state in a temporary cookie
-    c.Cookie(&fiber.Cookie{
-        Name:     "oauth_state",
-        Value:    state,
-        Expires:  time.Now().Add(5 * time.Minute),
-        Secure:   os.Getenv("ENVIRONMENT") == "production",
-        HTTPOnly: true,
-        SameSite: "Lax",
-		Path:     "/",  // important: must match the path
-    })
+	// Store state in a temporary cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     "oauth_state",
+		Value:    state,
+		Expires:  time.Now().Add(5 * time.Minute),
+		Secure:   os.Getenv("ENVIRONMENT") == "production",
+		HTTPOnly: true,
+		SameSite: "Lax",
+		Path:     "/", // important: must match the path
+	})
 
 	url := initializers.OauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 	return c.Redirect(url, fiber.StatusTemporaryRedirect)
@@ -45,41 +45,41 @@ func (h *OauthHandler) GoogleLogin(c *fiber.Ctx) error {
 
 // GoogleCallback handles the callback from Google
 func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
-    // Get state from cookie
-    savedState := c.Cookies("oauth_state")
-    if savedState == "" {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "No state found",
-        })
-    }
-    
-    // Clear the oauth state cookie
-    c.Cookie(&fiber.Cookie{
-        Name:     "oauth_state",
-        Value:    "",  // empty value
-        Expires:  time.Now().Add(-1 * time.Hour), // set expiry in the past
-        HTTPOnly: true,
-        SameSite: "Lax",
-        Path:     "/",  // important: must match the path used when setting
-    })
+	// Get state from cookie
+	savedState := c.Cookies("oauth_state")
+	if savedState == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "No state found",
+		})
+	}
+
+	// Clear the oauth state cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     "oauth_state",
+		Value:    "",                             // empty value
+		Expires:  time.Now().Add(-1 * time.Hour), // set expiry in the past
+		HTTPOnly: true,
+		SameSite: "Lax",
+		Path:     "/", // important: must match the path used when setting
+	})
 
 	// Get and validate required parameters
-    code := c.Query("code")
-    returnedState := c.Query("state")
-    baseFrontendURL := os.Getenv("BASE_EXTERNAL_URL")
+	code := c.Query("code")
+	returnedState := c.Query("state")
+	baseFrontendURL := os.Getenv("BASE_EXTERNAL_URL")
 	if code == "" {
-        return c.Redirect(baseFrontendURL + "/login") // when user tried to revert the oauth flow
-    }
-    if baseFrontendURL == "" {
-        return c.Status(fiber.StatusInternalServerError).SendString("Frontend URL is not configured")
-    }
+		return c.Redirect(baseFrontendURL + "/login") // when user tried to revert the oauth flow
+	}
+	if baseFrontendURL == "" {
+		return c.Status(fiber.StatusInternalServerError).SendString("Frontend URL is not configured")
+	}
 
-    // Validate state
-    if savedState != returnedState {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "Invalid state parameter",
-        })
-    }
+	// Validate state
+	if savedState != returnedState {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid state parameter",
+		})
+	}
 
 	// Exchange the authorization code for an access token
 	token, err := initializers.OauthConfig.Exchange(context.Background(), code)
@@ -121,20 +121,17 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	// Set the JWT token in a cookie after redirect
 	c.Cookie(&fiber.Cookie{
 		Name:     "authToken",
-		Value:    tokenString, // Token from the auth service
-		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
-		HTTPOnly: true, // Prevent JavaScript access to the cookie
+		Value:    tokenString,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7),       // Set expiration for 7 days
+		HTTPOnly: true,                                     // Prevent JavaScript access to the cookie
 		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
-		SameSite: "None", 
+		SameSite: "None",
 		Path:     "/", // Path for which the cookie is valid
 	})
 
 	// Redirect first
 	return c.Redirect(baseFrontendURL + "/oauth/callback")
 }
-
-
-
 
 //  old version
 
@@ -153,7 +150,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 // 	}
 
 // 	// create or update a user record in your DB and Generate token
-// 	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.UserID)
+// 	token, err := h.oauthService.AuthenticateUser(user.Name, user.Email, user.Provider, user.InvitedUserID)
 // 	if err != nil {
 // 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 // 	}

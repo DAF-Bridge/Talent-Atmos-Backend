@@ -57,7 +57,7 @@ func (s UserService) GetCurrentUserProfile(userId uuid.UUID) (*models.Profile, e
 	return s.userRepo.GetProfileByUserID(userId)
 }
 
-func (s *UserService) IsExistByID(userId uuid.UUID) (bool, error) {
-	return s.repo.IsExistByID(userId)
+func (s *UserService) FindByUserID(userId uuid.UUID) (*models.User, error) {
+	return s.userRepo.FindByID(userId)
 
 }

@@ -4,29 +4,35 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"strconv"
 )
 
-func GetUserIDFormFiberCtx(c *fiber.Ctx) (string, error) {
+func GetUserIDFormFiberCtx(c *fiber.Ctx) (uuid.UUID, error) {
 	userData, ok := c.Locals("user").(jwt.MapClaims)
 	// fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
 
 	if !ok {
-		return "", fmt.Errorf("unauthorized")
+		return uuid.UUID{}, fmt.Errorf("unauthorized")
 	}
 
 	// Access the user_id
 	userID, ok := userData["user_id"].(string) // JSON numbers are parsed as string
 	if !ok {
-		return "", fmt.Errorf("invalid user_id ")
+		return uuid.UUID{}, fmt.Errorf("invalid user_id ")
 	}
-	return userID, nil
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return uuid.UUID{}, fmt.Errorf("invalid user_id ")
+	}
+	return userUUID, nil
 
 }
 
 func GetOrgIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
 	// Access the organization
-	orgID, err := c.ParamsInt("id")
+	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return 0, fmt.Errorf("organization id is required")
 	}

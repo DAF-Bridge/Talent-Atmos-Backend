@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/casbin/casbin/v2"
 )
 
@@ -17,7 +17,7 @@ func (p *PolicyRoleService) AddPolicyForRoleInDomain(role string, domain string,
 	return p.enforcer.AddPolicy(role, domain, obj, action)
 }
 
-func (p *PolicyRoleService) AddPoliciesForRoleInDomain(role string, domain string, policies []domain.Policy) (bool, error) {
+func (p *PolicyRoleService) AddPoliciesForRoleInDomain(role string, domain string, policies []repository.Policy) (bool, error) {
 	return p.enforcer.AddPolicies(createPolices(role, domain, policies))
 }
 
@@ -25,7 +25,7 @@ func (p *PolicyRoleService) DeletePolicyForRoleInDomain(obj string, domain strin
 	return p.enforcer.RemovePolicy(role, domain, obj, action)
 }
 
-func (p *PolicyRoleService) DeletePoliciesForRoleInDomain(role string, domain string, policies []domain.Policy) (bool, error) {
+func (p *PolicyRoleService) DeletePoliciesForRoleInDomain(role string, domain string, policies []repository.Policy) (bool, error) {
 	return p.enforcer.RemovePolicies(createPolices(role, domain, policies))
 }
 
@@ -37,7 +37,7 @@ func (p *PolicyRoleService) GetRolesForPolicyInDomain(domain string, obj string,
 	return p.enforcer.GetFilteredNamedPolicy("p", 1, domain, obj, action)
 }
 
-func createPolices(role string, domain string, policies []domain.Policy) [][]string {
+func createPolices(role string, domain string, policies []repository.Policy) [][]string {
 	var polices [][]string
 	for _, policy := range policies {
 		polices = append(polices, []string{role, domain, policy.Resource, policy.Action})

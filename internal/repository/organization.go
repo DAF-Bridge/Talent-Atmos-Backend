@@ -11,6 +11,7 @@ type OrganizationRepository interface {
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
 	UpdateOrganization(org *models.Organization) error
 	DeleteOrganization(id uint) error
+	FindInOrgIDList(orgIds []uint) ([]models.Organization, error)
 }
 
 type OrgOpenJobRepository interface {

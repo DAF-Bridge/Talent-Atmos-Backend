@@ -2,7 +2,7 @@ package authorization
 
 import (
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/gorm"
@@ -74,7 +74,7 @@ func UpdateRolesForUserInDomain(enforcer *casbin.Enforcer, user, domain string, 
 
 }
 
-func UpdatePoliciesForRoleInDomain(enforcer *casbin.Enforcer, role, domain string, newPolicies []domain.Policy) (bool, error) {
+func UpdatePoliciesForRoleInDomain(enforcer *casbin.Enforcer, role, domain string, newPolicies []repository.Policy) (bool, error) {
 	adapter := enforcer.GetAdapter().(*gormadapter.Adapter)
 	err := adapter.Transaction(enforcer, func(enforcer casbin.IEnforcer) error {
 		oldRules, err := enforcer.GetFilteredPolicy(0, role, domain)
@@ -96,7 +96,7 @@ func UpdatePoliciesForRoleInDomain(enforcer *casbin.Enforcer, role, domain strin
 
 }
 
-func CreatePolices(role string, domain string, policies []domain.Policy) [][]string {
+func CreatePolices(role string, domain string, policies []repository.Policy) [][]string {
 	var polices [][]string
 	for _, policy := range policies {
 		polices = append(polices, []string{role, domain, policy.Resource, policy.Action})
