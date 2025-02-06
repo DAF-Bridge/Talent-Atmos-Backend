@@ -39,7 +39,7 @@ type NewEventRequest struct {
 	Audience     string            `json:"audience" example:"general" validate:"required"`
 	PriceType    string            `json:"priceType" example:"free" validate:"required"`
 	Status       string            `json:"status" example:"draft" validate:"required"`
-	CategoryID   uint              `json:"category_id" example:"2" validate:"required"`
+	CategoryID   uint              `json:"categoryId" example:"2" validate:"required"`
 }
 
 type EventResponses struct {
@@ -61,7 +61,7 @@ type EventResponses struct {
 	Audience       string            `json:"audience" example:"genteral"`
 	PriceType      string            `json:"priceType" example:"free"`
 	Status         string            `json:"status" example:"draft"`
-	CategoryID     int               `json:"category_id" example:"2"`
+	CategoryID     int               `json:"categoryId" example:"2"`
 	Category       string            `json:"category" example:"all"`
 }
 

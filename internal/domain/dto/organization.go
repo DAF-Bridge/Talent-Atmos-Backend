@@ -7,7 +7,7 @@ import (
 type JobShortResponseDTO struct {
 	ID        int    `json:"id" example:"1"`
 	Title     string `json:"title" example:"Software Engineer"`
-	WorkPlace string `json:"workPlace" example:"remote"`
+	WorkPlace string `json:"workplace" example:"remote"`
 	WorkType  string `json:"workType" example:"fulltime"`
 	Quantity  int    `json:"quantity" example:"1"`
 	Salary    string `json:"salary" example:"30000"`
@@ -30,17 +30,17 @@ type JobRequest struct {
 	Prerequisite   []string           `json:"prerequisite" example:"Bachelor's degree in Computer Science" validate:"required"`
 	Location       string             `json:"location" example:"Chiang Mai" validate:"required"`
 	Workplace      models.Workplace   `json:"workplace" example:"remote" validate:"required"`
-	WorkType       models.WorkType    `json:"work_type" example:"fulltime" validate:"required"`
-	CareerStage    models.CareerStage `json:"career_stage" example:"entrylevel" validate:"required"`
+	WorkType       models.WorkType    `json:"workType" example:"fulltime" validate:"required"`
+	CareerStage    models.CareerStage `json:"careerStage" example:"entrylevel" validate:"required"`
 	Period         string             `json:"period" example:"1 year" validate:"required"`
 	Description    string             `json:"description" example:"This is a description" validate:"required"`
-	HoursPerDay    string             `json:"hours_per_day" example:"8 hours" validate:"required"`
+	HoursPerDay    string             `json:"hoursPerDay" example:"8 hours" validate:"required"`
 	Qualifications string             `json:"qualifications" example:"Bachelor's degree in Computer Science" validate:"required"`
 	Benefits       string             `json:"benefits" example:"Health insurance" validate:"required"`
 	Quantity       int                `json:"quantity" example:"1" validate:"required"`
 	Salary         float64            `json:"salary" example:"30000" validate:"required"`
 	Status         string             `json:"status" example:"draft" validate:"required"`
-	CategoryIDs    []uint             `json:"category_ids" example:"1,2,3" validate:"required"`
+	CategoryIDs    []uint             `json:"categoryIds" example:"1,2,3" validate:"required"`
 }
 
 type JobResponses struct {
@@ -51,11 +51,11 @@ type JobResponses struct {
 	Scope          string              `json:"scope" example:"This is a scope"`
 	Location       string              `json:"location" example:"Chiang Mai"`
 	Workplace      models.Workplace    `json:"workplace" example:"remote"`
-	WorkType       models.WorkType     `json:"work_type" example:"fulltime"`
-	CareerStage    models.CareerStage  `json:"career_stage" example:"entrylevel"`
+	WorkType       models.WorkType     `json:"workType" example:"fulltime"`
+	CareerStage    models.CareerStage  `json:"careerStage" example:"entrylevel"`
 	Period         string              `json:"period" example:"1 year"`
 	Description    string              `json:"description" example:"This is a description"`
-	HoursPerDay    string              `json:"hours_per_day" example:"8 hours"`
+	HoursPerDay    string              `json:"hoursPerDay" example:"8 hours"`
 	Qualifications string              `json:"qualifications" example:"Bachelor's degree in Computer Science"`
 	Benefits       string              `json:"benefits" example:"Health insurance"`
 	Quantity       int                 `json:"quantity" example:"1"`
