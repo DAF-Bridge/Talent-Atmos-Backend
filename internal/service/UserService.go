@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -13,26 +15,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService struct {
+type userService struct {
 	userRepo   repository.UserRepository
 	S3Uploader *infrastructure.S3Uploader
 }
 
-// NewUserService returns a new instance of UserService with the given repository
-// func NewUserService(userRepo repository.UserRepository) UserService {
-// 	return UserService{
-// 		userRepo: userRepo,
-// 	}
-// }
-
-func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) *UserService {
-	return &UserService{
+func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) *userService {
+	return &userService{
 		userRepo:   userRepo,
 		S3Uploader: s3Uploader,
 	}
 }
 
-func (s *UserService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+func (s userService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
 	// Upload image to S3
 	picURL, err := s.S3Uploader.UploadUserPictureFile(ctx, file, fileHeader, userID)
 	if err != nil {
@@ -48,20 +43,36 @@ func (s *UserService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, f
 	return picURL, nil
 }
 
-func (s UserService) CreateUser(user *models.User) error {
-	return s.userRepo.Create(user)
+func (s userService) CreateUser(user *models.User) error {
+	err := s.userRepo.Create(user)
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to create user: %v", err))
+		return err
+	}
+	return nil
 }
 
-func (s UserService) ListUsers() ([]models.User, error) {
-	return s.userRepo.GetAll()
+func (s userService) ListUsers() ([]models.User, error) {
+	users, err := s.userRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("Users not found")
+			return nil, err
+		}
+
+		logs.Error(fmt.Sprintf("Failed to get users: %v", err))
+		return nil, err
+	}
+
+	return users, nil
 }
 
-func (s UserService) GetCurrentUserProfile(userId uuid.UUID) (*models.Profile, error) {
+func (s userService) GetCurrentUserProfile(userId uuid.UUID) (*dto.ProfileResponses, error) {
 	profile, err := s.userRepo.GetProfileByUserID(userId)
 
 	// fmt.Println("profile", profile)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("Profile not found")
 			return nil, err
 		}
@@ -70,5 +81,7 @@ func (s UserService) GetCurrentUserProfile(userId uuid.UUID) (*models.Profile, e
 		return nil, err
 	}
 
-	return profile, nil
+	profileRes := convertToProfileResponse(profile)
+
+	return profileRes, nil
 }

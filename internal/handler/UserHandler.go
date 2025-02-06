@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
@@ -11,10 +12,10 @@ import (
 )
 
 type UserHandler struct {
-	service models.UserService
+	service service.UserService
 }
 
-func NewUserHandler(service models.UserService) *UserHandler {
+func NewUserHandler(service service.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
@@ -72,7 +73,7 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 
 	if !ok {
 		logs.Error("Failed to get user_id")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id 2 uuid"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id to uuid"})
 	}
 	// println(userID)
 

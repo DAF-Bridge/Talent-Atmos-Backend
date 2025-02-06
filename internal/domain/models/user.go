@@ -1,8 +1,6 @@
 package models
 
 import (
-	"context"
-	"mime/multipart"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,15 +43,4 @@ type User struct {
 	CreatedAt  time.Time      `gorm:"autoCreateTime" db:"created_at"`
 	UpdatedAt  time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
 	DeletedAt  gorm.DeletedAt `gorm:"index" db:"deleted_at"`
-}
-
-//---------------------------------------------------------------------------
-// Interfaces
-//---------------------------------------------------------------------------
-
-type UserService interface {
-	CreateUser(user *User) error
-	ListUsers() ([]User, error)
-	GetCurrentUserProfile(userId uuid.UUID) (*Profile, error)
-	UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error)
 }

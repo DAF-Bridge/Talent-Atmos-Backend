@@ -32,13 +32,20 @@ func (r userRepository) FindByProviderID(providerID string) (*models.User, error
 }
 
 func (r userRepository) Create(user *models.User) error {
-	return r.db.Create(user).Error
+	if err := r.db.Create(user).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r userRepository) GetAll() ([]models.User, error) {
 	var users []models.User
-	err := r.db.Find(&users).Error
-	return users, err
+	if err := r.db.Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, error) {
@@ -50,7 +57,10 @@ func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, e
 }
 
 func (r userRepository) UpdateUserPic(userID uuid.UUID, picURL string) error {
-	return r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error
+	if err := r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 // begin transaction
