@@ -22,8 +22,8 @@ func NewAuthRouter(app *fiber.App, db *gorm.DB, jwtSecret string) {
 	app.Get("/auth/me", middleware.AuthMiddleware(jwtSecret), oauthHandler.Me)
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
-	app.Get("/auth/:provider/callback", oauthHandler.GoogleCallback)
-	app.Get("/auth/:provider", oauthHandler.GoogleLogin)
+	app.Get("/auth/google/callback", oauthHandler.GoogleCallback)
+	// app.Get("/auth/google", oauthHandler.GoogleLogin)
 	app.Post("/logout", authHandler.LogOut)
 
 	app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
