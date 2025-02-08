@@ -103,7 +103,7 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 	subject := "You got an invitation to manage" + inviterUser.Name
 
 	//send email
-	err = r.inviteMailRepository.SendInviteMail(invitedEmail, inviteToken.Token.String(), subject)
+	err = r.inviteMailRepository.SendInvitedMail(invitedEmail, subject, inviterUser.Name, inviteToken.Token.String())
 	if err != nil {
 		return false, err
 	}
