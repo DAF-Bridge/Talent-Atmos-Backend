@@ -78,6 +78,6 @@ func (c CasbinPolicyRepository) GetRolesForPolicy(policy Policy) ([][]string, er
 	return c.enforcer.GetFilteredGroupingPolicy(1, policy.Resource, policy.Action)
 }
 
-func NewCasbinPolicyRepository(enforcer casbin.IEnforcer) *CasbinPolicyRepository {
+func NewCasbinPolicyRepository(enforcer casbin.IEnforcer) PolicyRepository {
 	return &CasbinPolicyRepository{enforcer: enforcer}
 }

@@ -8,10 +8,10 @@ import (
 )
 
 type PolicyHandler struct {
-	policyRoleService service.EmployeeManagementService
+	policyRoleService service.PolicyRoleService
 }
 
-func NewPolicyHandler(policyRoleService service.EmployeeManagementService) *PolicyHandler {
+func NewPolicyHandler(policyRoleService service.PolicyRoleService) *PolicyHandler {
 	return &PolicyHandler{policyRoleService: policyRoleService}
 }
 
@@ -32,7 +32,7 @@ func (p *PolicyHandler) AddPolicyForRoleInDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ok, err := p.policyRoleService.AddPolicyForRoleInDomain(policy.Role, orgID, repository.Policy{Resource: policy.Resource, Action: policy.Action})
+	ok, err := p.policyRoleService.AddPolicyForRoleInDomain(policy.Role, orgID, policy.Resource, policy.Action)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -79,7 +79,7 @@ func (p *PolicyHandler) DeletePolicyForRoleInDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ok, err := p.policyRoleService.DeletePolicyForRoleInDomain(policy.Role, orgID, repository.Policy{Resource: policy.Resource, Action: policy.Action})
+	ok, err := p.policyRoleService.DeletePolicyForRoleInDomain(policy.Role, orgID, policy.Resource, policy.Action)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

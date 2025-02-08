@@ -117,7 +117,7 @@ func (r *RoleHandler) GetAllUsersWithRoleByDomain(c *fiber.Ctx) error {
 			Username string `json:"username"`
 			Email    string `json:"email"`
 			Role     string `json:"role"`
-		}{Username: user.Name, Email: user.Email, Role: user.Role})
+		}{Username: user.User.Name, Email: user.User.Email, Role: user.Role})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"users": usersWithRole})
 }

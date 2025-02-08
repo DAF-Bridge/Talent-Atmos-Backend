@@ -10,27 +10,43 @@ import (
 const defaultRole = "moderator"
 
 type RoleWithDomainService struct {
-	roleRepository         repository.RoleRepository
+	dbRoleRepository       models.RoleRepository
+	enforcerRoleRepository repository.EnforcerRoleRepository
 	userRepository         repository.UserRepository
 	organizationRepository repository.OrganizationRepository
 	inviteTokenRepository  models.InviteTokenRepository
 	inviteMailRepository   repository.MailRepository
 }
 
-func NewRoleWithDomainService(roleRepository repository.RoleRepository, userRepository repository.UserRepository, organizationRepository repository.OrganizationRepository, inviteTokenRepository models.InviteTokenRepository, inviteMailRepository repository.MailRepository) RoleWithDomainService {
-	return RoleWithDomainService{roleRepository: roleRepository, userRepository: userRepository, organizationRepository: organizationRepository, inviteTokenRepository: inviteTokenRepository, inviteMailRepository: inviteMailRepository}
+func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
+	enforcerRoleRepository repository.EnforcerRoleRepository,
+	userRepository repository.UserRepository,
+	organizationRepository repository.OrganizationRepository,
+	inviteTokenRepository models.InviteTokenRepository,
+	inviteMailRepository repository.MailRepository) RoleService {
+	return RoleWithDomainService{
+		dbRoleRepository:       dbRoleRepository,
+		enforcerRoleRepository: enforcerRoleRepository,
+		userRepository:         userRepository,
+		organizationRepository: organizationRepository,
+		inviteTokenRepository:  inviteTokenRepository,
+		inviteMailRepository:   inviteMailRepository}
 }
 
-func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) ([]string, error) {
-	return r.roleRepository.GetRolesForUserInDomain(userID.String(), strconv.Itoa(int(orgID)))
+func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) (*models.Role, error) {
+	return r.dbRoleRepository.FindByUserIDAndOrganizationID(userID, orgID)
 }
 
 func (r RoleWithDomainService) DeleteDomains(orgID uint) (bool, error) {
-	return r.roleRepository.DeleteDomains(strconv.Itoa(int(orgID)))
+	err := r.organizationRepository.DeleteOrganization(orgID)
+	if err != nil {
+		return false, err
+	}
+	return r.enforcerRoleRepository.DeleteDomains(strconv.Itoa(int(orgID)))
 }
 
 func (r RoleWithDomainService) GetDomainsByUser(uuid uuid.UUID) ([]models.Organization, error) {
-	domainIDs := r.roleRepository.GetDomainsByUser(uuid.String())
+	domainIDs := r.enforcerRoleRepository.GetDomainsByUser(uuid.String())
 	var domainIDsUint []uint
 	for _, domainID := range domainIDs {
 		domainIDUint, err := strconv.Atoi(domainID)
@@ -42,37 +58,8 @@ func (r RoleWithDomainService) GetDomainsByUser(uuid uuid.UUID) ([]models.Organi
 	return r.organizationRepository.FindInOrgIDList(domainIDsUint)
 }
 
-func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]struct {
-	models.User
-	Role string
-}, error) {
-	roles, err := r.roleRepository.GetAllUsersWithRoleByDomain(strconv.Itoa(int(orgID)))
-	if err != nil {
-		return nil, err
-	}
-	var usersWithRole []struct {
-		models.User
-		Role string
-	}
-	var listUserId []uuid.UUID
-	for userID := range roles {
-		uuidUser, err := uuid.Parse(userID)
-		if err != nil {
-			continue
-		}
-		listUserId = append(listUserId, uuidUser)
-	}
-	users, err := r.userRepository.FindInUserIdList(listUserId)
-	if err != nil {
-		return nil, err
-	}
-	for _, user := range users {
-		usersWithRole = append(usersWithRole, struct {
-			models.User
-			Role string
-		}{User: user, Role: roles[user.ID.String()]})
-	}
-	return usersWithRole, nil
+func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]models.Role, error) {
+	return r.dbRoleRepository.FindByOrganizationID(orgID)
 
 }
 
@@ -93,7 +80,7 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 		return false, err
 	}
 	//check user is already in organization
-	role, err := r.roleRepository.GetRolesForUserInDomain(inviterUserID.String(), strconv.Itoa(int(orgID)))
+	role, err := r.enforcerRoleRepository.GetRolesForUserInDomain(inviterUserID.String(), strconv.Itoa(int(orgID)))
 	if err != nil {
 		return false, err
 	}
@@ -116,7 +103,7 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 	subject := "You got an invitation to manage" + inviterUser.Name
 
 	//send email
-	err = r.inviteMailRepository.SendMail(invitedUser.Email, subject, inviterUser.Name, inviteToken.Token.String())
+	err = r.inviteMailRepository.SendInviteMail(invitedEmail, inviteToken.Token.String(), subject)
 	if err != nil {
 		return false, err
 	}
@@ -130,8 +117,17 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	// update Role
-	_, err = r.roleRepository.AddRoleForUserInDomain(inviteToken.InvitedUserID.String(), strconv.Itoa(int(inviteToken.OrganizationID)), defaultRole)
+	// create RoleName
+	var newRole = models.Role{
+		OrganizationID: inviteToken.OrganizationID,
+		UserID:         inviteToken.InvitedUserID,
+		Role:           defaultRole,
+	}
+	if _, err = r.dbRoleRepository.Create(&newRole); err != nil {
+		return false, err
+	}
+	// update RoleName
+	_, err = r.enforcerRoleRepository.AddRoleForUserInDomain(inviteToken.InvitedUserID.String(), strconv.Itoa(int(inviteToken.OrganizationID)), defaultRole)
 	if err != nil {
 		return false, err
 	}
@@ -143,39 +139,65 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	return true, nil
 }
 
-func validateOwnerIsAtLeastOneLeft(owners []string, userId uuid.UUID) bool {
+func validateOwnerIsAtLeastOneLeft(owners []models.Role, userId uuid.UUID) bool {
 	if len(owners) > 1 {
 		return true
 	}
-	return len(owners) == 1 && owners[0] != userId.String()
+	return len(owners) == 1 && owners[0].UserID != userId
 }
 
 func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role string) (bool, error) {
-	//check Role is existing
+	//check RoleName is existing
 	if role != "owner" && role != "moderator" {
 		return false, nil
 	}
 	//check number owner
-	owners, err := r.roleRepository.GetUsersByRoleInDomain(strconv.Itoa(int(orgID)), "owner")
+	owners, err := r.dbRoleRepository.FindByRoleNameAndOrganizationID("owner", orgID)
 	if err != nil {
 		return false, err
 	}
 	if validateOwnerIsAtLeastOneLeft(owners, userID) {
 		return false, nil
 	}
-	//update Role
-	return r.roleRepository.UpdateRoleForUserInDomain(userID.String(), role, strconv.Itoa(int(orgID)))
+	//update RoleName
+	if err = r.dbRoleRepository.UpdateRole(userID, orgID, role); err != nil {
+		return false, err
+	}
+	return r.enforcerRoleRepository.UpdateRoleForUserInDomain(userID.String(), role, strconv.Itoa(int(orgID)))
 }
 
 func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool, error) {
 	//check number owner
-	owners, err := r.roleRepository.GetUsersByRoleInDomain(strconv.Itoa(int(orgID)), "owner")
+	owners, err := r.dbRoleRepository.FindByRoleNameAndOrganizationID("owner", orgID)
 	if err != nil {
 		return false, err
 	}
 	if validateOwnerIsAtLeastOneLeft(owners, userID) {
 		return false, nil
 	}
-	//delete Role
-	return r.roleRepository.DeleteRoleForUserInDomain(userID.String(), defaultRole, strconv.Itoa(int(orgID)))
+	//delete RoleName
+	if err = r.dbRoleRepository.DeleteRole(userID, orgID); err != nil {
+		return false, err
+	}
+	return r.enforcerRoleRepository.DeleteRoleForUserInDomain(userID.String(), defaultRole, strconv.Itoa(int(orgID)))
+}
+
+func (r RoleWithDomainService) initRoleToEnforcer() (bool, error) {
+	roles, err := r.dbRoleRepository.GetAll()
+	if err != nil {
+		return false, err
+	}
+	ok, err := r.enforcerRoleRepository.ClearAllGrouping()
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, nil
+	}
+	groupingPolicies := make([][]string, 0)
+	for _, role := range roles {
+		groupingPolicies = append(groupingPolicies, []string{role.UserID.String(), role.Role, strconv.Itoa(int(role.OrganizationID))})
+	}
+	return r.enforcerRoleRepository.AddGroupingPolicies(groupingPolicies)
+
 }

@@ -27,11 +27,11 @@ func loadTemplate() {
 	})
 }
 
-func NewInviteMailRepository(mailserver *gomail.Dialer) *InviteMailRepository {
+func NewInviteMailRepository(mailserver *gomail.Dialer) MailRepository {
 	return &InviteMailRepository{mailserver: mailserver}
 }
 
-func (i *InviteMailRepository) SendMail(email string, subject string, Inviter string, token string) error {
+func (i *InviteMailRepository) SendInvitedMail(email string, subject string, Inviter string, token string) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", i.mailserver.Username)
 	m.SetHeader("To", email)
