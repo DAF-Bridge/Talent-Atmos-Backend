@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -76,7 +77,8 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	// Generate token
 	token, err := h.authService.LogIn(req.Email, req.Password)
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			logs.Error(appErr.Message)
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}

@@ -10,8 +10,8 @@ type dbRoleRepository struct {
 	db *gorm.DB
 }
 
-func (d dbRoleRepository) Create(role *models.Role) (*models.Role, error) {
-	var createRole models.Role
+func (d dbRoleRepository) Create(role *models.RoleInOrganizaion) (*models.RoleInOrganizaion, error) {
+	var createRole models.RoleInOrganizaion
 	err := d.db.Create(role).Scan(&createRole).Error
 	if err != nil {
 		return nil, err
@@ -20,8 +20,8 @@ func (d dbRoleRepository) Create(role *models.Role) (*models.Role, error) {
 
 }
 
-func (d dbRoleRepository) GetAll() ([]models.Role, error) {
-	var roles []models.Role
+func (d dbRoleRepository) GetAll() ([]models.RoleInOrganizaion, error) {
+	var roles []models.RoleInOrganizaion
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -29,21 +29,21 @@ func (d dbRoleRepository) GetAll() ([]models.Role, error) {
 	return roles, err
 }
 
-func (d dbRoleRepository) FindByUserID(userID uuid.UUID) (*models.Role, error) {
-	var role models.Role
+func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganizaion, error) {
+	var role []models.RoleInOrganizaion
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
 		Where("user_id = ?", userID).
-		First(&role).Error
+		Find(&role).Error
 	if err != nil {
 		return nil, err
 	}
-	return &role, nil
+	return role, nil
 }
 
-func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.Role, error) {
-	var roles []models.Role
+func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.RoleInOrganizaion, error) {
+	var roles []models.RoleInOrganizaion
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -52,8 +52,8 @@ func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.Role, error
 	return roles, err
 }
 
-func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*models.Role, error) {
-	var role models.Role
+func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*models.RoleInOrganizaion, error) {
+	var role models.RoleInOrganizaion
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -65,8 +65,8 @@ func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID 
 	return &role, nil
 }
 
-func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]models.Role, error) {
-	var roles []models.Role
+func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]models.RoleInOrganizaion, error) {
+	var roles []models.RoleInOrganizaion
 	err := d.db.
 		Joins("JOIN users ON users.id = roles.user_id").
 		Joins("JOIN organizations ON organizations.id = roles.organization_id").
@@ -77,7 +77,7 @@ func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID
 
 func (d dbRoleRepository) UpdateRole(userID uuid.UUID, orgID uint, role string) error {
 	return d.db.
-		Model(&models.Role{}).
+		Model(&models.RoleInOrganizaion{}).
 		Where("user_id = ? AND organization_id = ?", userID, orgID).
 		Update("role", role).Error
 }
@@ -85,7 +85,7 @@ func (d dbRoleRepository) UpdateRole(userID uuid.UUID, orgID uint, role string) 
 func (d dbRoleRepository) DeleteRole(userID uuid.UUID, orgID uint) error {
 	return d.db.
 		Where("user_id = ? AND organization_id = ?", userID, orgID).
-		Delete(&models.Role{}).Error
+		Delete(&models.RoleInOrganizaion{}).Error
 }
 
 func NewDBRoleRepository(db *gorm.DB) models.RoleRepository {

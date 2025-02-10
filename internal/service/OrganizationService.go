@@ -70,7 +70,8 @@ func (s organizationService) CreateOrganization(org dto.OrganizationRequest) err
 
 	err = s.repo.CreateOrganization(&newOrg)
 	if err != nil {
-		if pqErr, ok := err.(*pgconn.PgError); ok {
+		var pqErr *pgconn.PgError
+		if errors.As(err, &pqErr) {
 			if pqErr.Code == "23505" { // Unique constraint violation code for PostgreSQL
 				return errs.NewConflictError("email already exists for another organization")
 			}
@@ -179,7 +180,7 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 
 	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("organization not found")
 		}
 
@@ -413,7 +414,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, er
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []dto.JobResponses{}
+	jobsResponse := make([]dto.JobResponses, 0)
 
 	for _, job := range jobs {
 		jobResponse := convertToJobResponse(job)
@@ -452,7 +453,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []dto.JobResponses{}
+	jobsResponse := make([]dto.JobResponses, 0)
 
 	for _, job := range jobs {
 		jobResponse := convertToJobResponse(job)
@@ -500,7 +501,7 @@ func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {
 	err := s.jobRepo.DeleteJob(orgID, jobID)
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("job not found")
 		}
 

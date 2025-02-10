@@ -5,16 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type RoleName string
-
-const (
-	//Enum RoleName
-	RoleUser  RoleName = "User"
-	RoleAdmin RoleName = "Admin"
-)
-
-// RoleName is a model for role form Users and Organization
-type Role struct {
+// RoleInOrganizaion is a model for role form Users and Organization
+type RoleInOrganizaion struct {
 	gorm.Model
 	Role           string       `gorm:"not null;"`
 	UserID         uuid.UUID    `gorm:"type:uuid;not null;uniqueIndex:idx_user_org" db:"user_id"`
@@ -25,12 +17,12 @@ type Role struct {
 
 // RoleRepository is an interface for RoleRepository
 type RoleRepository interface {
-	Create(role *Role) (*Role, error)
-	GetAll() ([]Role, error)
-	FindByUserID(userID uuid.UUID) (*Role, error)
-	FindByOrganizationID(orgID uint) ([]Role, error)
-	FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*Role, error)
-	FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]Role, error)
+	Create(role *RoleInOrganizaion) (*RoleInOrganizaion, error)
+	GetAll() ([]RoleInOrganizaion, error)
+	FindByUserID(userID uuid.UUID) ([]RoleInOrganizaion, error)
+	FindByOrganizationID(orgID uint) ([]RoleInOrganizaion, error)
+	FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*RoleInOrganizaion, error)
+	FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]RoleInOrganizaion, error)
 	UpdateRole(userID uuid.UUID, orgID uint, role string) error
 	DeleteRole(userID uuid.UUID, orgID uint) error
 }

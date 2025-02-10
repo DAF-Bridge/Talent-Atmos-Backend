@@ -35,7 +35,7 @@ func (r eventRepository) Create(orgID uint, event *models.Event) (*models.Event,
 }
 
 func (r eventRepository) GetAll() ([]models.Event, error) {
-	events := []models.Event{}
+	events := make([]models.Event, 0)
 	err := r.db.Preload("Organization").Preload("Category").Find(&events).Error
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (r eventRepository) GetAll() ([]models.Event, error) {
 }
 
 func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
-	events := []models.Event{}
+	events := make([]models.Event, 0)
 
 	err := r.db.
 		Preload("Organization").
@@ -76,7 +76,7 @@ func (r eventRepository) GetByID(orgID uint, eventID uint) (*models.Event, error
 }
 
 func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, error) {
-	events := []models.Event{}
+	events := make([]models.Event, 0)
 	offset := int((page - 1) * size)
 
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
@@ -84,7 +84,7 @@ func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, erro
 		Preload("Category").
 		Order("created_at desc").
 		Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&events).Error
 
 	if err != nil {

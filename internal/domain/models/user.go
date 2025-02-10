@@ -17,7 +17,7 @@ type Role string
 type Provider string
 
 const (
-	//Enum Role
+	//Enum RoleInOrganizaion
 	RoleUser  Role = "User"
 	RoleAdmin Role = "Admin"
 )
@@ -39,7 +39,7 @@ type User struct {
 	PicUrl     string         `gorm:"type:text;" db:"pic_url"`
 	Email      string         `gorm:"type:varchar(255);not null" db:"email"`
 	Password   *string        `gorm:"type:varchar(255)" db:"-"` // Hashed password for traditional login
-	Role       Role           `gorm:"type:Role;default:'User'" db:"role"`
+	Role       Role           `gorm:"type:RoleInOrganizaion;default:'User'" db:"role"`
 	Provider   Provider       `gorm:"type:Provider;not null" db:"provider"` // e.g., "google"
 	ProviderID string         `gorm:"type:varchar(255);not null" db:"provider_id"`
 	CreatedAt  time.Time      `gorm:"autoCreateTime" db:"created_at"`

@@ -11,6 +11,11 @@ type organizationRepository struct {
 	db *gorm.DB
 }
 
+func (r organizationRepository) FindInOrgIDList(orgIds []uint) ([]models.Organization, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 // Constructor
 func NewOrganizationRepository(db *gorm.DB) OrganizationRepository {
 	return organizationRepository{db: db}
@@ -48,7 +53,7 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 		Preload("OrganizationContacts").
 		Preload("Industries").
 		Order("created_at desc").Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&orgs).Error
 
 	if err != nil {
@@ -262,7 +267,7 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 		Preload("Categories").
 		Order("created_at desc").
 		Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&orgs).Error
 
 	if err != nil {

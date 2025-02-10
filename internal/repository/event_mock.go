@@ -289,7 +289,7 @@ func (e *eventRepositoryMock) GetPaginate(page uint, size uint) ([]models.Event,
 
 // Search implements EventRepository.
 func (e *eventRepositoryMock) Search(params map[string]string) ([]models.Event, error) {
-	events := []models.Event{}
+	events := make([]models.Event, 0)
 	for _, event := range e.events {
 
 		match := true

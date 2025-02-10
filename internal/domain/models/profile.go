@@ -46,13 +46,13 @@ type Experience struct {
 // Services
 //---------------------------------------------------------------------------
 
-// Profile
+// ProfileService
 type ProfileService interface {
 	Create(profile *Profile) error
 	Update(profile *Profile) error
 }
 
-// Experience
+// ExperienceService
 type ExperienceService interface {
 	CreateExperience(experience *Experience) error
 	ListExperiencesByUserID(userID uuid.UUID) ([]Experience, error)
@@ -65,7 +65,6 @@ type ExperienceService interface {
 // Interfaces
 //---------------------------------------------------------------------------
 
-// Profile
 type ProfileRepository interface {
 	Create(profile *Profile) error
 	Update(profile *Profile) error

@@ -108,7 +108,7 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 		return "", errs.NewUnauthorizedError("invalid email or password")
 	}
 
-	passwordStr := string(*user.Password) // Convert *string to string
+	passwordStr := *user.Password // Convert *string to string
 
 	// Check Password
 	if err := bcrypt.CompareHashAndPassword([]byte(passwordStr), []byte(password)); err != nil {

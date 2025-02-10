@@ -4,6 +4,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/google/uuid"
+	"log"
 	"strconv"
 )
 
@@ -24,16 +25,25 @@ func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
 	organizationRepository repository.OrganizationRepository,
 	inviteTokenRepository models.InviteTokenRepository,
 	inviteMailRepository repository.MailRepository) RoleService {
-	return RoleWithDomainService{
+	roleService := RoleWithDomainService{
 		dbRoleRepository:       dbRoleRepository,
 		enforcerRoleRepository: enforcerRoleRepository,
 		userRepository:         userRepository,
 		organizationRepository: organizationRepository,
 		inviteTokenRepository:  inviteTokenRepository,
 		inviteMailRepository:   inviteMailRepository}
+	//_,_=roleService.initRoleToEnforcer()
+	ok, err := roleService.initRoleToEnforcer()
+	if err != nil {
+		log.Fatal("initRoleToEnforcer failed : " + err.Error())
+	}
+	if !ok {
+		log.Fatal("initRoleToEnforcer failed")
+	}
+	return roleService
 }
 
-func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) (*models.Role, error) {
+func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) (*models.RoleInOrganizaion, error) {
 	return r.dbRoleRepository.FindByUserIDAndOrganizationID(userID, orgID)
 }
 
@@ -46,19 +56,20 @@ func (r RoleWithDomainService) DeleteDomains(orgID uint) (bool, error) {
 }
 
 func (r RoleWithDomainService) GetDomainsByUser(uuid uuid.UUID) ([]models.Organization, error) {
-	domainIDs := r.enforcerRoleRepository.GetDomainsByUser(uuid.String())
-	var domainIDsUint []uint
-	for _, domainID := range domainIDs {
-		domainIDUint, err := strconv.Atoi(domainID)
-		if err != nil {
-			continue
-		}
-		domainIDsUint = append(domainIDsUint, uint(domainIDUint))
+
+	roles, err := r.dbRoleRepository.FindByUserID(uuid)
+	if err != nil {
+		return nil, err
 	}
-	return r.organizationRepository.FindInOrgIDList(domainIDsUint)
+	organizations := make([]models.Organization, 0)
+	for _, role := range roles {
+		organizations = append(organizations, role.Organization)
+	}
+	return organizations, nil
+
 }
 
-func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]models.Role, error) {
+func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]models.RoleInOrganizaion, error) {
 	return r.dbRoleRepository.FindByOrganizationID(orgID)
 
 }
@@ -118,7 +129,7 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 		return false, err
 	}
 	// create RoleName
-	var newRole = models.Role{
+	var newRole = models.RoleInOrganizaion{
 		OrganizationID: inviteToken.OrganizationID,
 		UserID:         inviteToken.InvitedUserID,
 		Role:           defaultRole,
@@ -139,7 +150,7 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	return true, nil
 }
 
-func validateOwnerIsAtLeastOneLeft(owners []models.Role, userId uuid.UUID) bool {
+func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganizaion, userId uuid.UUID) bool {
 	if len(owners) > 1 {
 		return true
 	}

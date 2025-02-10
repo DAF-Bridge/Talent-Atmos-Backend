@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	_ "fmt"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -37,7 +38,8 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.CreateOrganization(org); err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -58,7 +60,8 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 	orgs, err := h.service.ListAllOrganizations()
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -90,7 +93,8 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 
 	org, err := h.service.GetOrganizationByID(uint(orgID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -119,7 +123,8 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 
 	organizations, err := h.service.GetPaginateOrganization(uint(page))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -155,7 +160,8 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 
 	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org)
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -186,7 +192,8 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.DeleteOrganization(uint(orgID)); err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -230,7 +237,8 @@ func (h *OrganizationContactHandler) CreateContact(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.CreateContact(uint(orgID), req); err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -265,7 +273,8 @@ func (h *OrganizationContactHandler) GetContactByID(c *fiber.Ctx) error {
 
 	contact, err := h.service.GetContactByID(uint(orgID), uint(contactID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -293,7 +302,8 @@ func (h *OrganizationContactHandler) GetAllContactsByOrgID(c *fiber.Ctx) error {
 
 	contacts, err := h.service.GetAllContactsByOrgID(uint(orgID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -332,7 +342,8 @@ func (h *OrganizationContactHandler) UpdateContact(c *fiber.Ctx) error {
 
 	updatedContact, err := h.service.UpdateContact(uint(orgID), uint(contactID), req)
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -366,7 +377,8 @@ func (h *OrganizationContactHandler) DeleteContact(c *fiber.Ctx) error {
 
 	err = h.service.DeleteContact(uint(orgID), uint(contactID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -414,7 +426,8 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.NewJob(uint(orgID), req); err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -435,7 +448,8 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 func (h *OrgOpenJobHandler) ListAllOrganizationJobs(c *fiber.Ctx) error {
 	orgs, err := h.service.ListAllJobs()
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -466,7 +480,8 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 
 	org, err := h.service.GetAllJobsByOrgID(uint(orgID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -501,7 +516,8 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 
 	org, err := h.service.GetJobByID(uint(orgID), uint(jobID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -541,7 +557,8 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 
 	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req)
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -575,7 +592,8 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 
 	err = h.service.RemoveJob(uint(orgID), uint(jobID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
+		var appErr errs.AppError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -626,7 +644,8 @@ func (h *OrgOpenJobHandler) SearchJobs(c *fiber.Ctx) error {
 	events, err := h.service.SearchJobs(query, page, Offset)
 
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		var appErr errs.FiberError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 
@@ -639,7 +658,8 @@ func (h *OrgOpenJobHandler) SearchJobs(c *fiber.Ctx) error {
 func (h *OrgOpenJobHandler) SyncJobs(c *fiber.Ctx) error {
 	err := h.service.SyncJobs()
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
+		var appErr errs.FiberError
+		if errors.As(err, &appErr) {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
 

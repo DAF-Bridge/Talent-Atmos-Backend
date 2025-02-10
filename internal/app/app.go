@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +22,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
@@ -31,6 +32,7 @@ func init() {
 	initializers.InitOAuth()
 }
 
+// Start function
 // @title Talent Atmos Web Application API
 // @version 0.1
 // @description This is a web application API for Talent Atmos project.
@@ -51,11 +53,12 @@ func Start() {
 			var message string
 
 			// Check if error is of type *fiber.Error
-			if e, ok := err.(*fiber.Error); ok {
+			var e *fiber.Error
+			if errors.As(err, &e) {
 				statusCode = e.Code
 				message = e.Message
 			} else {
-				// Default to internal server error for unexpected errors
+				// If not, return a generic 500 status code
 				statusCode = fiber.StatusInternalServerError
 				message = "Internal Server Error"
 			}
@@ -97,7 +100,7 @@ func Start() {
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)     // default
 	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		URL:         "http://example.com/doc.json",
+		URL:         "https://example.com/doc.json",
 		DeepLinking: false,
 		// Expand ("list") or Collapse ("none") tag groups by default
 		DocExpansion: "none",

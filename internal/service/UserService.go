@@ -86,7 +86,6 @@ func (s userService) GetCurrentUserProfile(userId uuid.UUID) (*dto.ProfileRespon
 	return profileRes, nil
 }
 
-func (s *UserService) FindByUserID(userId uuid.UUID) (*models.User, error) {
+func (s userService) FindByUserID(userId uuid.UUID) (*models.User, error) {
 	return s.userRepo.FindByID(userId)
-
 }

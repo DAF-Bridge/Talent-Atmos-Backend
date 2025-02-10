@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// SetupRoutes : all the routes are defined here
+// NewEnforcerByDB SetupRoutes : all the routes are defined here
 func NewEnforcerByDB(db *gorm.DB) *casbin.Enforcer {
 
 	// Initialize  authorization adapter
@@ -31,7 +31,7 @@ func NewEnforcerByDB(db *gorm.DB) *casbin.Enforcer {
 
 }
 
-// load policy from database
+// LoadPolicyFromDB load policy from database
 func LoadPolicyFromDB(enforcer *casbin.Enforcer) error {
 	if err := enforcer.LoadPolicy(); err != nil {
 		return fmt.Errorf("failed to load policy: %v", err)
@@ -39,7 +39,7 @@ func LoadPolicyFromDB(enforcer *casbin.Enforcer) error {
 	return nil
 }
 
-// save policy to database
+// SavePolicyToDB save policy to database
 func SavePolicyToDB(enforcer *casbin.Enforcer) error {
 	if err := enforcer.SavePolicy(); err != nil {
 		return fmt.Errorf("failed to save policy: %v", err)
