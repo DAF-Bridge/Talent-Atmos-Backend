@@ -2,13 +2,40 @@ name: Golang Backend CI
 
 on:
   push:
-    branches: ["main", "develop-did"]
+    branches: ["main", "develop-did", "develop-fong"]
   pull_request:
-    branches: ["main", "develop-did"]
+    branches: ["main", "develop-did", "develop-fong"]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+          cache: true
+
+      - name: Build
+        id: build
+        run: |
+          go build -v -o app main.go || exit 1
+        continue-on-error: true
+
+      - name: Check build result
+        if: ${{ steps.build.outcome != 'success' }}
+        run: echo "Build stage failed."
+        id: build_failed
+
+    outputs:
+      build_status: ${{ steps.build.outcome }}
+
+  unit_test:
+    runs-on: ubuntu-latest
+    needs: build
 
     steps:
       - uses: actions/checkout@v4
@@ -34,14 +61,6 @@ jobs:
         run: go clean -modcache
         if: failure()
 
-      # - name: Cache Go modules
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/go/pkg/mod
-      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-go-
-
       - name: Install dependencies
         run: go mod download
 
@@ -60,6 +79,7 @@ jobs:
 
   integration_test:
     runs-on: ubuntu-latest
+    needs: build
 
     services:
       postgres:
@@ -130,45 +150,19 @@ jobs:
     outputs:
       outcome: ${{ steps.integration_test.outcome }}
 
-  build:
-    runs-on: ubuntu-latest
-    needs: [test, integration_test]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.22
-          cache: true
-
-      - name: Build
-        id: build
-        run: go build -v -o app main.go
-        continue-on-error: true
-
-      - name: Check build result
-        if: ${{ steps.build.outcome != 'success' }}
-        run: echo "Build stage failed."
-        id: build_failed
-
-    outputs:
-      build_status: ${{ steps.build.outcome }}
-
   notify:
-    needs: [test, integration_test, build]
+    needs: [unit_test, integration_test, build]
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord notification
         run: |
-          UNIT_TEST_STATUS="${{ needs.test.outputs.outcome }}"
+          UNIT_TEST_STATUS="${{ needs.unit_test.outputs.outcome }}"
           INTEGRATION_TEST_STATUS="${{ needs.integration_test.outputs.outcome }}"
           BUILD_STATUS="${{ needs.build.outputs.build_status }}"
 
 
           if [ "$UNIT_TEST_STATUS" != "success" ] && [ "$INTEGRATION_TEST_STATUS" != "success" ]; then
-            STAGE="All Test stages"
+            STAGE="All Test"
             STATUS="failure"
           elif [ "$UNIT_TEST_STATUS" != "success" ]; then
             STAGE="Unit Test"
@@ -180,7 +174,7 @@ jobs:
             STAGE="Build"
             STATUS="failure"
           else
-            STAGE="All stages"
+            STAGE="All"
             STATUS="success"
           fi
 
@@ -189,7 +183,7 @@ jobs:
             "username": "GitHub Actions",
             "embeds": [{
               "title": "Workflow $STATUS - $STAGE Stage",
-              "description": "Workflow: ${{ github.workflow }}\nActor: ${{ github.actor }}\nGithub-Commit-Head: ${{ github.sha }}\nBranch: ${{ github.ref_name }}\nRepository: ${{ github.repository }}\nCommit-msg: ${{ github.event.head_commit.message }}\nStatus: $STATUS\n[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+              "description": "Workflow: **${{ github.workflow }}**\\nActor: ${{ github.actor }}\nGithub-Commit-Head: ${{ github.sha }}\nBranch: **${{ github.ref_name }}**\\nRepository: **${{ github.repository }}**\\nCommit-msg: ${{ github.event.head_commit.message }}\nStatus: $STATUS\n[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})",
               "color": $(if [ "$STATUS" == "success" ]; then echo "3066993"; else echo "15158332"; fi)
             }]
           }

@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -19,10 +19,11 @@ func NewAuthRouter(app *fiber.App, db *gorm.DB, jwtSecret string) {
 	authHandler := handler.NewAuthHandler(authService)
 	oauthHandler := handler.NewOauthHandler(oauthService)
 
+	app.Get("/auth/me", middleware.AuthMiddleware(jwtSecret), oauthHandler.Me)
 	app.Post("/signup", authHandler.SignUp)
 	app.Post("/login", authHandler.LogIn)
-	app.Get("/auth/google", oauthHandler.GoogleLogin)
 	app.Get("/auth/google/callback", oauthHandler.GoogleCallback)
+	// app.Get("/auth/google", oauthHandler.GoogleLogin)
 	app.Post("/logout", authHandler.LogOut)
 
 	app.Get("/protected-route", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
@@ -31,5 +32,8 @@ func NewAuthRouter(app *fiber.App, db *gorm.DB, jwtSecret string) {
 			"message": "You are authenticated!",
 			"user":    user,
 		})
+	})
+	app.Get("/token-check", middleware.AuthMiddleware(jwtSecret), func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
 	})
 }

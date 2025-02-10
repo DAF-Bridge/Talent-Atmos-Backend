@@ -2,12 +2,14 @@ package service
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/sync"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/opensearch-project/opensearch-go"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -27,11 +29,73 @@ func NewOrganizationService(repo repository.OrganizationRepository) Organization
 }
 
 // Creates a new organization
-func (s organizationService) CreateOrganization(org *models.Organization) error {
-	return s.repo.CreateOrganization(org)
+func (s organizationService) CreateOrganization(org dto.OrganizationRequest) error {
+	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("industries not found")
+		}
+	}
+
+	industryPointers := make([]*models.Industry, len(industries))
+	for i := range industries {
+		industryPointers[i] = &industries[i]
+	}
+
+	// Validate Media ENUM before inserting into DB
+	var validMediaTypes = map[string]bool{
+		"website":   true,
+		"tiktok":    true,
+		"youtube":   true,
+		"line":      true,
+		"facebook":  true,
+		"linkedIn":  true,
+		"instagram": true,
+	}
+
+	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
+	for i, contact := range org.OrganizationContacts {
+		lowerMedia := strings.ToLower(contact.Media)
+		if !validMediaTypes[lowerMedia] {
+			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+		}
+
+		contacts[i] = models.OrganizationContact{
+			// map fields from dto.OrganizationContactRequest to models.OrganizationContact
+			Media:     models.Media(lowerMedia),
+			MediaLink: contact.MediaLink,
+		}
+	}
+	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
+
+	err = s.repo.CreateOrganization(&newOrg)
+	if err != nil {
+		if pqErr, ok := err.(*pgconn.PgError); ok {
+			if pqErr.Code == "23505" { // Unique constraint violation code for PostgreSQL
+				return errs.NewConflictError("email already exists for another organization")
+			}
+		}
+
+		if errors.Is(err, gorm.ErrPrimaryKeyRequired) {
+			return errs.NewConflictError("organization already exists")
+		}
+
+		if strings.Contains(err.Error(), "invalid input value for enum") {
+			return errs.NewBadRequestError("invalid media type provided. Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+		}
+
+		if errors.Is(err, gorm.ErrCheckConstraintViolated) {
+			return errs.NewCannotBeProcessedError("Foreign key constraint violation, business logic validation failure")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
 }
 
-func (s organizationService) GetOrganizationByID(id uint) (*models.Organization, error) {
+func (s organizationService) GetOrganizationByID(id uint) (*dto.OrganizationResponse, error) {
 	org, err := s.repo.GetByOrgID(id)
 
 	if err != nil {
@@ -43,10 +107,12 @@ func (s organizationService) GetOrganizationByID(id uint) (*models.Organization,
 		return nil, errs.NewUnexpectedError()
 	}
 
-	return org, nil
+	resOrgs := convertToOrgResponse(*org)
+
+	return &resOrgs, nil
 }
 
-func (s organizationService) GetPaginateOrganization(page uint) ([]models.Organization, error) {
+func (s organizationService) GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error) {
 	orgs, err := s.repo.GetOrgsPaginate(page, numberOfOrganization)
 
 	if err != nil {
@@ -58,10 +124,15 @@ func (s organizationService) GetPaginateOrganization(page uint) ([]models.Organi
 		return nil, errs.NewUnexpectedError()
 	}
 
-	return orgs, nil
+	var orgsResponses []dto.OrganizationResponse
+	for _, org := range orgs {
+		orgsResponses = append(orgsResponses, convertToOrgResponse(org))
+	}
+
+	return orgsResponses, nil
 }
 
-func (s organizationService) ListAllOrganizations() ([]models.Organization, error) {
+func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse, error) {
 	orgs, err := s.repo.GetAllOrganizations()
 
 	if err != nil {
@@ -73,11 +144,57 @@ func (s organizationService) ListAllOrganizations() ([]models.Organization, erro
 		return nil, errs.NewUnexpectedError()
 	}
 
-	return orgs, nil
+	var orgsResponses []dto.OrganizationResponse
+	for _, org := range orgs {
+		orgsResponses = append(orgsResponses, convertToOrgResponse(org))
+	}
+
+	return orgsResponses, nil
 }
 
-func (s organizationService) UpdateOrganization(orgID uint, org *models.Organization) error {
-	err := s.repo.UpdateOrganization(org)
+func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest) (*dto.OrganizationResponse, error) {
+	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("industries not found")
+		}
+	}
+
+	industryPointers := make([]*models.Industry, len(industries))
+	for i := range industries {
+		industryPointers[i] = &industries[i]
+	}
+
+	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
+	for i, contact := range org.OrganizationContacts {
+		contacts[i] = models.OrganizationContact{
+			// map fields from dto.OrganizationContactRequest to models.OrganizationContact
+			Media:     models.Media(contact.Media),
+			MediaLink: contact.MediaLink,
+		}
+	}
+
+	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
+	newOrg.ID = orgID
+
+	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	resOrgs := convertToOrgResponse(*updatedOrg)
+
+	return &resOrgs, nil
+}
+
+// Deletes an organization by its ID
+func (s organizationService) DeleteOrganization(id uint) error {
+	err := s.repo.DeleteOrganization(id)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -91,13 +208,108 @@ func (s organizationService) UpdateOrganization(orgID uint, org *models.Organiza
 	return nil
 }
 
-// Deletes an organization by its ID
-func (s organizationService) DeleteOrganization(id uint) error {
-	err := s.repo.DeleteOrganization(id)
+// --------------------------------------------------------------------------
+// Organization Contact Service
+// --------------------------------------------------------------------------
+type organizationContactService struct {
+	contactRepo repository.OrganizationContactRepository
+}
 
+func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository) OrganizationContactService {
+	return organizationContactService{contactRepo: contactRepo}
+}
+
+func (s organizationContactService) CreateContact(orgID uint, contact dto.OrganizationContactRequest) error {
+	reqContact := ConvertToOrgContactRequest(orgID, contact)
+
+	// Validate Media ENUM before inserting into DB
+	var validMediaTypes = map[string]bool{
+		"website":   true,
+		"tiktok":    true,
+		"youtube":   true,
+		"line":      true,
+		"facebook":  true,
+		"linkedIn":  true,
+		"instagram": true,
+	}
+
+	lowerMedia := strings.ToLower(contact.Media)
+	if !validMediaTypes[lowerMedia] {
+		return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+	}
+
+	reqContact.Media = models.Media(lowerMedia)
+
+	err := s.contactRepo.Create(orgID, &reqContact)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errs.NewNotFoundError("organization not found")
+			return errors.New("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+func (s organizationContactService) GetContactByID(orgID uint, id uint) (*dto.OrganizationContactResponses, error) {
+	contact, err := s.contactRepo.GetByID(orgID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("contact not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	contactResponse := convertToOrgContactResponse(*contact)
+	return &contactResponse, nil
+}
+
+func (s organizationContactService) GetAllContactsByOrgID(orgID uint) ([]dto.OrganizationContactResponses, error) {
+	contacts, err := s.contactRepo.GetAllByOrgID(orgID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("contacts not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var contactsResponse []dto.OrganizationContactResponses
+	for _, contact := range contacts {
+		contactsResponse = append(contactsResponse, convertToOrgContactResponse(contact))
+	}
+
+	return contactsResponse, nil
+}
+
+func (s organizationContactService) UpdateContact(orgID uint, contactID uint, contact dto.OrganizationContactRequest) (*dto.OrganizationContactResponses, error) {
+	reqContact := ConvertToOrgContactRequest(orgID, contact)
+	reqContact.ID = contactID
+
+	updatedContact, err := s.contactRepo.Update(&reqContact)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("contact not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	contactResponse := convertToOrgContactResponse(*updatedContact)
+	return &contactResponse, nil
+}
+
+func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
+	err := s.contactRepo.Delete(orgID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("contact not found")
 		}
 
 		logs.Error(err)

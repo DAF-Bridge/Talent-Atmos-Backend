@@ -9,12 +9,20 @@ import (
 )
 
 type OrganizationService interface {
-	CreateOrganization(org *models.Organization) error
-	ListAllOrganizations() ([]models.Organization, error)
-	GetOrganizationByID(id uint) (*models.Organization, error)
-	GetPaginateOrganization(page uint) ([]models.Organization, error)
-	UpdateOrganization(orgID uint, org *models.Organization) error
+	CreateOrganization(org dto.OrganizationRequest) error
+	ListAllOrganizations() ([]dto.OrganizationResponse, error)
+	GetOrganizationByID(id uint) (*dto.OrganizationResponse, error)
+	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
+	UpdateOrganization(orgID uint, org dto.OrganizationRequest) (*dto.OrganizationResponse, error)
 	DeleteOrganization(id uint) error
+}
+
+type OrganizationContactService interface {
+	CreateContact(orgID uint, org dto.OrganizationContactRequest) error
+	GetContactByID(orgID uint, id uint) (*dto.OrganizationContactResponses, error)
+	GetAllContactsByOrgID(orgID uint) ([]dto.OrganizationContactResponses, error)
+	UpdateContact(orgID uint, contactID uint, org dto.OrganizationContactRequest) (*dto.OrganizationContactResponses, error)
+	DeleteContact(orgID uint, id uint) error
 }
 
 type OrgOpenJobService interface {
@@ -27,6 +35,78 @@ type OrgOpenJobService interface {
 	GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
 	RemoveJob(orgID uint, jobID uint) error
+}
+
+func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
+	var industries []dto.IndustryResponses
+	for _, industry := range org.Industries {
+		industries = append(industries, dto.IndustryResponses{
+			ID:   industry.ID,
+			Name: industry.Industry,
+		})
+	}
+
+	var contacts []dto.OrganizationContactResponses
+	for _, contact := range org.OrganizationContacts {
+		contacts = append(contacts, dto.OrganizationContactResponses{
+			Media:     string(contact.Media),
+			MediaLink: contact.MediaLink,
+		})
+	}
+
+	return dto.OrganizationResponse{
+		ID:                  org.ID,
+		Name:                org.Name,
+		PicUrl:              org.PicUrl,
+		Goal:                org.Goal,
+		Expertise:           org.Expertise,
+		Location:            org.Location,
+		Subdistrict:         org.Subdistrict,
+		Province:            org.Province,
+		PostalCode:          org.PostalCode,
+		Latitude:            org.Latitude,
+		Longitude:           org.Longitude,
+		Email:               org.Email,
+		Phone:               org.Phone,
+		OrganizationContact: contacts,
+		Industries:          industries,
+		UpdatedAt:           org.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+}
+
+func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
+	return models.Organization{
+		Name:                 org.Name,
+		PicUrl:               org.PicUrl,
+		Goal:                 org.Goal,
+		Expertise:            org.Expertise,
+		Location:             org.Location,
+		Subdistrict:          org.Subdistrict,
+		Province:             org.Province,
+		PostalCode:           org.PostalCode,
+		Latitude:             org.Latitude,
+		Longitude:            org.Longitude,
+		Email:                org.Email,
+		Phone:                org.Phone,
+		OrganizationContacts: contacts,
+		Industries:           industries,
+		Model:                gorm.Model{UpdatedAt: time.Now()},
+	}
+}
+
+func convertToOrgContactResponse(contact models.OrganizationContact) dto.OrganizationContactResponses {
+	return dto.OrganizationContactResponses{
+		Media:     string(contact.Media),
+		MediaLink: contact.MediaLink,
+	}
+}
+
+func ConvertToOrgContactRequest(orgID uint, contact dto.OrganizationContactRequest) models.OrganizationContact {
+	return models.OrganizationContact{
+		OrganizationID: orgID,
+		Media:          models.Media(contact.Media),
+		MediaLink:      contact.MediaLink,
+	}
 }
 
 func convertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
@@ -54,6 +134,7 @@ func convertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		Benefits:       job.Benefits,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,
+		Status:         job.Status,
 		Categories:     categories,
 		UpdatedAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
@@ -77,6 +158,7 @@ func ConvertToJobRequest(orgID uint, job dto.JobRequest, categories []models.Cat
 		Benefits:       job.Benefits,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,
+		Status:         job.Status,
 		Categories:     categories,
 		Model:          gorm.Model{UpdatedAt: time.Now()},
 	}

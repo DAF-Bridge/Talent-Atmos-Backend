@@ -33,7 +33,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/service.EventResponses"
+                                    "$ref": "#/definitions/dto.EventResponses"
                                 }
                             }
                         }
@@ -161,7 +161,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/service.EventResponses"
+                                    "$ref": "#/definitions/dto.EventResponses"
                                 }
                             }
                         }
@@ -267,15 +267,6 @@ const docTemplate = `{
                         "description": "Number of items per page",
                         "name": "offset",
                         "in": "query"
-                    },
-                    {
-                        "description": "Search job query parameters",
-                        "name": "query",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.SearchJobQuery"
-                        }
                     }
                 ],
                 "responses": {
@@ -309,7 +300,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orgs": {
+        "/orgs/create": {
             "post": {
                 "description": "Create a new organization BUT still not create the Contact and OpenJob",
                 "consumes": [
@@ -329,7 +320,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Organization"
+                            "$ref": "#/definitions/dto.OrganizationRequest"
                         }
                     }
                 ],
@@ -342,6 +333,112 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "error: Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/delete/{id}": {
+            "delete": {
+                "description": "Delete an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Delete an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/get/{id}": {
+            "get": {
+                "description": "Get an organization by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get an organization by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganizationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "error: organization id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error: organization not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -415,7 +512,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Organization"
+                                "$ref": "#/definitions/dto.OrganizationResponse"
                             }
                         }
                     },
@@ -458,7 +555,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Organization"
+                                "$ref": "#/definitions/dto.OrganizationResponse"
                             }
                         }
                     },
@@ -483,64 +580,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orgs/{id}": {
-            "get": {
-                "description": "Get an organization by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Organization"
-                ],
-                "summary": "Get an organization by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Organization"
-                        }
-                    },
-                    "400": {
-                        "description": "error: organization id is required",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "error: organization not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "error: Something went wrong",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
+        "/orgs/update/{id}": {
             "put": {
                 "description": "Update an organization by ID",
                 "consumes": [
@@ -567,7 +607,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Organization"
+                            "$ref": "#/definitions/dto.OrganizationRequest"
                         }
                     }
                 ],
@@ -597,9 +637,11 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Delete an organization by ID",
+            }
+        },
+        "/orgs/{orgID}/contacts/create": {
+            "post": {
+                "description": "Create a new organization contact",
                 "consumes": [
                     "application/json"
                 ],
@@ -607,13 +649,73 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Organization"
+                    "Organization Contacts"
                 ],
-                "summary": "Delete an organization by ID",
+                "summary": "Create a new organization contact",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: Contact created successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - json body is required or invalid / contact media is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal Server Error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/contacts/delete/{id}": {
+            "delete": {
+                "description": "Create a new organization contact",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Contacts"
+                ],
+                "summary": "Create a new organization contact",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Contact ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -622,6 +724,125 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id \u0026 contact id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal Server Error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/contacts/get/{id}": {
+            "get": {
+                "description": "Create a new organization contact",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Contacts"
+                ],
+                "summary": "Create a new organization contact",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Contact ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganizationContactResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id \u0026 contact id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error: contact not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal Server Error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/contacts/list": {
+            "get": {
+                "description": "Create a new organization contact",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Contacts"
+                ],
+                "summary": "Create a new organization contact",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.OrganizationContactResponses"
+                            }
+                        }
                     },
                     "400": {
                         "description": "error: Bad Request - organization id is required",
@@ -633,7 +854,73 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error - Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/contacts/update/{id}": {
+            "put": {
+                "description": "Create a new organization contact",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Contacts"
+                ],
+                "summary": "Create a new organization contact",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Contact ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organization Contact",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganizationContactRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OrganizationContactResponses"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad Request - organization id \u0026 contact id is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal Server Error - Something went wrong",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -671,7 +958,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/service.EventResponses"
+                                    "$ref": "#/definitions/dto.EventResponses"
                                 }
                             }
                         }
@@ -697,7 +984,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orgs/{orgID}/events/{catID}": {
+        "/orgs/{orgID}/events/create": {
             "post": {
                 "description": "Create a new event for a specific organization",
                 "consumes": [
@@ -724,7 +1011,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.NewEventRequest"
+                            "$ref": "#/definitions/dto.NewEventRequest"
                         }
                     }
                 ],
@@ -732,7 +1019,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/service.EventResponses"
+                            "$ref": "#/definitions/dto.EventResponses"
                         }
                     },
                     "400": {
@@ -788,7 +1075,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/service.EventResponses"
+                                "$ref": "#/definitions/dto.EventResponses"
                             }
                         }
                     },
@@ -845,7 +1132,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.NewEventRequest"
+                            "$ref": "#/definitions/dto.NewEventRequest"
                         }
                     }
                 ],
@@ -853,7 +1140,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.EventResponses"
+                            "$ref": "#/definitions/dto.EventResponses"
                         }
                     },
                     "400": {
@@ -925,6 +1212,68 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error: Something went wrong",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orgs/{orgID}/jobs/create": {
+            "post": {
+                "description": "Create a new organization open job",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization Job"
+                ],
+                "summary": "Create a new organization open job",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Organization Open Job",
+                        "name": "org",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.JobRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "message: Job created successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - json body is required or invalid / job title is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Something went wrong",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1098,68 +1447,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error: Something went wrong",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/orgs/{orgID}/jobs/open": {
-            "post": {
-                "description": "Create a new organization open job",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Organization Job"
-                ],
-                "summary": "Create a new organization open job",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "orgID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Organization Open Job",
-                        "name": "org",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.JobRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "message: Job created successfully",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - json body is required or invalid / job title is required",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error - Something went wrong",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1424,6 +1711,105 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.EventResponses": {
+            "type": "object",
+            "properties": {
+                "audience": {
+                    "type": "string",
+                    "example": "genteral"
+                },
+                "category": {
+                    "type": "string",
+                    "example": "all"
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "highlight": {
+                    "type": "string",
+                    "example": "This is a highlight"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "keyTakeaway": {
+                    "type": "string",
+                    "example": "This is a key takeaway"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 13.7563
+                },
+                "locationName": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "locationType": {
+                    "type": "string",
+                    "example": "onsite"
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 100.5018
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "organization_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "priceType": {
+                    "type": "string",
+                    "example": "free"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "requirement": {
+                    "type": "string",
+                    "example": "This is a requirement"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2024-11-29"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "draft"
+                },
+                "timeLine": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
+                }
+            }
+        },
         "dto.EventShortResponseDTO": {
             "type": "object",
             "properties": {
@@ -1461,6 +1847,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.IndustryResponses": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Software"
+                }
+            }
+        },
         "dto.JobRequest": {
             "type": "object",
             "required": [
@@ -1477,6 +1876,7 @@ const docTemplate = `{
                 "quantity",
                 "salary",
                 "scope",
+                "status",
                 "title",
                 "work_type",
                 "workplace"
@@ -1549,6 +1949,10 @@ const docTemplate = `{
                 "scope": {
                     "type": "string",
                     "example": "This is a scope"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "draft"
                 },
                 "title": {
                     "type": "string",
@@ -1643,6 +2047,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "This is a scope"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "draft"
+                },
                 "title": {
                     "type": "string",
                     "example": "Software Engineer"
@@ -1662,6 +2070,315 @@ const docTemplate = `{
                         }
                     ],
                     "example": "remote"
+                }
+            }
+        },
+        "dto.NewEventRequest": {
+            "type": "object",
+            "required": [
+                "audience",
+                "category_id",
+                "description",
+                "endDate",
+                "endTime",
+                "highlight",
+                "keyTakeaway",
+                "latitude",
+                "locationName",
+                "locationType",
+                "longitude",
+                "name",
+                "picUrl",
+                "priceType",
+                "province",
+                "requirement",
+                "startDate",
+                "startTime",
+                "status"
+            ],
+            "properties": {
+                "audience": {
+                    "type": "string",
+                    "example": "general"
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2025-01-22"
+                },
+                "endTime": {
+                    "type": "string",
+                    "example": "17:00"
+                },
+                "highlight": {
+                    "type": "string",
+                    "example": "This is a highlight"
+                },
+                "keyTakeaway": {
+                    "type": "string",
+                    "example": "This is a key takeaway"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 13.7563
+                },
+                "locationName": {
+                    "type": "string",
+                    "example": "Bangkok"
+                },
+                "locationType": {
+                    "type": "string",
+                    "example": "onsite"
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 100.5018
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds IDEA 2024"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "priceType": {
+                    "type": "string",
+                    "example": "free"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "requirement": {
+                    "type": "string",
+                    "example": "This is a requirement"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2025-01-25"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "08:00"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "draft"
+                },
+                "timeLine": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Timeline"
+                    }
+                }
+            }
+        },
+        "dto.OrganizationContactRequest": {
+            "type": "object",
+            "required": [
+                "media",
+                "mediaLink"
+            ],
+            "properties": {
+                "media": {
+                    "type": "string",
+                    "example": "facebook"
+                },
+                "mediaLink": {
+                    "type": "string",
+                    "example": "https://facebook.com"
+                }
+            }
+        },
+        "dto.OrganizationContactResponses": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "type": "string",
+                    "example": "facebook"
+                },
+                "mediaLink": {
+                    "type": "string",
+                    "example": "https://facebook.com"
+                }
+            }
+        },
+        "dto.OrganizationRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "expertise",
+                "goal",
+                "industries",
+                "latitude",
+                "location",
+                "longitude",
+                "name",
+                "organizationContacts",
+                "phone",
+                "picUrl",
+                "postalCode",
+                "province",
+                "subdistrict"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "andaraiwin@gmail.com"
+                },
+                "expertise": {
+                    "type": "string",
+                    "example": "This is an expertise"
+                },
+                "goal": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "This is a goal"
+                    ]
+                },
+                "industries": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "latitude": {
+                    "type": "string",
+                    "example": "18.7876"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "longitude": {
+                    "type": "string",
+                    "example": "98.9937"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3,
+                    "example": "builds CMU"
+                },
+                "organizationContacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.OrganizationContactRequest"
+                    }
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "0812345678"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "postalCode": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "subdistrict": {
+                    "type": "string",
+                    "example": "Mueang"
+                }
+            }
+        },
+        "dto.OrganizationResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "daf_bridge@egat.co.th"
+                },
+                "expertise": {
+                    "type": "string",
+                    "example": "This is an expertise"
+                },
+                "goal": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "This is a goal"
+                    ]
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "industries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.IndustryResponses"
+                    }
+                },
+                "latitude": {
+                    "type": "string",
+                    "example": "18.7876"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "longitude": {
+                    "type": "string",
+                    "example": "98.9937"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "builds CMU"
+                },
+                "organizationContacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.OrganizationContactResponses"
+                    }
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "0812345678"
+                },
+                "picUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                },
+                "postalCode": {
+                    "type": "string",
+                    "example": "50000"
+                },
+                "province": {
+                    "type": "string",
+                    "example": "Chiang Mai"
+                },
+                "subdistrict": {
+                    "type": "string",
+                    "example": "Mueang"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2024-11-29 08:00:00"
                 }
             }
         },
@@ -1912,6 +2629,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Software Development"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "draft"
+                },
                 "title": {
                     "type": "string",
                     "example": "Software Engineer"
@@ -2039,7 +2760,7 @@ const docTemplate = `{
                 "media": {
                     "$ref": "#/definitions/models.Media"
                 },
-                "media_link": {
+                "mediaLink": {
                     "type": "string"
                 },
                 "organization_id": {
@@ -2073,51 +2794,6 @@ const docTemplate = `{
                 "RoleUser",
                 "RoleAdmin"
             ]
-        },
-        "models.SearchJobQuery": {
-            "type": "object",
-            "properties": {
-                "careerStage": {
-                    "description": "Career stage (e.g., 'entry-level')",
-                    "type": "string"
-                },
-                "categories": {
-                    "description": "The category filter",
-                    "type": "string"
-                },
-                "location": {
-                    "description": "Location filter (e.g., 'chiang mai')",
-                    "type": "string"
-                },
-                "offset": {
-                    "description": "The number of items per page",
-                    "type": "integer"
-                },
-                "page": {
-                    "description": "The page number",
-                    "type": "integer"
-                },
-                "q": {
-                    "description": "The search keyword",
-                    "type": "string"
-                },
-                "salaryLowerBound": {
-                    "description": "Salary range (e.g., '1000-2000')",
-                    "type": "number"
-                },
-                "salaryUpperBound": {
-                    "description": "Salary upper bound",
-                    "type": "number"
-                },
-                "workType": {
-                    "description": "Work type (e.g., 'full-time')",
-                    "type": "string"
-                },
-                "workplace": {
-                    "description": "Workplace filter (e.g., 'remote')",
-                    "type": "string"
-                }
-            }
         },
         "models.Timeline": {
             "type": "object",
@@ -2203,204 +2879,6 @@ const docTemplate = `{
                 "WorkplaceRemote",
                 "WorkplaceHybrid"
             ]
-        },
-        "service.EventResponses": {
-            "type": "object",
-            "properties": {
-                "audience": {
-                    "type": "string",
-                    "example": "genteral"
-                },
-                "category": {
-                    "type": "string",
-                    "example": "all"
-                },
-                "category_id": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "description": {
-                    "type": "string",
-                    "example": "This is a description"
-                },
-                "endDate": {
-                    "type": "string",
-                    "example": "2024-11-29"
-                },
-                "endTime": {
-                    "type": "string",
-                    "example": "17:00"
-                },
-                "highlight": {
-                    "type": "string",
-                    "example": "This is a highlight"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "keyTakeaway": {
-                    "type": "string",
-                    "example": "This is a key takeaway"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 13.7563
-                },
-                "locationName": {
-                    "type": "string",
-                    "example": "builds CMU"
-                },
-                "locationType": {
-                    "type": "string",
-                    "example": "onsite"
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 100.5018
-                },
-                "name": {
-                    "type": "string",
-                    "example": "builds IDEA 2024"
-                },
-                "organization_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                },
-                "priceType": {
-                    "type": "string",
-                    "example": "free"
-                },
-                "province": {
-                    "type": "string",
-                    "example": "Chiang Mai"
-                },
-                "requirement": {
-                    "type": "string",
-                    "example": "This is a requirement"
-                },
-                "startDate": {
-                    "type": "string",
-                    "example": "2024-11-29"
-                },
-                "startTime": {
-                    "type": "string",
-                    "example": "08:00"
-                },
-                "timeLine": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Timeline"
-                    }
-                }
-            }
-        },
-        "service.NewEventRequest": {
-            "type": "object",
-            "required": [
-                "audience",
-                "category_id",
-                "description",
-                "endDate",
-                "endTime",
-                "highlight",
-                "keyTakeaway",
-                "latitude",
-                "locationName",
-                "locationType",
-                "longitude",
-                "name",
-                "picUrl",
-                "priceType",
-                "province",
-                "requirement",
-                "startDate",
-                "startTime"
-            ],
-            "properties": {
-                "audience": {
-                    "type": "string",
-                    "example": "general"
-                },
-                "category_id": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "description": {
-                    "type": "string",
-                    "example": "This is a description"
-                },
-                "endDate": {
-                    "type": "string",
-                    "example": "2025-01-22"
-                },
-                "endTime": {
-                    "type": "string",
-                    "example": "17:00"
-                },
-                "highlight": {
-                    "type": "string",
-                    "example": "This is a highlight"
-                },
-                "keyTakeaway": {
-                    "type": "string",
-                    "example": "This is a key takeaway"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 13.7563
-                },
-                "locationName": {
-                    "type": "string",
-                    "example": "Bangkok"
-                },
-                "locationType": {
-                    "type": "string",
-                    "example": "onsite"
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 100.5018
-                },
-                "name": {
-                    "type": "string",
-                    "example": "builds IDEA 2024"
-                },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                },
-                "priceType": {
-                    "type": "string",
-                    "example": "free"
-                },
-                "province": {
-                    "type": "string",
-                    "example": "Chiang Mai"
-                },
-                "requirement": {
-                    "type": "string",
-                    "example": "This is a requirement"
-                },
-                "startDate": {
-                    "type": "string",
-                    "example": "2025-01-25"
-                },
-                "startTime": {
-                    "type": "string",
-                    "example": "08:00"
-                },
-                "timeLine": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Timeline"
-                    }
-                }
-            }
         }
     }
 }`

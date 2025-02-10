@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"errors"
 	"os"
 	"time"
 
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/customerrors"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -34,7 +34,7 @@ type SignUpHandlerRequest struct {
 // @Param        body  body  SignUpHandlerRequest  true  "Sign Up Request Body"
 // @Success      201   {object}  fiber.Map "message: Sign up successful" "OK"
 // @Failure      400   {object}  fiber.Map "Bad Request - Invalid input"
-// @Failure      500   {object}  fiber.Map "Internal Server Error - Something went wrong"
+// @Failure      500   {object}  fiber.Map "Internal Server Error - Internal server error"
 // @Router       /signup [post]
 func (h *AuthHandler) SignUp(c *fiber.Ctx) error {
 	// parse request
@@ -51,12 +51,13 @@ func (h *AuthHandler) SignUp(c *fiber.Ctx) error {
 
 	c.Cookie(&fiber.Cookie{
 		Name:     "authToken",
-		Value:    token,                                    // Token from the auth service
-		Expires:  time.Now().Add(time.Hour * 24 * 7),       // Set expiration for 7 days
-		HTTPOnly: true,                                     // Prevent JavaScript access to the cookie
-		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
-		SameSite: "Lax",
-		Path:     "/", // Path for which the cookie is valid
+		Value:    token,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
+		HTTPOnly: true,                               // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",  // Only send the cookie over HTTPS in production
+		SameSite: fiber.CookieSameSiteNoneMode,       // Allow cross-site cookie sharing
+		Path:     "/",                                // Path for which the cookie is valid
+		Domain:   os.Getenv("COOKIE_DOMAIN"),         // Domain for which the cookie is valid
 	})
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Sign up successful"})
@@ -75,21 +76,25 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	// Generate token
 	token, err := h.authService.LogIn(req.Email, req.Password)
 	if err != nil {
-		if errors.Is(err, customerrors.ErrEmailAlreadyRegistered) {
-			return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Email already registered"})
+		if appErr, ok := err.(errs.AppError); ok {
+			logs.Error(appErr.Message)
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
+
+		logs.Error(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	// Set the JWT token in a cookie after redirect
 	c.Cookie(&fiber.Cookie{
 		Name:     "authToken",
-		Value:    token,                                    // Token from the auth service
-		Expires:  time.Now().Add(time.Hour * 24 * 7),       // Set expiration for 7 days
-		HTTPOnly: true,                                     // Prevent JavaScript access to the cookie
-		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
-		SameSite: "Lax",
-		Path:     "/", // Path for which the cookie is valid
+		Value:    token,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
+		HTTPOnly: true,                               // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",  // Only send the cookie over HTTPS in production
+		SameSite: fiber.CookieSameSiteNoneMode,       // Allow cross-site cookie sharing
+		Path:     "/",                                // Path for which the cookie is valid
+		Domain:   os.Getenv("COOKIE_DOMAIN"),         // Domain for which the cookie is valid
 	})
 
 	// Send response and return nil to ensure proper handling
@@ -103,8 +108,10 @@ func (s *AuthHandler) LogOut(c *fiber.Ctx) error {
 		Value:    "",                             // empty value
 		Expires:  time.Now().Add(-1 * time.Hour), // set expiry in the past
 		HTTPOnly: true,
-		SameSite: "Lax",
-		Path:     "/", // important: must match the path used when setting
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",
+		SameSite: fiber.CookieSameSiteNoneMode,
+		Path:     "/",                        // important: must match the path used when setting
+		Domain:   os.Getenv("COOKIE_DOMAIN"), // Domain for which the cookie is valid
 	})
 	// Optionally, redirect to a logout page or send a response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Logout successful"})

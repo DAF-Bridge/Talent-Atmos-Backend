@@ -23,13 +23,34 @@ func NewNotFoundError(message string) error {
 func NewUnexpectedError() error {
 	return AppError{
 		Code:    http.StatusInternalServerError,
-		Message: "Something went wrong",
+		Message: "Internal Server Error",
 	}
 }
 
-func NewValidationError(message string) error {
+func NewCannotBeProcessedError(message string) error {
 	return AppError{
 		Code:    http.StatusUnprocessableEntity,
+		Message: message,
+	}
+}
+
+func NewConflictError(message string) error {
+	return AppError{
+		Code:    http.StatusConflict,
+		Message: message,
+	}
+}
+
+func NewBadRequestError(message string) error {
+	return AppError{
+		Code:    http.StatusBadRequest,
+		Message: message,
+	}
+}
+
+func NewUnauthorizedError(message string) error {
+	return AppError{
+		Code:    http.StatusUnauthorized,
 		Message: message,
 	}
 }

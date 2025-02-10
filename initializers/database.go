@@ -1,12 +1,15 @@
 package initializers
 
 import (
+	"context"
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
-	"github.com/opensearch-project/opensearch-go"
 	"io"
 	"log"
 	"os"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
+	"github.com/go-redis/redis/v8"
+	"github.com/opensearch-project/opensearch-go"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -20,6 +23,8 @@ var DB *gorm.DB
 var ESClient *opensearch.Client
 
 var S3 *infrastructure.S3Uploader
+
+var ctx = context.Background()
 
 func ConnectToDB() {
 	// Define the PostgreSQL connection details
@@ -72,7 +77,6 @@ func ConnectToS3() {
 
 	// Assign the S3 instance to the global S3 variable
 	S3 = s3
-
 	logs.Info("Successfully connected to S3!")
 }
 
@@ -110,4 +114,22 @@ func ConnectToElasticSearch() *opensearch.Client {
 	logs.Info(fmt.Sprintf("Successfully connected to Elasticsearch!, %s", status))
 
 	return ESClient
+}
+
+func ConnectToRedis() *redis.Client {
+	// Connect to Redis
+	rs := os.Getenv("REDIS_URL")
+
+	opt, _ := redis.ParseURL(rs)
+	client := redis.NewClient(opt)
+
+	res, err := client.Ping(ctx).Result()
+	if err != nil {
+		log.Fatalf("Failed to ping to Redis: %v!\n", err)
+	}
+
+	// fmt.Println("Successfully connected to Redis!")
+	logs.Info(fmt.Sprintf("Successfully connected to Redis!, %s", res))
+
+	return client
 }

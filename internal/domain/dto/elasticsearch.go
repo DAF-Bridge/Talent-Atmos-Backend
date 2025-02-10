@@ -11,3 +11,8 @@ type SearchJobResponse struct {
 	TotalJob int                  `json:"total_jobs"`
 	Jobs     []models.JobDocument `json:"jobs"`
 }
+
+type SearchOrganizationResponse struct {
+	TotalOrganization int                           `json:"total_organizations"`
+	Organizations     []models.OrganizationDocument `json:"organizations"`
+}

@@ -20,7 +20,7 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infr
 
 	app.Get("/events", eventHandler.ListEvents)
 	event.Get("/", eventHandler.ListEventsByOrgID)
-	event.Post("/", eventHandler.CreateEvent)
+	event.Post("/create", eventHandler.CreateEvent)
 	event.Get("/:id", eventHandler.GetEventByID)
 	app.Get("/events-paginate", eventHandler.EventPaginate)
 	event.Put("/:id", eventHandler.UpdateEvent)

@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/docs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/types"
-	"github.com/gofiber/swagger"
 	_ "github.com/spf13/viper"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
@@ -16,6 +15,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
 	// "github.com/aws/aws-sdk-go-v2/aws"
 	// "github.com/aws/aws-sdk-go-v2/service/s3"
 )
@@ -70,7 +70,7 @@ func Start() {
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Set-Cookie",
 		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
 		AllowCredentials: true, // Allow credentials (cookies) to be sent
 	}))

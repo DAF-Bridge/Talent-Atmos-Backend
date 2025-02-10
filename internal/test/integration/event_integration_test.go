@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
@@ -48,10 +49,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 					Activity: "Keynote Speech",
 				},
 			},
-			Description:  "Explore advancements in renewable energy technologies.",
-			Highlight:    "Top speakers from the renewable energy sector.",
-			Requirement:  "Open to professionals in the energy sector.",
-			KeyTakeaway:  "Learn about the latest trends in solar and wind energy.",
+			Content:      json.RawMessage(`{"text":"Explore advancements in renewable energy technologies."}`),
 			LocationName: "Conference Hall A",
 			Latitude:     13.7563,
 			Longitude:    100.5018,
@@ -79,7 +77,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 		if assert.Equal(t, fiber.StatusOK, res.StatusCode) {
 			body, _ := io.ReadAll(res.Body)
 
-			var actual service.EventResponses
+			var actual dto.EventResponses
 			expectedResponse := service.ConvertToEventResponse(expected)
 
 			err := json.Unmarshal(body, &actual)
