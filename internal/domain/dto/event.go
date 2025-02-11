@@ -11,8 +11,8 @@ type EventShortResponseDTO struct {
 	Name      string `json:"name" example:"builds IDEA 2024"`
 	StartDate string `json:"startDate" example:"2024-11-29"`
 	EndDate   string `json:"endDate" example:"2024-11-29"`
-	StartTime string `json:"startTime" example:"08:00"`
-	EndTime   string `json:"endTime" example:"17:00"`
+	StartTime string `json:"startTime" example:"08:00:00"`
+	EndTime   string `json:"endTime" example:"17:00:00"`
 	PicUrl    string `json:"picUrl" example:"https://example.com/image.jpg"`
 	Location  string `json:"location" example:"builds CMU"`
 }
@@ -24,12 +24,11 @@ type PaginatedEventsResponse struct {
 
 type NewEventRequest struct {
 	Name         string            `json:"name" example:"builds IDEA 2024" validate:"required"`
-	PicUrl       string            `json:"picUrl" example:"https://example.com/image.jpg" validate:"required"`
 	StartDate    string            `json:"startDate" example:"2025-01-25" validate:"required"`
 	EndDate      string            `json:"endDate" example:"2025-01-22" validate:"required"`
-	StartTime    string            `json:"startTime" example:"08:00" validate:"required"`
-	EndTime      string            `json:"endTime" example:"17:00" validate:"required"`
-	TimeLine     []models.Timeline `json:"timeLine"`
+	StartTime    string            `json:"startTime" example:"08:00:00" validate:"required"`
+	EndTime      string            `json:"endTime" example:"17:00:00" validate:"required"`
+	TimeLine     []models.Timeline `json:"timeLine" validate:"required"`
 	Content      json.RawMessage   `json:"content" example:"{\"key\":\"value\"}" validate:"required"`
 	LocationName string            `json:"locationName" example:"Bangkok" validate:"required"`
 	Latitude     float64           `json:"latitude" example:"13.7563" validate:"required"`
@@ -49,8 +48,8 @@ type EventResponses struct {
 	PicUrl         string            `json:"picUrl" example:"https://example.com/image.jpg"`
 	StartDate      string            `json:"startDate" example:"2024-11-29"`
 	EndDate        string            `json:"endDate" example:"2024-11-29"`
-	StartTime      string            `json:"startTime" example:"08:00"`
-	EndTime        string            `json:"endTime" example:"17:00"`
+	StartTime      string            `json:"startTime" example:"08:00:00"`
+	EndTime        string            `json:"endTime" example:"17:00:00"`
 	TimeLine       []models.Timeline `json:"timeLine"`
 	Content        json.RawMessage   `json:"content" example:"{\"key\":\"value\"}"`
 	LocationName   string            `json:"locationName" example:"builds CMU"`
@@ -65,6 +64,11 @@ type EventResponses struct {
 	Category       string            `json:"category" example:"all"`
 }
 
+// "startDate": "2024-11-16T00:00:00.000Z",
+// "endDate": "2024-11-20T00:00:00.000Z",
+// "startTime": "0001-01-01T09:00:00.000Z",
+// "endTime": "0001-01-01T16:30:00.000Z",
+
 type EventCardResponses struct {
 	ID             int                       `json:"id" example:"1"`
 	OrganizationID int                       `json:"organization_id" example:"1"`
@@ -72,8 +76,8 @@ type EventCardResponses struct {
 	PicUrl         string                    `json:"picUrl" example:"https://example.com/image.jpg"`
 	StartDate      string                    `json:"startDate" example:"2024-11-29"`
 	EndDate        string                    `json:"endDate" example:"2024-11-29"`
-	StartTime      string                    `json:"startTime" example:"08:00"`
-	EndTime        string                    `json:"endTime" example:"17:00"`
+	StartTime      string                    `json:"startTime" example:"08:00:00"`
+	EndTime        string                    `json:"endTime" example:"17:00:00"`
 	LocationName   string                    `json:"location" example:"builds CMU"`
 	Organization   OrganizationShortRespones `json:"organization"`
 	Province       string                    `json:"province" example:"Chiang Mai"`

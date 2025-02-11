@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	"mime/multipart"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
@@ -9,11 +11,12 @@ import (
 )
 
 type OrganizationService interface {
-	CreateOrganization(org dto.OrganizationRequest) error
+	CreateOrganization(org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
 	ListAllOrganizations() ([]dto.OrganizationResponse, error)
 	GetOrganizationByID(id uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
-	UpdateOrganization(orgID uint, org dto.OrganizationRequest) (*dto.OrganizationResponse, error)
+	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(id uint) error
 }
 
@@ -28,12 +31,13 @@ type OrganizationContactService interface {
 type OrgOpenJobService interface {
 	SyncJobs() error
 	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
-	NewJob(orgID uint, dto dto.JobRequest) error
+	NewJob(orgID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
 	GetJobByID(orgID uint, jobID uint) (*dto.JobResponses, error)
 	GetJobPaginate(page uint) ([]dto.JobResponses, error)
-	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
+	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.JobResponses, error)
+	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	RemoveJob(orgID uint, jobID uint) error
 }
 
@@ -77,7 +81,6 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
 	return models.Organization{
 		Name:                 org.Name,
-		PicUrl:               org.PicUrl,
 		Goal:                 org.Goal,
 		Expertise:            org.Expertise,
 		Location:             org.Location,
@@ -122,6 +125,7 @@ func convertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		ID:             job.ID,
 		JobTitle:       job.Title,
 		PicUrl:         job.PicUrl,
+		Location:       job.Location,
 		Organization:   job.Organization.Name,
 		Scope:          job.Scope,
 		Workplace:      job.Workplace,
@@ -144,7 +148,6 @@ func ConvertToJobRequest(orgID uint, job dto.JobRequest, categories []models.Cat
 	return models.OrgOpenJob{
 		OrganizationID: orgID,
 		Title:          job.JobTitle,
-		PicUrl:         job.PicUrl,
 		Scope:          job.Scope,
 		Prerequisite:   job.Prerequisite,
 		Location:       job.Location,

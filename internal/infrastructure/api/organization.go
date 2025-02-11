@@ -13,7 +13,7 @@ import (
 func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
-	organizationService := service.NewOrganizationService(organizationRepo)
+	organizationService := service.NewOrganizationService(organizationRepo, s3)
 	organizationHandler := handler.NewOrganizationHandler(organizationService)
 
 	org := app.Group("/orgs")

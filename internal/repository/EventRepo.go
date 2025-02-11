@@ -129,8 +129,8 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	}
 
 	// Update fields in existingEvent with values from the new event
-	existingEvent.ID = eventID
-	existingEvent.OrganizationID = orgID
+	// existingEvent.ID = eventID
+	// existingEvent.OrganizationID = orgID
 	existingEvent.Name = event.Name
 	existingEvent.Content = event.Content
 	existingEvent.Audience = event.Audience
@@ -147,12 +147,29 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	existingEvent.Timeline = event.Timeline
 
 	// Save the updated event
-	err = r.db.Preload("Category").Save(&existingEvent).Error
+	err = r.db.Save(&existingEvent).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch the updated event
+	err = r.db.Preload("Category").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
 	if err != nil {
 		return nil, err
 	}
 
 	return &existingEvent, nil
+}
+
+func (r eventRepository) UpdateEventPicture(orgID uint, eventID uint, picURL string) error {
+	err := r.db.Model(&models.Event{}).
+		Where("organization_id = ? AND id = ?", orgID, eventID).
+		Update("pic_url", picURL).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r eventRepository) Delete(orgID uint, eventID uint) error {

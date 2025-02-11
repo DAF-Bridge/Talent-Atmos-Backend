@@ -110,6 +110,14 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) (*m
 	return &updatedOrg, nil
 }
 
+func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string) error {
+	if err := r.db.Model(&models.Organization{}).Where("id = ?", id).Update("pic_url", picURL).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r organizationRepository) DeleteOrganization(id uint) error {
 	var org models.Organization
 	err := r.db.Model(&org).Where("id = ?", id).Delete(&org).Error
@@ -165,10 +173,15 @@ func (r organizationContactRepository) GetAllByOrgID(orgID uint) ([]models.Organ
 
 func (r organizationContactRepository) Update(contact *models.OrganizationContact) (*models.OrganizationContact, error) {
 	if err := r.db.
-		Preload("Organization").
 		Save(contact).Error; err != nil {
 		return nil, err
 	}
+
+	if err := r.db.
+		Where("organization_id = ? AND id = ?", contact.OrganizationID, contact.ID).First(contact).Error; err != nil {
+		return nil, err
+	}
+
 	return contact, nil
 }
 
@@ -304,6 +317,16 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 	}
 
 	return &updatedJob, nil
+}
+
+func (r orgOpenJobRepository) UpdateJobPicture(orgID uint, jobID uint, picURL string) error {
+	if err := r.db.Model(&models.OrgOpenJob{}).
+		Where("organization_id = ? AND id = ?", orgID, jobID).
+		Update("pic_url", picURL).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) error {

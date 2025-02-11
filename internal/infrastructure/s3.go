@@ -63,9 +63,9 @@ func (s *S3Uploader) UploadUserPictureFile(ctx context.Context, file multipart.F
 	return fileURL, nil
 }
 
-func (s *S3Uploader) UploadOrgPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID int) (string, error) {
+func (s *S3Uploader) UploadOrgPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
-	objectKey := fmt.Sprintf("organizations/profile-pic/%v%s", orgID, fileExt)
+	objectKey := fmt.Sprintf("organizations/%v/pictures/gallery%s", orgID, fileExt)
 
 	buffer := bytes.NewBuffer(nil)
 	if _, err := buffer.ReadFrom(file); err != nil {
@@ -89,9 +89,9 @@ func (s *S3Uploader) UploadOrgPictureFile(ctx context.Context, file multipart.Fi
 	return fileURL, nil
 }
 
-func (s *S3Uploader) UploadEventPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, eventID int) (string, error) {
+func (s *S3Uploader) UploadEventPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint, eventID uint) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
-	objectKey := fmt.Sprintf("events/picture/%v%s", eventID, fileExt)
+	objectKey := fmt.Sprintf("organizations/%v/pictures/events/%v%s", orgID, eventID, fileExt)
 
 	buffer := bytes.NewBuffer(nil)
 	if _, err := buffer.ReadFrom(file); err != nil {
@@ -116,9 +116,36 @@ func (s *S3Uploader) UploadEventPictureFile(ctx context.Context, file multipart.
 	return fileURL, nil
 }
 
-func (s *S3Uploader) UploadCompanyLogoFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, companyID int) (string, error) {
+func (s *S3Uploader) UploadCompanyLogoFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
-	objectKey := fmt.Sprintf("organizations/logo/%v%s", companyID, fileExt)
+	objectKey := fmt.Sprintf("organizations/%v/logo%s", orgID, fileExt)
+
+	buffer := bytes.NewBuffer(nil)
+	if _, err := buffer.ReadFrom(file); err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.bucketName),
+		Key:    aws.String(objectKey),
+		Body:   buffer,
+		ACL:    "public-read",
+	})
+
+	if err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to upload file: %w", err)
+	}
+
+	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
+	return fileURL, nil
+}
+
+func (s *S3Uploader) UploadJobBanner(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint, jobID uint) (string, error) {
+	fileExt := filepath.Ext(fileHeader.Filename)
+	objectKey := fmt.Sprintf("organizations/%v/pictures/jobs/%v%s", orgID, jobID, fileExt)
 
 	buffer := bytes.NewBuffer(nil)
 	if _, err := buffer.ReadFrom(file); err != nil {

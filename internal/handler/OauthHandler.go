@@ -3,14 +3,14 @@ package handler
 import (
 	"context"
 	"encoding/json"
-
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
-	// "github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/golang-jwt/jwt/v5"
 
 	// "github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -55,6 +55,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	// Exchange the authorization code for an access token
 	token, err := initializers.OauthConfig.Exchange(context.Background(), code)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to exchange token: %v", err))
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Failed to exchange token: %v", err))
 	}
 
@@ -62,6 +63,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	client := initializers.OauthConfig.Client(c.Context(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to fetch user info: %v", err))
 		return c.Status(fiber.StatusBadRequest).SendString("Failed to fetch user info: " + err.Error())
 	}
 	defer resp.Body.Close()
@@ -75,6 +77,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 		AvatarURL string `json:"picture"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		logs.Error(fmt.Sprintf("Failed to parse user info: %v", err))
 		return c.Status(fiber.StatusBadRequest).SendString("Failed to parse user info: " + err.Error())
 	}
 
@@ -86,15 +89,16 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 		userInfo.UserID,
 	)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to authenticate user: %v", err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	// Set the JWT token in a cookie after redirect
 	c.Cookie(&fiber.Cookie{
 		Name:     "authToken",
-		Value:    tokenString, // Token from the auth service
-		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
-		HTTPOnly: true, // Prevent JavaScript access to the cookie
+		Value:    tokenString,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7),       // Set expiration for 7 days
+		HTTPOnly: true,                                     // Prevent JavaScript access to the cookie
 		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
 		SameSite: "None",
 		Path:     "/", // Path for which the cookie is valid

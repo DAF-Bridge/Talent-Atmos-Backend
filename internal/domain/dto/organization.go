@@ -25,7 +25,6 @@ type OrganizationShortRespones struct {
 
 type JobRequest struct {
 	JobTitle       string             `json:"title" example:"Software Engineer" validate:"required,min=3,max=255"`
-	PicUrl         string             `json:"picUrl" example:"https://example.com/image.jpg" validate:"required"`
 	Scope          string             `json:"scope" example:"This is a scope" validate:"required"`
 	Prerequisite   []string           `json:"prerequisite" example:"Bachelor's degree in Computer Science" validate:"required"`
 	Location       string             `json:"location" example:"Chiang Mai" validate:"required"`
@@ -91,7 +90,6 @@ type IndustryResponses struct {
 
 type OrganizationRequest struct {
 	Name                 string                       `json:"name" example:"builds CMU" validate:"required,min=3,max=255"`
-	PicUrl               string                       `json:"picUrl" example:"https://example.com/image.jpg" validate:"required"`
 	Goal                 []string                     `json:"goal" example:"This is a goal" validate:"required"`
 	Expertise            string                       `json:"expertise" example:"This is an expertise" validate:"required"`
 	Location             string                       `json:"location" example:"Chiang Mai" validate:"required"`

@@ -11,6 +11,7 @@ type OrganizationRepository interface {
 	GetAllOrganizations() ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
 	UpdateOrganization(org *models.Organization) (*models.Organization, error)
+	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(id uint) error
 }
 
@@ -30,5 +31,6 @@ type OrgOpenJobRepository interface {
 	GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob, error)
 	GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error)
 	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
+	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	DeleteJob(orgID uint, jobID uint) error
 }

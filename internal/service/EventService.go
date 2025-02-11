@@ -1,6 +1,10 @@
 package service
 
 import (
+	"context"
+	"errors"
+	"mime/multipart"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
@@ -50,13 +54,33 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 	return eventsRes, nil
 }
 
-func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest) (*dto.EventResponses, error) {
+func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
 	event := requestConvertToEvent(orgID, req)
-	newEvent, err := s.eventRepo.Create(uint(orgID), &event)
+
+	newEvent, err := s.eventRepo.Create(orgID, &event)
 
 	if err != nil {
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
+	}
+
+	// Upload image to S3
+	if file != nil {
+		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, uint(newEvent.ID))
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
+
+		// Update PicUrl in event
+		newEvent.PicUrl = picURL
+
+		// Update event record in database
+		err = s.eventRepo.UpdateEventPicture(uint(orgID), uint(newEvent.ID), picURL)
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
 	}
 
 	eventResponse := ConvertToEventResponse(*newEvent)
@@ -127,7 +151,7 @@ func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) 
 	events, err := s.eventRepo.GetPaginate(page, numberOfEvent)
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("events not found")
 		}
 
@@ -169,12 +193,35 @@ func (s eventService) CountEvent() (int64, error) {
 	return count, nil
 }
 
-func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest) (*dto.EventResponses, error) {
+func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
+	existingEvent, err := s.eventRepo.GetByID(orgID, eventID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("event not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	// Convert request to event model
 	event := requestConvertToEvent(orgID, req)
+	event.ID = eventID
+	if file != nil {
+		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, eventID)
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
+
+		event.PicUrl = picURL
+	} else {
+		event.PicUrl = existingEvent.PicUrl
+	}
 
 	updatedEvent, err := s.eventRepo.Update(orgID, eventID, &event)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("event not found")
 		}
 
@@ -187,11 +234,22 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 	return &eventResponse, nil
 }
 
+func (s eventService) UploadEventPicture(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint, eventID uint) (string, error) {
+	picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, eventID)
+
+	if err != nil {
+		logs.Error(err)
+		return "", err
+	}
+
+	return picURL, nil
+}
+
 func (s eventService) DeleteEvent(orgID uint, eventID uint) error {
 	err := s.eventRepo.Delete(orgID, eventID)
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("event not found")
 		}
 

@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	_ "fmt"
+	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
@@ -23,20 +25,41 @@ func NewOrganizationHandler(service service.OrganizationService) *OrganizationHa
 // @Summary Create a new organization
 // @Description Create a new organization BUT still not create the Contact and OpenJob
 // @Tags Organization
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
-// @Param org body dto.OrganizationRequest true "Organization"
+// @Param org formData string true "Organization JSON"
+// @Param image formData file true "Organization Image"
 // @Success 201 {object} models.Organization
 // @Failure 400 {object} map[string]string "error: Bad Request"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/create [post]
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	var org dto.OrganizationRequest
+
+	// Parse JSON from the "org" form field
+	orgData := c.FormValue("org")
+	if err := json.Unmarshal([]byte(orgData), &org); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
+
 	if err := utils.ParseJSONAndValidate(c, &org); err != nil {
 		return err
 	}
 
-	if err := h.service.CreateOrganization(org); err != nil {
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	fileHeader, err := c.FormFile("image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+	}
+
+	file, err = fileHeader.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+	}
+	defer file.Close()
+
+	if err := h.service.CreateOrganization(org, c.Context(), file, fileHeader); err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
@@ -132,16 +155,23 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 // @Summary Update an organization by ID
 // @Description Update an organization by ID
 // @Tags Organization
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Param org body dto.OrganizationRequest true "Organization"
+// @Param org formData string true "Organization JSON"
+// @Param image formData file true "Organization Image"
 // @Success 200 {object} models.Organization
 // @Failure 400 {object} map[string]string "error: Bad Request - json body is required or invalid / organization name is required"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/update/{id} [put]
 func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	var org dto.OrganizationRequest
+	// Parse JSON from the "org" form field
+	orgData := c.FormValue("org")
+	if err := json.Unmarshal([]byte(orgData), &org); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
+
 	if err := utils.ParseJSONAndValidate(c, &org); err != nil {
 		return err
 	}
@@ -153,7 +183,24 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org)
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+
+	fileHeader, err = c.FormFile("image")
+	// Check if file is not empty
+	if err == nil {
+		file, err = fileHeader.Open()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+		}
+		defer file.Close()
+	} else {
+		// If file is empty, set file and fileHeader to nil
+		file = nil
+		fileHeader = nil
+	}
+
+	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), file, fileHeader)
 	if err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
@@ -392,16 +439,23 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 // @Summary Create a new organization open job
 // @Description Create a new organization open job
 // @Tags Organization Job
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Param org body dto.JobRequest true "Organization Open Job"
+// @Param job formData string true "Job JSON"
+// @Param image formData file true "Job Image"
 // @Success 201 {object} map[string]string "message: Job created successfully"
 // @Failure 400 {object} map[string]string "Bad Request - json body is required or invalid / job title is required"
 // @Failure 500 {object} map[string]string "Internal Server Error - Internal Server Error"
 // @Router /orgs/{orgID}/jobs/create [post]
 func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
+
+	// Parse JSON from the "job" form field
+	jobData := c.FormValue("job")
+	if err := json.Unmarshal([]byte(jobData), &req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
 
 	// validate request
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
@@ -413,7 +467,20 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
 
-	if err := h.service.NewJob(uint(orgID), req); err != nil {
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	fileHeader, err = c.FormFile("image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+	}
+
+	file, err = fileHeader.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+	}
+	defer file.Close()
+
+	if err := h.service.NewJob(uint(orgID), req, c.Context(), file, fileHeader); err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
@@ -514,17 +581,24 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 // @Summary Update an organization open job by ID
 // @Description Update an organization open job by ID
 // @Tags Organization Job
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Job ID"
-// @Param org body dto.JobRequest true "Organization Open Job"
+// @Param job formData string true "Job JSON"
+// @Param image formData file false "Job Image"
 // @Success 200 {object} dto.JobResponses
 // @Failure 400 {object} map[string]string "error: Bad Request - organization id & job id is required"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/update/{id} [put]
 func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
+	// Parse JSON from the "job" form field
+	jobData := c.FormValue("job")
+	if err := json.Unmarshal([]byte(jobData), &req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
+
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
 		return err
 	}
@@ -539,7 +613,21 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
 	}
 
-	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req)
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	fileHeader, err = c.FormFile("image")
+	if err == nil {
+		file, err = fileHeader.Open()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+		}
+		defer file.Close()
+	} else {
+		file = nil
+		fileHeader = nil
+	}
+
+	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req, c.Context(), file, fileHeader)
 	if err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
