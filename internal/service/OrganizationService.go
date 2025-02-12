@@ -355,10 +355,10 @@ func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Off
 	jobsRes, err := search.SearchJobs(s.OS, query, page, Offset)
 	if err != nil {
 		if len(jobsRes.Jobs) == 0 {
-			return dto.SearchJobResponse{}, errs.NewFiberNotFoundError("No search results found")
+			return dto.SearchJobResponse{}, errs.NewNotFoundError("No search results found")
 		}
 
-		return dto.SearchJobResponse{}, errs.NewFiberUnexpectedError()
+		return dto.SearchJobResponse{}, errs.NewUnexpectedError()
 	}
 
 	return jobsRes, nil

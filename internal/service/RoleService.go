@@ -1,9 +1,15 @@
 package service
 
 import (
+	"errors"
+	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
+	"gorm.io/gorm"
 	"log"
 	"strconv"
 )
@@ -43,23 +49,50 @@ func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
 	return roleService
 }
 
-func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) (*models.RoleInOrganizaion, error) {
-	return r.dbRoleRepository.FindByUserIDAndOrganizationID(userID, orgID)
+func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) (*models.RoleInOrganization, error) {
+	roles, err := r.dbRoleRepository.FindByUserIDAndOrganizationID(userID, orgID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("role not found")
+			return nil, errs.NewNotFoundError("role not found")
+		}
+
+		logs.Error(fmt.Sprintf("Failed to get role: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+	return roles, nil
 }
 
 func (r RoleWithDomainService) DeleteDomains(orgID uint) (bool, error) {
 	err := r.organizationRepository.DeleteOrganization(orgID)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("organization not found")
+			return false, errs.NewNotFoundError("organization not found")
+
+		}
+		logs.Error(fmt.Sprintf("Failed to delete organization: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
-	return r.enforcerRoleRepository.DeleteDomains(strconv.Itoa(int(orgID)))
+	ok, err := r.enforcerRoleRepository.DeleteDomains(strconv.Itoa(int(orgID)))
+	if err != nil || !ok {
+		logs.Error(fmt.Sprintf("Failed to delete organization in enforcer: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	return true, nil
 }
 
 func (r RoleWithDomainService) GetDomainsByUser(uuid uuid.UUID) ([]models.Organization, error) {
 
 	roles, err := r.dbRoleRepository.FindByUserID(uuid)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("organization not found")
+			return nil, errs.NewNotFoundError("organization not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get organization: %v", err))
+
+		return nil, errs.NewUnexpectedError()
 	}
 	organizations := make([]models.Organization, 0)
 	for _, role := range roles {
@@ -69,9 +102,16 @@ func (r RoleWithDomainService) GetDomainsByUser(uuid uuid.UUID) ([]models.Organi
 
 }
 
-func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]models.RoleInOrganizaion, error) {
-	return r.dbRoleRepository.FindByOrganizationID(orgID)
-
+func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]models.RoleInOrganization, error) {
+	roles, err := r.dbRoleRepository.FindByOrganizationID(orgID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("role not found")
+			return nil, errs.NewNotFoundError("role not found")
+		}
+		return nil, errs.NewUnexpectedError()
+	}
+	return roles, nil
 }
 
 func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail string, orgID uint) (bool, error) {
@@ -79,44 +119,69 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 	//check InviterUser is existing
 	inviterUser, err := r.userRepository.FindByID(inviterUserID)
 	if err != nil {
-		return false, err
-	} //check InvitedUser is existing
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("inviter user not found")
+			return false, errs.NewNotFoundError("inviter user not found")
+		}
+
+		logs.Error(fmt.Sprintf("Failed to get user: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
 	invitedUser, err := r.userRepository.FindByEmail(invitedEmail)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("invited user not found")
+			return false, errs.NewNotFoundError("invited user not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
+
 	//check organization is existing
 	org, err := r.organizationRepository.GetByOrgID(orgID)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("organization not found")
+			return false, errs.NewNotFoundError("organization not found")
+		}
+		return false, errs.NewUnexpectedError()
 	}
+
 	//check user is already in organization
-	role, err := r.enforcerRoleRepository.GetRolesForUserInDomain(inviterUserID.String(), strconv.Itoa(int(orgID)))
+	isExit, err := r.dbRoleRepository.IsExitRole(invitedUser.ID, orgID)
 	if err != nil {
-		return false, err
+		logs.Error(fmt.Sprintf("Failed to get role: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
-	if len(role) > 0 {
-		return false, nil
+	if isExit {
+		logs.Error("user is already in organization")
+		return false, errs.NewBadRequestError("user is already in organization")
 	}
-	//create token
+
 	var createInviteToken = models.InviteToken{
-		InviterUserID:  inviterUserID,
-		InviterUser:    *inviterUser,
 		InvitedUserID:  invitedUser.ID,
 		InvitedUser:    *invitedUser,
 		OrganizationID: orgID,
 		Organization:   *org,
 	}
-	inviteToken, err := r.inviteTokenRepository.Create(&createInviteToken)
+
+	inviteToken, err := r.inviteTokenRepository.Upsert(&createInviteToken)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrCheckConstraintViolated) {
+			logs.Error("Foreign key constraint violation, business logic validation failure")
+			return false, errs.NewCannotBeProcessedError("Foreign key constraint violation, business logic validation failure")
+		}
+		logs.Error(fmt.Sprintf("Failed to create OR update invite token: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
 	subject := "You got an invitation to manage" + inviterUser.Name
 
 	//send email
 	err = r.inviteMailRepository.SendInvitedMail(invitedEmail, subject, inviterUser.Name, inviteToken.Token.String())
 	if err != nil {
-		return false, err
+		logs.Error(fmt.Sprintf("Failed to send email: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
 
 	return true, nil
@@ -126,31 +191,67 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	// find token
 	inviteToken, err := r.inviteTokenRepository.GetByToken(token)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("token not found")
+			return false, errs.NewNotFoundError("token not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get invite token: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	if inviteToken == nil {
+		logs.Error("token not found")
+		return false, errs.NewNotFoundError("token not found")
 	}
 	// create RoleName
-	var newRole = models.RoleInOrganizaion{
+	var newRole = models.RoleInOrganization{
 		OrganizationID: inviteToken.OrganizationID,
 		UserID:         inviteToken.InvitedUserID,
 		Role:           defaultRole,
 	}
 	if _, err = r.dbRoleRepository.Create(&newRole); err != nil {
-		return false, err
+		var pqErr *pgconn.PgError
+		if errors.As(err, &pqErr) {
+			if pqErr.Code == "23505" {
+				logs.Error("role is already in organization")
+				return false, errs.NewConflictError("role is already in organization")
+			}
+		}
+		if errors.Is(err, gorm.ErrPrimaryKeyRequired) {
+			logs.Error("role already exists")
+			return false, errs.NewConflictError("role already exists")
+		}
+		if errors.Is(err, gorm.ErrCheckConstraintViolated) {
+			logs.Error("Foreign key constraint violation, business logic validation failure")
+			return false, errs.NewCannotBeProcessedError("Foreign key constraint violation, business logic validation failure")
+		}
+		logs.Error(fmt.Sprintf("Failed to create role: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
+
 	// update RoleName
-	_, err = r.enforcerRoleRepository.AddRoleForUserInDomain(inviteToken.InvitedUserID.String(), strconv.Itoa(int(inviteToken.OrganizationID)), defaultRole)
+	ok, err := r.enforcerRoleRepository.AddRoleForUserInDomain(inviteToken.InvitedUserID.String(), strconv.Itoa(int(inviteToken.OrganizationID)), defaultRole)
 	if err != nil {
-		return false, err
+		logs.Error(fmt.Sprintf("Failed to add role in enforcer: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		logs.Error("Failed to add role in enforcer")
+		return false, errs.NewUnexpectedError()
 	}
 	// delete token
 	err = r.inviteTokenRepository.DeleteByToken(token)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("token not found")
+			return false, errs.NewNotFoundError("token not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to delete invite token: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
 	return true, nil
 }
 
-func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganizaion, userId uuid.UUID) bool {
+func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganization, userId uuid.UUID) bool {
 	if len(owners) > 1 {
 		return true
 	}
@@ -160,55 +261,96 @@ func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganizaion, userId uui
 func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role string) (bool, error) {
 	//check RoleName is existing
 	if role != "owner" && role != "moderator" {
-		return false, nil
+		logs.Error("role is not valid")
+		return false, errs.NewBadRequestError("role is not valid")
 	}
 	//check number owner
 	owners, err := r.dbRoleRepository.FindByRoleNameAndOrganizationID("owner", orgID)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("owner not found")
+			return false, errs.NewNotFoundError("owner not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
 	if validateOwnerIsAtLeastOneLeft(owners, userID) {
-		return false, nil
+		logs.Error("owner is at least one left")
+		return false, errs.NewBadRequestError("owner is at least one left")
 	}
 	//update RoleName
 	if err = r.dbRoleRepository.UpdateRole(userID, orgID, role); err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("role not found")
+			return false, errs.NewNotFoundError("role not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to update role: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
-	return r.enforcerRoleRepository.UpdateRoleForUserInDomain(userID.String(), role, strconv.Itoa(int(orgID)))
+	ok, err := r.enforcerRoleRepository.UpdateRoleForUserInDomain(userID.String(), role, strconv.Itoa(int(orgID)))
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to update role in enforcer: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		logs.Error("Failed to update role in enforcer")
+		return false, errs.NewUnexpectedError()
+	}
+	return true, nil
+
 }
 
 func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool, error) {
 	//check number owner
 	owners, err := r.dbRoleRepository.FindByRoleNameAndOrganizationID("owner", orgID)
 	if err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("owner not found")
+			return false, errs.NewNotFoundError("owner not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
+		return false, errs.NewUnexpectedError()
 	}
 	if validateOwnerIsAtLeastOneLeft(owners, userID) {
-		return false, nil
+		logs.Error("owner is at least one left")
+		return false, errs.NewBadRequestError("owner is at least one left")
 	}
 	//delete RoleName
 	if err = r.dbRoleRepository.DeleteRole(userID, orgID); err != nil {
-		return false, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("role not found")
+			return false, errs.NewNotFoundError("role not found")
+		}
+		return false, errs.NewUnexpectedError()
 	}
-	return r.enforcerRoleRepository.DeleteRoleForUserInDomain(userID.String(), defaultRole, strconv.Itoa(int(orgID)))
+	ok, err := r.enforcerRoleRepository.DeleteRoleForUserInDomain(userID.String(), defaultRole, strconv.Itoa(int(orgID)))
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to delete role in enforcer: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		logs.Error("Failed to delete role in enforcer")
+		return false, errs.NewUnexpectedError()
+	}
+	return true, nil
 }
 
 func (r RoleWithDomainService) initRoleToEnforcer() (bool, error) {
 	roles, err := r.dbRoleRepository.GetAll()
 	if err != nil {
-		return false, err
+		return false, errs.NewUnexpectedError()
 	}
 	ok, err := r.enforcerRoleRepository.ClearAllGrouping()
-	if err != nil {
-		return false, err
-	}
-	if !ok {
-		return false, nil
+	if err != nil || !ok {
+		return false, errs.NewUnexpectedError()
 	}
 	groupingPolicies := make([][]string, 0)
 	for _, role := range roles {
 		groupingPolicies = append(groupingPolicies, []string{role.UserID.String(), role.Role, strconv.Itoa(int(role.OrganizationID))})
 	}
-	return r.enforcerRoleRepository.AddGroupingPolicies(groupingPolicies)
-
+	ok, err = r.enforcerRoleRepository.AddGroupingPolicies(groupingPolicies)
+	if err != nil || !ok {
+		return false, errs.NewUnexpectedError()
+	}
+	return true, nil
 }

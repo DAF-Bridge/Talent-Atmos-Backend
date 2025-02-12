@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -10,8 +11,8 @@ type dbRoleRepository struct {
 	db *gorm.DB
 }
 
-func (d dbRoleRepository) Create(role *models.RoleInOrganizaion) (*models.RoleInOrganizaion, error) {
-	var createRole models.RoleInOrganizaion
+func (d dbRoleRepository) Create(role *models.RoleInOrganization) (*models.RoleInOrganization, error) {
+	var createRole models.RoleInOrganization
 	err := d.db.Create(role).Scan(&createRole).Error
 	if err != nil {
 		return nil, err
@@ -20,8 +21,8 @@ func (d dbRoleRepository) Create(role *models.RoleInOrganizaion) (*models.RoleIn
 
 }
 
-func (d dbRoleRepository) GetAll() ([]models.RoleInOrganizaion, error) {
-	var roles []models.RoleInOrganizaion
+func (d dbRoleRepository) GetAll() ([]models.RoleInOrganization, error) {
+	var roles []models.RoleInOrganization
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -29,8 +30,8 @@ func (d dbRoleRepository) GetAll() ([]models.RoleInOrganizaion, error) {
 	return roles, err
 }
 
-func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganizaion, error) {
-	var role []models.RoleInOrganizaion
+func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganization, error) {
+	var role []models.RoleInOrganization
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -42,8 +43,8 @@ func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganiz
 	return role, nil
 }
 
-func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.RoleInOrganizaion, error) {
-	var roles []models.RoleInOrganizaion
+func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.RoleInOrganization, error) {
+	var roles []models.RoleInOrganization
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -52,8 +53,8 @@ func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.RoleInOrgan
 	return roles, err
 }
 
-func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*models.RoleInOrganizaion, error) {
-	var role models.RoleInOrganizaion
+func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*models.RoleInOrganization, error) {
+	var role models.RoleInOrganization
 	err := d.db.
 		Preload("User").
 		Preload("Organization").
@@ -65,8 +66,8 @@ func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID 
 	return &role, nil
 }
 
-func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]models.RoleInOrganizaion, error) {
-	var roles []models.RoleInOrganizaion
+func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]models.RoleInOrganization, error) {
+	var roles []models.RoleInOrganization
 	err := d.db.
 		Joins("JOIN users ON users.id = roles.user_id").
 		Joins("JOIN organizations ON organizations.id = roles.organization_id").
@@ -77,7 +78,7 @@ func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID
 
 func (d dbRoleRepository) UpdateRole(userID uuid.UUID, orgID uint, role string) error {
 	return d.db.
-		Model(&models.RoleInOrganizaion{}).
+		Model(&models.RoleInOrganization{}).
 		Where("user_id = ? AND organization_id = ?", userID, orgID).
 		Update("role", role).Error
 }
@@ -85,7 +86,21 @@ func (d dbRoleRepository) UpdateRole(userID uuid.UUID, orgID uint, role string) 
 func (d dbRoleRepository) DeleteRole(userID uuid.UUID, orgID uint) error {
 	return d.db.
 		Where("user_id = ? AND organization_id = ?", userID, orgID).
-		Delete(&models.RoleInOrganizaion{}).Error
+		Delete(&models.RoleInOrganization{}).Error
+}
+
+func (d dbRoleRepository) IsExitRole(userID uuid.UUID, orgID uint) (bool, error) {
+	var role models.RoleInOrganization
+	err := d.db.
+		Where("user_id = ? AND organization_id = ?", userID, orgID).
+		First(&role).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func NewDBRoleRepository(db *gorm.DB) models.RoleRepository {

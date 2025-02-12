@@ -1,6 +1,8 @@
 package errs
 
 import (
+	"errors"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
@@ -53,4 +55,12 @@ func NewUnauthorizedError(message string) error {
 		Code:    http.StatusUnauthorized,
 		Message: message,
 	}
+}
+
+func SendFiberError(c *fiber.Ctx, err error) error {
+	var appErr AppError
+	if errors.As(err, &appErr) {
+		return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+	}
+	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 }

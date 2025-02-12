@@ -8,10 +8,10 @@ import (
 )
 
 type RBACMiddleware struct {
-	enforcer *casbin.Enforcer
+	enforcer casbin.IEnforcer
 }
 
-func NewRBACMiddleware(enforcer *casbin.Enforcer) *RBACMiddleware {
+func NewRBACMiddleware(enforcer casbin.IEnforcer) *RBACMiddleware {
 	return &RBACMiddleware{enforcer: enforcer}
 }
 

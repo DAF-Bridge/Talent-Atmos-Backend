@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
@@ -16,11 +16,10 @@ type userWithRole struct {
 
 type RoleHandler struct {
 	roleWithDomainService service.RoleService
-	userService           models.UserService
 }
 
-func NewRoleHandler(roleWithDomainService service.RoleService, userService models.UserService) *RoleHandler {
-	return &RoleHandler{roleWithDomainService: roleWithDomainService, userService: userService}
+func NewRoleHandler(roleWithDomainService service.RoleService) *RoleHandler {
+	return &RoleHandler{roleWithDomainService: roleWithDomainService}
 }
 
 func (r *RoleHandler) GetRolesForUserInDomain(c *fiber.Ctx) error {
@@ -37,6 +36,9 @@ func (r *RoleHandler) GetRolesForUserInDomain(c *fiber.Ctx) error {
 	}
 
 	ListRole, err := r.roleWithDomainService.GetRolesForUserInDomain(userID, orgID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
 	return c.Status(fiber.StatusOK).JSON(ListRole)
 }
 
@@ -61,7 +63,7 @@ func (r *RoleHandler) InvitationForMember(c *fiber.Ctx) error {
 
 	ok, err := r.roleWithDomainService.Invitation(userID, invitedEmail.Email, orgID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 }
@@ -74,7 +76,7 @@ func (r *RoleHandler) CallBackInvitationForMember(c *fiber.Ctx) error {
 	}
 	ok, err := r.roleWithDomainService.CallBackToken(tokenUUID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 
@@ -95,7 +97,7 @@ func (r *RoleHandler) DeleteMember(c *fiber.Ctx) error {
 
 	ok, err := r.roleWithDomainService.DeleteMember(userID, orgID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 }
@@ -109,7 +111,7 @@ func (r *RoleHandler) GetAllUsersWithRoleByDomain(c *fiber.Ctx) error {
 
 	ListUser, err := r.roleWithDomainService.GetAllUsersWithRoleByDomain(orgID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	var usersWithRole = make([]userWithRole, 0)
 	for _, user := range ListUser {
@@ -131,7 +133,7 @@ func (r *RoleHandler) DeleteDomain(c *fiber.Ctx) error {
 
 	ok, err := r.roleWithDomainService.DeleteDomains(orgID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 }
@@ -159,7 +161,7 @@ func (r *RoleHandler) UpdateRolesForUserInDomain(c *fiber.Ctx) error {
 
 	ok, err := r.roleWithDomainService.EditRole(userID, orgID, roleJsonBody.Roles)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 }
@@ -173,7 +175,7 @@ func (r *RoleHandler) GetDomainsByUser(c *fiber.Ctx) error {
 
 	ListDomain, err := r.roleWithDomainService.GetDomainsByUser(userID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"domains": ListDomain})
 }

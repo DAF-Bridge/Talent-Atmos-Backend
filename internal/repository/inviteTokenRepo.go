@@ -4,6 +4,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type inviteTokenRepository struct {
@@ -57,6 +58,39 @@ func (i inviteTokenRepository) DeleteByToken(token uuid.UUID) error {
 	return nil
 }
 
+func (i inviteTokenRepository) IsExistToken(invitedUserID uuid.UUID, organizationID uint) (bool, error) {
+	var count int64
+	err := i.db.
+		Model(&models.InviteToken{}).
+		Where("invited_user_id = ? AND organization_id = ?", invitedUserID, organizationID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (i inviteTokenRepository) Upsert(inviteToken *models.InviteToken) (*models.InviteToken, error) {
+	var createInviteToken models.InviteToken
+	err := i.db.
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "invited_user_id"},
+				{Name: "organization_id"},
+			}, // ใช้ Unique Composite Key
+			DoUpdates: clause.Assignments(map[string]interface{}{
+				"token": gorm.Expr("uuid_generate_v4()"),
+			}),
+		}).Create(&createInviteToken).Error
+	if err != nil {
+		return nil, err
+	}
+	return &createInviteToken, nil
+}
+
 func NewInviteTokenRepository(db *gorm.DB) models.InviteTokenRepository {
-	return &inviteTokenRepository{db: db}
+	return inviteTokenRepository{db: db}
 }

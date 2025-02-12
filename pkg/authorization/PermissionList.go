@@ -9,7 +9,7 @@ var permissionsList [][]string
 func init() {
 	allRole = []string{"moderator", "owner", "system_admin"}
 	moderatorPermissionsMap := map[string][]string{
-		"event":               {"read"},
+		"Event":               {"read"},
 		"Organization":        {"delete", "update"},
 		"OrganizationContact": {"delete", "update", "create"},
 		"OrganizationOpenJob": {"delete", "update", "create"},

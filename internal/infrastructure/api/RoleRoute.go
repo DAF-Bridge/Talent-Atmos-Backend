@@ -2,20 +2,35 @@ package api
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
+	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
+	"gopkg.in/gomail.v2"
+	"gorm.io/gorm"
 )
 
-func RoleRouteGroup(router *fiber.App, roleHandler *handler.RoleHandler, authMiddleware fiber.Handler, rbac *middleware.RBACMiddleware) {
+func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string) {
+	dbRoleRepository := repository.NewDBRoleRepository(db)
+	enforcerRoleRepository := repository.NewCasbinRoleRepository(enforcer)
+	userRepository := repository.NewUserRepository(db)
+	organizationRepository := repository.NewOrganizationRepository(db)
+	inviteTokenRepository := repository.NewInviteTokenRepository(db)
+	inviteMailRepository := repository.NewInviteMailRepository(mail)
 
-	router.Post("/callback-invitation", roleHandler.CallBackInvitationForMember)
-	router.Get("/organization", authMiddleware, roleHandler.GetDomainsByUser)
-	roleRouter := router.Group("/role/:orgID", authMiddleware)
-	roleRouter.Get("/roles", roleHandler.GetRolesForUserInDomain)
-	roleRouter.Post("/invitation", roleHandler.InvitationForMember)
-	roleRouter.Put("/edit-role", roleHandler.UpdateRolesForUserInDomain)
-	roleRouter.Delete("/delete-member", roleHandler.DeleteMember)
-	roleRouter.Get("/all-users", roleHandler.GetAllUsersWithRoleByDomain)
-	roleRouter.Delete("/delete-domains", roleHandler.DeleteDomain)
+	roleService := service.NewRoleWithDomainService(dbRoleRepository, enforcerRoleRepository, userRepository, organizationRepository, inviteTokenRepository, inviteMailRepository)
+	roleHandler := handler.NewRoleHandler(roleService)
 
+	app.Post("/callback-invitation", roleHandler.CallBackInvitationForMember)
+
+	rbac := middleware.NewRBACMiddleware(enforcer)
+	app.Get("/my-orgs", middleware.AuthMiddleware(jwtSecret), rbac.EnforceMiddleware("Role", "read"), roleHandler.GetDomainsByUser)
+	role := app.Group("/roles/:orgID", middleware.AuthMiddleware(jwtSecret))
+	role.Get("/", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetRolesForUserInDomain)
+	role.Put("/", rbac.EnforceMiddleware("Role", "edit"), roleHandler.UpdateRolesForUserInDomain)
+	role.Delete("/", rbac.EnforceMiddleware("Role", "remove"), roleHandler.DeleteMember)
+	role.Get("/all", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetAllUsersWithRoleByDomain)
+	role.Post("/invitation", rbac.EnforceMiddleware("Role", "invite"), roleHandler.InvitationForMember)
+	//role.Post("/check-Permission", rbac.EnforceMiddleware("Role", "read"), roleHandler.CheckPermission)
 }
