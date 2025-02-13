@@ -26,7 +26,9 @@ func NewOrganizationHandler(service service.OrganizationService) *OrganizationHa
 // @Description Create a new organization BUT still not create the Contact and OpenJob
 // @Tags Organization
 // @Accept multipart/form-data
+// @Accept json
 // @Produce json
+// @Param org body dto.OrganizationRequest false "Example body for Organization JSON (required in the formData `org`)"
 // @Param org formData string true "Organization JSON"
 // @Param image formData file true "Organization Image"
 // @Success 201 {object} models.Organization
@@ -38,11 +40,10 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
-	if err := json.Unmarshal([]byte(orgData), &org); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
-
-	if err := utils.ParseJSONAndValidate(c, &org); err != nil {
+	// if err := json.Unmarshal([]byte(orgData), &org); err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	// }
+	if err := utils.ParseJSONAndValidate(c, &orgData); err != nil {
 		return err
 	}
 
@@ -156,8 +157,10 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 // @Description Update an organization by ID
 // @Tags Organization
 // @Accept multipart/form-data
+// @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
+// @Param org body dto.OrganizationRequest false "Example body for Organization JSON (required in the formData `org`)"
 // @Param org formData string true "Organization JSON"
 // @Param image formData file true "Organization Image"
 // @Success 200 {object} models.Organization
@@ -440,10 +443,12 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 // @Description Create a new organization open job
 // @Tags Organization Job
 // @Accept multipart/form-data
+// @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
+// @Param job body dto.JobRequest false "Example body of Job JSON (required in the formData `job`)"
 // @Param job formData string true "Job JSON"
-// @Param image formData file true "Job Image"
+// @Param image formData file true "Organization Image"
 // @Success 201 {object} map[string]string "message: Job created successfully"
 // @Failure 400 {object} map[string]string "Bad Request - json body is required or invalid / job title is required"
 // @Failure 500 {object} map[string]string "Internal Server Error - Internal Server Error"
@@ -582,9 +587,11 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 // @Description Update an organization open job by ID
 // @Tags Organization Job
 // @Accept multipart/form-data
+// @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Job ID"
+// @Param job body dto.JobRequest true "Example body of Job JSON (required in the formData `job`)"
 // @Param job formData string true "Job JSON"
 // @Param image formData file false "Job Image"
 // @Success 200 {object} dto.JobResponses
