@@ -40,9 +40,10 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
-	// if err := json.Unmarshal([]byte(orgData), &org); err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	// }
+	if err := json.Unmarshal([]byte(orgData), &org); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
+
 	if err := utils.ParseJSONAndValidate(c, &orgData); err != nil {
 		return err
 	}
