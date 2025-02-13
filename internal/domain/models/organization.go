@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -61,19 +59,18 @@ const (
 
 type Organization struct {
 	gorm.Model
-	Name                 string                `gorm:"type:varchar(255);not null" json:"orgName"`
-	PicUrl               string                `gorm:"type:varchar(255)" json:"picUrl"`       // URL to organization's logo
-	Goal                 pq.StringArray        `gorm:"type:text[];not null" json:"goal"`      // Detailed description of the organization's goal
-	Expertise            string                `gorm:"type:varchar(255)" json:"expertise"`    // Organization's area of expertise
-	Location             string                `gorm:"type:varchar(255)" json:"location"`     // General location
-	Subdistrict          string                `gorm:"type:varchar(255)" json:"subdistrict"`  // Subdistrict name
-	Province             string                `gorm:"type:varchar(255)" json:"province"`     // Province name
-	PostalCode           string                `gorm:"type:varchar(20)" json:"postalCode"`    // Postal code, allowing for flexibility in format
-	Latitude             string                `gorm:"type:varchar(50)" json:"latitude"`      // Geographic latitude (stored as string for precision)
-	Longitude            string                `gorm:"type:varchar(50)" json:"longitude"`     // Geographic longitude (stored as string for precision)
-	Email                string                `gorm:"type:varchar(255);unique" json:"email"` // Email address (unique constraint)
-	Phone                string                `gorm:"type:varchar(20)" json:"phone"`
-	UpdatedAt            time.Time             `gorm:"autoUpdateTime" json:"updatedAt"`
+	Email                string                `gorm:"type:varchar(255);unique" db:"email"` // Email address (unique constraint)
+	Phone                string                `gorm:"type:varchar(20)" db:"phone"`
+	Name                 string                `gorm:"type:varchar(255);not null" db:"orgName"`
+	PicUrl               string                `gorm:"type:varchar(255)" db:"picUrl"`
+	Goal                 pq.StringArray        `gorm:"type:text[];not null" db:"goal"`   // Detailed description of the organization's goal
+	HeadLine             string                `gorm:"type:varchar(255)" db:"headline"`  // Short description of the organization
+	Specialty            string                `gorm:"type:varchar(255)" db:"specialty"` // Organization's area of expertise
+	Address              string                `gorm:"type:varchar(255)" db:"address"`   // General location
+	Province             string                `gorm:"type:varchar(255)" db:"province"`
+	Country              string                `gorm:"type:varchar(255)" db:"country"`
+	Latitude             float64               `gorm:"type:decimal(10,8)" db:"latitude"`  // Geographic latitude (stored as string for precision)
+	Longitude            float64               `gorm:"type:decimal(11,8)" db:"longitude"` // Geographic longitude (stored as string for precision)
 	OrganizationContacts []OrganizationContact `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs          []OrgOpenJob          `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	Industries           []*Industry           `gorm:"many2many:organization_industry;"`
@@ -92,7 +89,7 @@ type OrganizationIndustry struct {
 
 type OrganizationContact struct {
 	gorm.Model
-	OrganizationID uint   `json:"organizationId"`
+	OrganizationID uint   `json:"organizationId"` // Belongs to Organization
 	Media          Media  `gorm:"type:varchar(50);not null" json:"media"`
 	MediaLink      string `gorm:"type:varchar(255);not null" json:"mediaLink"`
 }

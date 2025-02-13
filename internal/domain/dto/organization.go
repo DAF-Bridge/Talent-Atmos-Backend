@@ -84,22 +84,21 @@ type OrganizationContactResponses struct {
 // }
 
 type IndustryResponses struct {
-	ID   uint   `json:"id" example:"1"`
 	Name string `json:"name" example:"Software"`
 }
 
 type OrganizationRequest struct {
 	Name                 string                       `json:"name" example:"builds CMU" validate:"required,min=3,max=255"`
 	Goal                 []string                     `json:"goal" example:"This is a goal" validate:"required"`
-	Expertise            string                       `json:"expertise" example:"This is an expertise" validate:"required"`
-	Location             string                       `json:"location" example:"Chiang Mai" validate:"required"`
-	Subdistrict          string                       `json:"subdistrict" example:"Mueang" validate:"required"`
-	Province             string                       `json:"province" example:"Chiang Mai" validate:"required"`
-	PostalCode           string                       `json:"postalCode" example:"50000" validate:"required"`
-	Latitude             string                       `json:"latitude" example:"18.7876" validate:"required"`
-	Longitude            string                       `json:"longitude" example:"98.9937" validate:"required"`
 	Email                string                       `json:"email" example:"andaraiwin@gmail.com" validate:"required"`
 	Phone                string                       `json:"phone" example:"0812345678" validate:"required"`
+	HeadLine             string                       `json:"headline" example:"This is a headline" validate:"required"`
+	Specialty            string                       `json:"specialty" example:"This is an specialty" validate:"required"`
+	Address              string                       `json:"address" example:"Chiang Mai postal code: 50200" validate:"required"`
+	Province             string                       `json:"province" example:"Chiang Mai" validate:"required"`
+	Country              string                       `json:"country" example:"Thailand" validate:"required"`
+	Latitude             float64                      `json:"latitude" example:"18.7876" validate:"required"`
+	Longitude            float64                      `json:"longitude" example:"98.9937" validate:"required"`
 	OrganizationContacts []OrganizationContactRequest `json:"organizationContacts" validate:"required"`
 	IndustryIDs          []uint                       `json:"industries" example:"1,2,3" validate:"required"`
 }
@@ -107,17 +106,17 @@ type OrganizationRequest struct {
 type OrganizationResponse struct {
 	ID                  uint                           `json:"id" example:"1"`
 	Name                string                         `json:"name" example:"builds CMU"`
-	PicUrl              string                         `json:"picUrl" example:"https://example.com/image.jpg"`
 	Goal                []string                       `json:"goal" example:"This is a goal"`
-	Expertise           string                         `json:"expertise" example:"This is an expertise"`
-	Location            string                         `json:"location" example:"Chiang Mai"`
-	Subdistrict         string                         `json:"subdistrict" example:"Mueang"`
-	Province            string                         `json:"province" example:"Chiang Mai"`
-	PostalCode          string                         `json:"postalCode" example:"50000"`
-	Latitude            string                         `json:"latitude" example:"18.7876"`
-	Longitude           string                         `json:"longitude" example:"98.9937"`
 	Email               string                         `json:"email" example:"daf_bridge@egat.co.th"`
 	Phone               string                         `json:"phone" example:"0812345678"`
+	PicUrl              string                         `json:"picUrl" example:"https://example.com/image.jpg"`
+	HeadLine            string                         `json:"headline" example:"This is a headline"`
+	Specialty           string                         `json:"specialty" example:"This is an specialty"`
+	Address             string                         `json:"address" example:"Chiang Mai 50200"`
+	Province            string                         `json:"province" example:"Chiang Mai"`
+	Country             string                         `json:"country" example:"Thailand"`
+	Latitude            float64                        `json:"latitude" example:"18.7876"`
+	Longitude           float64                        `json:"longitude" example:"98.9937"`
 	OrganizationContact []OrganizationContactResponses `json:"organizationContacts"`
 	Industries          []IndustryResponses            `json:"industries"`
 	UpdatedAt           string                         `json:"updatedAt" example:"2024-11-29 08:00:00"`

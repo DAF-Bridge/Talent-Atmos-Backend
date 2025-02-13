@@ -45,7 +45,6 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	var industries []dto.IndustryResponses
 	for _, industry := range org.Industries {
 		industries = append(industries, dto.IndustryResponses{
-			ID:   industry.ID,
 			Name: industry.Industry,
 		})
 	}
@@ -63,11 +62,10 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 		Name:                org.Name,
 		PicUrl:              org.PicUrl,
 		Goal:                org.Goal,
-		Expertise:           org.Expertise,
-		Location:            org.Location,
-		Subdistrict:         org.Subdistrict,
+		Specialty:           org.Specialty,
+		Address:             org.Address,
 		Province:            org.Province,
-		PostalCode:          org.PostalCode,
+		Country:             org.Country,
 		Latitude:            org.Latitude,
 		Longitude:           org.Longitude,
 		Email:               org.Email,
@@ -82,11 +80,10 @@ func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.Organiza
 	return models.Organization{
 		Name:                 org.Name,
 		Goal:                 org.Goal,
-		Expertise:            org.Expertise,
-		Location:             org.Location,
-		Subdistrict:          org.Subdistrict,
+		Specialty:            org.Specialty,
+		Address:              org.Address,
 		Province:             org.Province,
-		PostalCode:           org.PostalCode,
+		Country:              org.Country,
 		Latitude:             org.Latitude,
 		Longitude:            org.Longitude,
 		Email:                org.Email,
