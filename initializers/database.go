@@ -29,7 +29,7 @@ var S3 *infrastructure.S3Uploader
 
 var ctx = context.Background()
 
-var enforcer casbin.IEnforcer
+var Enforcer casbin.IEnforcer
 
 func ConnectToDB() {
 	// Define the PostgreSQL connection details

@@ -75,6 +75,6 @@ type EventCardResponses struct {
 	StartTime      string                    `json:"startTime" example:"08:00"`
 	EndTime        string                    `json:"endTime" example:"17:00"`
 	LocationName   string                    `json:"location" example:"builds CMU"`
-	Organization   OrganizationShortRespones `json:"organization"`
+	Organization   OrganizationShortResponse `json:"organization"`
 	Province       string                    `json:"province" example:"Chiang Mai"`
 }

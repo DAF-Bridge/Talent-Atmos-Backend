@@ -14,13 +14,36 @@ type JobShortResponseDTO struct {
 	Status    string `json:"status" example:"published"`
 }
 
-type OrganizationShortRespones struct {
+type OrganizationShortResponse struct {
 	ID     uint   `json:"id" example:"1"`
 	Name   string `json:"name" example:"builds CMU"`
 	PicUrl string `json:"picUrl" example:"https://example.com/image.jpg"`
 	Email  string `json:"email" example:"example@gmail.com"`
 	Phone  string `json:"phone" example:"0812345678"`
-	Goal   string `json:"goal" example:"This is a goal"`
+}
+
+func BuildOrganizationShortResponse(org models.Organization) OrganizationShortResponse {
+	return OrganizationShortResponse{
+		ID:     org.ID,
+		Name:   org.Name,
+		PicUrl: org.PicUrl,
+		Email:  org.Email,
+		Phone:  org.Phone,
+	}
+
+}
+
+type ListOrganizationShortResponse struct {
+	Organizations []OrganizationShortResponse `json:"organizations"`
+}
+
+func BuildListOrganizationShortResponse(org []models.Organization) ListOrganizationShortResponse {
+	var response []OrganizationShortResponse
+	for _, o := range org {
+		response = append(response, BuildOrganizationShortResponse(o))
+	}
+	return ListOrganizationShortResponse{Organizations: response}
+
 }
 
 type JobRequest struct {
@@ -126,6 +149,6 @@ type OrganizationResponse struct {
 }
 
 type PaginateOrganizationResponse struct {
-	Organizations []OrganizationShortRespones `json:"organizations"`
+	Organizations []OrganizationShortResponse `json:"organizations"`
 	TotalOrgs     int                         `json:"total_orgs" example:"1"`
 }

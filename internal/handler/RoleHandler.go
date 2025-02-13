@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
@@ -35,11 +36,12 @@ func (r *RoleHandler) GetRolesForUserInDomain(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ListRole, err := r.roleWithDomainService.GetRolesForUserInDomain(userID, orgID)
+	Role, err := r.roleWithDomainService.GetRolesForUserInDomain(userID, orgID)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
-	return c.Status(fiber.StatusOK).JSON(ListRole)
+	response := dto.BuildRoleResponse(*Role)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 func (r *RoleHandler) InvitationForMember(c *fiber.Ctx) error {
@@ -113,15 +115,8 @@ func (r *RoleHandler) GetAllUsersWithRoleByDomain(c *fiber.Ctx) error {
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
-	var usersWithRole = make([]userWithRole, 0)
-	for _, user := range ListUser {
-		usersWithRole = append(usersWithRole, struct {
-			Username string `json:"username"`
-			Email    string `json:"email"`
-			Role     string `json:"role"`
-		}{Username: user.User.Name, Email: user.User.Email, Role: user.Role})
-	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"users": usersWithRole})
+	response := dto.BuildListUserWithRoleInOrganizationResponse(ListUser)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 func (r *RoleHandler) DeleteDomain(c *fiber.Ctx) error {
@@ -177,5 +172,7 @@ func (r *RoleHandler) GetDomainsByUser(c *fiber.Ctx) error {
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"domains": ListDomain})
+	response := dto.BuildListOrganizationShortResponse(ListDomain)
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }
