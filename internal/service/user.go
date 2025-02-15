@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 
+	"mime/multipart"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/google/uuid"
-	"mime/multipart"
 )
 
 //---------------------------------------------------------------------------
@@ -15,18 +16,19 @@ import (
 
 type UserService interface {
 	CreateUser(user *models.User) error
-	ListUsers() ([]models.User, error)
+	ListUsers() ([]dto.UserResponses, error)
 	GetCurrentUserProfile(userId uuid.UUID) (*dto.ProfileResponses, error)
 	UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error)
 }
 
 func convertToUserResponses(user *models.User) *dto.UserResponses {
 	return &dto.UserResponses{
-		ID:     user.ID,
-		Email:  user.Email,
-		Name:   user.Name,
-		Role:   string(user.Role),
-		PicUrl: user.PicUrl,
+		ID:        user.ID,
+		Email:     user.Email,
+		Name:      user.Name,
+		Role:      string(user.Role),
+		PicUrl:    user.PicUrl,
+		UpdatedAt: user.UpdatedAt.Format("2006-01-02T15:04:05"),
 	}
 }
 
