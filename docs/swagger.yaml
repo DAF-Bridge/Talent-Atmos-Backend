@@ -102,9 +102,6 @@ definitions:
     type: object
   dto.IndustryResponses:
     properties:
-      id:
-        example: 1
-        type: integer
       name:
         example: Software
         type: string
@@ -255,73 +252,6 @@ definitions:
         example: remote
     type: object
   dto.NewEventRequest:
-    properties:
-      audience:
-        example: general
-        type: string
-      categoryId:
-        example: 2
-        type: integer
-      content:
-        items:
-          type: integer
-        type: array
-      endDate:
-        example: "2025-01-22"
-        type: string
-      endTime:
-        example: "17:00:00"
-        type: string
-      latitude:
-        example: 13.7563
-        type: number
-      locationName:
-        example: Bangkok
-        type: string
-      locationType:
-        example: onsite
-        type: string
-      longitude:
-        example: 100.5018
-        type: number
-      name:
-        example: builds IDEA 2024
-        type: string
-      priceType:
-        example: free
-        type: string
-      province:
-        example: Chiang Mai
-        type: string
-      startDate:
-        example: "2025-01-25"
-        type: string
-      startTime:
-        example: "08:00:00"
-        type: string
-      status:
-        example: draft
-        type: string
-      timeLine:
-        items:
-          $ref: '#/definitions/models.Timeline'
-        type: array
-    required:
-    - audience
-    - categoryId
-    - endDate
-    - endTime
-    - latitude
-    - locationName
-    - locationType
-    - longitude
-    - name
-    - priceType
-    - province
-    - startDate
-    - startTime
-    - status
-    - timeLine
     type: object
   dto.OrganizationContactRequest:
     properties:
@@ -346,11 +276,14 @@ definitions:
     type: object
   dto.OrganizationRequest:
     properties:
+      address:
+        example: 'Chiang Mai postal code: 50200'
+        type: string
+      country:
+        example: Thailand
+        type: string
       email:
         example: andaraiwin@gmail.com
-        type: string
-      expertise:
-        example: This is an expertise
         type: string
       goal:
         example:
@@ -358,6 +291,9 @@ definitions:
         items:
           type: string
         type: array
+      headline:
+        example: This is a headline
+        type: string
       industries:
         example:
         - 1
@@ -367,14 +303,11 @@ definitions:
           type: integer
         type: array
       latitude:
-        example: "18.7876"
-        type: string
-      location:
-        example: Chiang Mai
-        type: string
+        example: 18.7876
+        type: number
       longitude:
-        example: "98.9937"
-        type: string
+        example: 98.9937
+        type: number
       name:
         example: builds CMU
         maxLength: 255
@@ -387,37 +320,37 @@ definitions:
       phone:
         example: "0812345678"
         type: string
-      postalCode:
-        example: "50000"
-        type: string
       province:
         example: Chiang Mai
         type: string
-      subdistrict:
-        example: Mueang
+      specialty:
+        example: This is an specialty
         type: string
     required:
+    - address
+    - country
     - email
-    - expertise
     - goal
+    - headline
     - industries
     - latitude
-    - location
     - longitude
     - name
     - organizationContacts
     - phone
-    - postalCode
     - province
-    - subdistrict
+    - specialty
     type: object
   dto.OrganizationResponse:
     properties:
+      address:
+        example: Chiang Mai 50200
+        type: string
+      country:
+        example: Thailand
+        type: string
       email:
         example: daf_bridge@egat.co.th
-        type: string
-      expertise:
-        example: This is an expertise
         type: string
       goal:
         example:
@@ -425,6 +358,9 @@ definitions:
         items:
           type: string
         type: array
+      headline:
+        example: This is a headline
+        type: string
       id:
         example: 1
         type: integer
@@ -433,14 +369,11 @@ definitions:
           $ref: '#/definitions/dto.IndustryResponses'
         type: array
       latitude:
-        example: "18.7876"
-        type: string
-      location:
-        example: Chiang Mai
-        type: string
+        example: 18.7876
+        type: number
       longitude:
-        example: "98.9937"
-        type: string
+        example: 98.9937
+        type: number
       name:
         example: builds CMU
         type: string
@@ -454,14 +387,11 @@ definitions:
       picUrl:
         example: https://example.com/image.jpg
         type: string
-      postalCode:
-        example: "50000"
-        type: string
       province:
         example: Chiang Mai
         type: string
-      subdistrict:
-        example: Mueang
+      specialty:
+        example: This is an specialty
         type: string
       updatedAt:
         example: "2024-11-29 08:00:00"
@@ -663,6 +593,11 @@ definitions:
     type: object
   models.Organization:
     properties:
+      address:
+        description: General location
+        type: string
+      country:
+        type: string
       createdAt:
         type: string
       deletedAt:
@@ -670,14 +605,14 @@ definitions:
       email:
         description: Email address (unique constraint)
         type: string
-      expertise:
-        description: Organization's area of expertise
-        type: string
       goal:
         description: Detailed description of the organization's goal
         items:
           type: string
         type: array
+      headLine:
+        description: Short description of the organization
+        type: string
       id:
         type: integer
       industries:
@@ -686,14 +621,15 @@ definitions:
         type: array
       latitude:
         description: Geographic latitude (stored as string for precision)
-        type: string
-      location:
-        description: General location
-        type: string
+        type: number
       longitude:
         description: Geographic longitude (stored as string for precision)
-        type: string
-      orgName:
+        type: number
+      members:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      name:
         type: string
       orgOpenJobs:
         items:
@@ -703,19 +639,19 @@ definitions:
         items:
           $ref: '#/definitions/models.OrganizationContact'
         type: array
+      owner:
+        $ref: '#/definitions/models.User'
+      ownerID:
+        description: Owner of the Organization
+        type: string
       phone:
         type: string
       picUrl:
-        description: URL to organization's logo
-        type: string
-      postalCode:
-        description: Postal code, allowing for flexibility in format
         type: string
       province:
-        description: Province name
         type: string
-      subdistrict:
-        description: Subdistrict name
+      specialty:
+        description: Organization's area of expertise
         type: string
       updatedAt:
         type: string
@@ -733,6 +669,7 @@ definitions:
       mediaLink:
         type: string
       organizationId:
+        description: Belongs to Organization
         type: integer
       updatedAt:
         type: string
@@ -776,6 +713,18 @@ definitions:
         type: string
       name:
         type: string
+      organization:
+        allOf:
+        - $ref: '#/definitions/models.Organization'
+        description: Member of an organization
+      organizationID:
+        type: integer
+      ownedOrganization:
+        allOf:
+        - $ref: '#/definitions/models.Organization'
+        description: Owner of an organization
+      ownedOrganizationID:
+        type: integer
       password:
         description: Hashed password for traditional login
         type: string

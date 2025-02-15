@@ -1921,10 +1921,6 @@ const docTemplate = `{
         "dto.IndustryResponses": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "name": {
                     "type": "string",
                     "example": "Software"
@@ -2140,94 +2136,7 @@ const docTemplate = `{
             }
         },
         "dto.NewEventRequest": {
-            "type": "object",
-            "required": [
-                "audience",
-                "categoryId",
-                "endDate",
-                "endTime",
-                "latitude",
-                "locationName",
-                "locationType",
-                "longitude",
-                "name",
-                "priceType",
-                "province",
-                "startDate",
-                "startTime",
-                "status",
-                "timeLine"
-            ],
-            "properties": {
-                "audience": {
-                    "type": "string",
-                    "example": "general"
-                },
-                "categoryId": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "content": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "endDate": {
-                    "type": "string",
-                    "example": "2025-01-22"
-                },
-                "endTime": {
-                    "type": "string",
-                    "example": "17:00:00"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 13.7563
-                },
-                "locationName": {
-                    "type": "string",
-                    "example": "Bangkok"
-                },
-                "locationType": {
-                    "type": "string",
-                    "example": "onsite"
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 100.5018
-                },
-                "name": {
-                    "type": "string",
-                    "example": "builds IDEA 2024"
-                },
-                "priceType": {
-                    "type": "string",
-                    "example": "free"
-                },
-                "province": {
-                    "type": "string",
-                    "example": "Chiang Mai"
-                },
-                "startDate": {
-                    "type": "string",
-                    "example": "2025-01-25"
-                },
-                "startTime": {
-                    "type": "string",
-                    "example": "08:00:00"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "draft"
-                },
-                "timeLine": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Timeline"
-                    }
-                }
-            }
+            "type": "object"
         },
         "dto.OrganizationContactRequest": {
             "type": "object",
@@ -2262,28 +2171,32 @@ const docTemplate = `{
         "dto.OrganizationRequest": {
             "type": "object",
             "required": [
+                "address",
+                "country",
                 "email",
-                "expertise",
                 "goal",
+                "headline",
                 "industries",
                 "latitude",
-                "location",
                 "longitude",
                 "name",
                 "organizationContacts",
                 "phone",
-                "postalCode",
                 "province",
-                "subdistrict"
+                "specialty"
             ],
             "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Chiang Mai postal code: 50200"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Thailand"
+                },
                 "email": {
                     "type": "string",
                     "example": "andaraiwin@gmail.com"
-                },
-                "expertise": {
-                    "type": "string",
-                    "example": "This is an expertise"
                 },
                 "goal": {
                     "type": "array",
@@ -2293,6 +2206,10 @@ const docTemplate = `{
                     "example": [
                         "This is a goal"
                     ]
+                },
+                "headline": {
+                    "type": "string",
+                    "example": "This is a headline"
                 },
                 "industries": {
                     "type": "array",
@@ -2306,16 +2223,12 @@ const docTemplate = `{
                     ]
                 },
                 "latitude": {
-                    "type": "string",
-                    "example": "18.7876"
-                },
-                "location": {
-                    "type": "string",
-                    "example": "Chiang Mai"
+                    "type": "number",
+                    "example": 18.7876
                 },
                 "longitude": {
-                    "type": "string",
-                    "example": "98.9937"
+                    "type": "number",
+                    "example": 98.9937
                 },
                 "name": {
                     "type": "string",
@@ -2333,30 +2246,30 @@ const docTemplate = `{
                     "type": "string",
                     "example": "0812345678"
                 },
-                "postalCode": {
-                    "type": "string",
-                    "example": "50000"
-                },
                 "province": {
                     "type": "string",
                     "example": "Chiang Mai"
                 },
-                "subdistrict": {
+                "specialty": {
                     "type": "string",
-                    "example": "Mueang"
+                    "example": "This is an specialty"
                 }
             }
         },
         "dto.OrganizationResponse": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Chiang Mai 50200"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Thailand"
+                },
                 "email": {
                     "type": "string",
                     "example": "daf_bridge@egat.co.th"
-                },
-                "expertise": {
-                    "type": "string",
-                    "example": "This is an expertise"
                 },
                 "goal": {
                     "type": "array",
@@ -2366,6 +2279,10 @@ const docTemplate = `{
                     "example": [
                         "This is a goal"
                     ]
+                },
+                "headline": {
+                    "type": "string",
+                    "example": "This is a headline"
                 },
                 "id": {
                     "type": "integer",
@@ -2378,16 +2295,12 @@ const docTemplate = `{
                     }
                 },
                 "latitude": {
-                    "type": "string",
-                    "example": "18.7876"
-                },
-                "location": {
-                    "type": "string",
-                    "example": "Chiang Mai"
+                    "type": "number",
+                    "example": 18.7876
                 },
                 "longitude": {
-                    "type": "string",
-                    "example": "98.9937"
+                    "type": "number",
+                    "example": 98.9937
                 },
                 "name": {
                     "type": "string",
@@ -2407,17 +2320,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/image.jpg"
                 },
-                "postalCode": {
-                    "type": "string",
-                    "example": "50000"
-                },
                 "province": {
                     "type": "string",
                     "example": "Chiang Mai"
                 },
-                "subdistrict": {
+                "specialty": {
                     "type": "string",
-                    "example": "Mueang"
+                    "example": "This is an specialty"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -2704,6 +2613,13 @@ const docTemplate = `{
         "models.Organization": {
             "type": "object",
             "properties": {
+                "address": {
+                    "description": "General location",
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2714,16 +2630,16 @@ const docTemplate = `{
                     "description": "Email address (unique constraint)",
                     "type": "string"
                 },
-                "expertise": {
-                    "description": "Organization's area of expertise",
-                    "type": "string"
-                },
                 "goal": {
                     "description": "Detailed description of the organization's goal",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "headLine": {
+                    "description": "Short description of the organization",
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -2736,17 +2652,19 @@ const docTemplate = `{
                 },
                 "latitude": {
                     "description": "Geographic latitude (stored as string for precision)",
-                    "type": "string"
-                },
-                "location": {
-                    "description": "General location",
-                    "type": "string"
+                    "type": "number"
                 },
                 "longitude": {
                     "description": "Geographic longitude (stored as string for precision)",
-                    "type": "string"
+                    "type": "number"
                 },
-                "orgName": {
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "name": {
                     "type": "string"
                 },
                 "orgOpenJobs": {
@@ -2761,23 +2679,24 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.OrganizationContact"
                     }
                 },
+                "owner": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "ownerID": {
+                    "description": "Owner of the Organization",
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string"
                 },
                 "picUrl": {
-                    "description": "URL to organization's logo",
-                    "type": "string"
-                },
-                "postalCode": {
-                    "description": "Postal code, allowing for flexibility in format",
                     "type": "string"
                 },
                 "province": {
-                    "description": "Province name",
                     "type": "string"
                 },
-                "subdistrict": {
-                    "description": "Subdistrict name",
+                "specialty": {
+                    "description": "Organization's area of expertise",
                     "type": "string"
                 },
                 "updatedAt": {
@@ -2804,6 +2723,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "organizationId": {
+                    "description": "Belongs to Organization",
                     "type": "integer"
                 },
                 "updatedAt": {
@@ -2865,6 +2785,28 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "organization": {
+                    "description": "Member of an organization",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    ]
+                },
+                "organizationID": {
+                    "type": "integer"
+                },
+                "ownedOrganization": {
+                    "description": "Owner of an organization",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    ]
+                },
+                "ownedOrganizationID": {
+                    "type": "integer"
                 },
                 "password": {
                     "description": "Hashed password for traditional login",

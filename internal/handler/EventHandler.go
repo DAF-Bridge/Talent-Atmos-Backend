@@ -59,14 +59,17 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 // @Summary Create a new event
 // @Description Create a new event for a specific organization
 // @Tags Organization Events
+// @Accept multipart/form-data
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Param event body dto.NewEventRequest true "Event data"
+// @Param event body dto.NewEventRequest false "Example of Event JSON body (required in the formData `event`)"
+// @Param event formData string true "Event JSON"
+// @Param image formData file true "Event image"
 // @Success 201 {object} dto.EventResponses
-// @Failure 400 {object} map[string]string "error: Invalid json body parameters"
+// @Failure 400 {object} map[string]string "error: Invalid input"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
-// @Router /orgs/{orgID}/events/create [post]
+// @Router /orgs/{orgID}/events [post]
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	var event dto.NewEventRequest
 
@@ -237,11 +240,14 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Summary Update an event
 // @Description Update an event with the given ID for the specified organization
 // @Tags Organization Events
+// @Accept multipart/form-data
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Event ID"
-// @Param event body dto.NewEventRequest true "Event data"
+// @Param event body dto.NewEventRequest false "Example of Event JSON body (required in the formData `event`)"
+// @Param event formData string true "Event JSON"
+// @Param image formData file false "Event image"
 // @Success 200 {object} dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid json body parameters"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
