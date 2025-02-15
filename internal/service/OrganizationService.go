@@ -186,23 +186,24 @@ func (s organizationService) ListAllOrganizations(userID uuid.UUID) ([]dto.Organ
 	return orgsResponses, nil
 }
 
-func (s organizationService) ListAllIndustries() ([]dto.IndustryResponses, error) {
+func (s organizationService) ListAllIndustries() (dto.IndustryListResponse, error) {
 	industries, err := s.repo.GetAllIndustries()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("industries not found")
+			return dto.IndustryListResponse{}, errors.New("industries not found")
 		}
 
 		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
+		return dto.IndustryListResponse{}, errs.NewUnexpectedError()
 	}
 
-	var industriesResponse []dto.IndustryResponses
+	var industryNames []string
 	for _, industry := range industries {
-		industriesResponse = append(industriesResponse, dto.IndustryResponses{
-			Name: industry.Industry,
-		})
+		industryNames = append(industryNames, industry.Industry)
 	}
+
+	var industriesResponse dto.IndustryListResponse
+	industriesResponse.Industries = industryNames
 
 	return industriesResponse, nil
 }

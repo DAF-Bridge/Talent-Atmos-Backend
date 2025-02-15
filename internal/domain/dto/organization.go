@@ -88,7 +88,7 @@ type IndustryResponses struct {
 }
 
 type IndustryListResponse struct {
-	Industries string `json:"industries" example:"Software,Hardware"`
+	Industries []string `json:"industries" example:"Software,Hardware"`
 }
 
 type OrganizationRequest struct {
