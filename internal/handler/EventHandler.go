@@ -104,13 +104,8 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 
 	createdEvent, err := h.eventService.NewEvent(uint(orgID), event, c.Context(), file, fileHeader)
 
-	// error from service
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(createdEvent)
@@ -129,11 +124,7 @@ func (h EventHandler) ListEvents(c *fiber.Ctx) error {
 	events, err := h.eventService.GetAllEvents()
 
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.JSON(events)
@@ -158,11 +149,7 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 	events, err := h.eventService.GetAllEventsByOrgID(uint(orgID))
 
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.JSON(events)
@@ -193,11 +180,7 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 
 	event, err := h.eventService.GetEventByID(uint(orgID), uint(eventID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.JSON(event)
@@ -220,11 +203,7 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 
 	events, err := h.eventService.GetEventPaginate(uint(page))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	total, err := h.eventService.CountEvent()
@@ -289,11 +268,7 @@ func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 
 	eventUpdated, err := h.eventService.UpdateEvent(uint(orgID), uint(eventID), req, c.Context(), file, fileHeader)
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(eventUpdated)
@@ -331,11 +306,7 @@ func (h EventHandler) DeleteEvent(c *fiber.Ctx) error {
 
 	err = h.eventService.DeleteEvent(uint(orgID), uint(eventID))
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "event deleted successfully"})
@@ -379,11 +350,7 @@ func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
 	events, err := h.eventService.SearchEvents(query, page, Offset)
 
 	if err != nil {
-		if appErr, ok := err.(errs.FiberError); ok {
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(events)
@@ -392,7 +359,7 @@ func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
 func (h EventHandler) SyncEvents(c *fiber.Ctx) error {
 	err := h.eventService.SyncEvents()
 	if err != nil {
-		return err
+		return errs.SendFiberError(c, err)
 	}
 
 	return nil

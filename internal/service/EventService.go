@@ -46,10 +46,10 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 	eventsRes, err := search.SearchEvents(s.OS, query, page, Offset)
 	if err != nil {
 		if len(eventsRes.Events) == 0 {
-			return dto.SearchEventResponse{}, errs.NewFiberNotFoundError("No search results found")
+			return dto.SearchEventResponse{}, errs.NewNotFoundError("No search results found")
 		}
 
-		return dto.SearchEventResponse{}, errs.NewFiberUnexpectedError()
+		return dto.SearchEventResponse{}, errs.NewUnexpectedError()
 	}
 	return eventsRes, nil
 }
