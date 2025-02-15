@@ -42,6 +42,15 @@ func (r organizationRepository) CreateOrganization(org *models.Organization) err
 	return nil
 }
 
+func (r organizationRepository) GetAllIndustries() ([]models.Industry, error) {
+	var industries []models.Industry
+	err := r.db.Find(&industries).Error
+	if err != nil {
+		return nil, err
+	}
+	return industries, nil
+}
+
 func (r organizationRepository) FindIndustryByIds(industryIDs []uint) ([]models.Industry, error) {
 	var industries []models.Industry
 	err := r.db.Find(&industries, industryIDs).Error

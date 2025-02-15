@@ -186,6 +186,27 @@ func (s organizationService) ListAllOrganizations(userID uuid.UUID) ([]dto.Organ
 	return orgsResponses, nil
 }
 
+func (s organizationService) ListAllIndustries() ([]dto.IndustryResponses, error) {
+	industries, err := s.repo.GetAllIndustries()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("industries not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var industriesResponse []dto.IndustryResponses
+	for _, industry := range industries {
+		industriesResponse = append(industriesResponse, dto.IndustryResponses{
+			Name: industry.Industry,
+		})
+	}
+
+	return industriesResponse, nil
+}
+
 func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
 	existingOrg, err := s.repo.GetByOrgID(ownerID, orgID)
 	if err != nil {

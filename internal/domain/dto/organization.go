@@ -87,9 +87,12 @@ type IndustryResponses struct {
 	Name string `json:"name" example:"Software"`
 }
 
+type IndustryListResponse struct {
+	Industries string `json:"industries" example:"Software,Hardware"`
+}
+
 type OrganizationRequest struct {
 	Name                 string                       `json:"name" example:"builds CMU" validate:"required,min=3,max=255"`
-	Goal                 []string                     `json:"goal" example:"This is a goal" validate:"required"`
 	Email                string                       `json:"email" example:"andaraiwin@gmail.com" validate:"required"`
 	Phone                string                       `json:"phone" example:"0812345678" validate:"required"`
 	HeadLine             string                       `json:"headline" example:"This is a headline" validate:"required"`
@@ -106,7 +109,6 @@ type OrganizationRequest struct {
 type OrganizationResponse struct {
 	ID                  uint                           `json:"id" example:"1"`
 	Name                string                         `json:"name" example:"builds CMU"`
-	Goal                []string                       `json:"goal" example:"This is a goal"`
 	Email               string                         `json:"email" example:"daf_bridge@egat.co.th"`
 	Phone               string                         `json:"phone" example:"0812345678"`
 	PicUrl              string                         `json:"picUrl" example:"https://example.com/image.jpg"`

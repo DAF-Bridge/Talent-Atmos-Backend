@@ -14,6 +14,7 @@ import (
 type OrganizationService interface {
 	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
 	ListAllOrganizations(userID uuid.UUID) ([]dto.OrganizationResponse, error)
+	ListAllIndustries() ([]dto.IndustryResponses, error)
 	GetOrganizationByID(userID uuid.UUID, orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
 	UpdateOrganization(userID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
@@ -62,7 +63,6 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 		ID:                  org.ID,
 		Name:                org.Name,
 		PicUrl:              org.PicUrl,
-		Goal:                org.Goal,
 		HeadLine:            org.HeadLine,
 		Specialty:           org.Specialty,
 		Address:             org.Address,
@@ -81,7 +81,6 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
 	return models.Organization{
 		Name:                 org.Name,
-		Goal:                 org.Goal,
 		HeadLine:             org.HeadLine,
 		Specialty:            org.Specialty,
 		Address:              org.Address,

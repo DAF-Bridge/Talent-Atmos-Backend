@@ -64,7 +64,6 @@ type Organization struct {
 	Phone                string                `gorm:"type:varchar(20)" db:"phone"`
 	Name                 string                `gorm:"type:varchar(255);not null" db:"orgName"`
 	PicUrl               string                `gorm:"type:varchar(255)" db:"picUrl"`
-	Goal                 pq.StringArray        `gorm:"type:text[];not null" db:"goal"`   // Detailed description of the organization's goal
 	HeadLine             string                `gorm:"type:varchar(255)" db:"headline"`  // Short description of the organization
 	Specialty            string                `gorm:"type:varchar(255)" db:"specialty"` // Organization's area of expertise
 	Address              string                `gorm:"type:varchar(255)" db:"address"`   // General location

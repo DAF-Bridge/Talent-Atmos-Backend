@@ -8,6 +8,7 @@ import (
 type OrganizationRepository interface {
 	CreateOrganization(org *models.Organization) error
 	FindIndustryByIds(industryIDs []uint) ([]models.Industry, error)
+	GetAllIndustries() ([]models.Industry, error)
 	GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error)
 	GetOrganizations(userID uuid.UUID) ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)

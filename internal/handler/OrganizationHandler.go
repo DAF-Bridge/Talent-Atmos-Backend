@@ -100,6 +100,19 @@ func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(orgs)
 }
 
+func (h *OrganizationHandler) ListIndustries(c *fiber.Ctx) error {
+	industries, err := h.service.ListAllIndustries()
+	if err != nil {
+		if appErr, ok := err.(errs.AppError); ok {
+			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(industries)
+}
+
 // @Summary Get an organization by ID
 // @Description Get an organization by ID
 // @Tags Organization

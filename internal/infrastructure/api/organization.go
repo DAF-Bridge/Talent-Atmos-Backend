@@ -20,7 +20,8 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s
 	org := app.Group("/orgs")
 
 	app.Get("/orgs-paginate", organizationHandler.GetOrganizationPaginate)
-	org.Get("/list", middleware.AuthMiddleware(jwtSecret),organizationHandler.ListOrganizations)
+	org.Get("/industries/list", organizationHandler.ListIndustries)
+	org.Get("/list", middleware.AuthMiddleware(jwtSecret), organizationHandler.ListOrganizations)
 	org.Post("/create", middleware.AuthMiddleware(jwtSecret), organizationHandler.CreateOrganization)
 	org.Get("/get/:id", middleware.AuthMiddleware(jwtSecret), organizationHandler.GetOrganizationByID)
 	org.Put("/update/:id", middleware.AuthMiddleware(jwtSecret), organizationHandler.UpdateOrganization)
