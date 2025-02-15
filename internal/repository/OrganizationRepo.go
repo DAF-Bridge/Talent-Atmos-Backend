@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/google/uuid"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
@@ -70,9 +71,9 @@ func (r organizationRepository) GetAllOrganizations() ([]models.Organization, er
 	return orgs, nil
 }
 
-func (r organizationRepository) UpdateOrganization(org *models.Organization) (*models.Organization, error) {
+func (r organizationRepository) UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error) {
 	var existOrg models.Organization
-	if err := r.db.Where("id = ?", org.ID).First(&existOrg).Error; err != nil {
+	if err := r.db.Where("id = ? AND owner_id = ?", org.ID, userID).First(&existOrg).Error; err != nil {
 		return nil, err
 	}
 
@@ -102,7 +103,7 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) (*m
 	if err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("id = ?", org.ID).
+		Where("id = ? AND owner_id = ?", org.ID, userID).
 		First(&updatedOrg).Error; err != nil {
 		return nil, err
 	}

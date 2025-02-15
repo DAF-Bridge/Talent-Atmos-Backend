@@ -186,7 +186,7 @@ func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse,
 	return orgsResponses, nil
 }
 
-func (s organizationService) UpdateOrganization(userID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
+func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
 	existingOrg, err := s.repo.GetByOrgID(orgID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -217,7 +217,7 @@ func (s organizationService) UpdateOrganization(userID uuid.UUID, orgID uint, or
 		}
 	}
 
-	newOrg := ConvertToOrgRequest(userID, org, contacts, industryPointers)
+	newOrg := ConvertToOrgRequest(ownerID, org, contacts, industryPointers)
 	newOrg.ID = orgID
 	// Upload image to S3
 	if file != nil {
@@ -238,7 +238,7 @@ func (s organizationService) UpdateOrganization(userID uuid.UUID, orgID uint, or
 		newOrg.PicUrl = existingOrg.PicUrl
 	}
 
-	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
+	updatedOrg, err := s.repo.UpdateOrganization(ownerID, &newOrg)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errs.NewNotFoundError("organization not found")

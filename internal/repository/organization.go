@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/google/uuid"
 )
 
 type OrganizationRepository interface {
@@ -10,7 +11,7 @@ type OrganizationRepository interface {
 	GetByOrgID(id uint) (*models.Organization, error)
 	GetAllOrganizations() ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
-	UpdateOrganization(org *models.Organization) (*models.Organization, error)
+	UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(id uint) error
 }
