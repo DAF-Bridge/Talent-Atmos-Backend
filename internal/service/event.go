@@ -1,13 +1,16 @@
 package service
 
 import (
+	"context"
+	"mime/multipart"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 )
 
 type EventService interface {
-	NewEvent(orgID uint, event dto.NewEventRequest) (*dto.EventResponses, error)
+	NewEvent(orgID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error)
 	SyncEvents() error
 	SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error)
 	GetAllEvents() ([]dto.EventResponses, error)
@@ -16,7 +19,7 @@ type EventService interface {
 	GetEventPaginate(page uint) ([]dto.EventResponses, error)
 	GetFirst() (*dto.EventResponses, error)
 	CountEvent() (int64, error)
-	UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest) (*dto.EventResponses, error)
+	UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error)
 	DeleteEvent(orgID uint, eventID uint) error
 }
 
@@ -25,7 +28,6 @@ func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest) models.Even
 		OrganizationID: orgID,
 		CategoryID:     reqEvent.CategoryID,
 		Name:           reqEvent.Name,
-		PicUrl:         reqEvent.PicUrl,
 		StartDate:      utils.DateOnly{Time: utils.DateParser(reqEvent.StartDate)},
 		EndDate:        utils.DateOnly{Time: utils.DateParser(reqEvent.EndDate)},
 		StartTime:      utils.TimeOnly{Time: utils.TimeParser(reqEvent.StartTime)},

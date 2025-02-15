@@ -1,6 +1,9 @@
 package service
 
 import (
+	"context"
+	"mime/multipart"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/stretchr/testify/mock"
@@ -14,12 +17,12 @@ func NewEventServiceMock() *eventServiceMock {
 	return &eventServiceMock{}
 }
 
-func (m *eventServiceMock) NewEvent(orgID uint, event dto.NewEventRequest) (*dto.EventResponses, error) {
-	ret := m.Called(orgID, event)
+func (m *eventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
+	ret := m.Called(orgID, req, ctx, file, fileHeader)
 
 	var r0 *dto.EventResponses
-	if rf, ok := ret.Get(0).(func(uint, dto.NewEventRequest) *dto.EventResponses); ok {
-		r0 = rf(orgID, event)
+	if rf, ok := ret.Get(0).(func(uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) *dto.EventResponses); ok {
+		r0 = rf(orgID, req, ctx, file, fileHeader)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*dto.EventResponses)
@@ -27,8 +30,8 @@ func (m *eventServiceMock) NewEvent(orgID uint, event dto.NewEventRequest) (*dto
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint, dto.NewEventRequest) error); ok {
-		r1 = rf(orgID, event)
+	if rf, ok := ret.Get(1).(func(uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) error); ok {
+		r1 = rf(orgID, req, ctx, file, fileHeader)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -166,12 +169,12 @@ func (m *eventServiceMock) CountEvent() (int64, error) {
 	return r0, r1
 }
 
-func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest) (*dto.EventResponses, error) {
-	ret := m.Called(orgID, eventID, event)
+func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
+	ret := m.Called(orgID, eventID, event, ctx, file, fileHeader)
 
 	var r0 *dto.EventResponses
-	if rf, ok := ret.Get(0).(func(uint, uint, dto.NewEventRequest) *dto.EventResponses); ok {
-		r0 = rf(orgID, eventID, event)
+	if rf, ok := ret.Get(0).(func(uint, uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) *dto.EventResponses); ok {
+		r0 = rf(orgID, eventID, event, ctx, file, fileHeader)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*dto.EventResponses)
@@ -179,13 +182,26 @@ func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEv
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint, uint, dto.NewEventRequest) error); ok {
-		r1 = rf(orgID, eventID, event)
+	if rf, ok := ret.Get(1).(func(uint, uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) error); ok {
+		r1 = rf(orgID, eventID, event, ctx, file, fileHeader)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
+}
+
+func (m *eventServiceMock) UpdateEventPicture(orgID uint, eventID uint, picURL string) error {
+	ret := m.Called(orgID, eventID, picURL)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, uint, string) error); ok {
+		r0 = rf(orgID, eventID, picURL)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 func (m *eventServiceMock) DeleteEvent(orgID uint, eventID uint) error {

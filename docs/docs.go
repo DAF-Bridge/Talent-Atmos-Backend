@@ -48,7 +48,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -95,7 +95,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -185,7 +185,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error - Something went wrong",
+                        "description": "error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -289,7 +289,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Bad Request - something went wrong",
+                        "description": "error: Bad Request - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -304,6 +304,7 @@ const docTemplate = `{
             "post": {
                 "description": "Create a new organization BUT still not create the Contact and OpenJob",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -315,13 +316,26 @@ const docTemplate = `{
                 "summary": "Create a new organization",
                 "parameters": [
                     {
-                        "description": "Organization",
+                        "description": "Example body for Organization JSON (required in the formData ` + "`" + `org` + "`" + `)",
                         "name": "org",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.OrganizationRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Organization JSON",
+                        "name": "org",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Organization Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -341,7 +355,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -388,7 +402,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -447,7 +461,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -482,7 +496,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -517,7 +531,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -569,7 +583,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -584,6 +598,7 @@ const docTemplate = `{
             "put": {
                 "description": "Update an organization by ID",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -602,13 +617,26 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Organization",
+                        "description": "Example body for Organization JSON (required in the formData ` + "`" + `org` + "`" + `)",
                         "name": "org",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.OrganizationRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Organization JSON",
+                        "name": "org",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Organization Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -628,7 +656,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -681,7 +709,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Internal Server Error - Something went wrong",
+                        "description": "error: Internal Server Error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -735,7 +763,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Internal Server Error - Something went wrong",
+                        "description": "error: Internal Server Error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -801,7 +829,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Internal Server Error - Something went wrong",
+                        "description": "error: Internal Server Error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -854,7 +882,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Internal Server Error - Something went wrong",
+                        "description": "error: Internal Server Error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -920,7 +948,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Internal Server Error - Something went wrong",
+                        "description": "error: Internal Server Error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -973,7 +1001,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -982,12 +1010,11 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/orgs/{orgID}/events/create": {
+            },
             "post": {
                 "description": "Create a new event for a specific organization",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -1006,13 +1033,26 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Event data",
+                        "description": "Example of Event JSON body (required in the formData ` + "`" + `event` + "`" + `)",
                         "name": "event",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.NewEventRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event JSON",
+                        "name": "event",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Event image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1023,7 +1063,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "error: Invalid json body parameters",
+                        "description": "error: Invalid input",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1032,7 +1072,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1089,7 +1129,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1102,6 +1142,7 @@ const docTemplate = `{
             "put": {
                 "description": "Update an event with the given ID for the specified organization",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -1127,13 +1168,25 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Event data",
+                        "description": "Example of Event JSON body (required in the formData ` + "`" + `event` + "`" + `)",
                         "name": "event",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.NewEventRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event JSON",
+                        "name": "event",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Event image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1153,7 +1206,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1211,7 +1264,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1226,6 +1279,7 @@ const docTemplate = `{
             "post": {
                 "description": "Create a new organization open job",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -1244,13 +1298,26 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Organization Open Job",
-                        "name": "org",
+                        "description": "Example body of Job JSON (required in the formData ` + "`" + `job` + "`" + `)",
+                        "name": "job",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.JobRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job JSON",
+                        "name": "job",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Organization Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1273,7 +1340,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "Internal Server Error - Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1327,7 +1394,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1393,7 +1460,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1446,7 +1513,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1461,6 +1528,7 @@ const docTemplate = `{
             "put": {
                 "description": "Update an organization open job by ID",
                 "consumes": [
+                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -1486,13 +1554,26 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Organization Open Job",
-                        "name": "org",
+                        "description": "Example body of Job JSON (required in the formData ` + "`" + `job` + "`" + `)",
+                        "name": "job",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.JobRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job JSON",
+                        "name": "job",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Job Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1512,7 +1593,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: Something went wrong",
+                        "description": "error: Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1561,7 +1642,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error - Something went wrong",
+                        "description": "Internal Server Error - Internal server error",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
@@ -1593,7 +1674,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error - Something went wrong",
+                        "description": "Internal server error - Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/fiber.Map"
                         }
@@ -1722,13 +1803,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "all"
                 },
-                "category_id": {
+                "categoryId": {
                     "type": "integer",
                     "example": 2
                 },
-                "description": {
-                    "type": "string",
-                    "example": "This is a description"
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "endDate": {
                     "type": "string",
@@ -1736,19 +1819,11 @@ const docTemplate = `{
                 },
                 "endTime": {
                     "type": "string",
-                    "example": "17:00"
-                },
-                "highlight": {
-                    "type": "string",
-                    "example": "This is a highlight"
+                    "example": "17:00:00"
                 },
                 "id": {
                     "type": "integer",
                     "example": 1
-                },
-                "keyTakeaway": {
-                    "type": "string",
-                    "example": "This is a key takeaway"
                 },
                 "latitude": {
                     "type": "number",
@@ -1786,17 +1861,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Chiang Mai"
                 },
-                "requirement": {
-                    "type": "string",
-                    "example": "This is a requirement"
-                },
                 "startDate": {
                     "type": "string",
                     "example": "2024-11-29"
                 },
                 "startTime": {
                     "type": "string",
-                    "example": "08:00"
+                    "example": "08:00:00"
                 },
                 "status": {
                     "type": "string",
@@ -1819,7 +1890,7 @@ const docTemplate = `{
                 },
                 "endTime": {
                     "type": "string",
-                    "example": "17:00"
+                    "example": "17:00:00"
                 },
                 "id": {
                     "type": "integer",
@@ -1843,17 +1914,13 @@ const docTemplate = `{
                 },
                 "startTime": {
                     "type": "string",
-                    "example": "08:00"
+                    "example": "08:00:00"
                 }
             }
         },
         "dto.IndustryResponses": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "name": {
                     "type": "string",
                     "example": "Software"
@@ -1864,13 +1931,12 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "benefits",
-                "career_stage",
-                "category_ids",
+                "careerStage",
+                "categoryIds",
                 "description",
-                "hours_per_day",
+                "hoursPerDay",
                 "location",
                 "period",
-                "picUrl",
                 "prerequisite",
                 "qualifications",
                 "quantity",
@@ -1878,7 +1944,7 @@ const docTemplate = `{
                 "scope",
                 "status",
                 "title",
-                "work_type",
+                "workType",
                 "workplace"
             ],
             "properties": {
@@ -1886,7 +1952,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Health insurance"
                 },
-                "career_stage": {
+                "careerStage": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.CareerStage"
@@ -1894,7 +1960,7 @@ const docTemplate = `{
                     ],
                     "example": "entrylevel"
                 },
-                "category_ids": {
+                "categoryIds": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -1909,7 +1975,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "This is a description"
                 },
-                "hours_per_day": {
+                "hoursPerDay": {
                     "type": "string",
                     "example": "8 hours"
                 },
@@ -1920,10 +1986,6 @@ const docTemplate = `{
                 "period": {
                     "type": "string",
                     "example": "1 year"
-                },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
                 },
                 "prerequisite": {
                     "type": "array",
@@ -1960,7 +2022,7 @@ const docTemplate = `{
                     "minLength": 3,
                     "example": "Software Engineer"
                 },
-                "work_type": {
+                "workType": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.WorkType"
@@ -1989,7 +2051,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Health insurance"
                 },
-                "career_stage": {
+                "careerStage": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.CareerStage"
@@ -2007,7 +2069,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "This is a description"
                 },
-                "hours_per_day": {
+                "hoursPerDay": {
                     "type": "string",
                     "example": "8 hours"
                 },
@@ -2055,7 +2117,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Software Engineer"
                 },
-                "work_type": {
+                "workType": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.WorkType"
@@ -2074,112 +2136,7 @@ const docTemplate = `{
             }
         },
         "dto.NewEventRequest": {
-            "type": "object",
-            "required": [
-                "audience",
-                "category_id",
-                "description",
-                "endDate",
-                "endTime",
-                "highlight",
-                "keyTakeaway",
-                "latitude",
-                "locationName",
-                "locationType",
-                "longitude",
-                "name",
-                "picUrl",
-                "priceType",
-                "province",
-                "requirement",
-                "startDate",
-                "startTime",
-                "status"
-            ],
-            "properties": {
-                "audience": {
-                    "type": "string",
-                    "example": "general"
-                },
-                "category_id": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "description": {
-                    "type": "string",
-                    "example": "This is a description"
-                },
-                "endDate": {
-                    "type": "string",
-                    "example": "2025-01-22"
-                },
-                "endTime": {
-                    "type": "string",
-                    "example": "17:00"
-                },
-                "highlight": {
-                    "type": "string",
-                    "example": "This is a highlight"
-                },
-                "keyTakeaway": {
-                    "type": "string",
-                    "example": "This is a key takeaway"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 13.7563
-                },
-                "locationName": {
-                    "type": "string",
-                    "example": "Bangkok"
-                },
-                "locationType": {
-                    "type": "string",
-                    "example": "onsite"
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 100.5018
-                },
-                "name": {
-                    "type": "string",
-                    "example": "builds IDEA 2024"
-                },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                },
-                "priceType": {
-                    "type": "string",
-                    "example": "free"
-                },
-                "province": {
-                    "type": "string",
-                    "example": "Chiang Mai"
-                },
-                "requirement": {
-                    "type": "string",
-                    "example": "This is a requirement"
-                },
-                "startDate": {
-                    "type": "string",
-                    "example": "2025-01-25"
-                },
-                "startTime": {
-                    "type": "string",
-                    "example": "08:00"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "draft"
-                },
-                "timeLine": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Timeline"
-                    }
-                }
-            }
+            "type": "object"
         },
         "dto.OrganizationContactRequest": {
             "type": "object",
@@ -2214,29 +2171,32 @@ const docTemplate = `{
         "dto.OrganizationRequest": {
             "type": "object",
             "required": [
+                "address",
+                "country",
                 "email",
-                "expertise",
                 "goal",
+                "headline",
                 "industries",
                 "latitude",
-                "location",
                 "longitude",
                 "name",
                 "organizationContacts",
                 "phone",
-                "picUrl",
-                "postalCode",
                 "province",
-                "subdistrict"
+                "specialty"
             ],
             "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Chiang Mai postal code: 50200"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Thailand"
+                },
                 "email": {
                     "type": "string",
                     "example": "andaraiwin@gmail.com"
-                },
-                "expertise": {
-                    "type": "string",
-                    "example": "This is an expertise"
                 },
                 "goal": {
                     "type": "array",
@@ -2246,6 +2206,10 @@ const docTemplate = `{
                     "example": [
                         "This is a goal"
                     ]
+                },
+                "headline": {
+                    "type": "string",
+                    "example": "This is a headline"
                 },
                 "industries": {
                     "type": "array",
@@ -2259,16 +2223,12 @@ const docTemplate = `{
                     ]
                 },
                 "latitude": {
-                    "type": "string",
-                    "example": "18.7876"
-                },
-                "location": {
-                    "type": "string",
-                    "example": "Chiang Mai"
+                    "type": "number",
+                    "example": 18.7876
                 },
                 "longitude": {
-                    "type": "string",
-                    "example": "98.9937"
+                    "type": "number",
+                    "example": 98.9937
                 },
                 "name": {
                     "type": "string",
@@ -2286,34 +2246,30 @@ const docTemplate = `{
                     "type": "string",
                     "example": "0812345678"
                 },
-                "picUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                },
-                "postalCode": {
-                    "type": "string",
-                    "example": "50000"
-                },
                 "province": {
                     "type": "string",
                     "example": "Chiang Mai"
                 },
-                "subdistrict": {
+                "specialty": {
                     "type": "string",
-                    "example": "Mueang"
+                    "example": "This is an specialty"
                 }
             }
         },
         "dto.OrganizationResponse": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Chiang Mai 50200"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Thailand"
+                },
                 "email": {
                     "type": "string",
                     "example": "daf_bridge@egat.co.th"
-                },
-                "expertise": {
-                    "type": "string",
-                    "example": "This is an expertise"
                 },
                 "goal": {
                     "type": "array",
@@ -2323,6 +2279,10 @@ const docTemplate = `{
                     "example": [
                         "This is a goal"
                     ]
+                },
+                "headline": {
+                    "type": "string",
+                    "example": "This is a headline"
                 },
                 "id": {
                     "type": "integer",
@@ -2335,16 +2295,12 @@ const docTemplate = `{
                     }
                 },
                 "latitude": {
-                    "type": "string",
-                    "example": "18.7876"
-                },
-                "location": {
-                    "type": "string",
-                    "example": "Chiang Mai"
+                    "type": "number",
+                    "example": 18.7876
                 },
                 "longitude": {
-                    "type": "string",
-                    "example": "98.9937"
+                    "type": "number",
+                    "example": 98.9937
                 },
                 "name": {
                     "type": "string",
@@ -2364,17 +2320,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/image.jpg"
                 },
-                "postalCode": {
-                    "type": "string",
-                    "example": "50000"
-                },
                 "province": {
                     "type": "string",
                     "example": "Chiang Mai"
                 },
-                "subdistrict": {
+                "specialty": {
                     "type": "string",
-                    "example": "Mueang"
+                    "example": "This is an specialty"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -2400,7 +2352,7 @@ const docTemplate = `{
         "dto.UploadResponse": {
             "type": "object",
             "properties": {
-                "pic_url": {
+                "picUrl": {
                     "type": "string",
                     "example": "https://s3.amazonaws.com/your-bucket/your-object"
                 }
@@ -2553,7 +2505,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Health insurance"
                 },
-                "career_stage": {
+                "careerStage": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.CareerStage"
@@ -2577,7 +2529,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "This is a description"
                 },
-                "hours_per_day": {
+                "hoursPerDay": {
                     "type": "string",
                     "example": "8 hours"
                 },
@@ -2591,7 +2543,7 @@ const docTemplate = `{
                 "organization": {
                     "$ref": "#/definitions/models.Organization"
                 },
-                "organization_id": {
+                "organizationId": {
                     "type": "integer",
                     "example": 1
                 },
@@ -2640,7 +2592,7 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "work_type": {
+                "workType": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.WorkType"
@@ -2661,14 +2613,21 @@ const docTemplate = `{
         "models.Organization": {
             "type": "object",
             "properties": {
+                "address": {
+                    "description": "General location",
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
-                "expertise": {
-                    "description": "Organization's area of expertise",
+                "email": {
+                    "description": "Email address (unique constraint)",
                     "type": "string"
                 },
                 "goal": {
@@ -2677,6 +2636,10 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "headLine": {
+                    "description": "Short description of the organization",
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -2689,14 +2652,19 @@ const docTemplate = `{
                 },
                 "latitude": {
                     "description": "Geographic latitude (stored as string for precision)",
-                    "type": "string"
-                },
-                "location": {
-                    "description": "General location",
-                    "type": "string"
+                    "type": "number"
                 },
                 "longitude": {
                     "description": "Geographic longitude (stored as string for precision)",
+                    "type": "number"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "name": {
                     "type": "string"
                 },
                 "orgOpenJobs": {
@@ -2705,42 +2673,33 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.OrgOpenJob"
                     }
                 },
-                "org_email": {
-                    "description": "Email address (unique constraint)",
-                    "type": "string"
-                },
-                "org_name": {
-                    "type": "string"
-                },
-                "org_phone": {
-                    "type": "string"
-                },
                 "organizationContacts": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.OrganizationContact"
                     }
                 },
-                "pic_url": {
-                    "description": "URL to organization's logo",
+                "owner": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "ownerID": {
+                    "description": "Owner of the Organization",
                     "type": "string"
                 },
-                "postal_code": {
-                    "description": "Postal code, allowing for flexibility in format",
+                "phone": {
+                    "type": "string"
+                },
+                "picUrl": {
                     "type": "string"
                 },
                 "province": {
-                    "description": "Province name",
                     "type": "string"
                 },
-                "subdistrict": {
-                    "description": "Subdistrict name",
+                "specialty": {
+                    "description": "Organization's area of expertise",
                     "type": "string"
                 },
                 "updatedAt": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
@@ -2763,7 +2722,8 @@ const docTemplate = `{
                 "mediaLink": {
                     "type": "string"
                 },
-                "organization_id": {
+                "organizationId": {
+                    "description": "Belongs to Organization",
                     "type": "integer"
                 },
                 "updatedAt": {
@@ -2825,6 +2785,28 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "organization": {
+                    "description": "Member of an organization",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    ]
+                },
+                "organizationID": {
+                    "type": "integer"
+                },
+                "ownedOrganization": {
+                    "description": "Owner of an organization",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Organization"
+                        }
+                    ]
+                },
+                "ownedOrganizationID": {
+                    "type": "integer"
                 },
                 "password": {
                     "description": "Hashed password for traditional login",

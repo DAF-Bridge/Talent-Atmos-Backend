@@ -2,17 +2,19 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/google/uuid"
 )
 
 type OrganizationRepository interface {
 	CreateOrganization(org *models.Organization) error
 	FindIndustryByIds(industryIDs []uint) ([]models.Industry, error)
-	GetByOrgID(id uint) (*models.Organization, error)
-	GetAllOrganizations() ([]models.Organization, error)
+	GetAllIndustries() ([]models.Industry, error)
+	GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error)
+	GetOrganizations(userID uuid.UUID) ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
-	UpdateOrganization(org *models.Organization) (*models.Organization, error)
-	DeleteOrganization(id uint) error
-	FindInOrgIDList(orgIds []uint) ([]models.Organization, error)
+	UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
+	UpdateOrganizationPicture(id uint, picURL string) error
+	DeleteOrganization(userID uuid.UUID, org uint) error
 }
 
 type OrganizationContactRepository interface {
@@ -31,5 +33,6 @@ type OrgOpenJobRepository interface {
 	GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob, error)
 	GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error)
 	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
+	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	DeleteJob(orgID uint, jobID uint) error
 }

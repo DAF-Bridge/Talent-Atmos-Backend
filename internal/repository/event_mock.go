@@ -364,3 +364,15 @@ func (e *eventRepositoryMock) Update(orgID uint, eventID uint, event *models.Eve
 
 	return nil, errs.NewUnexpectedError()
 }
+
+// UpdateEventPicture implements EventRepository.
+func (e *eventRepositoryMock) UpdateEventPicture(orgID uint, eventID uint, picURL string) error {
+	for i, evt := range e.events {
+		if evt.OrganizationID == orgID && evt.Model.ID == eventID {
+			e.events[i].PicUrl = picURL
+			return nil
+		}
+	}
+
+	return errs.NewNotFoundError("event not found")
+}

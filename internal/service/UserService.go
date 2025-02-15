@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"mime/multipart"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
@@ -31,12 +32,14 @@ func (s userService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, fi
 	// Upload image to S3
 	picURL, err := s.S3Uploader.UploadUserPictureFile(ctx, file, fileHeader, userID)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to upload user picture: %v", err))
 		return "", err
 	}
 
 	// Update user record in database
 	err = s.userRepo.UpdateUserPic(userID, picURL)
 	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to update user picture: %v", err))
 		return "", err
 	}
 
@@ -52,7 +55,7 @@ func (s userService) CreateUser(user *models.User) error {
 	return nil
 }
 
-func (s userService) ListUsers() ([]models.User, error) {
+func (s userService) ListUsers() ([]dto.UserResponses, error) {
 	users, err := s.userRepo.GetAll()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -64,7 +67,13 @@ func (s userService) ListUsers() ([]models.User, error) {
 		return nil, err
 	}
 
-	return users, nil
+	var userResponses []dto.UserResponses
+	for _, user := range users {
+		userResponse := convertToUserResponses(&user)
+		userResponses = append(userResponses, *userResponse)
+	}
+
+	return userResponses, nil
 }
 
 func (s userService) GetCurrentUserProfile(userId uuid.UUID) (*dto.ProfileResponses, error) {

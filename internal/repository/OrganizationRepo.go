@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/google/uuid"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
@@ -22,7 +23,37 @@ func NewOrganizationRepository(db *gorm.DB) OrganizationRepository {
 }
 
 func (r organizationRepository) CreateOrganization(org *models.Organization) error {
-	return r.db.Create(org).Error
+	tx := r.db.Begin()
+
+	if err := r.db.Create(org).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Model(&models.User{}).
+		Where("id = ?", org.OwnerID).
+		Updates(map[string]interface{}{
+			"organization_id": org.ID,
+			"owned_org_id":    org.ID,
+		}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r organizationRepository) GetAllIndustries() ([]models.Industry, error) {
+	var industries []models.Industry
+	err := r.db.Find(&industries).Error
+	if err != nil {
+		return nil, err
+	}
+	return industries, nil
 }
 
 func (r organizationRepository) FindIndustryByIds(industryIDs []uint) ([]models.Industry, error) {
@@ -34,12 +65,13 @@ func (r organizationRepository) FindIndustryByIds(industryIDs []uint) ([]models.
 	return industries, nil
 }
 
-func (r organizationRepository) GetByOrgID(id uint) (*models.Organization, error) {
+func (r organizationRepository) GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error) {
 	org := &models.Organization{}
 	if err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		First(org, id).Error; err != nil {
+		Where("id = ? AND owner_id = ?", id, userID).
+		First(org).Error; err != nil {
 		return nil, err
 	}
 	return org, nil
@@ -63,11 +95,12 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 	return orgs, nil
 }
 
-func (r organizationRepository) GetAllOrganizations() ([]models.Organization, error) {
+func (r organizationRepository) GetOrganizations(userID uuid.UUID) ([]models.Organization, error) {
 	var orgs []models.Organization
 	err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
+		Where("owner_id = ?", userID).
 		Find(&orgs).Error
 	if err != nil {
 		return nil, err
@@ -75,50 +108,99 @@ func (r organizationRepository) GetAllOrganizations() ([]models.Organization, er
 	return orgs, nil
 }
 
-func (r organizationRepository) UpdateOrganization(org *models.Organization) (*models.Organization, error) {
+func (r organizationRepository) UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error) {
+	tx := r.db.Begin()
+
 	var existOrg models.Organization
-	if err := r.db.Where("id = ?", org.ID).First(&existOrg).Error; err != nil {
+	if err := tx.Where("id = ? AND owner_id = ?", org.ID, userID).First(&existOrg).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
 	// Clear and replace industries
-	if err := r.db.Model(&existOrg).Association("Industries").Clear(); err != nil {
+	if err := tx.Model(&existOrg).Association("Industries").Clear(); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-	err := r.db.Model(&existOrg).Association("Industries").Replace(org.Industries)
-	if err != nil {
+	if err := tx.Model(&existOrg).Association("Industries").Replace(org.Industries); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
 	// Clear and replace contacts
-	if err := r.db.Model(&existOrg).Association("OrganizationContacts").Clear(); err != nil {
+	if err := tx.Model(&existOrg).Association("OrganizationContacts").Clear(); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-	if err := r.db.Model(&existOrg).Association("OrganizationContacts").Replace(org.OrganizationContacts); err != nil {
+	if err := tx.Model(&existOrg).Association("OrganizationContacts").Replace(org.OrganizationContacts); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
 	// Update organization
-	if err := r.db.Model(&existOrg).Updates(org).Error; err != nil {
+	if err := tx.Model(&existOrg).Updates(org).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
 	var updatedOrg models.Organization
-	if err := r.db.
+	if err := tx.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("id = ?", org.ID).
+		Where("id = ? AND owner_id = ?", org.ID, userID).
 		First(&updatedOrg).Error; err != nil {
+
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 
 	return &updatedOrg, nil
 }
 
-func (r organizationRepository) DeleteOrganization(id uint) error {
+func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string) error {
+	tx := r.db.Begin()
+
+	if err := tx.Model(&models.Organization{}).Where("id = ?", id).Update("pic_url", picURL).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r organizationRepository) DeleteOrganization(userID uuid.UUID, id uint) error {
+	tx := r.db.Begin()
+
+	if err := tx.Model(&models.User{}).
+		Where("organization_id = ?", id).
+		Updates(map[string]interface{}{
+			"organization_id": nil,
+			"owned_org_id":    nil,
+		}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where("organization_id = ?", id).Delete(&models.OrganizationContact{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	var org models.Organization
-	err := r.db.Model(&org).Where("id = ?", id).Delete(&org).Error
-	if err != nil {
+	if err := tx.Model(&org).Where("id = ? AND owner_id = ?", id, userID).Delete(&org).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 
@@ -138,11 +220,14 @@ func NewOrganizationContactRepository(db *gorm.DB) OrganizationContactRepository
 }
 
 func (r organizationContactRepository) Create(orgID uint, contact *models.OrganizationContact) error {
+	tx := r.db.Begin()
+
 	contact.OrganizationID = orgID
-	err := r.db.Create(contact).Error
-	if err != nil {
+	if err := tx.Create(contact).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+
 	return nil
 }
 
@@ -169,11 +254,23 @@ func (r organizationContactRepository) GetAllByOrgID(orgID uint) ([]models.Organ
 }
 
 func (r organizationContactRepository) Update(contact *models.OrganizationContact) (*models.OrganizationContact, error) {
-	if err := r.db.
-		Preload("Organization").
-		Save(contact).Error; err != nil {
+	tx := r.db.Begin()
+
+	if err := tx.Save(contact).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
+
+	if err := tx.
+		Where("organization_id = ? AND id = ?", contact.OrganizationID, contact.ID).First(contact).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
 	return contact, nil
 }
 
@@ -309,6 +406,16 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 	}
 
 	return &updatedJob, nil
+}
+
+func (r orgOpenJobRepository) UpdateJobPicture(orgID uint, jobID uint, picURL string) error {
+	if err := r.db.Model(&models.OrgOpenJob{}).
+		Where("organization_id = ? AND id = ?", orgID, jobID).
+		Update("pic_url", picURL).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) error {

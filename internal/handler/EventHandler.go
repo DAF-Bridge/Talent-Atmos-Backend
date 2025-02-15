@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
+	"mime/multipart"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -35,7 +38,6 @@ func newEventShortResponse(event dto.EventResponses) EventShortResponse {
 		PicUrl:    event.PicUrl,
 		Location:  event.LocationName,
 	}
-
 }
 
 // newListEventShortResponse converts a list of EventResponses to a list of EventShortResponse
@@ -57,16 +59,25 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 // @Summary Create a new event
 // @Description Create a new event for a specific organization
 // @Tags Organization Events
+// @Accept multipart/form-data
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
-// @Param event body dto.NewEventRequest true "Event data"
+// @Param event body dto.NewEventRequest false "Example of Event JSON body (required in the formData `event`)"
+// @Param event formData string true "Event JSON"
+// @Param image formData file true "Event image"
 // @Success 201 {object} dto.EventResponses
-// @Failure 400 {object} map[string]string "error: Invalid json body parameters"
+// @Failure 400 {object} map[string]string "error: Invalid input"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
-// @Router /orgs/{orgID}/events/create [post]
+// @Router /orgs/{orgID}/events [post]
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	var event dto.NewEventRequest
+
+	// Parse JSON from the "event" form field
+	eventData := c.FormValue("event")
+	if err := json.Unmarshal([]byte(eventData), &event); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
 
 	// validate request body
 	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
@@ -78,7 +89,20 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
 
-	createdEvent, err := h.eventService.NewEvent(uint(orgID), event)
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	fileHeader, err = c.FormFile("image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+	}
+
+	file, err = fileHeader.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+	}
+	defer file.Close()
+
+	createdEvent, err := h.eventService.NewEvent(uint(orgID), event, c.Context(), file, fileHeader)
 
 	// error from service
 	if err != nil {
@@ -196,34 +220,54 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 // @Summary Update an event
 // @Description Update an event with the given ID for the specified organization
 // @Tags Organization Events
+// @Accept multipart/form-data
 // @Accept json
 // @Produce json
 // @Param orgID path int true "Organization ID"
 // @Param id path int true "Event ID"
-// @Param event body dto.NewEventRequest true "Event data"
+// @Param event body dto.NewEventRequest false "Example of Event JSON body (required in the formData `event`)"
+// @Param event formData string true "Event JSON"
+// @Param image formData file false "Event image"
 // @Success 200 {object} dto.EventResponses
 // @Failure 400 {object} map[string]string "error: Invalid json body parameters"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events/{id} [put]
 func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	var req dto.NewEventRequest
+
+	// Parse JSON from the "event" form field
+	eventData := c.FormValue("event")
+	if err := json.Unmarshal([]byte(eventData), &req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	}
+
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
 		return err
 	}
 
 	orgID, err := c.ParamsInt("orgID")
-
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
 
 	eventID, err := c.ParamsInt("id")
-
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
 	}
 
-	eventUpdated, err := h.eventService.UpdateEvent(uint(orgID), uint(eventID), req)
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	fileHeader, err = c.FormFile("image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+	}
+	file, err = fileHeader.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+	}
+	defer file.Close()
+
+	eventUpdated, err := h.eventService.UpdateEvent(uint(orgID), uint(eventID), req, c.Context(), file, fileHeader)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}

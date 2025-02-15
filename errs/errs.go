@@ -29,6 +29,13 @@ func NewUnexpectedError() error {
 	}
 }
 
+func NewInternalError(message string) error {
+	return AppError{
+		Code:    http.StatusInternalServerError,
+		Message: message,
+	}
+}
+
 func NewCannotBeProcessedError(message string) error {
 	return AppError{
 		Code:    http.StatusUnprocessableEntity,

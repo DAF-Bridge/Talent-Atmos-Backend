@@ -92,7 +92,7 @@ func Start() {
 	api.NewUserRouter(app, initializers.DB, initializers.S3, jwtSecret)
 
 	// Define routes for Organizations && Organization Open Jobs
-	api.NewOrganizationRouter(app, initializers.DB, initializers.ESClient, initializers.S3)
+	api.NewOrganizationRouter(app, initializers.DB, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Events
 	api.NewEventRouter(app, initializers.DB, initializers.ESClient, initializers.S3)

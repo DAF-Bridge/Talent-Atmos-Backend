@@ -13,6 +13,7 @@ type EventRepository interface {
 	GetFirst() (*models.Event, error)
 	Count() (int64, error)
 	Update(orgID uint, eventID uint, event *models.Event) (*models.Event, error)
+	UpdateEventPicture(orgID uint, eventID uint, picURL string) error
 	Delete(orgID uint, eventID uint) error
 }
 
@@ -26,5 +27,6 @@ type MockEventRepository interface {
 	GetFirst() (*models.Event, error)
 	Count() (int64, error)
 	Update(orgID uint, eventID uint, event *models.Event) (*models.Event, error)
+	UpdateEventPicture(orgID uint, eventID uint, picURL string) error
 	Delete(orgID uint, eventID uint) error
 }

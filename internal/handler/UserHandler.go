@@ -2,7 +2,9 @@ package handler
 
 import (
 	"fmt"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
@@ -117,27 +119,29 @@ func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 // @Failure 500 {object} fiber.Map "Internal server error - Failed to update profile picture"
 // @Router /users/{id}/upload-profile [post]
 func (h *UserHandler) UploadProfilePicture(c *fiber.Ctx) error {
-	userID := c.Params("id")
+	claims, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
 
-	file, err := c.FormFile("image")
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	fileHeader, err := c.FormFile("image")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file"})
 	}
 
-	src, err := file.Open()
+	src, err := fileHeader.Open()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
 	}
 	defer src.Close()
 
-	currUserID, err := uuid.Parse(userID)
-
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
-	}
-
 	// Upload to S3 & Update DB
-	picURL, err := h.service.UpdateUserPicture(c.Context(), currUserID, src, file)
+	picURL, err := h.service.UpdateUserPicture(c.Context(), userID, src, fileHeader)
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to update profile picture: %v", err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update profile picture"})

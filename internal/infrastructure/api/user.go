@@ -20,7 +20,7 @@ func NewUserRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, j
 
 	user.Post("/", userHandler.CreateUser)
 	user.Get("/", userHandler.ListUsers)
-	user.Post("/:id/upload-profile", userHandler.UploadProfilePicture)
+	user.Post("/upload-profile", middleware.AuthMiddleware(jwtSecret), userHandler.UploadProfilePicture)
 
 	app.Get("/current-user-profile", middleware.AuthMiddleware(jwtSecret), userHandler.GetCurrentUser)
 }

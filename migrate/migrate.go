@@ -26,13 +26,25 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	initializers.DB.AutoMigrate(&models.User{})
-	initializers.DB.AutoMigrate(&models.Organization{})
-	initializers.DB.AutoMigrate(&models.OrganizationContact{})
-	initializers.DB.AutoMigrate(&models.OrgOpenJob{})
-	initializers.DB.AutoMigrate(&models.Industry{})
-	initializers.DB.AutoMigrate(&models.Event{})
-	initializers.DB.AutoMigrate(&models.Category{})
+	initializers.DB.AutoMigrate(&models.User{}, &models.Organization{})
+
+	// initializers.DB.AutoMigrate(&models.User{})
+	// initializers.DB.AutoMigrate(&models.Organization{})
+	// initializers.DB.AutoMigrate(&models.OrganizationContact{})
+	// initializers.DB.AutoMigrate(&models.OrgOpenJob{})
+	// initializers.DB.AutoMigrate(&models.Industry{})
+	// initializers.DB.AutoMigrate(&models.Event{})
+	// initializers.DB.AutoMigrate(&models.Category{})
+
+	// industries := []models.Industry{
+	// 	{Industry: "Environment"},
+	// 	{Industry: "Social"},
+	// 	{Industry: "Governance"},
+	// }
+
+	// for _, industry := range industries {
+	// 	initializers.DB.FirstOrCreate(&industry, models.Industry{Industry: industry.Industry})
+	// }
 
 	// // Define default values
 	// defaultLocationType := "online"
