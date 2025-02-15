@@ -16,27 +16,22 @@ definitions:
       category:
         example: all
         type: string
-      category_id:
+      categoryId:
         example: 2
         type: integer
-      description:
-        example: This is a description
-        type: string
+      content:
+        items:
+          type: integer
+        type: array
       endDate:
         example: "2024-11-29"
         type: string
       endTime:
-        example: "17:00"
-        type: string
-      highlight:
-        example: This is a highlight
+        example: "17:00:00"
         type: string
       id:
         example: 1
         type: integer
-      keyTakeaway:
-        example: This is a key takeaway
-        type: string
       latitude:
         example: 13.7563
         type: number
@@ -64,14 +59,11 @@ definitions:
       province:
         example: Chiang Mai
         type: string
-      requirement:
-        example: This is a requirement
-        type: string
       startDate:
         example: "2024-11-29"
         type: string
       startTime:
-        example: "08:00"
+        example: "08:00:00"
         type: string
       status:
         example: draft
@@ -87,7 +79,7 @@ definitions:
         example: "2024-11-29"
         type: string
       endTime:
-        example: "17:00"
+        example: "17:00:00"
         type: string
       id:
         example: 1
@@ -105,7 +97,7 @@ definitions:
         example: "2024-11-29"
         type: string
       startTime:
-        example: "08:00"
+        example: "08:00:00"
         type: string
     type: object
   dto.IndustryResponses:
@@ -122,11 +114,11 @@ definitions:
       benefits:
         example: Health insurance
         type: string
-      career_stage:
+      careerStage:
         allOf:
         - $ref: '#/definitions/models.CareerStage'
         example: entrylevel
-      category_ids:
+      categoryIds:
         example:
         - 1
         - 2
@@ -137,7 +129,7 @@ definitions:
       description:
         example: This is a description
         type: string
-      hours_per_day:
+      hoursPerDay:
         example: 8 hours
         type: string
       location:
@@ -145,9 +137,6 @@ definitions:
         type: string
       period:
         example: 1 year
-        type: string
-      picUrl:
-        example: https://example.com/image.jpg
         type: string
       prerequisite:
         example:
@@ -175,7 +164,7 @@ definitions:
         maxLength: 255
         minLength: 3
         type: string
-      work_type:
+      workType:
         allOf:
         - $ref: '#/definitions/models.WorkType'
         example: fulltime
@@ -185,13 +174,12 @@ definitions:
         example: remote
     required:
     - benefits
-    - career_stage
-    - category_ids
+    - careerStage
+    - categoryIds
     - description
-    - hours_per_day
+    - hoursPerDay
     - location
     - period
-    - picUrl
     - prerequisite
     - qualifications
     - quantity
@@ -199,7 +187,7 @@ definitions:
     - scope
     - status
     - title
-    - work_type
+    - workType
     - workplace
     type: object
   dto.JobResponses:
@@ -210,7 +198,7 @@ definitions:
       benefits:
         example: Health insurance
         type: string
-      career_stage:
+      careerStage:
         allOf:
         - $ref: '#/definitions/models.CareerStage'
         example: entrylevel
@@ -221,7 +209,7 @@ definitions:
       description:
         example: This is a description
         type: string
-      hours_per_day:
+      hoursPerDay:
         example: 8 hours
         type: string
       id:
@@ -257,7 +245,7 @@ definitions:
       title:
         example: Software Engineer
         type: string
-      work_type:
+      workType:
         allOf:
         - $ref: '#/definitions/models.WorkType'
         example: fulltime
@@ -271,23 +259,18 @@ definitions:
       audience:
         example: general
         type: string
-      category_id:
+      categoryId:
         example: 2
         type: integer
-      description:
-        example: This is a description
-        type: string
+      content:
+        items:
+          type: integer
+        type: array
       endDate:
         example: "2025-01-22"
         type: string
       endTime:
-        example: "17:00"
-        type: string
-      highlight:
-        example: This is a highlight
-        type: string
-      keyTakeaway:
-        example: This is a key takeaway
+        example: "17:00:00"
         type: string
       latitude:
         example: 13.7563
@@ -304,23 +287,17 @@ definitions:
       name:
         example: builds IDEA 2024
         type: string
-      picUrl:
-        example: https://example.com/image.jpg
-        type: string
       priceType:
         example: free
         type: string
       province:
         example: Chiang Mai
         type: string
-      requirement:
-        example: This is a requirement
-        type: string
       startDate:
         example: "2025-01-25"
         type: string
       startTime:
-        example: "08:00"
+        example: "08:00:00"
         type: string
       status:
         example: draft
@@ -331,24 +308,20 @@ definitions:
         type: array
     required:
     - audience
-    - category_id
-    - description
+    - categoryId
     - endDate
     - endTime
-    - highlight
-    - keyTakeaway
     - latitude
     - locationName
     - locationType
     - longitude
     - name
-    - picUrl
     - priceType
     - province
-    - requirement
     - startDate
     - startTime
     - status
+    - timeLine
     type: object
   dto.OrganizationContactRequest:
     properties:
@@ -414,9 +387,6 @@ definitions:
       phone:
         example: "0812345678"
         type: string
-      picUrl:
-        example: https://example.com/image.jpg
-        type: string
       postalCode:
         example: "50000"
         type: string
@@ -437,7 +407,6 @@ definitions:
     - name
     - organizationContacts
     - phone
-    - picUrl
     - postalCode
     - province
     - subdistrict
@@ -510,7 +479,7 @@ definitions:
     type: object
   dto.UploadResponse:
     properties:
-      pic_url:
+      picUrl:
         example: https://s3.amazonaws.com/your-bucket/your-object
         type: string
     type: object
@@ -622,7 +591,7 @@ definitions:
       benefits:
         example: Health insurance
         type: string
-      career_stage:
+      careerStage:
         allOf:
         - $ref: '#/definitions/models.CareerStage'
         example: entrylevel
@@ -637,7 +606,7 @@ definitions:
       description:
         example: This is a description
         type: string
-      hours_per_day:
+      hoursPerDay:
         example: 8 hours
         type: string
       id:
@@ -647,7 +616,7 @@ definitions:
         type: string
       organization:
         $ref: '#/definitions/models.Organization'
-      organization_id:
+      organizationId:
         example: 1
         type: integer
       period:
@@ -683,7 +652,7 @@ definitions:
         type: string
       updatedAt:
         type: string
-      work_type:
+      workType:
         allOf:
         - $ref: '#/definitions/models.WorkType'
         example: fulltime
@@ -698,6 +667,9 @@ definitions:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        description: Email address (unique constraint)
+        type: string
       expertise:
         description: Organization's area of expertise
         type: string
@@ -721,12 +693,7 @@ definitions:
       longitude:
         description: Geographic longitude (stored as string for precision)
         type: string
-      org_email:
-        description: Email address (unique constraint)
-        type: string
-      org_name:
-        type: string
-      org_phone:
+      orgName:
         type: string
       orgOpenJobs:
         items:
@@ -736,10 +703,12 @@ definitions:
         items:
           $ref: '#/definitions/models.OrganizationContact'
         type: array
-      pic_url:
+      phone:
+        type: string
+      picUrl:
         description: URL to organization's logo
         type: string
-      postal_code:
+      postalCode:
         description: Postal code, allowing for flexibility in format
         type: string
       province:
@@ -747,8 +716,6 @@ definitions:
         type: string
       subdistrict:
         description: Subdistrict name
-        type: string
-      updated_at:
         type: string
       updatedAt:
         type: string
@@ -765,7 +732,7 @@ definitions:
         $ref: '#/definitions/models.Media'
       mediaLink:
         type: string
-      organization_id:
+      organizationId:
         type: integer
       updatedAt:
         type: string
@@ -871,7 +838,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -902,7 +869,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -963,7 +930,7 @@ paths:
               type: string
             type: object
         "500":
-          description: error - Something went wrong
+          description: error - Internal Server Error
           schema:
             additionalProperties:
               type: string
@@ -1035,7 +1002,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Bad Request - something went wrong'
+          description: 'error: Bad Request - Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1071,7 +1038,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Internal Server Error - Something went wrong'
+          description: 'error: Internal Server Error - Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1107,7 +1074,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Internal Server Error - Something went wrong'
+          description: 'error: Internal Server Error - Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1151,7 +1118,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Internal Server Error - Something went wrong'
+          description: 'error: Internal Server Error - Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1186,7 +1153,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Internal Server Error - Something went wrong'
+          description: 'error: Internal Server Error - Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1230,7 +1197,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Internal Server Error - Something went wrong'
+          description: 'error: Internal Server Error - Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1265,12 +1232,60 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
             type: object
       summary: List all events for a specific organization
+      tags:
+      - Organization Events
+    post:
+      consumes:
+      - multipart/form-data
+      - application/json
+      description: Create a new event for a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: integer
+      - description: Example of Event JSON body (required in the formData `event`)
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/dto.NewEventRequest'
+      - description: Event JSON
+        in: formData
+        name: event
+        required: true
+        type: string
+      - description: Event image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.EventResponses'
+        "400":
+          description: 'error: Invalid input'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Internal Server Error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new event
       tags:
       - Organization Events
   /orgs/{orgID}/events/{id}:
@@ -1305,7 +1320,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1342,7 +1357,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1352,6 +1367,7 @@ paths:
       - Organization Events
     put:
       consumes:
+      - multipart/form-data
       - application/json
       description: Update an event with the given ID for the specified organization
       parameters:
@@ -1365,12 +1381,20 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Event data
+      - description: Example of Event JSON body (required in the formData `event`)
         in: body
         name: event
-        required: true
         schema:
           $ref: '#/definitions/dto.NewEventRequest'
+      - description: Event JSON
+        in: formData
+        name: event
+        required: true
+        type: string
+      - description: Event image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses:
@@ -1385,7 +1409,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1393,48 +1417,10 @@ paths:
       summary: Update an event
       tags:
       - Organization Events
-  /orgs/{orgID}/events/create:
-    post:
-      consumes:
-      - application/json
-      description: Create a new event for a specific organization
-      parameters:
-      - description: Organization ID
-        in: path
-        name: orgID
-        required: true
-        type: integer
-      - description: Event data
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NewEventRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.EventResponses'
-        "400":
-          description: 'error: Invalid json body parameters'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'error: Something went wrong'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create a new event
-      tags:
-      - Organization Events
   /orgs/{orgID}/jobs/create:
     post:
       consumes:
+      - multipart/form-data
       - application/json
       description: Create a new organization open job
       parameters:
@@ -1443,12 +1429,21 @@ paths:
         name: orgID
         required: true
         type: integer
-      - description: Organization Open Job
+      - description: Example body of Job JSON (required in the formData `job`)
         in: body
-        name: org
-        required: true
+        name: job
         schema:
           $ref: '#/definitions/dto.JobRequest'
+      - description: Job JSON
+        in: formData
+        name: job
+        required: true
+        type: string
+      - description: Organization Image
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -1466,7 +1461,7 @@ paths:
               type: string
             type: object
         "500":
-          description: Internal Server Error - Something went wrong
+          description: Internal Server Error - Internal Server Error
           schema:
             additionalProperties:
               type: string
@@ -1502,7 +1497,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1546,7 +1541,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1581,7 +1576,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1592,6 +1587,7 @@ paths:
   /orgs/{orgID}/jobs/update/{id}:
     put:
       consumes:
+      - multipart/form-data
       - application/json
       description: Update an organization open job by ID
       parameters:
@@ -1605,12 +1601,21 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Organization Open Job
+      - description: Example body of Job JSON (required in the formData `job`)
         in: body
-        name: org
+        name: job
         required: true
         schema:
           $ref: '#/definitions/dto.JobRequest'
+      - description: Job JSON
+        in: formData
+        name: job
+        required: true
+        type: string
+      - description: Job Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses:
@@ -1625,7 +1630,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1636,16 +1641,27 @@ paths:
   /orgs/create:
     post:
       consumes:
+      - multipart/form-data
       - application/json
       description: Create a new organization BUT still not create the Contact and
         OpenJob
       parameters:
-      - description: Organization
+      - description: Example body for Organization JSON (required in the formData
+          `org`)
         in: body
         name: org
-        required: true
         schema:
           $ref: '#/definitions/dto.OrganizationRequest'
+      - description: Organization JSON
+        in: formData
+        name: org
+        required: true
+        type: string
+      - description: Organization Image
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -1660,7 +1676,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1691,7 +1707,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1730,7 +1746,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1753,7 +1769,7 @@ paths:
               $ref: '#/definitions/dto.JobResponses'
             type: array
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1776,7 +1792,7 @@ paths:
               $ref: '#/definitions/dto.OrganizationResponse'
             type: array
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1810,7 +1826,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1821,6 +1837,7 @@ paths:
   /orgs/update/{id}:
     put:
       consumes:
+      - multipart/form-data
       - application/json
       description: Update an organization by ID
       parameters:
@@ -1829,12 +1846,22 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Organization
+      - description: Example body for Organization JSON (required in the formData
+          `org`)
         in: body
         name: org
-        required: true
         schema:
           $ref: '#/definitions/dto.OrganizationRequest'
+      - description: Organization JSON
+        in: formData
+        name: org
+        required: true
+        type: string
+      - description: Organization Image
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -1850,7 +1877,7 @@ paths:
               type: string
             type: object
         "500":
-          description: 'error: Something went wrong'
+          description: 'error: Internal Server Error'
           schema:
             additionalProperties:
               type: string
@@ -1882,7 +1909,7 @@ paths:
           schema:
             $ref: '#/definitions/fiber.Map'
         "500":
-          description: Internal Server Error - Something went wrong
+          description: Internal Server Error - Internal server error
           schema:
             $ref: '#/definitions/fiber.Map'
       summary: Sign up a new user
@@ -1903,7 +1930,7 @@ paths:
               $ref: '#/definitions/models.User'
             type: array
         "500":
-          description: Internal server error - Something went wrong
+          description: Internal server error - Internal Server Error
           schema:
             $ref: '#/definitions/fiber.Map'
       summary: List all users
