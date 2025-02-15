@@ -13,12 +13,12 @@ import (
 
 type OrganizationService interface {
 	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
-	ListAllOrganizations() ([]dto.OrganizationResponse, error)
-	GetOrganizationByID(id uint) (*dto.OrganizationResponse, error)
+	ListAllOrganizations(userID uuid.UUID) ([]dto.OrganizationResponse, error)
+	GetOrganizationByID(userID uuid.UUID, orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
 	UpdateOrganization(userID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
-	DeleteOrganization(id uint) error
+	DeleteOrganization(userID uuid.UUID, orgID uint) error
 }
 
 type OrganizationContactService interface {
@@ -63,6 +63,7 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 		Name:                org.Name,
 		PicUrl:              org.PicUrl,
 		Goal:                org.Goal,
+		HeadLine:            org.HeadLine,
 		Specialty:           org.Specialty,
 		Address:             org.Address,
 		Province:            org.Province,
@@ -81,6 +82,7 @@ func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts
 	return models.Organization{
 		Name:                 org.Name,
 		Goal:                 org.Goal,
+		HeadLine:             org.HeadLine,
 		Specialty:            org.Specialty,
 		Address:              org.Address,
 		Province:             org.Province,

@@ -129,8 +129,8 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 	return nil
 }
 
-func (s organizationService) GetOrganizationByID(id uint) (*dto.OrganizationResponse, error) {
-	org, err := s.repo.GetByOrgID(id)
+func (s organizationService) GetOrganizationByID(userID uuid.UUID, id uint) (*dto.OrganizationResponse, error) {
+	org, err := s.repo.GetByOrgID(userID, id)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -166,8 +166,8 @@ func (s organizationService) GetPaginateOrganization(page uint) ([]dto.Organizat
 	return orgsResponses, nil
 }
 
-func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse, error) {
-	orgs, err := s.repo.GetAllOrganizations()
+func (s organizationService) ListAllOrganizations(userID uuid.UUID) ([]dto.OrganizationResponse, error) {
+	orgs, err := s.repo.GetOrganizations(userID)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -187,7 +187,7 @@ func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse,
 }
 
 func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
-	existingOrg, err := s.repo.GetByOrgID(orgID)
+	existingOrg, err := s.repo.GetByOrgID(ownerID, orgID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("organization not found")
@@ -269,8 +269,8 @@ func (s organizationService) UpdateOrganizationPicture(id uint, picURL string) e
 }
 
 // Deletes an organization by its ID
-func (s organizationService) DeleteOrganization(id uint) error {
-	err := s.repo.DeleteOrganization(id)
+func (s organizationService) DeleteOrganization(userID uuid.UUID, id uint) error {
+	err := s.repo.DeleteOrganization(userID, id)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

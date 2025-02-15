@@ -30,12 +30,13 @@ func (r organizationRepository) FindIndustryByIds(industryIDs []uint) ([]models.
 	return industries, nil
 }
 
-func (r organizationRepository) GetByOrgID(id uint) (*models.Organization, error) {
+func (r organizationRepository) GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error) {
 	org := &models.Organization{}
 	if err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		First(org, id).Error; err != nil {
+		Where("id = ? AND owner_id = ?", id, userID).
+		First(org).Error; err != nil {
 		return nil, err
 	}
 	return org, nil
@@ -59,11 +60,12 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 	return orgs, nil
 }
 
-func (r organizationRepository) GetAllOrganizations() ([]models.Organization, error) {
+func (r organizationRepository) GetOrganizations(userID uuid.UUID) ([]models.Organization, error) {
 	var orgs []models.Organization
 	err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
+		Where("owner_id = ?", userID).
 		Find(&orgs).Error
 	if err != nil {
 		return nil, err
@@ -119,9 +121,9 @@ func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string
 	return nil
 }
 
-func (r organizationRepository) DeleteOrganization(id uint) error {
+func (r organizationRepository) DeleteOrganization(userID uuid.UUID, id uint) error {
 	var org models.Organization
-	err := r.db.Model(&org).Where("id = ?", id).Delete(&org).Error
+	err := r.db.Model(&org).Where("id = ? AND owner_id = ?", id, userID).Delete(&org).Error
 	if err != nil {
 		return err
 	}

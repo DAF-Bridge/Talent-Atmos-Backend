@@ -78,7 +78,17 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/list [get]
 func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
-	orgs, err := h.service.ListAllOrganizations()
+	claims, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
+	orgs, err := h.service.ListAllOrganizations(userID)
 	if err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
@@ -102,6 +112,16 @@ func (h *OrganizationHandler) ListOrganizations(c *fiber.Ctx) error {
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/get/{id} [get]
 func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
+	claims, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
 	orgID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
@@ -110,7 +130,7 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	org, err := h.service.GetOrganizationByID(uint(orgID))
+	org, err := h.service.GetOrganizationByID(userID, uint(orgID))
 	if err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
@@ -219,6 +239,16 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/delete/{id} [delete]
 func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
+	claims, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
 	orgID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
@@ -228,7 +258,7 @@ func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	if err := h.service.DeleteOrganization(uint(orgID)); err != nil {
+	if err := h.service.DeleteOrganization(userID, uint(orgID)); err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}

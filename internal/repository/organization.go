@@ -8,12 +8,12 @@ import (
 type OrganizationRepository interface {
 	CreateOrganization(org *models.Organization) error
 	FindIndustryByIds(industryIDs []uint) ([]models.Industry, error)
-	GetByOrgID(id uint) (*models.Organization, error)
-	GetAllOrganizations() ([]models.Organization, error)
+	GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error)
+	GetOrganizations(userID uuid.UUID) ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
 	UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
-	DeleteOrganization(id uint) error
+	DeleteOrganization(userID uuid.UUID, org uint) error
 }
 
 type OrganizationContactRepository interface {
