@@ -11,6 +11,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/search"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/sync"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/opensearch-project/opensearch-go"
 
@@ -23,19 +24,21 @@ import (
 const numberOfOrganization = 10
 
 type organizationService struct {
-	repo repository.OrganizationRepository
-	S3   *infrastructure.S3Uploader
+	repo      repository.OrganizationRepository
+	S3        *infrastructure.S3Uploader
+	jwtSecret string
 }
 
-func NewOrganizationService(repo repository.OrganizationRepository, S3 *infrastructure.S3Uploader) OrganizationService {
+func NewOrganizationService(repo repository.OrganizationRepository, S3 *infrastructure.S3Uploader, jwtSecret string) OrganizationService {
 	return organizationService{
-		repo: repo,
-		S3:   S3,
+		repo:      repo,
+		S3:        S3,
+		jwtSecret: jwtSecret,
 	}
 }
 
 // Creates a new organization
-func (s organizationService) CreateOrganization(org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
 	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -67,31 +70,38 @@ func (s organizationService) CreateOrganization(org dto.OrganizationRequest, ctx
 		}
 
 		contacts[i] = models.OrganizationContact{
-			// map fields from dto.OrganizationContactRequest to models.OrganizationContact
 			Media:     models.Media(lowerMedia),
 			MediaLink: contact.MediaLink,
 		}
 	}
-	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
 
+	newOrg := ConvertToOrgRequest(userID, org, contacts, industryPointers)
 	err = s.repo.CreateOrganization(&newOrg)
 	if err != nil {
 		if pqErr, ok := err.(*pgconn.PgError); ok {
-			if pqErr.Code == "23505" { // Unique constraint violation code for PostgreSQL
-				return errs.NewConflictError("email already exists for another organization")
+			switch pqErr.Code {
+			case "23505": // Unique constraint violation code for PostgreSQL
+				return errs.NewConflictError("Email already exists for another organization")
+			case "42703": // Undefined column error code
+				return errs.NewBadRequestError("Invalid database schema: organization_id column is missing in the users table")
+			default:
+				return errs.NewInternalError("Database error: " + pqErr.Message)
 			}
 		}
 
 		if errors.Is(err, gorm.ErrPrimaryKeyRequired) {
+			logs.Error(err)
 			return errs.NewConflictError("organization already exists")
 		}
 
-		if strings.Contains(err.Error(), "invalid input value for enum") {
-			return errs.NewBadRequestError("invalid media type provided. Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+		if errors.Is(err, gorm.ErrCheckConstraintViolated) {
+			logs.Error(err)
+			return errs.NewCannotBeProcessedError("Foreign key constraint violation, business logic validation failure")
 		}
 
-		if errors.Is(err, gorm.ErrCheckConstraintViolated) {
-			return errs.NewCannotBeProcessedError("Foreign key constraint violation, business logic validation failure")
+		if strings.Contains(err.Error(), "invalid input value for enum") {
+			logs.Error(err)
+			return errs.NewBadRequestError(err.Error())
 		}
 
 		logs.Error(err)
@@ -176,7 +186,7 @@ func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse,
 	return orgsResponses, nil
 }
 
-func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
+func (s organizationService) UpdateOrganization(userID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
 	existingOrg, err := s.repo.GetByOrgID(orgID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -202,13 +212,12 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
 	for i, contact := range org.OrganizationContacts {
 		contacts[i] = models.OrganizationContact{
-			// map fields from dto.OrganizationContactRequest to models.OrganizationContact
 			Media:     models.Media(contact.Media),
 			MediaLink: contact.MediaLink,
 		}
 	}
 
-	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
+	newOrg := ConvertToOrgRequest(userID, org, contacts, industryPointers)
 	newOrg.ID = orgID
 	// Upload image to S3
 	if file != nil {

@@ -5,24 +5,25 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/opensearch-project/opensearch-go"
 	"gorm.io/gorm"
 )
 
-func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
+func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
-	organizationService := service.NewOrganizationService(organizationRepo, s3)
+	organizationService := service.NewOrganizationService(organizationRepo, s3, jwtSecret)
 	organizationHandler := handler.NewOrganizationHandler(organizationService)
 
 	org := app.Group("/orgs")
 
 	app.Get("/orgs-paginate", organizationHandler.GetOrganizationPaginate)
 	org.Get("/list", organizationHandler.ListOrganizations)
-	org.Post("/create", organizationHandler.CreateOrganization)
+	org.Post("/create", middleware.AuthMiddleware(jwtSecret), organizationHandler.CreateOrganization)
 	org.Get("/get/:id", organizationHandler.GetOrganizationByID)
-	org.Put("/update/:id", organizationHandler.UpdateOrganization)
+	org.Put("/update/:id", middleware.AuthMiddleware(jwtSecret), organizationHandler.UpdateOrganization)
 	org.Delete("/delete/:id", organizationHandler.DeleteOrganization)
 
 	// Dependencies Injections for Organization Contact

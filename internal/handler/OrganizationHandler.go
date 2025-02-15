@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	_ "fmt"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -11,6 +10,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type OrganizationHandler struct {
@@ -36,32 +36,29 @@ func NewOrganizationHandler(service service.OrganizationService) *OrganizationHa
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/create [post]
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
-	var org dto.OrganizationRequest
+	claims, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
-	if err := json.Unmarshal([]byte(orgData), &org); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	var org dto.OrganizationRequest
+	if err := utils.UnmarshalAndValidateJSON(c, orgData, &org); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if err := utils.ParseJSONAndValidate(c, &orgData); err != nil {
-		return err
-	}
-
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-	fileHeader, err := c.FormFile("image")
+	file, fileHeader, err := utils.UploadImage(c)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	file, err = fileHeader.Open()
+	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
 	}
-	defer file.Close()
 
-	if err := h.service.CreateOrganization(org, c.Context(), file, fileHeader); err != nil {
+	if err := h.service.CreateOrganization(userID, org, c.Context(), file, fileHeader); err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
 		}
@@ -169,16 +166,18 @@ func (h *OrganizationHandler) GetOrganizationPaginate(c *fiber.Ctx) error {
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/update/{id} [put]
 func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
-	var org dto.OrganizationRequest
-	// Parse JSON from the "org" form field
-	orgData := c.FormValue("org")
-	if err := json.Unmarshal([]byte(orgData), &org); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
-
-	if err := utils.ParseJSONAndValidate(c, &org); err != nil {
+	claims, err := utils.ExtractJWTClaims(c)
+	if err != nil {
 		return err
 	}
+
+	// Parse JSON from the "org" form field
+	orgData := c.FormValue("org")
+	var org dto.OrganizationRequest
+	if err := utils.UnmarshalAndValidateJSON(c, orgData, &org); err != nil {
+		return err
+	}
+
 	orgID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
@@ -187,24 +186,17 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-
-	fileHeader, err = c.FormFile("image")
-	// Check if file is not empty
-	if err == nil {
-		file, err = fileHeader.Open()
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
-		}
-		defer file.Close()
-	} else {
-		// If file is empty, set file and fileHeader to nil
-		file = nil
-		fileHeader = nil
+	file, fileHeader, err := utils.UploadImage(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), file, fileHeader)
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
+	updatedOrg, err := h.service.UpdateOrganization(userID, uint(orgID), org, c.Context(), file, fileHeader)
 	if err != nil {
 		if appErr, ok := err.(errs.AppError); ok {
 			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})

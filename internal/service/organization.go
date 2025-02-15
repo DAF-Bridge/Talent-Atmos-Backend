@@ -7,15 +7,16 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type OrganizationService interface {
-	CreateOrganization(org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
+	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
 	ListAllOrganizations() ([]dto.OrganizationResponse, error)
 	GetOrganizationByID(id uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
-	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganization(userID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(id uint) error
 }
@@ -76,7 +77,7 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	}
 }
 
-func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
+func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
 	return models.Organization{
 		Name:                 org.Name,
 		Goal:                 org.Goal,
@@ -90,6 +91,7 @@ func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.Organiza
 		Phone:                org.Phone,
 		OrganizationContacts: contacts,
 		Industries:           industries,
+		OwnerID:              userID,
 		Model:                gorm.Model{UpdatedAt: time.Now()},
 	}
 }
