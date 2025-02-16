@@ -12,18 +12,35 @@ type dbRoleRepository struct {
 }
 
 func (d dbRoleRepository) Create(role *models.RoleInOrganization) (*models.RoleInOrganization, error) {
-	var createRole models.RoleInOrganization
-	err := d.db.Create(role).Scan(&createRole).Error
-	if err != nil {
+	tx := d.db.Begin()
+
+	if err := tx.Create(role).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-	return &createRole, nil
 
+	var createdRole = &models.RoleInOrganization{}
+
+	if err := tx.
+		Model(&models.RoleInOrganization{}).
+		Preload("User").
+		Preload("Organization").
+		Where("user_id = ? AND organization_id = ?", role.UserID, role.OrganizationID).
+		First(&createdRole).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return createdRole, nil
 }
 
 func (d dbRoleRepository) GetAll() ([]models.RoleInOrganization, error) {
 	var roles []models.RoleInOrganization
-	err := d.db.
+	err := d.db.Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
 		Find(&roles).Error
@@ -33,6 +50,7 @@ func (d dbRoleRepository) GetAll() ([]models.RoleInOrganization, error) {
 func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganization, error) {
 	var role []models.RoleInOrganization
 	err := d.db.
+		Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
 		Where("user_id = ?", userID).
@@ -46,6 +64,7 @@ func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganiz
 func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.RoleInOrganization, error) {
 	var roles []models.RoleInOrganization
 	err := d.db.
+		Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
 		Where("organization_id = ?", orgID).

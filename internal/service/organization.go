@@ -13,13 +13,13 @@ import (
 
 type OrganizationService interface {
 	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
-	ListAllOrganizations(userID uuid.UUID) ([]dto.OrganizationResponse, error)
+	ListAllOrganizations() ([]dto.OrganizationResponse, error)
 	ListAllIndustries() (dto.IndustryListResponse, error)
-	GetOrganizationByID(userID uuid.UUID, orgID uint) (*dto.OrganizationResponse, error)
+	GetOrganizationByID(orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
-	UpdateOrganization(userID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
-	DeleteOrganization(userID uuid.UUID, orgID uint) error
+	DeleteOrganization(orgID uint) error
 }
 
 type OrganizationContactService interface {
@@ -78,7 +78,7 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	}
 }
 
-func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
+func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
 	return models.Organization{
 		Name:                 org.Name,
 		HeadLine:             org.HeadLine,
@@ -92,7 +92,6 @@ func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts
 		Phone:                org.Phone,
 		OrganizationContacts: contacts,
 		Industries:           industries,
-		OwnerID:              userID,
 		Model:                gorm.Model{UpdatedAt: time.Now()},
 	}
 }

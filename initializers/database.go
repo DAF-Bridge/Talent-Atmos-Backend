@@ -29,7 +29,7 @@ var S3 *infrastructure.S3Uploader
 
 var ctx = context.Background()
 
-var Enforcer casbin.IEnforcer
+var Enforcer *casbin.Enforcer
 
 func ConnectToDB() {
 	// Define the PostgreSQL connection details
@@ -143,24 +143,25 @@ func ConnectToCasbin() {
 	// Initialize  authorization adapter
 	adapter, err := gormadapter.NewAdapterByDB(DB)
 	if err != nil {
-		panic(fmt.Sprintf("failed to initialize authorization adapter: %v", err))
+		log.Fatal(fmt.Sprintf("failed to initialize authorization adapter: %v", err))
 	}
 
 	// Load model configuration file and policy store adapter
-	enforcer, err := casbin.NewEnforcer("pkg/authorization/rbac_model.conf", adapter)
+	Enforcer, err = casbin.NewEnforcer("pkg/authorization/rbac_model.conf", adapter)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create authorization enforcer: %v", err))
+		log.Fatal(fmt.Sprintf("failed to create authorization enforcer: %v", err))
 	}
-	enforcer.EnableAutoSave(true)
-	if err := enforcer.LoadPolicy(); err != nil {
+	Enforcer.EnableAutoSave(true)
+	if err := Enforcer.LoadPolicy(); err != nil {
 		panic(fmt.Sprintf("failed to load policy: %v", err))
 	}
-	ok, err := enforcer.AddPoliciesEx(authorization.GetPermissionsList())
+	ok, err := Enforcer.AddPoliciesEx(authorization.GetPermissionsList())
 	if err != nil {
 		logs.Info(fmt.Sprintf("Failed to add policies: %v", err))
 	}
 	if !ok {
 		logs.Info(fmt.Sprintf("Failed to add policies"))
 	}
+	logs.Info("Successfully connected to Casbin!")
 
 }

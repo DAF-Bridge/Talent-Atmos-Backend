@@ -32,19 +32,15 @@ const (
 //---------------------------------------------------------------------------
 
 type User struct {
-	ID                  uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" db:"id"`
-	Name                string         `gorm:"type:varchar(255);not null" db:"name"`
-	PicUrl              string         `gorm:"type:text;" db:"pic_url"`
-	Email               string         `gorm:"type:varchar(255);not null" db:"email"`
-	Password            *string        `gorm:"type:varchar(255)" db:"-"` // Hashed password for traditional login
-	Role                Role           `gorm:"type:Role;default:'User'" db:"role"`
-	Provider            Provider       `gorm:"type:Provider;not null" db:"provider"` // e.g., "google"
-	ProviderID          string         `gorm:"type:varchar(255);not null" db:"provider_id"`
-	OrganizationID      *uint          `gorm:"index" db:"organization_id"`
-	Organization        *Organization  `gorm:"foreignKey:OrganizationID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` // Member of an organization
-	OwnedOrganizationID *uint          `gorm:"uniqueIndex" db:"owned_org_id"`
-	OwnedOrganization   *Organization  `gorm:"foreignKey:OwnedOrganizationID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` // Owner of an organization
-	CreatedAt           time.Time      `gorm:"autoCreateTime" db:"created_at"`
-	UpdatedAt           time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
-	DeletedAt           gorm.DeletedAt `gorm:"index" db:"deleted_at"`
+	ID         uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" db:"id"`
+	Name       string         `gorm:"type:varchar(255);not null" db:"name"`
+	PicUrl     string         `gorm:"type:text;" db:"pic_url"`
+	Email      string         `gorm:"type:varchar(255);not null" db:"email"`
+	Password   *string        `gorm:"type:varchar(255)" db:"-"` // Hashed password for traditional login
+	Role       Role           `gorm:"type:Role;default:'User'" db:"role"`
+	Provider   Provider       `gorm:"type:Provider;not null" db:"provider"` // e.g., "google"
+	ProviderID string         `gorm:"type:varchar(255);not null" db:"provider_id"`
+	CreatedAt  time.Time      `gorm:"autoCreateTime" db:"created_at"`
+	UpdatedAt  time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
+	DeletedAt  gorm.DeletedAt `gorm:"index" db:"deleted_at"`
 }

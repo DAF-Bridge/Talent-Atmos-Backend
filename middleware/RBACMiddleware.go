@@ -32,7 +32,7 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 		}
 
 		// Access the organization
-		orgID, err := c.ParamsInt("id")
+		orgID, err := c.ParamsInt("orgID")
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 		}

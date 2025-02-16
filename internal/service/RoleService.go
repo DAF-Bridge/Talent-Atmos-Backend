@@ -31,6 +31,10 @@ func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
 	organizationRepository repository.OrganizationRepository,
 	inviteTokenRepository models.InviteTokenRepository,
 	inviteMailRepository repository.MailRepository) RoleService {
+	if dbRoleRepository == nil || enforcerRoleRepository == nil || userRepository == nil ||
+		organizationRepository == nil || inviteTokenRepository == nil || inviteMailRepository == nil {
+		log.Fatal("One or more dependencies are nil")
+	}
 	roleService := RoleWithDomainService{
 		dbRoleRepository:       dbRoleRepository,
 		enforcerRoleRepository: enforcerRoleRepository,
@@ -75,8 +79,12 @@ func (r RoleWithDomainService) DeleteDomains(orgID uint) (bool, error) {
 		return false, errs.NewUnexpectedError()
 	}
 	ok, err := r.enforcerRoleRepository.DeleteDomains(strconv.Itoa(int(orgID)))
-	if err != nil || !ok {
+	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to delete organization in enforcer: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		logs.Error("Failed to delete organization in enforcer")
 		return false, errs.NewUnexpectedError()
 	}
 	return true, nil
@@ -338,19 +346,33 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 func (r RoleWithDomainService) initRoleToEnforcer() (bool, error) {
 	roles, err := r.dbRoleRepository.GetAll()
 	if err != nil {
-		return false, errs.NewUnexpectedError()
+		return false, err
 	}
 	ok, err := r.enforcerRoleRepository.ClearAllGrouping()
-	if err != nil || !ok {
+	if err != nil {
+		log.Fatal(err.Error())
+		return false, err
+	}
+	if !ok {
+		log.Fatal("Failed to clear all grouping")
 		return false, errs.NewUnexpectedError()
 	}
 	groupingPolicies := make([][]string, 0)
 	for _, role := range roles {
 		groupingPolicies = append(groupingPolicies, []string{role.UserID.String(), role.Role, strconv.Itoa(int(role.OrganizationID))})
 	}
+	if len(groupingPolicies) == 0 {
+		return true, nil
+	}
 	ok, err = r.enforcerRoleRepository.AddGroupingPolicies(groupingPolicies)
-	if err != nil || !ok {
+	if err != nil {
+		log.Fatal(err.Error())
 		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		log.Fatal("Failed to add grouping policies")
+		return false, errs.NewUnexpectedError()
+
 	}
 	return true, nil
 }

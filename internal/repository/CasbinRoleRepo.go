@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/casbin/casbin/v2"
+import (
+	"github.com/casbin/casbin/v2"
+)
 
 type CasbinRoleRepository struct {
 	enforcer casbin.IEnforcer
@@ -148,10 +150,15 @@ func (c CasbinRoleRepository) ClearAllGrouping() (bool, error) {
 	if err := c.enforcer.LoadPolicy(); err != nil {
 		return false, err
 	}
-	ok, err := c.enforcer.RemoveFilteredGroupingPolicy(0)
+	groupingPolicy, err := c.enforcer.GetGroupingPolicy()
 	if err != nil {
 		return false, err
 	}
+	if len(groupingPolicy) == 0 {
+		return true, nil
+	}
+	// Remove all grouping policies by passing an empty slice
+	ok, err := c.enforcer.RemoveGroupingPolicies(groupingPolicy)
 	if err := c.enforcer.SavePolicy(); err != nil {
 		return false, err
 	}
@@ -159,10 +166,16 @@ func (c CasbinRoleRepository) ClearAllGrouping() (bool, error) {
 }
 
 func (c CasbinRoleRepository) AddGroupingPolicies(groupingPolicies [][]string) (bool, error) {
+	//check grouping policies
+	if len(groupingPolicies) == 0 || groupingPolicies == nil {
+		return true, nil
+	}
+
 	if err := c.enforcer.LoadPolicy(); err != nil {
 		return false, err
 	}
-	ok, err := c.enforcer.AddGroupingPolicy(groupingPolicies)
+
+	ok, err := c.enforcer.AddGroupingPolicies(groupingPolicies)
 	if err != nil {
 		return false, err
 	}

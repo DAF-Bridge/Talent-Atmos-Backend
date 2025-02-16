@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -17,9 +18,9 @@ var validate = validator.New()
 func ValidateStruct(data interface{}) []types.ValidationError {
 	var validationErrors []types.ValidationError
 
-	errs := validate.Struct(data)
-	if errs != nil {
-		for _, err := range errs.(validator.ValidationErrors) {
+	err := validate.Struct(data)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, types.ValidationError{
 				Field: err.Field(),
 				Tag:   err.Tag(),
@@ -68,8 +69,10 @@ func UnmarshalAndValidateJSON(c *fiber.Ctx, jsonStr string, dest interface{}) er
 		var typeErr *json.UnmarshalTypeError
 
 		if errors.As(err, &syntaxErr) {
+			logs.Error(fmt.Sprintf("Syntax error at offset %d", syntaxErr.Offset))
 			return errs.NewBadRequestError(fmt.Sprintf("Syntax error at offset %d", syntaxErr.Offset))
 		} else if errors.As(err, &typeErr) {
+			logs.Error(fmt.Sprintf("Type error: expected %s but got %v (field: %s)", typeErr.Type, typeErr.Value, typeErr.Field))
 			return errs.NewBadRequestError(fmt.Sprintf("Type error: expected %s but got %v (field: %s)", typeErr.Type, typeErr.Value, typeErr.Field))
 		}
 
