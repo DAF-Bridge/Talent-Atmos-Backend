@@ -4,6 +4,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -71,7 +72,8 @@ func (r *RoleHandler) InvitationForMember(c *fiber.Ctx) error {
 }
 
 func (r *RoleHandler) CallBackInvitationForMember(c *fiber.Ctx) error {
-	token := c.Params("token")
+	token := c.Query("token")
+	logs.Error(token)
 	tokenUUID, err := uuid.Parse(token)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -86,18 +88,17 @@ func (r *RoleHandler) CallBackInvitationForMember(c *fiber.Ctx) error {
 
 func (r *RoleHandler) DeleteMember(c *fiber.Ctx) error {
 
-	// Access the user_id
-	userID, err := utils.GetUserIDFormFiberCtx(c)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
 	// Access the organization
 	orgID, err := utils.GetOrgIDFormFiberCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ok, err := r.roleWithDomainService.DeleteMember(userID, orgID)
+	var removeMemberRequest dto.RemoveMemberRequest
+	if err := utils.UnmarshalAndValidateJSON(c, string(c.Body()), &removeMemberRequest); err != nil {
+		return err
+	}
+	ok, err := r.roleWithDomainService.DeleteMember(removeMemberRequest.UserID, orgID)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
@@ -135,26 +136,18 @@ func (r *RoleHandler) DeleteDomain(c *fiber.Ctx) error {
 
 func (r *RoleHandler) UpdateRolesForUserInDomain(c *fiber.Ctx) error {
 
-	// Access the user_id
-	userID, err := utils.GetUserIDFormFiberCtx(c)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
 	// Access the organization
 	orgID, err := utils.GetOrgIDFormFiberCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 	//role form Json body
-	type RoleJsonBody struct {
-		Roles string `json:"roles"`
-	}
-	roleJsonBody := new(RoleJsonBody)
-	if err := c.BodyParser(roleJsonBody); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
+	var editRoleRequest dto.EditRoleRequest
 
-	ok, err := r.roleWithDomainService.EditRole(userID, orgID, roleJsonBody.Roles)
+	if err := utils.UnmarshalAndValidateJSON(c, string(c.Body()), &editRoleRequest); err != nil {
+		return err
+	}
+	ok, err := r.roleWithDomainService.EditRole(editRoleRequest.UserID, orgID, editRoleRequest.Role)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}

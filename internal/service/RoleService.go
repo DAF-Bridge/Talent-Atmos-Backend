@@ -31,6 +31,10 @@ func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
 	organizationRepository repository.OrganizationRepository,
 	inviteTokenRepository models.InviteTokenRepository,
 	inviteMailRepository repository.MailRepository) RoleService {
+	if dbRoleRepository == nil || enforcerRoleRepository == nil || userRepository == nil ||
+		organizationRepository == nil || inviteTokenRepository == nil || inviteMailRepository == nil {
+		log.Fatal("One or more dependencies are nil")
+	}
 	roleService := RoleWithDomainService{
 		dbRoleRepository:       dbRoleRepository,
 		enforcerRoleRepository: enforcerRoleRepository,
@@ -75,8 +79,12 @@ func (r RoleWithDomainService) DeleteDomains(orgID uint) (bool, error) {
 		return false, errs.NewUnexpectedError()
 	}
 	ok, err := r.enforcerRoleRepository.DeleteDomains(strconv.Itoa(int(orgID)))
-	if err != nil || !ok {
+	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to delete organization in enforcer: %v", err))
+		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		logs.Error("Failed to delete organization in enforcer")
 		return false, errs.NewUnexpectedError()
 	}
 	return true, nil
@@ -145,9 +153,10 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 			logs.Error("organization not found")
 			return false, errs.NewNotFoundError("organization not found")
 		}
+		logs.Error(fmt.Sprintf("Failed to get organization: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-
+	logs.Error(org)
 	//check user is already in organization
 	isExit, err := r.dbRoleRepository.IsExitRole(invitedUser.ID, orgID)
 	if err != nil {
@@ -160,10 +169,10 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 	}
 
 	var createInviteToken = models.InviteToken{
-		InvitedUserID:  invitedUser.ID,
-		InvitedUser:    *invitedUser,
+		InvitedUserID: invitedUser.ID,
+		//InvitedUser:    *invitedUser,
 		OrganizationID: orgID,
-		Organization:   *org,
+		//Organization:   *org,
 	}
 
 	inviteToken, err := r.inviteTokenRepository.Upsert(&createInviteToken)
@@ -229,7 +238,7 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	}
 
 	// update RoleName
-	ok, err := r.enforcerRoleRepository.AddRoleForUserInDomain(inviteToken.InvitedUserID.String(), strconv.Itoa(int(inviteToken.OrganizationID)), defaultRole)
+	ok, err := r.enforcerRoleRepository.AddRoleForUserInDomain(inviteToken.InvitedUserID.String(), defaultRole, strconv.Itoa(int(inviteToken.OrganizationID)))
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to add role in enforcer: %v", err))
 		return false, errs.NewUnexpectedError()
@@ -255,7 +264,10 @@ func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganization, userId uu
 	if len(owners) > 1 {
 		return true
 	}
-	return len(owners) == 1 && owners[0].UserID != userId
+	if len(owners) == 0 {
+		return false
+	}
+	return owners[0].UserID != userId
 }
 
 func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role string) (bool, error) {
@@ -274,7 +286,7 @@ func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role strin
 		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	if validateOwnerIsAtLeastOneLeft(owners, userID) {
+	if !validateOwnerIsAtLeastOneLeft(owners, userID) {
 		logs.Error("owner is at least one left")
 		return false, errs.NewBadRequestError("owner is at least one left")
 	}
@@ -311,7 +323,7 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	if validateOwnerIsAtLeastOneLeft(owners, userID) {
+	if !validateOwnerIsAtLeastOneLeft(owners, userID) {
 		logs.Error("owner is at least one left")
 		return false, errs.NewBadRequestError("owner is at least one left")
 	}
@@ -338,19 +350,33 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 func (r RoleWithDomainService) initRoleToEnforcer() (bool, error) {
 	roles, err := r.dbRoleRepository.GetAll()
 	if err != nil {
-		return false, errs.NewUnexpectedError()
+		return false, err
 	}
 	ok, err := r.enforcerRoleRepository.ClearAllGrouping()
-	if err != nil || !ok {
+	if err != nil {
+		log.Fatal(err.Error())
+		return false, err
+	}
+	if !ok {
+		log.Fatal("Failed to clear all grouping")
 		return false, errs.NewUnexpectedError()
 	}
 	groupingPolicies := make([][]string, 0)
 	for _, role := range roles {
 		groupingPolicies = append(groupingPolicies, []string{role.UserID.String(), role.Role, strconv.Itoa(int(role.OrganizationID))})
 	}
+	if len(groupingPolicies) == 0 {
+		return true, nil
+	}
 	ok, err = r.enforcerRoleRepository.AddGroupingPolicies(groupingPolicies)
-	if err != nil || !ok {
+	if err != nil {
+		log.Fatal(err.Error())
 		return false, errs.NewUnexpectedError()
+	}
+	if !ok {
+		log.Fatal("Failed to add grouping policies")
+		return false, errs.NewUnexpectedError()
+
 	}
 	return true, nil
 }

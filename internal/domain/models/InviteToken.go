@@ -2,17 +2,16 @@ package models
 
 import (
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"time"
 )
 
 type InviteToken struct {
-	gorm.Model
-	Token          uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();unique;not null"` // UUID v4
-	InvitedUserID  uuid.UUID    `gorm:"type:uuid;not null,index:idx_invited_token,unique" `
-	InvitedUser    User         `gorm:"foreignKey:InvitedUserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-One relationship (has one, use InvitedUserID as foreign key)
-	OrganizationID uint         `gorm:"type:uint;not null,index:idx_invited_token,unique" `
-	Organization   Organization `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	//gorm.Model
+	Token          uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();unique;"` // UUID v4
+	InvitedUserID  uuid.UUID    `gorm:"type:uuid;primaryKey" `
+	InvitedUser    User         `gorm:"foreignKey:InvitedUserID;references:ID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-One relationship (has one, use InvitedUserID as foreign key)
+	OrganizationID uint         `gorm:"type:uint;primaryKey" `
+	Organization   Organization `gorm:"foreignKey:OrganizationID;references:ID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	InviteAt       time.Time    `gorm:"not null" `
 }
 

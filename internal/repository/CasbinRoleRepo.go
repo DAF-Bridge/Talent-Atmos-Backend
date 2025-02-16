@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/casbin/casbin/v2"
+import (
+	"github.com/casbin/casbin/v2"
+)
 
 type CasbinRoleRepository struct {
 	enforcer casbin.IEnforcer
@@ -11,9 +13,9 @@ func NewCasbinRoleRepository(enforcer casbin.IEnforcer) EnforcerRoleRepository {
 }
 
 func (c CasbinRoleRepository) GetRolesForUserInDomain(user string, domain string) ([]string, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return nil, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return nil, err
+	//}
 	policies, err := c.enforcer.GetFilteredGroupingPolicy(2, domain)
 	if err != nil {
 		return nil, err
@@ -29,23 +31,23 @@ func (c CasbinRoleRepository) GetRolesForUserInDomain(user string, domain string
 }
 
 func (c CasbinRoleRepository) AddRoleForUserInDomain(user string, role string, domain string) (bool, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return false, err
+	//}
 	ok, err := c.enforcer.AddGroupingPolicy(user, role, domain)
 	if err != nil {
 		return false, err
 	}
-	if err := c.enforcer.SavePolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.SavePolicy(); err != nil {
+	//	return false, err
+	//}
 	return ok, nil
 }
 
 func (c CasbinRoleRepository) UpdateRoleForUserInDomain(user string, role string, domain string) (bool, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return false, err
+	//}
 	oldRoles := c.enforcer.GetRolesForUserInDomain(user, domain)
 	oldGrouping := make([][]string, 0)
 	for _, oldRole := range oldRoles {
@@ -56,39 +58,39 @@ func (c CasbinRoleRepository) UpdateRoleForUserInDomain(user string, role string
 		return false, err
 	}
 
-	if err := c.enforcer.SavePolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.SavePolicy(); err != nil {
+	//	return false, err
+	//}
 	return ok, nil
 }
 
 func (c CasbinRoleRepository) DeleteRoleForUserInDomain(user string, role string, domain string) (bool, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return false, err
+	//}
 	ok, err := c.enforcer.RemoveGroupingPolicy(user, role, domain)
 	if err != nil {
 		return false, err
 	}
-	if err := c.enforcer.SavePolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.SavePolicy(); err != nil {
+	//	return false, err
+	//}
 	return ok, nil
 }
 
 func (c CasbinRoleRepository) GetUsersByRoleInDomain(role string, domain string) ([]string, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return nil, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return nil, err
+	//}
 	roles := c.enforcer.GetUsersForRoleInDomain(role, domain)
 	return roles, nil
 
 }
 
 func (c CasbinRoleRepository) GetAllUsersWithRoleByDomain(domain string) (map[string]string, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return nil, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return nil, err
+	//}
 	groupingPolicies, err := c.enforcer.GetFilteredGroupingPolicy(2, domain)
 	if err != nil {
 		return nil, err
@@ -101,23 +103,23 @@ func (c CasbinRoleRepository) GetAllUsersWithRoleByDomain(domain string) (map[st
 }
 
 func (c CasbinRoleRepository) DeleteDomains(domains ...string) (bool, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return false, err
+	//}
 	ok, err := c.enforcer.RemoveFilteredGroupingPolicy(2, domains...)
 	if err != nil {
 		return false, err
 	}
-	if err := c.enforcer.SavePolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.SavePolicy(); err != nil {
+	//	return false, err
+	//}
 	return ok, nil
 }
 
 func (c CasbinRoleRepository) GetAllDomains() ([]string, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return nil, err
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return nil, err
+	//}
 	groupingPolicies, err := c.enforcer.GetFilteredGroupingPolicy(2)
 	if err != nil {
 		return nil, err
@@ -130,9 +132,9 @@ func (c CasbinRoleRepository) GetAllDomains() ([]string, error) {
 }
 
 func (c CasbinRoleRepository) GetDomainsByUser(user string) []string {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return nil
-	}
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return nil
+	//}
 	groupingPolicies, err := c.enforcer.GetFilteredGroupingPolicy(0, user)
 	if err != nil {
 		return nil
@@ -145,29 +147,40 @@ func (c CasbinRoleRepository) GetDomainsByUser(user string) []string {
 }
 
 func (c CasbinRoleRepository) ClearAllGrouping() (bool, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return false, err
-	}
-	ok, err := c.enforcer.RemoveFilteredGroupingPolicy(0)
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return false, err
+	//}
+	groupingPolicy, err := c.enforcer.GetGroupingPolicy()
 	if err != nil {
 		return false, err
 	}
-	if err := c.enforcer.SavePolicy(); err != nil {
-		return false, err
+	if len(groupingPolicy) == 0 {
+		return true, nil
 	}
+	// Remove all grouping policies by passing an empty slice
+	ok, err := c.enforcer.RemoveGroupingPolicies(groupingPolicy)
+	//if err := c.enforcer.SavePolicy(); err != nil {
+	//	return false, err
+	//}
 	return ok, nil
 }
 
 func (c CasbinRoleRepository) AddGroupingPolicies(groupingPolicies [][]string) (bool, error) {
-	if err := c.enforcer.LoadPolicy(); err != nil {
-		return false, err
+	//check grouping policies
+	if len(groupingPolicies) == 0 || groupingPolicies == nil {
+		return true, nil
 	}
-	ok, err := c.enforcer.AddGroupingPolicy(groupingPolicies)
+
+	//if err := c.enforcer.LoadPolicy(); err != nil {
+	//	return false, err
+	//}
+
+	ok, err := c.enforcer.AddGroupingPoliciesEx(groupingPolicies)
 	if err != nil {
 		return false, err
 	}
-	if err := c.enforcer.SavePolicy(); err != nil {
-		return false, err
-	}
+	//if err := c.enforcer.SavePolicy(); err != nil {
+	//	return false, err
+	//}
 	return ok, nil
 }

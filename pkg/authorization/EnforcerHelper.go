@@ -23,9 +23,9 @@ func NewEnforcerByDB(db *gorm.DB) *casbin.Enforcer {
 		panic(fmt.Sprintf("failed to create authorization enforcer: %v", err))
 	}
 	enforcer.EnableAutoSave(true)
-	if err := enforcer.LoadPolicy(); err != nil {
-		panic(fmt.Sprintf("failed to load policy: %v", err))
-	}
+	//if err := enforcer.LoadPolicy(); err != nil {
+	//	panic(fmt.Sprintf("failed to load policy: %v", err))
+	//}
 
 	return enforcer
 

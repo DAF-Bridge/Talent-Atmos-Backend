@@ -38,7 +38,7 @@ func createCasbinPermissionsList(role string, policy map[string][]string) [][]st
 	CasbinPermissionsList := make([][]string, 0)
 	for key, value := range policy {
 		for _, v := range value {
-			CasbinPermissionsList = append(CasbinPermissionsList, []string{"p", role, key, v, "allow"})
+			CasbinPermissionsList = append(CasbinPermissionsList, []string{role, key, v, "allow"})
 		}
 	}
 	return CasbinPermissionsList

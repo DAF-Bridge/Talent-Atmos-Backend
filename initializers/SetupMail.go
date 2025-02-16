@@ -21,6 +21,11 @@ func SetupMail() {
 	}
 	smtpMail := os.Getenv("SMTP_MAIL")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	//check if the smtp variables are set
+	if smtpHost == "" || smtpMail == "" || smtpPassword == "" {
+		log.Fatal("SMTP variables are not set")
+	}
+
 	DialerMail = gomail.NewDialer(smtpHost, smtpPort, smtpMail, smtpPassword)
 
 }

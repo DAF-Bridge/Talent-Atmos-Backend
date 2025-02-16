@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"log"
 	"os"
 
@@ -26,6 +27,8 @@ func init() {
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
+	initializers.ConnectToCasbin()
+	initializers.SetupMail()
 	// initializers.ConnectToRedis()
 	// initializers.SyncDB()
 	initializers.SetupGoth()
@@ -53,12 +56,13 @@ func Start() {
 			var message string
 
 			// Check if error is of type *fiber.Error
-			var e *fiber.Error
-			if errors.As(err, &e) {
-				statusCode = e.Code
-				message = e.Message
+			var appErr errs.AppError
+			if errors.As(err, &appErr) {
+				statusCode = appErr.Code
+				message = appErr.Message
 			} else {
 				// If not, return a generic 500 status code
+				logs.Error(fmt.Sprintf("Unexpected error: %v", err))
 				statusCode = fiber.StatusInternalServerError
 				message = "Internal Server Error"
 			}
@@ -74,7 +78,7 @@ func Start() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Set-Cookie",
-		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+		AllowMethods:     "GET, POST,  PUT, DELETE",
 		AllowCredentials: true, // Allow credentials (cookies) to be sent
 	}))
 
@@ -85,6 +89,10 @@ func Start() {
 		log.Fatal("JWT_SECRET is not set")
 	}
 
+	if initializers.Enforcer == nil {
+		log.Fatal("Enforcer is not set")
+	}
+
 	// Define routes for Auth
 	api.NewAuthRouter(app, initializers.DB, jwtSecret)
 
@@ -92,7 +100,7 @@ func Start() {
 	api.NewUserRouter(app, initializers.DB, initializers.S3, jwtSecret)
 
 	// Define routes for Organizations && Organization Open Jobs
-	api.NewOrganizationRouter(app, initializers.DB, initializers.ESClient, initializers.S3, jwtSecret)
+	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Events
 	api.NewEventRouter(app, initializers.DB, initializers.ESClient, initializers.S3)
@@ -116,8 +124,16 @@ func Start() {
 		OAuth2RedirectUrl: "http://localhost:8080/swagger/oauth2-redirect.html",
 	}))
 
-	// fmt.Printf("Server is running on port %v\n", viper.GetInt("app.port"))
+	//// Print all registered routes
+	//counter := 1
+	//for _, route := range app.Stack() {
+	//	for _, r := range route {
+	//		fmt.Printf("%d Method: %s, Path: %s\n", counter, r.Method, r.Path)
+	//		counter++
+	//	}
+	//}
 
+	// fmt.Printf("Server is running on port %v\n", viper.GetInt("app.port"))
 	// logs.Info("Server is running on port: " + viper.GetString("app.port"))
 	logs.Info(fmt.Sprintf("Server is running on port: %v", os.Getenv("APP_PORT")))
 	// err := app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port")))

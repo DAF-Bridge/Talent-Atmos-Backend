@@ -12,18 +12,35 @@ type dbRoleRepository struct {
 }
 
 func (d dbRoleRepository) Create(role *models.RoleInOrganization) (*models.RoleInOrganization, error) {
-	var createRole models.RoleInOrganization
-	err := d.db.Create(role).Scan(&createRole).Error
-	if err != nil {
+	tx := d.db.Begin()
+
+	if err := tx.Create(role).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-	return &createRole, nil
 
+	var createdRole = &models.RoleInOrganization{}
+
+	if err := tx.
+		Model(&models.RoleInOrganization{}).
+		Preload("User").
+		Preload("Organization").
+		Where("user_id = ? AND organization_id = ?", role.UserID, role.OrganizationID).
+		First(&createdRole).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return createdRole, nil
 }
 
 func (d dbRoleRepository) GetAll() ([]models.RoleInOrganization, error) {
 	var roles []models.RoleInOrganization
-	err := d.db.
+	err := d.db.Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
 		Find(&roles).Error
@@ -33,6 +50,7 @@ func (d dbRoleRepository) GetAll() ([]models.RoleInOrganization, error) {
 func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganization, error) {
 	var role []models.RoleInOrganization
 	err := d.db.
+		Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
 		Where("user_id = ?", userID).
@@ -46,6 +64,7 @@ func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganiz
 func (d dbRoleRepository) FindByOrganizationID(orgID uint) ([]models.RoleInOrganization, error) {
 	var roles []models.RoleInOrganization
 	err := d.db.
+		Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
 		Where("organization_id = ?", orgID).
@@ -68,10 +87,10 @@ func (d dbRoleRepository) FindByUserIDAndOrganizationID(userID uuid.UUID, orgID 
 
 func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]models.RoleInOrganization, error) {
 	var roles []models.RoleInOrganization
-	err := d.db.
-		Joins("JOIN users ON users.id = roles.user_id").
-		Joins("JOIN organizations ON organizations.id = roles.organization_id").
-		Where("roles.role = ? AND roles.organization_id = ?", roleName, orgID).
+	err := d.db.Model(&models.RoleInOrganization{}).
+		Joins("JOIN users ON users.id = role_in_organizations.user_id").
+		Joins("JOIN organizations ON organizations.id = role_in_organizations.organization_id").
+		Where("role_in_organizations.role = ? AND role_in_organizations.organization_id = ?", roleName, orgID).
 		Find(&roles).Error
 	return roles, err
 }

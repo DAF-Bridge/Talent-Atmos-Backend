@@ -54,7 +54,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 	return eventsRes, nil
 }
 
-func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest) (*dto.EventResponses, error) {
+func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
 	event := requestConvertToEvent(orgID, req)
 	newEvent, err := s.eventRepo.Create(orgID, &event)
 

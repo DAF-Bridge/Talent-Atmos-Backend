@@ -6,15 +6,19 @@ import (
 )
 
 type OrganizationRepository interface {
-	CreateOrganization(org *models.Organization) error
+	CreateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
 	FindIndustryByIds(industryIDs []uint) ([]models.Industry, error)
 	GetAllIndustries() ([]models.Industry, error)
-	GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error)
-	GetOrganizations(userID uuid.UUID) ([]models.Organization, error)
+	GetByOrgID(id uint) (*models.Organization, error)
+	//GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error)
+	GetAllOrganizations() ([]models.Organization, error)
+	//GetAllOrganizations(userID uuid.UUID) ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
-	UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
+	UpdateOrganization(org *models.Organization) (*models.Organization, error)
+	//UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
-	DeleteOrganization(userID uuid.UUID, org uint) error
+	DeleteOrganization(org uint) error
+	//DeleteOrganization(userID uuid.UUID, org uint) error
 }
 
 type OrganizationContactRepository interface {

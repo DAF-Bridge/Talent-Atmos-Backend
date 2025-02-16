@@ -23,8 +23,9 @@ func (i inviteTokenRepository) GetAll() ([]models.InviteToken, error) {
 func (i inviteTokenRepository) GetByToken(token uuid.UUID) (*models.InviteToken, error) {
 
 	var inviteToken models.InviteToken
-	err := i.db.Preload("Organization").
-		Preload("User").
+	err := i.db.
+		//Preload("Organization").
+		//Preload("User").
 		Where("token = ?", token).
 		First(&inviteToken).Error
 	if err != nil {
@@ -74,21 +75,22 @@ func (i inviteTokenRepository) IsExistToken(invitedUserID uuid.UUID, organizatio
 }
 
 func (i inviteTokenRepository) Upsert(inviteToken *models.InviteToken) (*models.InviteToken, error) {
-	var createInviteToken models.InviteToken
-	err := i.db.
+
+	//Upsert
+
+	err := i.db.Model(&models.InviteToken{}).
 		Clauses(clause.OnConflict{
 			Columns: []clause.Column{
 				{Name: "invited_user_id"},
-				{Name: "organization_id"},
-			}, // ใช้ Unique Composite Key
+				{Name: "organization_id"}}, // Conflict on these columns
 			DoUpdates: clause.Assignments(map[string]interface{}{
-				"token": gorm.Expr("uuid_generate_v4()"),
+				"token": gorm.Expr("COALESCE(EXCLUDED.token, uuid_generate_v4())"),
 			}),
-		}).Create(&createInviteToken).Error
+		}).Create(inviteToken).Error
 	if err != nil {
 		return nil, err
 	}
-	return &createInviteToken, nil
+	return inviteToken, nil
 }
 
 func NewInviteTokenRepository(db *gorm.DB) models.InviteTokenRepository {
