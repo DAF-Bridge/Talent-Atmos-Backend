@@ -54,9 +54,7 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 	// Validate Media ENUM before inserting into DB
 	var validMediaTypes = map[string]bool{
 		"website":   true,
-		"tiktok":    true,
-		"youtube":   true,
-		"line":      true,
+		"twitter":   true,
 		"facebook":  true,
 		"linkedIn":  true,
 		"instagram": true,
@@ -66,7 +64,7 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 	for i, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
 		if !validMediaTypes[lowerMedia] {
-			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedIn, instagram")
 		}
 
 		contacts[i] = models.OrganizationContact{
@@ -231,10 +229,24 @@ func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, o
 		industryPointers[i] = &industries[i]
 	}
 
+	// Validate Media ENUM before inserting into DB
+	var validMediaTypes = map[string]bool{
+		"website":   true,
+		"twitter":   true,
+		"facebook":  true,
+		"linkedIn":  true,
+		"instagram": true,
+	}
+
 	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
 	for i, contact := range org.OrganizationContacts {
+		lowerMedia := strings.ToLower(contact.Media)
+		if !validMediaTypes[lowerMedia] {
+			return nil, errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedIn, instagram")
+		}
+
 		contacts[i] = models.OrganizationContact{
-			Media:     models.Media(contact.Media),
+			Media:     models.Media(lowerMedia),
 			MediaLink: contact.MediaLink,
 		}
 	}
