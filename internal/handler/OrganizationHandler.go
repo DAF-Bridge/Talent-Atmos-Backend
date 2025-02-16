@@ -52,6 +52,7 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
+	defer file.Close()
 
 	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {
@@ -207,6 +208,7 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
+	defer file.Close()
 
 	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {

@@ -19,7 +19,6 @@ func UploadImage(c *fiber.Ctx) (multipart.File, *multipart.FileHeader, error) {
 	if err != nil {
 		return nil, nil, errs.NewUnexpectedError()
 	}
-	defer file.Close()
 
 	return file, fileHeader, nil
 }
