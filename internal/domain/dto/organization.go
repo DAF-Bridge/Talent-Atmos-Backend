@@ -84,11 +84,12 @@ type OrganizationContactResponses struct {
 // }
 
 type IndustryResponses struct {
+	ID   uint   `json:"id" example:"1"`
 	Name string `json:"name" example:"Software"`
 }
 
 type IndustryListResponse struct {
-	Industries []string `json:"industries" example:"Software,Hardware"`
+	Industries []IndustryResponses `json:"industries" example:"(1, Software), (2, Hardware)"`
 }
 
 type OrganizationRequest struct {

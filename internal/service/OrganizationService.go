@@ -197,13 +197,13 @@ func (s organizationService) ListAllIndustries() (dto.IndustryListResponse, erro
 		return dto.IndustryListResponse{}, errs.NewUnexpectedError()
 	}
 
-	var industryNames []string
-	for _, industry := range industries {
-		industryNames = append(industryNames, industry.Industry)
-	}
-
 	var industriesResponse dto.IndustryListResponse
-	industriesResponse.Industries = industryNames
+	for _, industry := range industries {
+		industriesResponse.Industries = append(industriesResponse.Industries, dto.IndustryResponses{
+			ID:   industry.ID,
+			Name: industry.Industry,
+		})
+	}
 
 	return industriesResponse, nil
 }
