@@ -37,6 +37,18 @@ func NewOrganizationService(repo repository.OrganizationRepository, S3 *infrastr
 	}
 }
 
+func checkMediaTypes(media string) bool {
+	var validMediaTypes = map[string]bool{
+		"website":   true,
+		"twitter":   true,
+		"facebook":  true,
+		"linkedin":  true,
+		"instagram": true,
+	}
+
+	return validMediaTypes[media]
+}
+
 // Creates a new organization
 func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
 	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
@@ -51,19 +63,10 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 		industryPointers[i] = &industries[i]
 	}
 
-	// Validate Media ENUM before inserting into DB
-	var validMediaTypes = map[string]bool{
-		"website":   true,
-		"twitter":   true,
-		"facebook":  true,
-		"linkedin":  true,
-		"instagram": true,
-	}
-
 	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
 	for i, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
-		if !validMediaTypes[lowerMedia] {
+		if !checkMediaTypes(lowerMedia) {
 			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 		}
 
@@ -229,19 +232,10 @@ func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, o
 		industryPointers[i] = &industries[i]
 	}
 
-	// Validate Media ENUM before inserting into DB
-	var validMediaTypes = map[string]bool{
-		"website":   true,
-		"twitter":   true,
-		"facebook":  true,
-		"linkedin":  true,
-		"instagram": true,
-	}
-
 	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
 	for i, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
-		if !validMediaTypes[lowerMedia] {
+		if !checkMediaTypes(lowerMedia) {
 			return nil, errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 		}
 
@@ -332,17 +326,8 @@ func NewOrganizationContactService(contactRepo repository.OrganizationContactRep
 func (s organizationContactService) CreateContact(orgID uint, contact dto.OrganizationContactRequest) error {
 	reqContact := ConvertToOrgContactRequest(orgID, contact)
 
-	// Validate Media ENUM before inserting into DB
-	var validMediaTypes = map[string]bool{
-		"website":   true,
-		"facebook":  true,
-		"linkedin":  true,
-		"instagram": true,
-		"twitter":   true,
-	}
-
 	lowerMedia := strings.ToLower(contact.Media)
-	if !validMediaTypes[lowerMedia] {
+	if !checkMediaTypes(lowerMedia) {
 		return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 	}
 
@@ -399,16 +384,8 @@ func (s organizationContactService) UpdateContact(orgID uint, contactID uint, co
 	reqContact := ConvertToOrgContactRequest(orgID, contact)
 	reqContact.ID = contactID
 
-	var validMediaTypes = map[string]bool{
-		"website":   true,
-		"facebook":  true,
-		"linkedin":  true,
-		"instagram": true,
-		"twitter":   true,
-	}
-
 	lowerMedia := strings.ToLower(contact.Media)
-	if !validMediaTypes[lowerMedia] {
+	if !checkMediaTypes(lowerMedia) {
 		return nil, errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 	}
 
