@@ -55,7 +55,12 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 }
 
 func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categories, err := s.eventRepo.FindCategoryByIds(req.CategoryIDs)
+	categoryIDs := []uint{}
+	for _, category := range req.Categories {
+		categoryIDs = append(categoryIDs, category.Label)
+	}
+
+	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("categories not found")
@@ -220,7 +225,12 @@ func (s eventService) CountEvent() (int64, error) {
 }
 
 func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
-	categories, err := s.eventRepo.FindCategoryByIds(req.CategoryIDs)
+	categoryIDs := []uint{}
+	for _, category := range req.Categories {
+		categoryIDs = append(categoryIDs, category.Label)
+	}
+
+	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("categories not found")

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -68,11 +69,14 @@ func UnmarshalAndValidateJSON(c *fiber.Ctx, jsonStr string, dest interface{}) er
 		var typeErr *json.UnmarshalTypeError
 
 		if errors.As(err, &syntaxErr) {
+			logs.Error(err)
 			return errs.NewBadRequestError(fmt.Sprintf("Syntax error at offset %d", syntaxErr.Offset))
 		} else if errors.As(err, &typeErr) {
+			logs.Error(err)
 			return errs.NewBadRequestError(fmt.Sprintf("Type error: expected %s but got %v (field: %s)", typeErr.Type, typeErr.Value, typeErr.Field))
 		}
 
+		logs.Error(err)
 		return errs.NewBadRequestError(fmt.Sprintf("Invalid JSON format: %s", err.Error()))
 	}
 

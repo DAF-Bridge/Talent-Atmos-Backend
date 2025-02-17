@@ -43,7 +43,7 @@ type NewEventRequest struct {
 	PriceType       string                           `json:"priceType" example:"free" validate:"required"`
 	RegisterLink    string                           `json:"registerLink" example:"https://example.com/register" validate:"required"`
 	Status          string                           `json:"status" example:"draft" validate:"required"`
-	CategoryIDs     []uint                           `json:"categoryId" example:"2,3" validate:"required"`
+	Categories      []CategoryRequest                `json:"categories" validate:"required"`
 	ContactChannels []NewEventContactChannelsRequest `json:"contactChannels" validate:"required"`
 }
 

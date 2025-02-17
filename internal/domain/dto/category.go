@@ -5,6 +5,11 @@ type CategoryResponses struct {
 	Name string `json:"name" example:"forum"`
 }
 
+type CategoryRequest struct {
+	Label uint   `json:"label" example:"1"`
+	Value string `json:"value" example:"forum" validate:"required"`
+}
+
 type CategoryListResponse struct {
 	Categories []CategoryResponses `json:"categories" example:"forum, exhibition, competition"`
 }
