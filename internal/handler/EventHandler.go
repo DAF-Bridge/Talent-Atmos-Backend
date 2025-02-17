@@ -73,15 +73,10 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	var event dto.NewEventRequest
 
-	// Parse JSON from the "event" form field
 	eventData := c.FormValue("event")
-	if err := json.Unmarshal([]byte(eventData), &event); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
 
-	// validate request body
-	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
-		return err
+	if err := utils.UnmarshalAndValidateJSON(c, eventData, &event); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	orgID, err := c.ParamsInt("orgID")

@@ -1,8 +1,6 @@
 package models
 
 import (
-	"encoding/json"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
@@ -65,7 +63,7 @@ type Event struct {
 	EndDate         utils.DateOnly    `gorm:"type:date;not null" db:"end_date"`
 	StartTime       utils.TimeOnly    `gorm:"type:time without time zone" db:"start_time"`
 	EndTime         utils.TimeOnly    `gorm:"type:time without time zone" db:"end_time"`
-	Content         json.RawMessage   `gorm:"type:jsonb" db:"content"`
+	Content         string            `gorm:"type:text" db:"content"`
 	LocationName    string            `gorm:"type:varchar(255)" db:"location_name"`
 	Latitude        float64           `gorm:"type:decimal(10,8)" db:"latitude"`
 	Longitude       float64           `gorm:"type:decimal(11,8)" db:"longitude"`

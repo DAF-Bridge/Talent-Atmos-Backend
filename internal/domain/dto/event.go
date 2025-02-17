@@ -1,9 +1,5 @@
 package dto
 
-import (
-	"encoding/json"
-)
-
 type EventShortResponseDTO struct {
 	ID        int    `json:"id" example:"1"`
 	Name      string `json:"name" example:"builds IDEA 2024"`
@@ -36,7 +32,7 @@ type NewEventRequest struct {
 	EndDate         string                           `json:"endDate" example:"2025-01-22" validate:"required"`
 	StartTime       string                           `json:"startTime" example:"08:00:00" validate:"required"`
 	EndTime         string                           `json:"endTime" example:"17:00:00" validate:"required"`
-	Content         json.RawMessage                  `json:"content" example:"{\"html\": \"<h1>Hello</h1>\"}" validate:"required"`
+	Content         string                           `json:"content" example:"{\"html\": \"<h1>Hello</h1>\"}" validate:"required"`
 	Latitude        float64                          `json:"latitude" example:"13.7563" validate:"required"`
 	Longitude       float64                          `json:"longitude" example:"100.5018" validate:"required"`
 	LocationName    string                           `json:"locationName" example:"Bangkok" validate:"required"`
@@ -65,7 +61,7 @@ type EventResponses struct {
 	EndDate         string                          `json:"endDate" example:"2024-11-29"`
 	StartTime       string                          `json:"startTime" example:"08:00:00"`
 	EndTime         string                          `json:"endTime" example:"17:00:00"`
-	Content         json.RawMessage                 `json:"content"`
+	Content         string                          `json:"content"`
 	Latitude        float64                         `json:"latitude" example:"13.7563"`
 	Longitude       float64                         `json:"longitude" example:"100.5018"`
 	LocationName    string                          `json:"locationName" example:"builds CMU"`
