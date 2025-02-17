@@ -27,31 +27,21 @@ func TestEventHandler(t *testing.T) {
 		expected := models.Event{
 			Model:          gorm.Model{ID: 1},
 			OrganizationID: 1,
-			CategoryID:     1,
+			Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
 			Name:           "Builds Renewable Energy Summit",
 			PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
 			StartDate:      utils.DateOnly{Time: utils.DateParser("2025-01-15")},
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2025-01-16")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Timeline: []models.Timeline{
-				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
-				},
-				{
-					Time:     "10:00 AM",
-					Activity: "Keynote Speech",
-				},
-			},
-			Content:      json.RawMessage(`{"text":"Explore advancements in renewable energy technologies."}`),
-			LocationName: "Conference Hall A",
-			Latitude:     13.7563,
-			Longitude:    100.5018,
-			Province:     "Bangkok",
-			LocationType: "onsite",
-			Audience:     "students",
-			PriceType:    "free",
+			Content:        json.RawMessage(`{"text":"Explore advancements in renewable energy technologies."}`),
+			LocationName:   "Conference Hall A",
+			Latitude:       13.7563,
+			Longitude:      100.5018,
+			Province:       "Bangkok",
+			LocationType:   "onsite",
+			Audience:       "students",
+			PriceType:      "free",
 		}
 
 		expectedResponse := service.ConvertToEventResponse(expected)
