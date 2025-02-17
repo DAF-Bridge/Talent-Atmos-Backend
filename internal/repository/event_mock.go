@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -26,7 +25,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2025-01-16")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Content:        json.RawMessage(`{"text" : "Explore advancements in renewable energy technologies."}`),
+			Content:        "Explore advancements in renewable energy technologies.",
 			LocationName:   "Conference Hall A",
 			Latitude:       13.7563,
 			Longitude:      100.5018,
@@ -51,7 +50,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-02-21")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("10:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("18:00:00")},
-			Content:        json.RawMessage(`{"text" : "Discover the latest tech innovations and trends."}`),
+			Content:        "Discover the latest tech innovations and trends.",
 			LocationName:   "Tech Expo Center",
 			Latitude:       37.7749,
 			Longitude:      -122.4194,
@@ -75,7 +74,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-03-11")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Content:        json.RawMessage(`{"text" : "Learn about the latest marketing strategies and trends."}`),
+			Content:        "Learn about the latest marketing strategies and trends.",
 			LocationName:   "Marketing Hall B",
 			Latitude:       40.7128,
 			Longitude:      -74.0060,
@@ -99,7 +98,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-04-06")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("10:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("18:00:00")},
-			Content:        json.RawMessage(`{"text" : "Discover the latest tech startups and innovations."}`),
+			Content:        "Discover the latest tech startups and innovations.",
 			LocationName:   "Startup Hub",
 			Latitude:       51.5074,
 			Longitude:      -0.1278,
@@ -124,7 +123,7 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-01-16")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Content:        json.RawMessage(`{"text" : "Explore advancements in sustainable energy technologies."}`),
+			Content:        "Explore advancements in sustainable energy technologies.",
 			LocationName:   "Conference Hall A",
 			Latitude:       13.7563,
 			Longitude:      100.5018,
