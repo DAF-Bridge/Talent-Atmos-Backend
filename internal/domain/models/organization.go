@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -71,9 +70,6 @@ type Organization struct {
 	Country              string                `gorm:"type:varchar(255)" db:"country"`
 	Latitude             float64               `gorm:"type:decimal(10,8)" db:"latitude"`  // Geographic latitude (stored as string for precision)
 	Longitude            float64               `gorm:"type:decimal(11,8)" db:"longitude"` // Geographic longitude (stored as string for precision)
-	OwnerID              uuid.UUID             `gorm:"uuid;uniqueIndex;not null" db:"owner_id"`         // Owner of the Organization
-	Owner                *User                 `gorm:"foreignKey:OwnerID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Members              []User                `gorm:"foreignKey:OrganizationID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	OrganizationContacts []OrganizationContact `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs          []OrgOpenJob          `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	Industries           []*Industry           `gorm:"many2many:organization_industry;"`

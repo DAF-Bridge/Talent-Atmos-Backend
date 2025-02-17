@@ -78,7 +78,7 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	}
 }
 
-func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
+func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.OrganizationContact, industries []*models.Industry) models.Organization {
 	return models.Organization{
 		Name:                 org.Name,
 		HeadLine:             org.HeadLine,
@@ -92,7 +92,6 @@ func ConvertToOrgRequest(userID uuid.UUID, org dto.OrganizationRequest, contacts
 		Phone:                org.Phone,
 		OrganizationContacts: contacts,
 		Industries:           industries,
-		OwnerID:              userID,
 		Model:                gorm.Model{UpdatedAt: time.Now()},
 	}
 }

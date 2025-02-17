@@ -23,6 +23,8 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infr
 	// Sync PostGres to OpenSearch
 	app.Get("/sync-events", eventHandler.SyncEvents)
 
+	app.Get("events/categories/list", eventHandler.ListAllCategories)
+
 	// CRUD
 	app.Get("/events-paginate", eventHandler.EventPaginate)
 	event.Post("/create", eventHandler.CreateEvent)

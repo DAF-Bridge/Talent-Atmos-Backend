@@ -13,4 +13,5 @@ type Category struct {
 	SortOrder     int          `gorm:"default:0" db:"sort_order"` // For sorting categories in a preferred order: e.g., "Technology" should come before "Business"
 	SubCategories []Category   `gorm:"foreignKey:ParentID" json:"sub_categories"`
 	Jobs          []OrgOpenJob `gorm:"many2many:category_job;"`
+	Events        []Event      `gorm:"many2many:category_event;"`
 }

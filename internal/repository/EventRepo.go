@@ -15,23 +15,21 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 	return &eventRepository{db: db}
 }
 
-func (r eventRepository) Create(orgID uint, event *models.Event) (*models.Event, error) {
+func (r eventRepository) Create(orgID uint, event *models.Event) error {
+	tx := r.db.Begin()
+
 	event.OrganizationID = orgID
 
-	if err := r.db.Create(event).Error; err != nil {
-		return nil, err
+	if err := tx.Create(event).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
-	if err := r.db.
-		Preload("Organization").
-		Preload("Category").
-		Where("organization_id = ? AND id = ?", orgID, event.ID).
-		First(event).Error; err != nil {
-
-		return nil, err
+	if err := tx.Commit().Error; err != nil {
+		return err
 	}
 
-	return event, nil
+	return nil
 }
 
 func (r eventRepository) GetAll() ([]models.Event, error) {
@@ -73,6 +71,28 @@ func (r eventRepository) GetByID(orgID uint, eventID uint) (*models.Event, error
 	}
 
 	return &event, nil
+}
+
+func (r eventRepository) GetAllCategories() ([]models.Category, error) {
+	categories := []models.Category{}
+
+	err := r.db.Find(&categories).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return categories, nil
+}
+
+func (r eventRepository) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {
+	categories := []models.Category{}
+
+	err := r.db.Find(&categories, catIDs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return categories, nil
 }
 
 func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, error) {
@@ -122,39 +142,38 @@ func (r eventRepository) Count() (int64, error) {
 }
 
 func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (*models.Event, error) {
+	tx := r.db.Begin()
+
 	var existingEvent models.Event
-	err := r.db.Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
+	err := tx.Where("organization_id = ? AND id = ?", orgID, eventID).Preload("Categories").First(&existingEvent).Error
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	// Update fields in existingEvent with values from the new event
-	// existingEvent.ID = eventID
-	// existingEvent.OrganizationID = orgID
-	existingEvent.Name = event.Name
-	existingEvent.Content = event.Content
-	existingEvent.Audience = event.Audience
-	existingEvent.CategoryID = event.CategoryID // ensure category_id is updated
-	existingEvent.StartDate = event.StartDate
-	existingEvent.EndDate = event.EndDate
-	existingEvent.StartTime = event.StartTime
-	existingEvent.EndTime = event.EndTime
-	existingEvent.LocationName = event.LocationName
-	existingEvent.Latitude = event.Latitude
-	existingEvent.Longitude = event.Longitude
-	existingEvent.PriceType = event.PriceType
-	existingEvent.Province = event.Province
-	existingEvent.Timeline = event.Timeline
+	if err := tx.Model(&existingEvent).Association("Categories").Clear(); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 
-	// Save the updated event
-	err = r.db.Save(&existingEvent).Error
-	if err != nil {
+	if err := r.db.Model(&existingEvent).Association("Categories").Replace(event.Categories); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&existingEvent).Updates(event).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 
 	// Fetch the updated event
 	err = r.db.Preload("Category").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 

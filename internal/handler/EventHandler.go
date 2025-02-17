@@ -102,13 +102,13 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	}
 	defer file.Close()
 
-	createdEvent, err := h.eventService.NewEvent(uint(orgID), event, c.Context(), file, fileHeader)
+	err = h.eventService.NewEvent(uint(orgID), event, c.Context(), file, fileHeader)
 
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(createdEvent)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "event created successfully"})
 }
 
 // @Summary List all events
@@ -184,6 +184,22 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(event)
+}
+
+// @Summary List all categories
+// @Description Get a list of all event categories
+// @Tags Events
+// @Produce json
+// @Success 200 {object} dto.CategoryListResponse
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
+// @Router /categories [get]
+func (h EventHandler) ListAllCategories(c *fiber.Ctx) error {
+	categories, err := h.eventService.ListAllCategories()
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(categories)
 }
 
 // @Summary Paginate events
