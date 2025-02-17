@@ -6,8 +6,8 @@ type CategoryResponses struct {
 }
 
 type CategoryRequest struct {
-	Label uint   `json:"label" example:"1"`
-	Value string `json:"value" example:"forum" validate:"required"`
+	Value uint   `json:"value" example:"1"`
+	Label string `json:"label" example:"forum" validate:"required"`
 }
 
 type CategoryListResponse struct {

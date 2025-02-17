@@ -57,7 +57,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
 	categoryIDs := []uint{}
 	for _, category := range req.Categories {
-		categoryIDs = append(categoryIDs, category.Label)
+		categoryIDs = append(categoryIDs, category.Value)
 	}
 
 	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
@@ -227,7 +227,7 @@ func (s eventService) CountEvent() (int64, error) {
 func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
 	categoryIDs := []uint{}
 	for _, category := range req.Categories {
-		categoryIDs = append(categoryIDs, category.Label)
+		categoryIDs = append(categoryIDs, category.Value)
 	}
 
 	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
