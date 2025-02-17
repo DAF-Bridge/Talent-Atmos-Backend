@@ -18,22 +18,29 @@ func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	}
 
 	for _, event := range events {
+		var categories []string
+		for _, category := range event.Categories {
+			categories = append(categories, category.Name)
+		}
+
 		doc := models.EventDocument{
 			ID:                 event.ID,
 			Name:               event.Name,
 			PicUrl:             event.PicUrl,
 			Content:            event.Content,
-			LocationName:       event.LocationName,
 			Latitude:           event.Latitude,
 			Longitude:          event.Longitude,
 			StartDate:          event.StartDate.Format("2006-01-02"),
 			EndDate:            event.EndDate.Format("2006-01-02"),
 			StartTime:          event.StartTime.Format("15:04:05"),
 			EndTime:            event.EndTime.Format("15:04:05"),
+			LocationName:       event.LocationName,
+			Province:           event.Province,
+			Country:            event.Country,
 			LocationType:       event.LocationType,
 			Audience:           event.Audience,
 			Price:              event.PriceType,
-			Category:           event.Category.Name,
+			Categories:         categories,
 			Organization:       event.Organization.Name,
 			OrganizationPicUrl: event.Organization.PicUrl,
 		}

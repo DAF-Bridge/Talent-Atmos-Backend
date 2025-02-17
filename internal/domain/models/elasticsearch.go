@@ -31,17 +31,19 @@ type EventDocument struct {
 	Name               string          `json:"name"`
 	PicUrl             string          `json:"picUrl"`
 	Content            json.RawMessage `json:"content"`
-	LocationName       string          `json:"location"`
 	Latitude           float64         `json:"latitude"`
 	Longitude          float64         `json:"longitude"`
 	StartDate          string          `json:"startDate"`
 	StartTime          string          `json:"startTime"`
 	EndTime            string          `json:"endTime"`
 	EndDate            string          `json:"endDate"`
+	LocationName       string          `json:"location"`
+	Province           string          `json:"province"`
+	Country            string          `json:"country"`
 	LocationType       string          `json:"locationType"`
 	Organization       string          `json:"organization"`
 	OrganizationPicUrl string          `json:"orgPicUrl"`
-	Category           string          `json:"category"`
+	Categories         []string        `json:"categories"`
 	Audience           string          `json:"audience"`
 	Price              string          `json:"price"`
 }
