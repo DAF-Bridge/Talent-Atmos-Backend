@@ -39,6 +39,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2025-01-16")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
+			Content:        "Explore advancements in renewable energy technologies.",
 			LocationName:   "Conference Hall A",
 			Latitude:       13.7563,
 			Longitude:      100.5018,
