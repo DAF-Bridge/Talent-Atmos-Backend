@@ -142,7 +142,7 @@ func (s organizationService) GetOrganizationByID(userID uuid.UUID, id uint) (*dt
 		return nil, errs.NewUnexpectedError()
 	}
 
-	resOrgs := convertToOrgResponse(*org)
+	resOrgs := ConvertToOrgResponse(*org)
 
 	return &resOrgs, nil
 }
@@ -161,7 +161,7 @@ func (s organizationService) GetPaginateOrganization(page uint) ([]dto.Organizat
 
 	var orgsResponses []dto.OrganizationResponse
 	for _, org := range orgs {
-		orgsResponses = append(orgsResponses, convertToOrgResponse(org))
+		orgsResponses = append(orgsResponses, ConvertToOrgResponse(org))
 	}
 
 	return orgsResponses, nil
@@ -181,7 +181,7 @@ func (s organizationService) ListAllOrganizations(userID uuid.UUID) ([]dto.Organ
 
 	var orgsResponses []dto.OrganizationResponse
 	for _, org := range orgs {
-		orgsResponses = append(orgsResponses, convertToOrgResponse(org))
+		orgsResponses = append(orgsResponses, ConvertToOrgResponse(org))
 	}
 
 	return orgsResponses, nil
@@ -277,7 +277,7 @@ func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, o
 	}
 
 	updatedOrg.PicUrl = newOrg.PicUrl
-	resOrgs := convertToOrgResponse(*updatedOrg)
+	resOrgs := ConvertToOrgResponse(*updatedOrg)
 
 	return &resOrgs, nil
 }
@@ -424,19 +424,21 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 // --------------------------------------------------------------------------
 
 type orgOpenJobService struct {
-	jobRepo repository.OrgOpenJobRepository
-	DB      *gorm.DB
-	OS      *opensearch.Client
-	S3      *infrastructure.S3Uploader
+	jobRepo   repository.OrgOpenJobRepository
+	DB        *gorm.DB
+	OS        *opensearch.Client
+	S3        *infrastructure.S3Uploader
+	jwtSecret string
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) OrgOpenJobService {
 	return orgOpenJobService{
-		jobRepo: jobRepo,
-		DB:      db,
-		OS:      os,
-		S3:      s3,
+		jobRepo:   jobRepo,
+		DB:        db,
+		OS:        os,
+		S3:        s3,
+		jwtSecret: jwtSecret,
 	}
 }
 
@@ -515,7 +517,7 @@ func (s orgOpenJobService) ListAllJobs() ([]dto.JobResponses, error) {
 	var jobsResponse []dto.JobResponses
 
 	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
+		jobResponse := ConvertToJobResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 
@@ -536,7 +538,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, er
 	jobsResponse := []dto.JobResponses{}
 
 	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
+		jobResponse := ConvertToJobResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 
@@ -555,7 +557,7 @@ func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*dto.JobResponses
 		return nil, errs.NewUnexpectedError()
 	}
 
-	JobResponse := convertToJobResponse(*job)
+	JobResponse := ConvertToJobResponse(*job)
 
 	return &JobResponse, nil
 }
@@ -575,7 +577,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	jobsResponse := []dto.JobResponses{}
 
 	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
+		jobResponse := ConvertToJobResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 
@@ -630,7 +632,7 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest,
 	}
 
 	updatedJob.PicUrl = job.PicUrl
-	jobResponse := convertToJobResponse(*updatedJob)
+	jobResponse := ConvertToJobResponse(*updatedJob)
 
 	return &jobResponse, nil
 }

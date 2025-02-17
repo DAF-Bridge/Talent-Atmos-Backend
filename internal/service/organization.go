@@ -43,10 +43,11 @@ type OrgOpenJobService interface {
 	RemoveJob(orgID uint, jobID uint) error
 }
 
-func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
+func ConvertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	var industries []dto.IndustryResponses
 	for _, industry := range org.Industries {
 		industries = append(industries, dto.IndustryResponses{
+			ID:   industry.ID,
 			Name: industry.Industry,
 		})
 	}
@@ -62,6 +63,8 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	return dto.OrganizationResponse{
 		ID:                  org.ID,
 		Name:                org.Name,
+		Email:               org.Email,
+		Phone:               org.Phone,
 		PicUrl:              org.PicUrl,
 		HeadLine:            org.HeadLine,
 		Specialty:           org.Specialty,
@@ -70,8 +73,6 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 		Country:             org.Country,
 		Latitude:            org.Latitude,
 		Longitude:           org.Longitude,
-		Email:               org.Email,
-		Phone:               org.Phone,
 		OrganizationContact: contacts,
 		Industries:          industries,
 		UpdatedAt:           org.UpdatedAt.Format("2006-01-02 15:04:05"),
@@ -111,7 +112,7 @@ func ConvertToOrgContactRequest(orgID uint, contact dto.OrganizationContactReque
 	}
 }
 
-func convertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
+func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 	var categories []dto.CategoryResponses
 	for _, category := range job.Categories {
 		categories = append(categories, dto.CategoryResponses{

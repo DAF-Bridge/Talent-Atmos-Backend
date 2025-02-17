@@ -55,7 +55,7 @@ func (r organizationRepository) GetByOrgID(userID uuid.UUID, id uint) (*models.O
 	if err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("id = ? AND owner_id = ?", id, userID).
+		Where("id = ?", id).
 		First(org).Error; err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (r organizationRepository) DeleteOrganization(userID uuid.UUID, id uint) er
 	}
 
 	var org models.Organization
-	if err := tx.Model(&org).Where("id = ? AND owner_id = ?", id, userID).Delete(&org).Error; err != nil {
+	if err := tx.Model(&org).Where("id = ?", id).Delete(&org).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
