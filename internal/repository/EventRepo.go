@@ -35,9 +35,9 @@ func (r eventRepository) Create(orgID uint, event *models.Event) error {
 func (r eventRepository) GetAll() ([]models.Event, error) {
 	events := []models.Event{}
 	err := r.db.
-		Preload("Organization").
-		Preload("Categories").
 		Preload("ContactChannels").
+		Preload("Categories").
+		Preload("Organization").
 		Find(&events).Error
 	if err != nil {
 		return nil, err
@@ -50,9 +50,9 @@ func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
 	events := []models.Event{}
 
 	err := r.db.
-		Preload("Organization").
-		Preload("Categories").
 		Preload("ContactChannels").
+		Preload("Categories").
+		Preload("Organization").
 		Where("organization_id = ?", orgID).
 		Find(&events).Error
 	if err != nil {

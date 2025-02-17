@@ -49,16 +49,16 @@ func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest, categories 
 }
 
 func ConvertToEventResponse(event models.Event) dto.EventResponses {
-	var categories dto.CategoryListResponse
+	var categories []dto.CategoryResponses
 	for _, category := range event.Categories {
-		categories.Categories = append(categories.Categories, dto.CategoryResponses{
+		categories = append(categories, dto.CategoryResponses{
 			ID:   category.ID,
 			Name: category.Name,
 		})
 	}
 
 	var contacts []dto.EventContactChannelsResponses
-	for _, contact := range event.Organization.OrganizationContacts {
+	for _, contact := range event.ContactChannels {
 		contacts = append(contacts, dto.EventContactChannelsResponses{
 			Media:     string(contact.Media),
 			MediaLink: contact.MediaLink,
