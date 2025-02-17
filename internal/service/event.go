@@ -24,26 +24,27 @@ type EventService interface {
 	DeleteEvent(orgID uint, eventID uint) error
 }
 
-func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest, categories []models.Category) models.Event {
+func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest, categories []models.Category, contacts []models.ContactChannel) models.Event {
 	return models.Event{
-		OrganizationID: orgID,
-		Name:           reqEvent.Name,
-		StartDate:      utils.DateOnly{Time: utils.DateParser(reqEvent.StartDate)},
-		EndDate:        utils.DateOnly{Time: utils.DateParser(reqEvent.EndDate)},
-		StartTime:      utils.TimeOnly{Time: utils.TimeParser(reqEvent.StartTime)},
-		EndTime:        utils.TimeOnly{Time: utils.TimeParser(reqEvent.EndTime)},
-		Content:        reqEvent.Content,
-		Latitude:       reqEvent.Latitude,
-		Longitude:      reqEvent.Longitude,
-		LocationName:   reqEvent.LocationName,
-		Province:       reqEvent.Province,
-		Country:        reqEvent.Country,
-		LocationType:   reqEvent.LocationType,
-		Audience:       reqEvent.Audience,
-		PriceType:      reqEvent.PriceType,
-		RegisterLink:   reqEvent.RegisterLink,
-		Status:         reqEvent.Status,
-		Categories:     categories,
+		OrganizationID:  orgID,
+		Name:            reqEvent.Name,
+		StartDate:       utils.DateOnly{Time: utils.DateParser(reqEvent.StartDate)},
+		EndDate:         utils.DateOnly{Time: utils.DateParser(reqEvent.EndDate)},
+		StartTime:       utils.TimeOnly{Time: utils.TimeParser(reqEvent.StartTime)},
+		EndTime:         utils.TimeOnly{Time: utils.TimeParser(reqEvent.EndTime)},
+		Content:         reqEvent.Content,
+		Latitude:        reqEvent.Latitude,
+		Longitude:       reqEvent.Longitude,
+		LocationName:    reqEvent.LocationName,
+		Province:        reqEvent.Province,
+		Country:         reqEvent.Country,
+		LocationType:    reqEvent.LocationType,
+		Audience:        reqEvent.Audience,
+		PriceType:       reqEvent.PriceType,
+		RegisterLink:    reqEvent.RegisterLink,
+		Status:          reqEvent.Status,
+		Categories:      categories,
+		ContactChannels: contacts,
 	}
 }
 

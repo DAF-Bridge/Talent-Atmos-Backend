@@ -50,9 +50,9 @@ type Timeline struct {
 
 type ContactChannel struct {
 	gorm.Model
-	EventID   uint   `json:"eventID"` // Belongs to Event
 	Media     Media  `gorm:"type:varchar(50);not null" json:"media"`
 	MediaLink string `gorm:"type:varchar(255);not null" json:"mediaLink"`
+	EventID   uint   `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // Belongs to Event
 }
 
 type Event struct {
@@ -74,7 +74,7 @@ type Event struct {
 	PriceType       string            `gorm:"type:varchar(50)" db:"price_type" json:"priceType"`
 	RegisterLink    string            `gorm:"type:varchar(255)" db:"register_link"`
 	Status          string            `gorm:"type:varchar(50)" db:"status"`
-	ContactChannels []ContactChannel  `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
+	ContactChannels []ContactChannel  `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"contact_channels"`
 	Categories      []Category        `gorm:"many2many:category_event;"`
 	OrganizationID  uint              `gorm:"not null" db:"organization_id"`
 	Organization    Organization      `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"organizations"`

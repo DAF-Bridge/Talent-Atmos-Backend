@@ -34,7 +34,11 @@ func (r eventRepository) Create(orgID uint, event *models.Event) error {
 
 func (r eventRepository) GetAll() ([]models.Event, error) {
 	events := []models.Event{}
-	err := r.db.Preload("Organization").Preload("Category").Find(&events).Error
+	err := r.db.
+		Preload("Organization").
+		Preload("Categories").
+		Preload("ContactChannels").
+		Find(&events).Error
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +51,8 @@ func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
 
 	err := r.db.
 		Preload("Organization").
-		Preload("Category").
+		Preload("Categories").
+		Preload("ContactChannels").
 		Where("organization_id = ?", orgID).
 		Find(&events).Error
 	if err != nil {
@@ -62,7 +67,8 @@ func (r eventRepository) GetByID(orgID uint, eventID uint) (*models.Event, error
 
 	err := r.db.
 		Preload("Organization").
-		Preload("Category").
+		Preload("Categories").
+		Preload("ContactChannels").
 		Where("organization_id = ? AND id = ?", orgID, eventID).
 		First(&event).Error
 
@@ -101,7 +107,8 @@ func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, erro
 
 	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
 		Preload("Organization").
-		Preload("Category").
+		Preload("Categories").
+		Preload("ContactChannels").
 		Order("created_at desc").
 		Limit(int(size)).
 		Offset(int(offset)).
@@ -119,7 +126,8 @@ func (r eventRepository) GetFirst() (*models.Event, error) {
 
 	err := r.db.
 		Preload("Organization").
-		Preload("Category").
+		Preload("Categories").
+		Preload("ContactChannels").
 		First(&event).Error
 
 	if err != nil {
@@ -145,7 +153,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	tx := r.db.Begin()
 
 	var existingEvent models.Event
-	err := tx.Where("organization_id = ? AND id = ?", orgID, eventID).Preload("Categories").First(&existingEvent).Error
+	err := tx.Where("organization_id = ? AND id = ?", orgID, eventID).Preload("Categories").Preload("ContactChannels").First(&existingEvent).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err

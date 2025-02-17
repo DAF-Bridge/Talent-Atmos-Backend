@@ -70,7 +70,15 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		return errs.NewUnexpectedError()
 	}
 
-	event := requestConvertToEvent(orgID, req, categories)
+	contacts := []models.ContactChannel{}
+	for _, contact := range req.ContactChannels {
+		contacts = append(contacts, models.ContactChannel{
+			Media:     models.Media(contact.Media),
+			MediaLink: contact.MediaLink,
+		})
+	}
+
+	event := requestConvertToEvent(orgID, req, categories, contacts)
 
 	err = s.eventRepo.Create(orgID, &event)
 	if err != nil {
@@ -250,8 +258,17 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
+	contacts := []models.ContactChannel{}
+	for _, contact := range req.ContactChannels {
+		contacts = append(contacts, models.ContactChannel{
+			EventID:   existingEvent.ID,
+			Media:     models.Media(contact.Media),
+			MediaLink: contact.MediaLink,
+		})
+	}
+
 	// Convert request to event model
-	event := requestConvertToEvent(orgID, req, categories)
+	event := requestConvertToEvent(orgID, req, categories, contacts)
 	event.ID = eventID
 	if file != nil {
 		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, eventID)
