@@ -76,7 +76,7 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 		}
 	}
 
-	newOrg := ConvertToOrgRequest(userID, org, contacts, industryPointers)
+	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
 	err = s.repo.CreateOrganization(&newOrg)
 	if err != nil {
 		if pqErr, ok := err.(*pgconn.PgError); ok {
@@ -245,7 +245,7 @@ func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, o
 		}
 	}
 
-	newOrg := ConvertToOrgRequest(ownerID, org, contacts, industryPointers)
+	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
 	newOrg.ID = orgID
 	// Upload image to S3
 	if file != nil {
@@ -266,7 +266,7 @@ func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, o
 		newOrg.PicUrl = existingOrg.PicUrl
 	}
 
-	updatedOrg, err := s.repo.UpdateOrganization(ownerID, &newOrg)
+	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errs.NewNotFoundError("organization not found")
@@ -463,8 +463,8 @@ func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Off
 	return jobsRes, nil
 }
 
-func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
+func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+	categories, err := s.jobRepo.FindCategoryByIds(req.CategoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("categories not found")
@@ -474,7 +474,7 @@ func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest, ctx context.Co
 		return errs.NewUnexpectedError()
 	}
 
-	job := ConvertToJobRequest(orgID, dto, categories)
+	job := ConvertToJobRequest(orgID, req, categories)
 	if err = s.jobRepo.CreateJob(orgID, &job); err != nil {
 		logs.Error(err)
 		return errs.NewUnexpectedError()

@@ -25,16 +25,6 @@ func (r organizationRepository) CreateOrganization(org *models.Organization) err
 		return err
 	}
 
-	if err := tx.Model(&models.User{}).
-		Where("id = ?", org.OwnerID).
-		Updates(map[string]interface{}{
-			"organization_id": org.ID,
-			"owned_org_id":    org.ID,
-		}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	if err := tx.Commit().Error; err != nil {
 		return err
 	}
@@ -103,11 +93,11 @@ func (r organizationRepository) GetOrganizations(userID uuid.UUID) ([]models.Org
 	return orgs, nil
 }
 
-func (r organizationRepository) UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error) {
+func (r organizationRepository) UpdateOrganization(org *models.Organization) (*models.Organization, error) {
 	tx := r.db.Begin()
 
 	var existOrg models.Organization
-	if err := tx.Where("id = ? AND owner_id = ?", org.ID, userID).First(&existOrg).Error; err != nil {
+	if err := tx.Where("id = ?", org.ID).First(&existOrg).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -142,7 +132,7 @@ func (r organizationRepository) UpdateOrganization(userID uuid.UUID, org *models
 	if err := tx.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("id = ? AND owner_id = ?", org.ID, userID).
+		Where("id = ?", org.ID).
 		First(&updatedOrg).Error; err != nil {
 
 		tx.Rollback()
@@ -370,24 +360,33 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 }
 
 func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error) {
+	tx := r.db.Begin()
+
 	var existJob models.OrgOpenJob
-	if err := r.db.
+	if err := tx.
 		Where("organization_id = ? AND id = ?", job.OrganizationID, job.ID).
 		Preload("Categories").
 		First(&existJob).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	if err := r.db.Model(&existJob).Association("Categories").Clear(); err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Clear(); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	err := r.db.Model(&existJob).Association("Categories").Replace(job.Categories)
-	if err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Replace(job.Categories); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	if err := r.db.Model(&existJob).Updates(job).Error; err != nil {
+	if err := tx.Model(&existJob).Updates(job).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 

@@ -12,7 +12,7 @@ type OrganizationRepository interface {
 	GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error)
 	GetOrganizations(userID uuid.UUID) ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
-	UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
+	UpdateOrganization(org *models.Organization) (*models.Organization, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(userID uuid.UUID, org uint) error
 }

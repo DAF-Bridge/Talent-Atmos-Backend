@@ -8,6 +8,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -204,11 +205,23 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	file, fileHeader, err := utils.UploadImage(c)
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	fileHeader, err = c.FormFile("image")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		// If no image is provided, set file and fileHeader to nil to allow updating without an image.
+		file = nil
+		fileHeader = nil
+	} else {
+		file, err = fileHeader.Open()
+		if err != nil {
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
 	}
 	defer file.Close()
+
+	// file, fileHeader, err := utils.UploadImage(c)
 
 	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {
