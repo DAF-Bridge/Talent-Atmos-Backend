@@ -89,10 +89,6 @@ func Start() {
 		log.Fatal("JWT_SECRET is not set")
 	}
 
-	if initializers.Enforcer == nil {
-		log.Fatal("Enforcer is not set")
-	}
-
 	// Define routes for Auth
 	api.NewAuthRouter(app, initializers.DB, jwtSecret)
 
@@ -134,6 +130,7 @@ func Start() {
 	//}
 
 	// fmt.Printf("Server is running on port %v\n", viper.GetInt("app.port"))
+
 	// logs.Info("Server is running on port: " + viper.GetString("app.port"))
 	logs.Info(fmt.Sprintf("Server is running on port: %v", os.Getenv("APP_PORT")))
 	// err := app.Listen(fmt.Sprintf(":%v", viper.GetInt("app.port")))
