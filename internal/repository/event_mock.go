@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -26,25 +25,15 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2025-01-16")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Timeline: []models.Timeline{
-				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
-				},
-				{
-					Time:     "10:00 AM",
-					Activity: "Keynote Speech",
-				},
-			},
-			Content:      json.RawMessage(`{"text" : "Explore advancements in renewable energy technologies."}`),
-			LocationName: "Conference Hall A",
-			Latitude:     13.7563,
-			Longitude:    100.5018,
-			Province:     "Bangkok",
-			CategoryID:   1,
-			LocationType: "onsite",
-			Audience:     "students",
-			PriceType:    "free",
+			Content:        "Explore advancements in renewable energy technologies.",
+			LocationName:   "Conference Hall A",
+			Latitude:       13.7563,
+			Longitude:      100.5018,
+			Province:       "Bangkok",
+			Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
+			LocationType:   "onsite",
+			Audience:       "students",
+			PriceType:      "free",
 			Organization: models.Organization{
 				Model:  gorm.Model{ID: 1},
 				Name:   "Renewable Energy Association",
@@ -61,25 +50,15 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-02-21")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("10:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("18:00:00")},
-			Timeline: []models.Timeline{
-				{
-					Time:     "10:00 AM",
-					Activity: "Opening Ceremony",
-				},
-				{
-					Time:     "11:00 AM",
-					Activity: "Tech Innovations",
-				},
-			},
-			Content:      json.RawMessage(`{"text" : "Discover the latest tech innovations and trends."}`),
-			LocationName: "Tech Expo Center",
-			Latitude:     37.7749,
-			Longitude:    -122.4194,
-			Province:     "San Francisco",
-			CategoryID:   1,
-			LocationType: "onsite",
-			Audience:     "professionals",
-			PriceType:    "free",
+			Content:        "Discover the latest tech innovations and trends.",
+			LocationName:   "Tech Expo Center",
+			Latitude:       37.7749,
+			Longitude:      -122.4194,
+			Province:       "San Francisco",
+			Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
+			LocationType:   "onsite",
+			Audience:       "professionals",
+			PriceType:      "free",
 			Organization: models.Organization{
 				Model:  gorm.Model{ID: 1},
 				Name:   "Renewable Energy Association",
@@ -95,25 +74,15 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-03-11")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Timeline: []models.Timeline{
-				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
-				},
-				{
-					Time:     "10:00 AM",
-					Activity: "Marketing Strategies",
-				},
-			},
-			Content:      json.RawMessage(`{"text" : "Learn about the latest marketing strategies and trends."}`),
-			LocationName: "Marketing Hall B",
-			Latitude:     40.7128,
-			Longitude:    -74.0060,
-			Province:     "New York",
-			CategoryID:   8,
-			LocationType: "onsite",
-			Audience:     "general",
-			PriceType:    "paid",
+			Content:        "Learn about the latest marketing strategies and trends.",
+			LocationName:   "Marketing Hall B",
+			Latitude:       40.7128,
+			Longitude:      -74.0060,
+			Province:       "New York",
+			Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
+			LocationType:   "onsite",
+			Audience:       "general",
+			PriceType:      "paid",
 			Organization: models.Organization{
 				Model:  gorm.Model{ID: 1},
 				Name:   "Renewable Energy Association",
@@ -129,25 +98,15 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-04-06")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("10:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("18:00:00")},
-			Timeline: []models.Timeline{
-				{
-					Time:     "10:00 AM",
-					Activity: "Opening Ceremony",
-				},
-				{
-					Time:     "11:00 AM",
-					Activity: "Startup Pitches",
-				},
-			},
-			Content:      json.RawMessage(`{"text" : "Discover the latest tech startups and innovations."}`),
-			LocationName: "Startup Hub",
-			Latitude:     51.5074,
-			Longitude:    -0.1278,
-			Province:     "London",
-			CategoryID:   6,
-			LocationType: "onsite",
-			Audience:     "students",
-			PriceType:    "free",
+			Content:        "Discover the latest tech startups and innovations.",
+			LocationName:   "Startup Hub",
+			Latitude:       51.5074,
+			Longitude:      -0.1278,
+			Province:       "London",
+			Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
+			LocationType:   "onsite",
+			Audience:       "students",
+			PriceType:      "free",
 			Organization: models.Organization{
 				Model:  gorm.Model{ID: 1},
 				Name:   "Renewable Energy Association",
@@ -164,25 +123,15 @@ func NewEventRepositoryMock() MockEventRepository {
 			EndDate:        utils.DateOnly{Time: utils.DateParser("2024-01-16")},
 			StartTime:      utils.TimeOnly{Time: utils.TimeParser("09:00:00")},
 			EndTime:        utils.TimeOnly{Time: utils.TimeParser("17:00:00")},
-			Timeline: []models.Timeline{
-				{
-					Time:     "09:00 AM",
-					Activity: "Opening Ceremony",
-				},
-				{
-					Time:     "10:00 AM",
-					Activity: "Keynote Speech",
-				},
-			},
-			Content:      json.RawMessage(`{"text" : "Explore advancements in sustainable energy technologies."}`),
-			LocationName: "Conference Hall A",
-			Latitude:     13.7563,
-			Longitude:    100.5018,
-			Province:     "Bangkok",
-			CategoryID:   8,
-			LocationType: "onsite",
-			Audience:     "students",
-			PriceType:    "free",
+			Content:        "Explore advancements in sustainable energy technologies.",
+			LocationName:   "Conference Hall A",
+			Latitude:       13.7563,
+			Longitude:      100.5018,
+			Province:       "Bangkok",
+			Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
+			LocationType:   "onsite",
+			Audience:       "students",
+			PriceType:      "free",
 			Organization: models.Organization{
 				Model:  gorm.Model{ID: 2},
 				Name:   "Sustainable Energy Association",
@@ -205,7 +154,7 @@ func (e *eventRepositoryMock) Count() (int64, error) {
 }
 
 // Create implements EventRepository.
-func (e *eventRepositoryMock) Create(orgID uint, event *models.Event) (*models.Event, error) {
+func (e *eventRepositoryMock) Create(orgID uint, event *models.Event) error {
 	// eventResponse := convertToEventResponse(event)
 	event.OrganizationID = orgID
 
@@ -218,7 +167,7 @@ func (e *eventRepositoryMock) Create(orgID uint, event *models.Event) (*models.E
 	}
 	event.Model.ID = lastEventID + 1
 
-	return event, nil
+	return nil
 }
 
 // Delete implements EventRepository.
@@ -363,6 +312,42 @@ func (e *eventRepositoryMock) Update(orgID uint, eventID uint, event *models.Eve
 	}
 
 	return nil, errs.NewUnexpectedError()
+}
+
+// GetAllCategories implements EventRepository.
+func (e *eventRepositoryMock) GetAllCategories() ([]models.Category, error) {
+	categories := []models.Category{
+		{Name: "conference", Slug: "conference", IsActive: true, SortOrder: 1},
+		{Name: "all", Slug: "all", IsActive: true, SortOrder: 0},
+		{Name: "incubation", Slug: "incubation", IsActive: true, SortOrder: 1},
+		{Name: "networking", Slug: "networking", IsActive: true, SortOrder: 1},
+		{Name: "forum", Slug: "forum", IsActive: true, SortOrder: 1},
+		{Name: "exhibition", Slug: "exhibition", IsActive: true, SortOrder: 1},
+		{Name: "competition", Slug: "competition", IsActive: true, SortOrder: 1},
+		{Name: "workshop", Slug: "workshop", IsActive: true, SortOrder: 1},
+		{Name: "campaign", Slug: "campaign", IsActive: true, SortOrder: 1},
+		{Name: "esg", Slug: "esg", IsActive: true, SortOrder: 1},
+	}
+
+	return categories, nil
+}
+
+// FindCategoryByIds implements EventRepository.
+func (e *eventRepositoryMock) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {
+	categories := []models.Category{}
+	for _, catID := range catIDs {
+		for _, category := range e.events[0].Categories {
+			if category.ID == catID {
+				categories = append(categories, category)
+			}
+		}
+	}
+
+	if len(categories) == 0 {
+		return nil, errs.NewNotFoundError("categories not found")
+	}
+
+	return categories, nil
 }
 
 // UpdateEventPicture implements EventRepository.

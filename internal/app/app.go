@@ -3,9 +3,10 @@ package app
 import (
 	"errors"
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"log"
 	"os"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 
 	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/docs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/types"
@@ -24,7 +25,7 @@ import (
 )
 
 func init() {
-	initializers.LoadEnvVar()
+	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
@@ -103,7 +104,7 @@ func Start() {
 	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Events
-	api.NewEventRouter(app, initializers.DB, initializers.ESClient, initializers.S3)
+	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3)
 
 	// Define routes for Roles
 	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret)

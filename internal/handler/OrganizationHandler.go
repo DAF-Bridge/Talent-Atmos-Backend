@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
@@ -43,6 +42,11 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
 	var org dto.OrganizationRequest
@@ -51,17 +55,18 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	}
 
 	file, fileHeader, err := utils.UploadImage(c)
+	defer file.Close()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	userID, err := uuid.Parse(claims.UserID)
+	bgImage, bgImageHeader, err := utils.UploadBackgroundImage(c)
+	defer bgImage.Close()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if err := h.service.CreateOrganization(userID, org, c.Context(), file, fileHeader); err != nil {
-
+	if err := h.service.CreateOrganization(userID, org, c.Context(), file, fileHeader, bgImage, bgImageHeader); err != nil {
 		return errs.SendFiberError(c, err)
 	}
 
@@ -167,7 +172,6 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
-	logs.Debug("orgData: ")
 	var org dto.OrganizationRequest
 	if err := utils.UnmarshalAndValidateJSON(c, orgData, &org); err != nil {
 		return err
@@ -181,13 +185,25 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 	}
 
-	//file, fileHeader, err := utils.UploadImage(c)
-	//if err != nil {
-	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	//}
+	file, fileHeader, err := utils.UploadImage(c)
+	// no file is uploaded
+	if err == nil {
+		defer file.Close()
+
+		file = nil
+		fileHeader = nil
+	}
+	bgImage, bgImageHeader, err := utils.UploadBackgroundImage(c)
+
+	// no file is uploaded
+	if err == nil {
+		defer bgImage.Close()
+		bgImage = nil
+		bgImageHeader = nil
+	}
 
 	//updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), file, fileHeader)
-	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), nil, nil)
+	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), file, fileHeader, bgImage, bgImageHeader)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}

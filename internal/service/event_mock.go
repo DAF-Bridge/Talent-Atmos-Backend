@@ -17,26 +17,17 @@ func NewEventServiceMock() *eventServiceMock {
 	return &eventServiceMock{}
 }
 
-func (m *eventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
+func (m *eventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
 	ret := m.Called(orgID, req, ctx, file, fileHeader)
 
-	var r0 *dto.EventResponses
-	if rf, ok := ret.Get(0).(func(uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) *dto.EventResponses); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) error); ok {
 		r0 = rf(orgID, req, ctx, file, fileHeader)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*dto.EventResponses)
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) error); ok {
-		r1 = rf(orgID, req, ctx, file, fileHeader)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 func (m *eventServiceMock) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
@@ -184,6 +175,26 @@ func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEv
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uint, uint, dto.NewEventRequest, context.Context, multipart.File, *multipart.FileHeader) error); ok {
 		r1 = rf(orgID, eventID, event, ctx, file, fileHeader)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+func (m *eventServiceMock) ListAllCategories() (*dto.CategoryListResponse, error) {
+	ret := m.Called()
+
+	var r0 *dto.CategoryListResponse
+	if rf, ok := ret.Get(0).(func() *dto.CategoryListResponse); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(*dto.CategoryListResponse)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

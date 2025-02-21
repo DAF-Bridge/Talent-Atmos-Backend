@@ -3,12 +3,13 @@ package initializers
 import (
 	"context"
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/pkg/authorization"
-	"github.com/casbin/casbin/v2"
-	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"io"
 	"log"
 	"os"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/pkg/authorization"
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/go-redis/redis/v8"
@@ -147,7 +148,7 @@ func ConnectToCasbin() {
 	}
 
 	// Load model configuration file and policy store adapter
-	Enforcer, err = casbin.NewEnforcer("pkg/authorization/rbac_model.conf", adapter)
+	Enforcer, err = casbin.NewEnforcer("./pkg/authorization/rbac_model.conf", adapter)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("failed to create authorization enforcer: %v", err))
 	}

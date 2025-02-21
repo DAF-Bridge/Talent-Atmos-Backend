@@ -39,7 +39,14 @@ func (r userRepository) FindByProviderID(providerID string) (*models.User, error
 }
 
 func (r userRepository) Create(user *models.User) error {
-	if err := r.db.Create(user).Error; err != nil {
+	tx := r.db.Begin()
+
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 
@@ -64,8 +71,23 @@ func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, e
 }
 
 func (r userRepository) UpdateUserPic(userID uuid.UUID, picURL string) error {
-	result := r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL)
-	return utils.GormErrorAndRowsAffected(result)
+	tx := r.db.Begin()
+
+	if err := tx.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Model(&models.Profile{}).Where("user_id = ?", userID).Update("pic_url", picURL).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // begin transaction

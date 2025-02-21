@@ -47,7 +47,7 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 
 	// Define routes for Organization Open Jobs
 	org.Get("/jobs/list/all", orgOpenJobHandler.ListAllOrganizationJobs)
-	org.Get("/:orgID/jobs/get/:id", orgOpenJobHandler.GetOrgOpenJobByID)
+	org.Get("/:orgID/jobs/get/:id", middleware.AuthMiddleware(jwtSecret), orgOpenJobHandler.GetOrgOpenJobByID)
 	org.Get("/:orgID/jobs/list", orgOpenJobHandler.ListOrgOpenJobsByOrgID)
 	org.Post("/:orgID/jobs/create", orgOpenJobHandler.CreateOrgOpenJob)
 	org.Put("/:orgID/jobs/update/:id", orgOpenJobHandler.UpdateOrgOpenJob)

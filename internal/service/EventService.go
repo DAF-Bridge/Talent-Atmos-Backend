@@ -54,41 +54,60 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 	return eventsRes, nil
 }
 
-func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
-	event := requestConvertToEvent(orgID, req)
-	newEvent, err := s.eventRepo.Create(orgID, &event)
+func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+	categoryIDs := []uint{}
+	for _, category := range req.Categories {
+		categoryIDs = append(categoryIDs, category.Value)
+	}
 
+	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("categories not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	contacts := []models.ContactChannel{}
+	for _, contact := range req.ContactChannels {
+		contacts = append(contacts, models.ContactChannel{
+			Media:     models.Media(contact.Media),
+			MediaLink: contact.MediaLink,
+		})
+	}
+
+	event := requestConvertToEvent(orgID, req, categories, contacts)
+
+	err = s.eventRepo.Create(orgID, &event)
 	if err != nil {
 		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
+
+		return errs.NewUnexpectedError()
 	}
 
 	// Upload image to S3
 	if file != nil {
-		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, uint(newEvent.ID))
+		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, event.ID)
 		if err != nil {
 			logs.Error(err)
-			return nil, errs.NewUnexpectedError()
+			return errs.NewUnexpectedError()
 		}
 
-		// Update PicUrl in event
-		newEvent.PicUrl = picURL
-
 		// Update event record in database
-		err = s.eventRepo.UpdateEventPicture(uint(orgID), uint(newEvent.ID), picURL)
+		err = s.eventRepo.UpdateEventPicture(orgID, event.ID, picURL)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errs.NewNotFoundError("event not found")
+				return  errs.NewNotFoundError("event not found")
 			}
 
 			logs.Error(err)
-			return nil, errs.NewUnexpectedError()
+			return errs.NewUnexpectedError()
 		}
 	}
 
-	eventResponse := ConvertToEventResponse(*newEvent)
-
-	return &eventResponse, nil
+	return nil
 }
 
 func (s eventService) GetAllEvents() ([]dto.EventResponses, error) {
@@ -149,6 +168,27 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*dto.EventResponse
 	return &eventResponse, nil
 }
 
+func (s eventService) ListAllCategories() (*dto.CategoryListResponse, error) {
+	categories, err := s.eventRepo.GetAllCategories()
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.NewNotFoundError("No categories found")
+		}
+
+		return nil, err
+	}
+
+	var responses dto.CategoryListResponse
+	for _, category := range categories {
+		responses.Categories = append(responses.Categories, dto.CategoryResponses{
+			ID:   category.ID,
+			Name: category.Name,
+		})
+	}
+
+	return &responses, nil
+}
+
 func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
 	events, err := s.eventRepo.GetPaginate(page, numberOfEvent)
 
@@ -196,6 +236,21 @@ func (s eventService) CountEvent() (int64, error) {
 }
 
 func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
+	categoryIDs := []uint{}
+	for _, category := range req.Categories {
+		categoryIDs = append(categoryIDs, category.Value)
+	}
+
+	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("categories not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
 	existingEvent, err := s.eventRepo.GetByID(orgID, eventID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -206,8 +261,17 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
-	// Convert request to Event model
-	event := requestConvertToEvent(orgID, req)
+	contacts := []models.ContactChannel{}
+	for _, contact := range req.ContactChannels {
+		contacts = append(contacts, models.ContactChannel{
+			EventID:   existingEvent.ID,
+			Media:     models.Media(contact.Media),
+			MediaLink: contact.MediaLink,
+		})
+	}
+
+	// Convert request to event model
+	event := requestConvertToEvent(orgID, req, categories, contacts)
 	event.ID = eventID
 	if file != nil {
 		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, eventID)
@@ -221,7 +285,8 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		event.PicUrl = existingEvent.PicUrl
 	}
 
-	updatedEvent, err := s.eventRepo.Update(orgID, eventID, &event)
+	// Update event record in database
+	updateEvent, err := s.eventRepo.Update(orgID, event.ID, &event)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("event not found")
@@ -231,7 +296,7 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
-	eventResponse := ConvertToEventResponse(*updatedEvent)
+	eventResponse := ConvertToEventResponse(*updateEvent)
 
 	return &eventResponse, nil
 }

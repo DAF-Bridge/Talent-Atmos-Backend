@@ -73,15 +73,10 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	var event dto.NewEventRequest
 
-	// Parse JSON from the "event" form field
 	eventData := c.FormValue("event")
-	if err := json.Unmarshal([]byte(eventData), &event); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
 
-	// validate request body
-	if err := utils.ParseJSONAndValidate(c, &event); err != nil {
-		return err
+	if err := utils.UnmarshalAndValidateJSON(c, eventData, &event); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	orgID, err := c.ParamsInt("orgID")
@@ -102,14 +97,13 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 	}
 	defer file.Close()
 
-	createdEvent, err := h.eventService.NewEvent(uint(orgID), event, c.Context(), file, fileHeader)
+	err = h.eventService.NewEvent(uint(orgID), event, c.Context(), file, fileHeader)
 
-	// error from service
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(createdEvent)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "event created successfully"})
 }
 
 // @Summary List all events
@@ -185,6 +179,22 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(event)
+}
+
+// @Summary List all categories
+// @Description Get a list of all event categories
+// @Tags Events
+// @Produce json
+// @Success 200 {object} dto.CategoryListResponse
+// @Failure 500 {object} map[string]string "error: Internal Server Error"
+// @Router /categories [get]
+func (h EventHandler) ListAllCategories(c *fiber.Ctx) error {
+	categories, err := h.eventService.ListAllCategories()
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(categories)
 }
 
 // @Summary Paginate events
@@ -360,7 +370,7 @@ func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
 func (h EventHandler) SyncEvents(c *fiber.Ctx) error {
 	err := h.eventService.SyncEvents()
 	if err != nil {
-		return err
+		return errs.SendFiberError(c, err)
 	}
 
 	return nil

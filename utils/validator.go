@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -18,9 +18,9 @@ var validate = validator.New()
 func ValidateStruct(data interface{}) []types.ValidationError {
 	var validationErrors []types.ValidationError
 
-	err := validate.Struct(data)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
+	errs := validate.Struct(data)
+	if errs != nil {
+		for _, err := range errs.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, types.ValidationError{
 				Field: err.Field(),
 				Tag:   err.Tag(),
@@ -73,6 +73,7 @@ func UnmarshalAndValidateJSON(c *fiber.Ctx, jsonStr string, dest interface{}) er
 			return errs.NewBadRequestError(fmt.Sprintf("Type error: expected %s but got %v (field: %s)", typeErr.Type, typeErr.Value, typeErr.Field))
 		}
 
+		logs.Error(err)
 		return errs.NewBadRequestError(fmt.Sprintf("Invalid JSON format: %s", err.Error()))
 	}
 

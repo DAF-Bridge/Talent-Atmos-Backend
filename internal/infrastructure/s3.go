@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
+	"os"
 	"path/filepath"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
@@ -47,18 +48,13 @@ func (s *S3Uploader) UploadUserPictureFile(ctx context.Context, file multipart.F
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.bucketName),
-		Key:    aws.String(objectKey),
-		Body:   buffer,
-		ACL:    "public-read",
-	})
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
 	if err != nil {
 		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
 	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
 	return fileURL, nil
 }
@@ -73,18 +69,13 @@ func (s *S3Uploader) UploadOrgPictureFile(ctx context.Context, file multipart.Fi
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.bucketName),
-		Key:    aws.String(objectKey),
-		Body:   buffer,
-		ACL:    "public-read",
-	})
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
 	if err != nil {
 		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
 	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
 	return fileURL, nil
 }
@@ -99,19 +90,13 @@ func (s *S3Uploader) UploadEventPictureFile(ctx context.Context, file multipart.
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.bucketName),
-		Key:    aws.String(objectKey),
-		Body:   buffer,
-		ACL:    "public-read",
-	})
-
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
 	if err != nil {
 		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
 	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
 	return fileURL, nil
 }
@@ -126,19 +111,34 @@ func (s *S3Uploader) UploadCompanyLogoFile(ctx context.Context, file multipart.F
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.bucketName),
-		Key:    aws.String(objectKey),
-		Body:   buffer,
-		ACL:    "public-read",
-	})
-
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
 	if err != nil {
 		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
+	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
+	return fileURL, nil
+}
+
+func (s *S3Uploader) UploadOrgBackgroundPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint) (string, error) {
+	fileExt := filepath.Ext(fileHeader.Filename)
+	objectKey := fmt.Sprintf("organizations/%v/background%s", orgID, fileExt)
+
+	buffer := bytes.NewBuffer(nil)
+	if _, err := buffer.ReadFrom(file); err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
+	if err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to upload file: %w", err)
+	}
+
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
 	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
 	return fileURL, nil
 }
@@ -153,19 +153,24 @@ func (s *S3Uploader) UploadJobBanner(ctx context.Context, file multipart.File, f
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.bucketName),
-		Key:    aws.String(objectKey),
-		Body:   buffer,
-		ACL:    "public-read",
-	})
-
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
 	if err != nil {
 		logs.Error(err)
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
-	fileURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucketName, objectKey)
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
 	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
 	return fileURL, nil
+}
+
+func sendObject(ctx context.Context, client *s3.Client, bucketName string, objectKey string, buffer *bytes.Buffer) error {
+	_, err := client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+		Body:   buffer,
+		ACL:    "public-read",
+	})
+
+	return err
 }

@@ -12,12 +12,13 @@ import (
 )
 
 type OrganizationService interface {
-	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
+	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, file2 multipart.File, file2Header *multipart.FileHeader) error
 	ListAllOrganizations() ([]dto.OrganizationResponse, error)
 	ListAllIndustries() (dto.IndustryListResponse, error)
 	GetOrganizationByID(orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
-	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, file2 multipart.File, file2Header *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganizationBackgroundPicture(id uint, picURL string) error
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(orgID uint) error
 }
@@ -43,10 +44,11 @@ type OrgOpenJobService interface {
 	RemoveJob(orgID uint, jobID uint) error
 }
 
-func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
+func ConvertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	var industries []dto.IndustryResponses
 	for _, industry := range org.Industries {
 		industries = append(industries, dto.IndustryResponses{
+			ID:   industry.ID,
 			Name: industry.Industry,
 		})
 	}
@@ -62,16 +64,18 @@ func convertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 	return dto.OrganizationResponse{
 		ID:                  org.ID,
 		Name:                org.Name,
+		Email:               org.Email,
+		Phone:               org.Phone,
 		PicUrl:              org.PicUrl,
+		BgUrl:               org.BgUrl,
 		HeadLine:            org.HeadLine,
 		Specialty:           org.Specialty,
+		Description:         org.Description,
 		Address:             org.Address,
 		Province:            org.Province,
 		Country:             org.Country,
 		Latitude:            org.Latitude,
 		Longitude:           org.Longitude,
-		Email:               org.Email,
-		Phone:               org.Phone,
 		OrganizationContact: contacts,
 		Industries:          industries,
 		UpdatedAt:           org.UpdatedAt.Format("2006-01-02 15:04:05"),
@@ -83,6 +87,7 @@ func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.Organiza
 		Name:                 org.Name,
 		HeadLine:             org.HeadLine,
 		Specialty:            org.Specialty,
+		Description:          org.Description,
 		Address:              org.Address,
 		Province:             org.Province,
 		Country:              org.Country,
@@ -111,7 +116,7 @@ func ConvertToOrgContactRequest(orgID uint, contact dto.OrganizationContactReque
 	}
 }
 
-func convertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
+func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 	var categories []dto.CategoryResponses
 	for _, category := range job.Categories {
 		categories = append(categories, dto.CategoryResponses{

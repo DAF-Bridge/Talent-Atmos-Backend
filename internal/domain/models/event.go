@@ -1,8 +1,6 @@
 package models
 
 import (
-	"encoding/json"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
 )
@@ -50,6 +48,13 @@ type Timeline struct {
 	Activity string `json:"activity" example:"Registration"`
 }
 
+type ContactChannel struct {
+	gorm.Model
+	Media     Media  `gorm:"type:varchar(50);not null" json:"media"`
+	MediaLink string `gorm:"type:varchar(255);not null" json:"mediaLink"`
+	EventID   uint   `gorm:"not null"` // Belongs to Event
+}
+
 type Event struct {
 	gorm.Model
 	Name            string            `gorm:"type:varchar(255);not null" db:"event_name"`
@@ -58,18 +63,19 @@ type Event struct {
 	EndDate         utils.DateOnly    `gorm:"type:date;not null" db:"end_date"`
 	StartTime       utils.TimeOnly    `gorm:"type:time without time zone" db:"start_time"`
 	EndTime         utils.TimeOnly    `gorm:"type:time without time zone" db:"end_time"`
-	Content         json.RawMessage   `gorm:"type:jsonb" db:"content"`
-	Timeline        []Timeline        `gorm:"serializer:json" db:"timeline"`
+	Content         string            `gorm:"type:text" db:"content"`
 	LocationName    string            `gorm:"type:varchar(255)" db:"location_name"`
 	Latitude        float64           `gorm:"type:decimal(10,8)" db:"latitude"`
 	Longitude       float64           `gorm:"type:decimal(11,8)" db:"longitude"`
 	Province        string            `gorm:"type:varchar(255)" db:"province"`
+	Country         string            `gorm:"type:varchar(255)" db:"country" json:"country"`
 	LocationType    string            `gorm:"type:varchar(50)" db:"location_type" json:"locationType"`
 	Audience        string            `gorm:"type:varchar(50)" db:"audience" json:"audience"`
 	PriceType       string            `gorm:"type:varchar(50)" db:"price_type" json:"priceType"`
+	RegisterLink    string            `gorm:"type:varchar(255)" db:"register_link"`
 	Status          string            `gorm:"type:varchar(50)" db:"status"`
-	CategoryID      uint              `gorm:"not null" db:"category_id"`
-	Category        Category          `gorm:"foreignKey:CategoryID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"categories"`
+	ContactChannels []ContactChannel  `gorm:"foreignKey:EventID;references:ID" db:"contact_channels"`
+	Categories      []Category        `gorm:"many2many:category_event;"`
 	OrganizationID  uint              `gorm:"not null" db:"organization_id"`
 	Organization    Organization      `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"organizations"`
 	TicketAvailable []TicketAvailable `gorm:"foreignKey:EventID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" db:"ticket_available"`

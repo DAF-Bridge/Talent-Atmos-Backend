@@ -173,6 +173,21 @@ func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string
 	return nil
 }
 
+func (r organizationRepository) UpdateOrganizationBackgroundPicture(id uint, picURL string) error {
+	tx := r.db.Begin()
+
+	if err := tx.Model(&models.Organization{}).Where("id = ?", id).Update("bg_url", picURL).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r organizationRepository) DeleteOrganization(id uint) error {
 	tx := r.db.Begin()
 
@@ -369,24 +384,33 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 }
 
 func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error) {
+	tx := r.db.Begin()
+
 	var existJob models.OrgOpenJob
-	if err := r.db.
+	if err := tx.
 		Where("organization_id = ? AND id = ?", job.OrganizationID, job.ID).
 		Preload("Categories").
 		First(&existJob).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	if err := r.db.Model(&existJob).Association("Categories").Clear(); err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Clear(); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	err := r.db.Model(&existJob).Association("Categories").Replace(job.Categories)
-	if err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Replace(job.Categories); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	if err := r.db.Model(&existJob).Updates(job).Error; err != nil {
+	if err := tx.Model(&existJob).Updates(job).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 

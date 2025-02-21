@@ -107,11 +107,12 @@ type OrganizationContactResponses struct {
 // }
 
 type IndustryResponses struct {
+	ID   uint   `json:"id" example:"1"`
 	Name string `json:"name" example:"Software"`
 }
 
 type IndustryListResponse struct {
-	Industries []string `json:"industries" example:"Software,Hardware"`
+	Industries []IndustryResponses `json:"industries" example:"(1, Software), (2, Hardware)"`
 }
 
 type OrganizationRequest struct {
@@ -120,6 +121,7 @@ type OrganizationRequest struct {
 	Phone                string                       `json:"phone" example:"0812345678" validate:"required"`
 	HeadLine             string                       `json:"headline" example:"This is a headline" validate:"required"`
 	Specialty            string                       `json:"specialty" example:"This is an specialty" validate:"required"`
+	Description          string                       `json:"description" example:"This is a description" validate:"required"`
 	Address              string                       `json:"address" example:"Chiang Mai postal code: 50200" validate:"required"`
 	Province             string                       `json:"province" example:"Chiang Mai" validate:"required"`
 	Country              string                       `json:"country" example:"Thailand" validate:"required"`
@@ -135,8 +137,10 @@ type OrganizationResponse struct {
 	Email               string                         `json:"email" example:"daf_bridge@egat.co.th"`
 	Phone               string                         `json:"phone" example:"0812345678"`
 	PicUrl              string                         `json:"picUrl" example:"https://example.com/image.jpg"`
+	BgUrl               string                         `json:"bgUrl" example:"https://example.com/image.jpg"`
 	HeadLine            string                         `json:"headline" example:"This is a headline"`
 	Specialty           string                         `json:"specialty" example:"This is an specialty"`
+	Description         string                         `json:"description" example:"This is a description"`
 	Address             string                         `json:"address" example:"Chiang Mai 50200"`
 	Province            string                         `json:"province" example:"Chiang Mai"`
 	Country             string                         `json:"country" example:"Thailand"`

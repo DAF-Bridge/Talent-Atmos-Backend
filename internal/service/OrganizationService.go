@@ -39,8 +39,20 @@ func NewOrganizationService(repo repository.OrganizationRepository, casbin repos
 	}
 }
 
+func checkMediaTypes(media string) bool {
+	var validMediaTypes = map[string]bool{
+		"website":   true,
+		"twitter":   true,
+		"facebook":  true,
+		"linkedin":  true,
+		"instagram": true,
+	}
+
+	return validMediaTypes[media]
+}
+
 // Creates a new organization
-func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, bgImage multipart.File, bgImageHeader *multipart.FileHeader) error {
 	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -53,22 +65,11 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 		industryPointers[i] = &industries[i]
 	}
 
-	// Validate Media ENUM before inserting into DB
-	var validMediaTypes = map[string]bool{
-		"website":   true,
-		"tiktok":    true,
-		"youtube":   true,
-		"line":      true,
-		"facebook":  true,
-		"linkedIn":  true,
-		"instagram": true,
-	}
-
 	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
 	for i, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
-		if !validMediaTypes[lowerMedia] {
-			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+		if !checkMediaTypes(lowerMedia) {
+			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 		}
 
 		contacts[i] = models.OrganizationContact{
@@ -131,6 +132,24 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 			return errs.NewUnexpectedError()
 		}
 	}
+
+	// Upload background image to S3
+	if bgImage != nil {
+		bgPicURL, err := s.S3.UploadOrgBackgroundPictureFile(ctx, bgImage, bgImageHeader, newOrg.ID)
+		if err != nil {
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
+
+		newOrg.BgUrl = bgPicURL
+		// Update BgUrl in organization
+		err = s.repo.UpdateOrganizationBackgroundPicture(newOrg.ID, bgPicURL)
+		if err != nil {
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
+	}
+
 	// Create a role for the organization
 	ok, err := s.casbin.AddRoleForUserInDomain(userID.String(), "owner", strconv.Itoa(int(createdOrg.ID)))
 
@@ -158,27 +177,10 @@ func (s organizationService) GetOrganizationByID(id uint) (*dto.OrganizationResp
 		return nil, errs.NewUnexpectedError()
 	}
 
-	resOrgs := convertToOrgResponse(*org)
+	resOrgs := ConvertToOrgResponse(*org)
 
 	return &resOrgs, nil
 }
-
-//func (s organizationService) GetOrganizationByID(userID uuid.UUID, id uint) (*dto.OrganizationResponse, error) {
-//	org, err := s.repo.GetByOrgID(userID, id)
-//
-//	if err != nil {
-//		if errors.Is(err, gorm.ErrRecordNotFound) {
-//			return nil, errs.NewNotFoundError("organization not found")
-//		}
-//
-//		logs.Error(err)
-//		return nil, errs.NewUnexpectedError()
-//	}
-//
-//	resOrgs := convertToOrgResponse(*org)
-//
-//	return &resOrgs, nil
-//}
 
 func (s organizationService) GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error) {
 	orgs, err := s.repo.GetOrgsPaginate(page, numberOfOrganization)
@@ -194,7 +196,7 @@ func (s organizationService) GetPaginateOrganization(page uint) ([]dto.Organizat
 
 	var orgsResponses []dto.OrganizationResponse
 	for _, org := range orgs {
-		orgsResponses = append(orgsResponses, convertToOrgResponse(org))
+		orgsResponses = append(orgsResponses, ConvertToOrgResponse(org))
 	}
 
 	return orgsResponses, nil
@@ -215,7 +217,7 @@ func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse,
 
 	var orgsResponses []dto.OrganizationResponse
 	for _, org := range orgs {
-		orgsResponses = append(orgsResponses, convertToOrgResponse(org))
+		orgsResponses = append(orgsResponses, ConvertToOrgResponse(org))
 	}
 
 	return orgsResponses, nil
@@ -232,18 +234,18 @@ func (s organizationService) ListAllIndustries() (dto.IndustryListResponse, erro
 		return dto.IndustryListResponse{}, errs.NewUnexpectedError()
 	}
 
-	var industryNames []string
-	for _, industry := range industries {
-		industryNames = append(industryNames, industry.Industry)
-	}
-
 	var industriesResponse dto.IndustryListResponse
-	industriesResponse.Industries = industryNames
+	for _, industry := range industries {
+		industriesResponse.Industries = append(industriesResponse.Industries, dto.IndustryResponses{
+			ID:   industry.ID,
+			Name: industry.Industry,
+		})
+	}
 
 	return industriesResponse, nil
 }
 
-func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
+func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, bgImage multipart.File, bgImageHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
 
 	existingOrg, err := s.repo.GetByOrgID(orgID)
 	if err != nil {
@@ -269,8 +271,13 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 
 	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
 	for i, contact := range org.OrganizationContacts {
+		lowerMedia := strings.ToLower(contact.Media)
+		if !checkMediaTypes(lowerMedia) {
+			return nil, errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
+		}
+
 		contacts[i] = models.OrganizationContact{
-			Media:     models.Media(contact.Media),
+			Media:     models.Media(lowerMedia),
 			MediaLink: contact.MediaLink,
 		}
 	}
@@ -299,6 +306,25 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 		newOrg.PicUrl = existingOrg.PicUrl
 	}
 
+	// Update background image
+	if bgImage != nil {
+		bgPicURL, err := s.S3.UploadOrgBackgroundPictureFile(ctx, bgImage, bgImageHeader, newOrg.ID)
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
+
+		newOrg.BgUrl = bgPicURL
+		err = s.repo.UpdateOrganizationBackgroundPicture(newOrg.ID, bgPicURL)
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
+	} else {
+		// If no new image is uploaded, use the existing image
+		newOrg.BgUrl = existingOrg.BgUrl
+	}
+
 	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -310,13 +336,27 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 	}
 
 	updatedOrg.PicUrl = newOrg.PicUrl
-	resOrgs := convertToOrgResponse(*updatedOrg)
+	resOrgs := ConvertToOrgResponse(*updatedOrg)
 
 	return &resOrgs, nil
 }
 
 func (s organizationService) UpdateOrganizationPicture(id uint, picURL string) error {
 	err := s.repo.UpdateOrganizationPicture(id, picURL)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+func (s organizationService) UpdateOrganizationBackgroundPicture(id uint, picURL string) error {
+	err := s.repo.UpdateOrganizationBackgroundPicture(id, picURL)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("organization not found")
@@ -353,26 +393,17 @@ type organizationContactService struct {
 }
 
 func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository) OrganizationContactService {
-	return organizationContactService{contactRepo: contactRepo}
+	return organizationContactService{
+		contactRepo: contactRepo,
+	}
 }
 
 func (s organizationContactService) CreateContact(orgID uint, contact dto.OrganizationContactRequest) error {
 	reqContact := ConvertToOrgContactRequest(orgID, contact)
 
-	// Validate Media ENUM before inserting into DB
-	var validMediaTypes = map[string]bool{
-		"website":   true,
-		"tiktok":    true,
-		"youtube":   true,
-		"line":      true,
-		"facebook":  true,
-		"linkedIn":  true,
-		"instagram": true,
-	}
-
 	lowerMedia := strings.ToLower(contact.Media)
-	if !validMediaTypes[lowerMedia] {
-		return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: youtube, website, tiktok, line, facebook, linkedIn, instagram")
+	if !checkMediaTypes(lowerMedia) {
+		return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 	}
 
 	reqContact.Media = models.Media(lowerMedia)
@@ -428,6 +459,13 @@ func (s organizationContactService) UpdateContact(orgID uint, contactID uint, co
 	reqContact := ConvertToOrgContactRequest(orgID, contact)
 	reqContact.ID = contactID
 
+	lowerMedia := strings.ToLower(contact.Media)
+	if !checkMediaTypes(lowerMedia) {
+		return nil, errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
+	}
+
+	reqContact.Media = models.Media(lowerMedia)
+
 	updatedContact, err := s.contactRepo.Update(&reqContact)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -471,9 +509,10 @@ type orgOpenJobService struct {
 func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
 	return orgOpenJobService{
 		jobRepo: jobRepo,
-		DB:      db,
-		OS:      os,
-		S3:      s3,
+
+		DB: db,
+		OS: os,
+		S3: s3,
 	}
 }
 
@@ -500,8 +539,8 @@ func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Off
 	return jobsRes, nil
 }
 
-func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
+func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+	categories, err := s.jobRepo.FindCategoryByIds(req.CategoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("categories not found")
@@ -511,7 +550,7 @@ func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest, ctx context.Co
 		return errs.NewUnexpectedError()
 	}
 
-	job := ConvertToJobRequest(orgID, dto, categories)
+	job := ConvertToJobRequest(orgID, req, categories)
 	if err = s.jobRepo.CreateJob(orgID, &job); err != nil {
 		logs.Error(err)
 		return errs.NewUnexpectedError()
@@ -552,7 +591,7 @@ func (s orgOpenJobService) ListAllJobs() ([]dto.JobResponses, error) {
 	var jobsResponse []dto.JobResponses
 
 	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
+		jobResponse := ConvertToJobResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 
@@ -573,7 +612,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, er
 	jobsResponse := []dto.JobResponses{}
 
 	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
+		jobResponse := ConvertToJobResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 
@@ -592,7 +631,7 @@ func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*dto.JobResponses
 		return nil, errs.NewUnexpectedError()
 	}
 
-	JobResponse := convertToJobResponse(*job)
+	JobResponse := ConvertToJobResponse(*job)
 
 	return &JobResponse, nil
 }
@@ -612,7 +651,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	jobsResponse := []dto.JobResponses{}
 
 	for _, job := range jobs {
-		jobResponse := convertToJobResponse(job)
+		jobResponse := ConvertToJobResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 
@@ -667,7 +706,7 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest,
 	}
 
 	updatedJob.PicUrl = job.PicUrl
-	jobResponse := convertToJobResponse(*updatedJob)
+	jobResponse := ConvertToJobResponse(*updatedJob)
 
 	return &jobResponse, nil
 }
