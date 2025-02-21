@@ -12,12 +12,13 @@ import (
 )
 
 type OrganizationService interface {
-	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
+	CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, file2 multipart.File, file2Header *multipart.FileHeader) error
 	ListAllOrganizations() ([]dto.OrganizationResponse, error)
 	ListAllIndustries() (dto.IndustryListResponse, error)
 	GetOrganizationByID(orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
-	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, file2 multipart.File, file2Header *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganizationBackgroundPicture(id uint, picURL string) error
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(orgID uint) error
 }
@@ -66,8 +67,10 @@ func ConvertToOrgResponse(org models.Organization) dto.OrganizationResponse {
 		Email:               org.Email,
 		Phone:               org.Phone,
 		PicUrl:              org.PicUrl,
+		BgUrl:               org.BgUrl,
 		HeadLine:            org.HeadLine,
 		Specialty:           org.Specialty,
+		Description:         org.Description,
 		Address:             org.Address,
 		Province:            org.Province,
 		Country:             org.Country,
@@ -84,6 +87,7 @@ func ConvertToOrgRequest(org dto.OrganizationRequest, contacts []models.Organiza
 		Name:                 org.Name,
 		HeadLine:             org.HeadLine,
 		Specialty:            org.Specialty,
+		Description:          org.Description,
 		Address:              org.Address,
 		Province:             org.Province,
 		Country:              org.Country,

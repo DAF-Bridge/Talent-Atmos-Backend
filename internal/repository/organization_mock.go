@@ -109,9 +109,9 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 //	OrganizationRepository
 //
 // ----------------------------------------------
-func (r *organizationRepositoryMock) CreateOrganization(org *models.Organization) error {
+func (r *organizationRepositoryMock) CreateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error) {
 	if org == nil {
-		return errs.NewBadRequestError("organization is nil")
+		return nil, errs.NewNotFoundError("organization not found")
 	}
 	// Simulate auto increment ID
 	if org.ID == 0 {
@@ -119,7 +119,7 @@ func (r *organizationRepositoryMock) CreateOrganization(org *models.Organization
 	}
 	r.org = org
 
-	return nil
+	return r.org, nil
 }
 
 func (r organizationRepositoryMock) FindIndustryByIds(industryIDs []uint) ([]models.Industry, error) {
@@ -142,10 +142,14 @@ func (r organizationRepositoryMock) GetAllIndustries() ([]models.Industry, error
 	return nil, nil
 }
 
-func (r organizationRepositoryMock) GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error) {
+func (r organizationRepositoryMock) GetByOrgID(id uint) (*models.Organization, error) {
 	if r.org.ID == id {
 		return r.org, nil
 	}
+	return nil, nil
+}
+
+func (r organizationRepositoryMock) GetAllOrganizations() ([]models.Organization, error) {
 	return nil, nil
 }
 
@@ -165,7 +169,11 @@ func (r organizationRepositoryMock) UpdateOrganizationPicture(id uint, picURL st
 	return nil
 }
 
-func (r organizationRepositoryMock) DeleteOrganization(userID uuid.UUID, org uint) error {
+func (r organizationRepositoryMock) UpdateOrganizationBackgroundPicture(id uint, picURL string) error {
+	return nil
+}
+
+func (r organizationRepositoryMock) DeleteOrganization(org uint) error {
 	return nil
 }
 

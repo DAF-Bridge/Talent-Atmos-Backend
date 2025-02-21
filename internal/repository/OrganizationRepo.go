@@ -172,6 +172,21 @@ func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string
 	return nil
 }
 
+func (r organizationRepository) UpdateOrganizationBackgroundPicture(id uint, picURL string) error {
+	tx := r.db.Begin()
+
+	if err := tx.Model(&models.Organization{}).Where("id = ?", id).Update("bg_url", picURL).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r organizationRepository) DeleteOrganization(id uint) error {
 	tx := r.db.Begin()
 

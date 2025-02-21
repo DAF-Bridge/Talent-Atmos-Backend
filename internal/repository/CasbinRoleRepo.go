@@ -162,6 +162,9 @@ func (c CasbinRoleRepository) ClearAllGrouping() (bool, error) {
 	//if err := c.enforcer.SavePolicy(); err != nil {
 	//	return false, err
 	//}
+	if err != nil {
+		return false, err
+	}
 	return ok, nil
 }
 

@@ -122,6 +122,27 @@ func (s *S3Uploader) UploadCompanyLogoFile(ctx context.Context, file multipart.F
 	return fileURL, nil
 }
 
+func (s *S3Uploader) UploadOrgBackgroundPictureFile(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint) (string, error) {
+	fileExt := filepath.Ext(fileHeader.Filename)
+	objectKey := fmt.Sprintf("organizations/%v/background%s", orgID, fileExt)
+
+	buffer := bytes.NewBuffer(nil)
+	if _, err := buffer.ReadFrom(file); err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	err := sendObject(ctx, s.client, s.bucketName, objectKey, buffer)
+	if err != nil {
+		logs.Error(err)
+		return "", fmt.Errorf("failed to upload file: %w", err)
+	}
+
+	fileURL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.bucketName, os.Getenv("AWS_REGION"), objectKey)
+	logs.Info(fmt.Sprintf("File uploaded successfully. URL: %s", fileURL))
+	return fileURL, nil
+}
+
 func (s *S3Uploader) UploadJobBanner(ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, orgID uint, jobID uint) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
 	objectKey := fmt.Sprintf("organizations/%v/pictures/jobs/%v%s", orgID, jobID, fileExt)

@@ -52,7 +52,7 @@ func checkMediaTypes(media string) bool {
 }
 
 // Creates a new organization
-func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, bgImage multipart.File, bgImageHeader *multipart.FileHeader) error {
 	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -129,6 +129,24 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 			return errs.NewUnexpectedError()
 		}
 	}
+
+	// Upload background image to S3
+	if bgImage != nil {
+		bgPicURL, err := s.S3.UploadOrgBackgroundPictureFile(ctx, bgImage, bgImageHeader, newOrg.ID)
+		if err != nil {
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
+
+		newOrg.BgUrl = bgPicURL
+		// Update BgUrl in organization
+		err = s.repo.UpdateOrganizationBackgroundPicture(newOrg.ID, bgPicURL)
+		if err != nil {
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
+	}
+
 	// Create a role for the organization
 	ok, err := s.casbin.AddRoleForUserInDomain(userID.String(), "owner", strconv.Itoa(int(createdOrg.ID)))
 
@@ -224,7 +242,7 @@ func (s organizationService) ListAllIndustries() (dto.IndustryListResponse, erro
 	return industriesResponse, nil
 }
 
-func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
+func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, bgImage multipart.File, bgImageHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
 
 	existingOrg, err := s.repo.GetByOrgID(orgID)
 	if err != nil {
@@ -282,6 +300,25 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 		newOrg.PicUrl = existingOrg.PicUrl
 	}
 
+	// Update background image
+	if bgImage != nil {
+		bgPicURL, err := s.S3.UploadOrgBackgroundPictureFile(ctx, bgImage, bgImageHeader, newOrg.ID)
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
+
+		newOrg.BgUrl = bgPicURL
+		err = s.repo.UpdateOrganizationBackgroundPicture(newOrg.ID, bgPicURL)
+		if err != nil {
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
+	} else {
+		// If no new image is uploaded, use the existing image
+		newOrg.BgUrl = existingOrg.BgUrl
+	}
+
 	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -300,6 +337,20 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 
 func (s organizationService) UpdateOrganizationPicture(id uint, picURL string) error {
 	err := s.repo.UpdateOrganizationPicture(id, picURL)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+func (s organizationService) UpdateOrganizationBackgroundPicture(id uint, picURL string) error {
+	err := s.repo.UpdateOrganizationBackgroundPicture(id, picURL)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("organization not found")
@@ -333,10 +384,14 @@ func (s organizationService) DeleteOrganization(id uint) error {
 // --------------------------------------------------------------------------
 type organizationContactService struct {
 	contactRepo repository.OrganizationContactRepository
+	casbin      repository.EnforcerRoleRepository
 }
 
-func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository) OrganizationContactService {
-	return organizationContactService{contactRepo: contactRepo}
+func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository, casbin repository.EnforcerRoleRepository) OrganizationContactService {
+	return organizationContactService{
+		contactRepo: contactRepo,
+		casbin:      casbin,
+	}
 }
 
 func (s organizationContactService) CreateContact(orgID uint, contact dto.OrganizationContactRequest) error {
@@ -441,15 +496,17 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 
 type orgOpenJobService struct {
 	jobRepo repository.OrgOpenJobRepository
+	casbin  repository.EnforcerRoleRepository
 	DB      *gorm.DB
 	OS      *opensearch.Client
 	S3      *infrastructure.S3Uploader
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, casbin repository.EnforcerRoleRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
 	return orgOpenJobService{
 		jobRepo: jobRepo,
+		casbin:  casbin,
 		DB:      db,
 		OS:      os,
 		S3:      s3,

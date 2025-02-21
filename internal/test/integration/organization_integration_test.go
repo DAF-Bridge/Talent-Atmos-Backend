@@ -77,7 +77,8 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 
 		// Integration interface
 		organizationRepo := repository.NewOrganizationRepositoryMock()
-		organizationService := service.NewOrganizationService(organizationRepo, initializers.S3, "testSecret")
+		casbinRoleRepository := repository.NewCasbinRoleRepository(initializers.Enforcer)
+		organizationService := service.NewOrganizationService(organizationRepo, casbinRoleRepository, initializers.S3)
 		organizationHandler := handler.NewOrganizationHandler(organizationService)
 
 		app := fiber.New()
@@ -144,7 +145,8 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 
 		// Integration interface
 		jobRepo := repository.NewOrgOpenJobRepositoryMock()
-		jobSrv := service.NewOrgOpenJobService(jobRepo, test.DB_TEST, initializers.ESClient, initializers.S3, "testSecret")
+		casbinRoleRepository := repository.NewCasbinRoleRepository(initializers.Enforcer)
+		jobSrv := service.NewOrgOpenJobService(jobRepo, casbinRoleRepository, test.DB_TEST, initializers.ESClient, initializers.S3)
 		jobHandler := handler.NewOrgOpenJobHandler(jobSrv)
 
 		app := fiber.New()

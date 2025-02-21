@@ -17,6 +17,7 @@ type OrganizationRepository interface {
 	UpdateOrganization(org *models.Organization) (*models.Organization, error)
 	//UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
+	UpdateOrganizationBackgroundPicture(id uint, picURL string) error
 	DeleteOrganization(org uint) error
 	//DeleteOrganization(userID uuid.UUID, org uint) error
 }

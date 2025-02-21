@@ -63,9 +63,11 @@ type Organization struct {
 	Phone                string                `gorm:"type:varchar(20)" db:"phone"`
 	Name                 string                `gorm:"type:varchar(255);not null" db:"orgName"`
 	PicUrl               string                `gorm:"type:varchar(255)" db:"picUrl"`
-	HeadLine             string                `gorm:"type:varchar(255)" db:"headline"`  // Short description of the organization
+	BgUrl                string                `gorm:"type:varchar(255)" db:"bg_url"`
+	HeadLine             string                `gorm:"type:varchar(255)" db:"headline"`
 	Specialty            string                `gorm:"type:varchar(255)" db:"specialty"` // Organization's area of expertise
-	Address              string                `gorm:"type:varchar(255)" db:"address"`   // General location
+	Description          string                `gorm:"type:text" db:"description"`
+	Address              string                `gorm:"type:varchar(255)" db:"address"` // General location
 	Province             string                `gorm:"type:varchar(255)" db:"province"`
 	Country              string                `gorm:"type:varchar(255)" db:"country"`
 	Latitude             float64               `gorm:"type:decimal(10,8)" db:"latitude"`  // Geographic latitude (stored as string for precision)
