@@ -37,6 +37,9 @@ COPY --from=builder /usr/local/bin/app /usr/local/bin/app
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
+# Copy the Casbin configuration file
+COPY --from=builder /app/pkg/authorization/rbac_model.conf /app/pkg/authorization/rbac_model.conf
+
 EXPOSE 8080
 
 # Command to run the executable
