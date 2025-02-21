@@ -23,6 +23,7 @@ const numberOfEvent = 12
 // EventService is a service that provides operations on events.
 type eventService struct {
 	eventRepo repository.EventRepository
+	casbin    repository.EnforcerRoleRepository
 	DB        *gorm.DB
 	OS        *opensearch.Client
 	S3        *infrastructure.S3Uploader
@@ -30,9 +31,10 @@ type eventService struct {
 
 //--------------------------------------------//
 
-func NewEventService(eventRepo repository.EventRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) EventService {
+func NewEventService(eventRepo repository.EventRepository, casbin repository.EnforcerRoleRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) EventService {
 	return eventService{
 		eventRepo: eventRepo,
+		casbin:    casbin,
 		DB:        db,
 		OS:        os,
 		S3:        s3}
