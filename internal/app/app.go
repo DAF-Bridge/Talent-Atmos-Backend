@@ -107,7 +107,7 @@ func Start() {
 	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3)
 
 	// Define routes for Roles
-	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret)
+	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)     // default

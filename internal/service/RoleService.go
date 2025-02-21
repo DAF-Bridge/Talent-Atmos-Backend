@@ -185,9 +185,20 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 		return false, errs.NewUnexpectedError()
 	}
 	subject := "You got an invitation to manage" + inviterUser.Name
+	InviteMailBody := repository.InviteMailBody{
+		InviterName:      inviterUser.Name,
+		InvitedName:      invitedUser.Name,
+		OrganizationName: org.Name,
+		Token:            inviteToken.Token.String(),
+	}
+	InviteMailConfig := repository.InviteMailConfig{
+		Subject: subject,
+		Body:    InviteMailBody,
+		ToEmail: invitedEmail,
+	}
 
 	//send email
-	err = r.inviteMailRepository.SendInvitedMail(invitedEmail, subject, inviterUser.Name, inviteToken.Token.String())
+	err = r.inviteMailRepository.SendInvitedMail(InviteMailConfig)
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to send email: %v", err))
 		return false, errs.NewUnexpectedError()

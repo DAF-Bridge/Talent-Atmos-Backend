@@ -2,41 +2,30 @@ package repository
 
 import (
 	"bytes"
-	"gopkg.in/gomail.v2"
 	"html/template"
-	"log"
-	"sync"
+
+	"gopkg.in/gomail.v2"
 )
 
 type InviteMailRepository struct {
-	mailserver *gomail.Dialer
+	mailserver            *gomail.Dialer
+	tmpl                  *template.Template
+	baseCallbackInviteURL string
 }
 
-var (
-	tmpl     *template.Template
-	loadOnce sync.Once
-)
-
-func loadTemplate() {
-	loadOnce.Do(func() {
-		var err error
-		tmpl, err = template.ParseFiles("Invite_email_template.html")
-		if err != nil {
-			log.Fatalf("Error loading template: %v", err)
-		}
-	})
+func NewInviteMailRepository(mailserver *gomail.Dialer, tmpl *template.Template, baseCallbackInviteURL string) MailRepository {
+	return &InviteMailRepository{
+		mailserver:            mailserver,
+		tmpl:                  tmpl,
+		baseCallbackInviteURL: baseCallbackInviteURL}
 }
 
-func NewInviteMailRepository(mailserver *gomail.Dialer) MailRepository {
-	return &InviteMailRepository{mailserver: mailserver}
-}
-
-func (i *InviteMailRepository) SendInvitedMail(email string, subject string, Inviter string, token string) error {
+func (i *InviteMailRepository) SendInvitedMail(config InviteMailConfig) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", i.mailserver.Username)
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", subject)
-	context, err := makeHtmlInviteBody(Inviter, token)
+	m.SetHeader("To", config.ToEmail)
+	m.SetHeader("Subject", config.Subject)
+	context, err := i.makeHtmlInviteBody(config.Body)
 	if err != nil {
 		return err
 	}
@@ -44,21 +33,22 @@ func (i *InviteMailRepository) SendInvitedMail(email string, subject string, Inv
 	return i.mailserver.DialAndSend(m)
 }
 
-func makeHtmlInviteBody(Inviter string, token string) (string, error) {
-	loadTemplate()
+func (i *InviteMailRepository) makeHtmlInviteBody(Body InviteMailBody) (string, error) {
 
-	data := struct {
+	dataInTmpl := struct {
+		User    string
 		Inviter string
-		Token   string
 		URL     string
+		ORG     string
 	}{
-		Inviter: Inviter,
-		Token:   token,
-		URL:     "https://www.google.com/",
+		User:    Body.InvitedName,
+		Inviter: Body.InviterName,
+		URL:     i.baseCallbackInviteURL + Body.Token,
+		ORG:     Body.OrganizationName,
 	}
 
 	var tpl bytes.Buffer
-	if err := tmpl.Execute(&tpl, data); err != nil {
+	if err := i.tmpl.Execute(&tpl, dataInTmpl); err != nil {
 		return "", err
 	}
 

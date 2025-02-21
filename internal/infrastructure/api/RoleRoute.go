@@ -9,15 +9,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
+	"html/template"
 )
 
-func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string) {
+func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string,
+	tmpl *template.Template,
+	baseCallbackInviteURL string) {
 	dbRoleRepository := repository.NewDBRoleRepository(db)
 	enforcerRoleRepository := repository.NewCasbinRoleRepository(enforcer)
 	userRepository := repository.NewUserRepository(db)
 	organizationRepository := repository.NewOrganizationRepository(db)
 	inviteTokenRepository := repository.NewInviteTokenRepository(db)
-	inviteMailRepository := repository.NewInviteMailRepository(mail)
+	inviteMailRepository := repository.NewInviteMailRepository(mail, tmpl, baseCallbackInviteURL)
 
 	roleService := service.NewRoleWithDomainService(dbRoleRepository, enforcerRoleRepository, userRepository, organizationRepository, inviteTokenRepository, inviteMailRepository)
 	roleHandler := handler.NewRoleHandler(roleService)

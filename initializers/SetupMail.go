@@ -2,12 +2,30 @@ package initializers
 
 import (
 	"gopkg.in/gomail.v2"
+	"html/template"
 	"log"
 	"os"
 	"strconv"
 )
 
-var DialerMail *gomail.Dialer
+var (
+	DialerMail            *gomail.Dialer
+	InviteBodyTemplate    *template.Template
+	BaseCallbackInviteURL string
+)
+
+func SetupInviteMail() {
+	inviteBodyTemplate, err := template.ParseFiles("./Invite_email_template.html")
+	if err != nil {
+		log.Fatalf("Error loading template: %v", err)
+	}
+	InviteBodyTemplate = inviteBodyTemplate
+	baseUrl := os.Getenv("BASE_EXTERNAL_URL")
+	if baseUrl == "" {
+		log.Fatal("BASE_EXTERNAL_URL is not set")
+	}
+	BaseCallbackInviteURL = baseUrl + "/invite-callback?token="
+}
 
 func SetupMail() {
 	//SMTP_PASSWORD
