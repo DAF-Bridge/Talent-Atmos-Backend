@@ -46,6 +46,7 @@ func (r *RoleHandler) GetRolesForUserInDomain(c *fiber.Ctx) error {
 }
 
 func (r *RoleHandler) InvitationForMember(c *fiber.Ctx) error {
+	println("enter role handler")
 	// Access the user_id
 	userID, err := utils.GetUserIDFormFiberCtx(c)
 	if err != nil {
@@ -61,9 +62,14 @@ func (r *RoleHandler) InvitationForMember(c *fiber.Ctx) error {
 		Email string `json:"email"`
 	}
 	if err := c.BodyParser(&invitedEmail); err != nil {
+		println(invitedEmail.Email)
+		println(err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-
+	// if err := utils.ParseJSONAndValidate(c, &invitedEmail); err != nil {
+	// 	return err
+	// }
+	println(invitedEmail.Email)
 	ok, err := r.roleWithDomainService.Invitation(userID, invitedEmail.Email, orgID)
 	if err != nil {
 		return errs.SendFiberError(c, err)

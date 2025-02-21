@@ -19,7 +19,7 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 	return func(c *fiber.Ctx) error {
 
 		userData, ok := c.Locals("user").(jwt.MapClaims)
-		// fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
+		fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
 
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})

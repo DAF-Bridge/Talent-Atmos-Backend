@@ -123,7 +123,7 @@ func (r RoleWithDomainService) GetAllUsersWithRoleByDomain(orgID uint) ([]models
 }
 
 func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail string, orgID uint) (bool, error) {
-
+	println("enter role service")
 	//check InviterUser is existing
 	inviterUser, err := r.userRepository.FindByID(inviterUserID)
 	if err != nil {
