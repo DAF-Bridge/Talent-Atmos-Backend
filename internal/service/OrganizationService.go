@@ -384,13 +384,11 @@ func (s organizationService) DeleteOrganization(id uint) error {
 // --------------------------------------------------------------------------
 type organizationContactService struct {
 	contactRepo repository.OrganizationContactRepository
-	casbin      repository.EnforcerRoleRepository
 }
 
-func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository, casbin repository.EnforcerRoleRepository) OrganizationContactService {
+func NewOrganizationContactService(contactRepo repository.OrganizationContactRepository) OrganizationContactService {
 	return organizationContactService{
 		contactRepo: contactRepo,
-		casbin:      casbin,
 	}
 }
 
@@ -496,20 +494,19 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 
 type orgOpenJobService struct {
 	jobRepo repository.OrgOpenJobRepository
-	casbin  repository.EnforcerRoleRepository
 	DB      *gorm.DB
 	OS      *opensearch.Client
 	S3      *infrastructure.S3Uploader
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, casbin repository.EnforcerRoleRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
 	return orgOpenJobService{
 		jobRepo: jobRepo,
-		casbin:  casbin,
-		DB:      db,
-		OS:      os,
-		S3:      s3,
+
+		DB: db,
+		OS: os,
+		S3: s3,
 	}
 }
 

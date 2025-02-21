@@ -31,7 +31,7 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 
 	// Dependencies Injections for Organization Contact
 	orgContactRepo := repository.NewOrganizationContactRepository(db)
-	orgContactService := service.NewOrganizationContactService(orgContactRepo, casbinRoleRepository)
+	orgContactService := service.NewOrganizationContactService(orgContactRepo)
 	orgContactHandler := handler.NewOrganizationContactHandler(orgContactService)
 
 	org.Post("/:orgID/contacts/create", orgContactHandler.CreateContact)
@@ -42,7 +42,7 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 
 	// Dependencies Injections for Organization Open Jobs
 	orgOpenJobRepo := repository.NewOrgOpenJobRepository(db)
-	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo, casbinRoleRepository, db, es, s3)
+	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo, db, es, s3)
 	orgOpenJobHandler := handler.NewOrgOpenJobHandler(orgOpenJobService)
 
 	// Define routes for Organization Open Jobs
