@@ -25,7 +25,7 @@ import (
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()

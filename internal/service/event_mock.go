@@ -9,15 +9,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type eventServiceMock struct {
+type EventServiceMock struct {
 	mock.Mock
 }
 
-func NewEventServiceMock() *eventServiceMock {
-	return &eventServiceMock{}
+func NewEventServiceMock() *EventServiceMock {
+	return &EventServiceMock{}
 }
 
-func (m *eventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+func (m *EventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
 	ret := m.Called(orgID, req, ctx, file, fileHeader)
 
 	var r0 error
@@ -30,7 +30,7 @@ func (m *eventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx con
 	return r0
 }
 
-func (m *eventServiceMock) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
+func (m *EventServiceMock) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
 	ret := m.Called(orgID, eventID)
 
 	var r0 *dto.EventResponses
@@ -52,7 +52,7 @@ func (m *eventServiceMock) GetEventByID(orgID uint, eventID uint) (*dto.EventRes
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetAllEvents() ([]dto.EventResponses, error) {
+func (m *EventServiceMock) GetAllEvents() ([]dto.EventResponses, error) {
 	ret := m.Called()
 
 	var r0 []dto.EventResponses
@@ -74,7 +74,7 @@ func (m *eventServiceMock) GetAllEvents() ([]dto.EventResponses, error) {
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, error) {
+func (m *EventServiceMock) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, error) {
 	ret := m.Called(orgID)
 
 	var r0 []dto.EventResponses
@@ -96,7 +96,7 @@ func (m *eventServiceMock) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
+func (m *EventServiceMock) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
 	ret := m.Called(page)
 
 	var r0 []dto.EventResponses
@@ -118,7 +118,7 @@ func (m *eventServiceMock) GetEventPaginate(page uint) ([]dto.EventResponses, er
 	return r0, r1
 }
 
-func (m *eventServiceMock) GetFirst() (*dto.EventResponses, error) {
+func (m *EventServiceMock) GetFirst() (*dto.EventResponses, error) {
 	ret := m.Called()
 
 	var r0 *dto.EventResponses
@@ -140,7 +140,7 @@ func (m *eventServiceMock) GetFirst() (*dto.EventResponses, error) {
 	return r0, r1
 }
 
-func (m *eventServiceMock) CountEvent() (int64, error) {
+func (m *EventServiceMock) CountEvent() (int64, error) {
 	ret := m.Called()
 
 	var r0 int64
@@ -160,7 +160,7 @@ func (m *eventServiceMock) CountEvent() (int64, error) {
 	return r0, r1
 }
 
-func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
+func (m *EventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
 	ret := m.Called(orgID, eventID, event, ctx, file, fileHeader)
 
 	var r0 *dto.EventResponses
@@ -182,7 +182,7 @@ func (m *eventServiceMock) UpdateEvent(orgID uint, eventID uint, event dto.NewEv
 	return r0, r1
 }
 
-func (m *eventServiceMock) ListAllCategories() (*dto.CategoryListResponse, error) {
+func (m *EventServiceMock) ListAllCategories() (*dto.CategoryListResponse, error) {
 	ret := m.Called()
 
 	var r0 *dto.CategoryListResponse
@@ -202,7 +202,7 @@ func (m *eventServiceMock) ListAllCategories() (*dto.CategoryListResponse, error
 	return r0, r1
 }
 
-func (m *eventServiceMock) UpdateEventPicture(orgID uint, eventID uint, picURL string) error {
+func (m *EventServiceMock) UpdateEventPicture(orgID uint, eventID uint, picURL string) error {
 	ret := m.Called(orgID, eventID, picURL)
 
 	var r0 error
@@ -215,7 +215,7 @@ func (m *eventServiceMock) UpdateEventPicture(orgID uint, eventID uint, picURL s
 	return r0
 }
 
-func (m *eventServiceMock) DeleteEvent(orgID uint, eventID uint) error {
+func (m *EventServiceMock) DeleteEvent(orgID uint, eventID uint) error {
 	ret := m.Called(orgID, eventID)
 
 	var r0 error
@@ -228,7 +228,7 @@ func (m *eventServiceMock) DeleteEvent(orgID uint, eventID uint) error {
 	return r0
 }
 
-func (m *eventServiceMock) SyncEvents() error {
+func (m *EventServiceMock) SyncEvents() error {
 	ret := m.Called()
 
 	var r0 error
@@ -241,7 +241,7 @@ func (m *eventServiceMock) SyncEvents() error {
 	return r0
 }
 
-func (m *eventServiceMock) SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
+func (m *EventServiceMock) SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
 	ret := m.Called(query, page, Offset)
 
 	var r0 dto.SearchEventResponse

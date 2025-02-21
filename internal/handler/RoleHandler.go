@@ -10,12 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type userWithRole struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Role     string `json:"role"`
-}
-
 type RoleHandler struct {
 	roleWithDomainService service.RoleService
 }
@@ -101,7 +95,7 @@ func (r *RoleHandler) DeleteMember(c *fiber.Ctx) error {
 	}
 
 	var removeMemberRequest dto.RemoveMemberRequest
-	if err := utils.UnmarshalAndValidateJSON(c, string(c.Body()), &removeMemberRequest); err != nil {
+	if err := utils.UnmarshalAndValidateJSON(string(c.Body()), &removeMemberRequest); err != nil {
 		return err
 	}
 	ok, err := r.roleWithDomainService.DeleteMember(removeMemberRequest.UserID, orgID)
@@ -150,7 +144,7 @@ func (r *RoleHandler) UpdateRolesForUserInDomain(c *fiber.Ctx) error {
 	//role form Json body
 	var editRoleRequest dto.EditRoleRequest
 
-	if err := utils.UnmarshalAndValidateJSON(c, string(c.Body()), &editRoleRequest); err != nil {
+	if err := utils.UnmarshalAndValidateJSON(string(c.Body()), &editRoleRequest); err != nil {
 		return err
 	}
 	ok, err := r.roleWithDomainService.EditRole(editRoleRequest.UserID, orgID, editRoleRequest.Role)

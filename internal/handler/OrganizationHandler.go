@@ -50,7 +50,7 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
 	var org dto.OrganizationRequest
-	if err := utils.UnmarshalAndValidateJSON(c, orgData, &org); err != nil {
+	if err := utils.UnmarshalAndValidateJSON(orgData, &org); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -173,7 +173,7 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	// Parse JSON from the "org" form field
 	orgData := c.FormValue("org")
 	var org dto.OrganizationRequest
-	if err := utils.UnmarshalAndValidateJSON(c, orgData, &org); err != nil {
+	if err := utils.UnmarshalAndValidateJSON(orgData, &org); err != nil {
 		return err
 	}
 

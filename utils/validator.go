@@ -18,9 +18,9 @@ var validate = validator.New()
 func ValidateStruct(data interface{}) []types.ValidationError {
 	var validationErrors []types.ValidationError
 
-	errs := validate.Struct(data)
-	if errs != nil {
-		for _, err := range errs.(validator.ValidationErrors) {
+	err := validate.Struct(data)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, types.ValidationError{
 				Field: err.Field(),
 				Tag:   err.Tag(),
@@ -56,7 +56,7 @@ func ParseJSONAndValidate(c *fiber.Ctx, body interface{}) error {
 	return nil
 }
 
-func UnmarshalAndValidateJSON(c *fiber.Ctx, jsonStr string, dest interface{}) error {
+func UnmarshalAndValidateJSON(jsonStr string, dest interface{}) error {
 	if jsonStr == "" {
 		return errs.NewBadRequestError("Empty JSON body")
 	}

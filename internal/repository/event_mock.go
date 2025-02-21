@@ -251,21 +251,21 @@ func (e *eventRepositoryMock) Search(params map[string]string) ([]models.Event, 
 		// 	match = false
 		// }
 
-		if params["audience"] != "" && string(event.Audience) != params["audience"] {
+		if params["audience"] != "" && event.Audience != params["audience"] {
 			match = false
 		}
 
-		if params["price"] != "" && string(event.PriceType) != params["price"] {
+		if params["price"] != "" && event.PriceType != params["price"] {
 			match = false
 		}
 
-		if params["location"] != "" && string(event.LocationType) != params["location"] {
+		if params["location"] != "" && event.LocationType != params["location"] {
 			match = false
 		}
 
 		if params["search"] != "" {
 			if !(strings.Contains(strings.ToLower(event.Name), strings.ToLower(params["search"])) ||
-				strings.Contains(strings.ToLower(string(event.Content)), strings.ToLower(params["search"])) ||
+				strings.Contains(strings.ToLower(event.Content), strings.ToLower(params["search"])) ||
 				strings.Contains(strings.ToLower(event.LocationName), strings.ToLower(params["search"])) ||
 				strings.Contains(strings.ToLower(event.Province), strings.ToLower(params["search"]))) {
 				match = false
@@ -334,7 +334,7 @@ func (e *eventRepositoryMock) GetAllCategories() ([]models.Category, error) {
 
 // FindCategoryByIds implements EventRepository.
 func (e *eventRepositoryMock) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {
-	categories := []models.Category{}
+	var categories []models.Category
 	for _, catID := range catIDs {
 		for _, category := range e.events[0].Categories {
 			if category.ID == catID {

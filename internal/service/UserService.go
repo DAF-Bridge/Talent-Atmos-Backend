@@ -22,7 +22,7 @@ type userService struct {
 	S3Uploader *infrastructure.S3Uploader
 }
 
-func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) *userService {
+func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) UserService {
 	return &userService{
 		userRepo:   userRepo,
 		S3Uploader: s3Uploader,

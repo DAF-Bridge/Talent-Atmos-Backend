@@ -55,7 +55,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 }
 
 func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categoryIDs := []uint{}
+	categoryIDs := make([]uint, 0)
 	for _, category := range req.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
@@ -70,7 +70,7 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		return errs.NewUnexpectedError()
 	}
 
-	contacts := []models.ContactChannel{}
+	contacts := make([]models.ContactChannel, 0)
 	for _, contact := range req.ContactChannels {
 		contacts = append(contacts, models.ContactChannel{
 			Media:     models.Media(contact.Media),
@@ -99,7 +99,7 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		err = s.eventRepo.UpdateEventPicture(orgID, event.ID, picURL)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return  errs.NewNotFoundError("event not found")
+				return errs.NewNotFoundError("event not found")
 			}
 
 			logs.Error(err)
@@ -171,7 +171,7 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*dto.EventResponse
 func (s eventService) ListAllCategories() (*dto.CategoryListResponse, error) {
 	categories, err := s.eventRepo.GetAllCategories()
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("No categories found")
 		}
 
@@ -236,7 +236,7 @@ func (s eventService) CountEvent() (int64, error) {
 }
 
 func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
-	categoryIDs := []uint{}
+	var categoryIDs []uint
 	for _, category := range req.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
@@ -261,7 +261,7 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
-	contacts := []models.ContactChannel{}
+	var contacts []models.ContactChannel
 	for _, contact := range req.ContactChannels {
 		contacts = append(contacts, models.ContactChannel{
 			EventID:   existingEvent.ID,

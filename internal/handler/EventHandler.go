@@ -75,7 +75,7 @@ func (h EventHandler) CreateEvent(c *fiber.Ctx) error {
 
 	eventData := c.FormValue("event")
 
-	if err := utils.UnmarshalAndValidateJSON(c, eventData, &event); err != nil {
+	if err := utils.UnmarshalAndValidateJSON(eventData, &event); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 

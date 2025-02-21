@@ -609,7 +609,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, er
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []dto.JobResponses{}
+	var jobsResponse []dto.JobResponses
 
 	for _, job := range jobs {
 		jobResponse := ConvertToJobResponse(job)
@@ -648,7 +648,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 		return nil, errs.NewUnexpectedError()
 	}
 
-	jobsResponse := []dto.JobResponses{}
+	var jobsResponse []dto.JobResponses
 
 	for _, job := range jobs {
 		jobResponse := ConvertToJobResponse(job)
@@ -729,7 +729,7 @@ func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {
 	err := s.jobRepo.DeleteJob(orgID, jobID)
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("job not found")
 		}
 

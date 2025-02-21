@@ -2,8 +2,8 @@ package errs
 
 import (
 	"errors"
-	"net/http"
 	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
 type AppError struct {
