@@ -162,22 +162,16 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 }
 
 func (r eventRepository) UpdateEventPicture(orgID uint, eventID uint, picURL string) error {
-	err := r.db.Model(&models.Event{}).
+	result := r.db.Model(&models.Event{}).
 		Where("organization_id = ? AND id = ?", orgID, eventID).
-		Update("pic_url", picURL).Error
-	if err != nil {
-		return err
-	}
+		Update("pic_url", picURL)
+	return utils.GormErrorAndRowsAffected(result)
 
-	return nil
 }
 
 func (r eventRepository) Delete(orgID uint, eventID uint) error {
 	// Soft delete
-	err := r.db.Where("organization_id = ? AND id = ?", orgID, eventID).Delete(&models.Event{}).Error
-	if err != nil {
-		return err
-	}
+	result := r.db.Where("organization_id = ? AND id = ?", orgID, eventID).Delete(&models.Event{})
+	return utils.GormErrorAndRowsAffected(result)
 
-	return nil
 }

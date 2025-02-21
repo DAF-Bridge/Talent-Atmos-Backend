@@ -5,6 +5,7 @@
 .vscode
 
 # temp files
+tmp/*
 /tmp
 /tmp/*
 build-erros.log

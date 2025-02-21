@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -35,10 +36,15 @@ func (i inviteTokenRepository) GetByToken(token uuid.UUID) (*models.InviteToken,
 }
 
 func (i inviteTokenRepository) UpdateByToken(token uuid.UUID, inviteToken *models.InviteToken) error {
-	return i.db.
+	result := i.db.
 		Model(&models.InviteToken{}).
 		Where("token = ?", token).
-		Updates(inviteToken).Error
+		Updates(inviteToken)
+	err := utils.GormErrorAndRowsAffected(result)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (i inviteTokenRepository) Create(inviteToken *models.InviteToken) (*models.InviteToken, error) {
@@ -52,11 +58,9 @@ func (i inviteTokenRepository) Create(inviteToken *models.InviteToken) (*models.
 
 func (i inviteTokenRepository) DeleteByToken(token uuid.UUID) error {
 
-	err := i.db.Where("token = ?", token).Delete(&models.InviteToken{}).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	result := i.db.Where("token = ?", token).Delete(&models.InviteToken{})
+	return utils.GormErrorAndRowsAffected(result)
+
 }
 
 func (i inviteTokenRepository) IsExistToken(invitedUserID uuid.UUID, organizationID uint) (bool, error) {

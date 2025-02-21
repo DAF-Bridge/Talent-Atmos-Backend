@@ -77,6 +77,10 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		// Update event record in database
 		err = s.eventRepo.UpdateEventPicture(uint(orgID), uint(newEvent.ID), picURL)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errs.NewNotFoundError("event not found")
+			}
+
 			logs.Error(err)
 			return nil, errs.NewUnexpectedError()
 		}
@@ -202,7 +206,7 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
-	// Convert request to event model
+	// Convert request to Event model
 	event := requestConvertToEvent(orgID, req)
 	event.ID = eventID
 	if file != nil {
@@ -237,7 +241,7 @@ func (s eventService) UploadEventPicture(ctx context.Context, file multipart.Fil
 
 	if err != nil {
 		logs.Error(err)
-		return "", err
+		return "", errs.NewUnexpectedError()
 	}
 
 	return picURL, nil

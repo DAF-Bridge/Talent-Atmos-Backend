@@ -44,7 +44,7 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("industries not found")
+			return errs.NewNotFoundError("industries not found")
 		}
 	}
 
@@ -124,6 +124,9 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 		// Update PicUrl in organization
 		err = s.repo.UpdateOrganizationPicture(newOrg.ID, picURL)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errs.NewNotFoundError("event not found")
+			}
 			logs.Error(err)
 			return errs.NewUnexpectedError()
 		}
@@ -182,7 +185,7 @@ func (s organizationService) GetPaginateOrganization(page uint) ([]dto.Organizat
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("organizations not found")
+			return nil, errs.NewNotFoundError("organizations not found")
 		}
 
 		logs.Error(err)
@@ -222,7 +225,7 @@ func (s organizationService) ListAllIndustries() (dto.IndustryListResponse, erro
 	industries, err := s.repo.GetAllIndustries()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.IndustryListResponse{}, errors.New("industries not found")
+			return dto.IndustryListResponse{}, errs.NewNotFoundError("industries not found")
 		}
 
 		logs.Error(err)
@@ -255,7 +258,7 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 	industries, err := s.repo.FindIndustryByIds(org.IndustryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("industries not found")
+			return nil, errs.NewNotFoundError("industries not found")
 		}
 	}
 
@@ -285,6 +288,9 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 		newOrg.PicUrl = picURL
 		err = s.repo.UpdateOrganizationPicture(newOrg.ID, picURL)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errs.NewNotFoundError("event not found")
+			}
 			logs.Error(err)
 			return nil, errs.NewUnexpectedError()
 		}
@@ -374,7 +380,7 @@ func (s organizationContactService) CreateContact(orgID uint, contact dto.Organi
 	err := s.contactRepo.Create(orgID, &reqContact)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("organization not found")
+			return errs.NewNotFoundError("organization not found")
 		}
 
 		logs.Error(err)
@@ -388,7 +394,7 @@ func (s organizationContactService) GetContactByID(orgID uint, id uint) (*dto.Or
 	contact, err := s.contactRepo.GetByID(orgID, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("contact not found")
+			return nil, errs.NewNotFoundError("contact not found")
 		}
 
 		logs.Error(err)
@@ -403,7 +409,7 @@ func (s organizationContactService) GetAllContactsByOrgID(orgID uint) ([]dto.Org
 	contacts, err := s.contactRepo.GetAllByOrgID(orgID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("contacts not found")
+			return nil, errs.NewNotFoundError("contacts not found")
 		}
 
 		logs.Error(err)
@@ -425,7 +431,7 @@ func (s organizationContactService) UpdateContact(orgID uint, contactID uint, co
 	updatedContact, err := s.contactRepo.Update(&reqContact)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("contact not found")
+			return nil, errs.NewNotFoundError("contact not found")
 		}
 
 		logs.Error(err)
@@ -440,7 +446,7 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 	err := s.contactRepo.Delete(orgID, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("contact not found")
+			return errs.NewNotFoundError("contact not found")
 		}
 
 		logs.Error(err)
@@ -498,7 +504,7 @@ func (s orgOpenJobService) NewJob(orgID uint, dto dto.JobRequest, ctx context.Co
 	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("categories not found")
+			return errs.NewNotFoundError("categories not found")
 		}
 
 		logs.Error(err)
@@ -557,7 +563,7 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, er
 	jobs, err := s.jobRepo.GetAllJobsByOrgID(OrgId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("jobs not found")
+			return nil, errs.NewNotFoundError("jobs not found")
 		}
 
 		logs.Error(err)
@@ -579,7 +585,7 @@ func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*dto.JobResponses
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("job not found")
+			return nil, errs.NewNotFoundError("job not found")
 		}
 
 		logs.Error(err)
@@ -596,7 +602,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("jobs not found")
+			return nil, errs.NewNotFoundError("jobs not found")
 		}
 
 		logs.Error(err)
@@ -617,7 +623,7 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest,
 	existJob, err := s.jobRepo.GetJobByID(orgID, jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("job not found")
+			return nil, errs.NewNotFoundError("job not found")
 		}
 
 		logs.Error(err)
@@ -627,7 +633,7 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest,
 	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("categories not found")
+			return nil, errs.NewNotFoundError("categories not found")
 		}
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()

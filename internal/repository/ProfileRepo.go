@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -61,6 +62,7 @@ func (r *ExperienceRepository) Update(experience *models.Experience) error {
 }
 
 func (r *ExperienceRepository) Delete(experienceID uuid.UUID) error {
-	return r.db.Delete(&models.Experience{}, experienceID).Error
+	result := r.db.Delete(&models.Experience{}, experienceID)
+	return utils.GormErrorAndRowsAffected(result)
 
 }

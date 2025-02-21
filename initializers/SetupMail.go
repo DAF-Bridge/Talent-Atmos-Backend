@@ -15,9 +15,10 @@ func SetupMail() {
 	//SMTP_HOST
 	//SMTP_PORT
 	smtpHost := os.Getenv("SMTP_HOST")
+
 	smtpPort, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("SMTP_PORT is not set")
 	}
 	smtpMail := os.Getenv("SMTP_MAIL")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")

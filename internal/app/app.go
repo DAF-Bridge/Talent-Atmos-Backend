@@ -17,6 +17,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 	// "github.com/aws/aws-sdk-go-v2/aws"
 	// "github.com/aws/aws-sdk-go-v2/service/s3"
@@ -81,6 +82,9 @@ func Start() {
 		AllowMethods:     "GET, POST,  PUT, DELETE",
 		AllowCredentials: true, // Allow credentials (cookies) to be sent
 	}))
+
+	// Initialize default config
+	app.Use(logger.New())
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	// jwtSecret := viper.GetString("middleware.jwtSecret")

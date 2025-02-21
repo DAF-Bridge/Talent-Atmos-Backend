@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -63,10 +64,8 @@ func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, e
 }
 
 func (r userRepository) UpdateUserPic(userID uuid.UUID, picURL string) error {
-	if err := r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error; err != nil {
-		return err
-	}
-	return nil
+	result := r.db.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL)
+	return utils.GormErrorAndRowsAffected(result)
 }
 
 // begin transaction
