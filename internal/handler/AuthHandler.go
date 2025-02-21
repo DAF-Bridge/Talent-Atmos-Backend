@@ -76,13 +76,8 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	// Generate token
 	token, err := h.authService.LogIn(req.Email, req.Password)
 	if err != nil {
-		if appErr, ok := err.(errs.AppError); ok {
-			logs.Error(appErr.Message)
-			return c.Status(appErr.Code).JSON(fiber.Map{"error": appErr.Message})
-		}
-
 		logs.Error(err.Error())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	// Set the JWT token in a cookie after redirect

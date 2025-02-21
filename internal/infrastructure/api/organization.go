@@ -6,15 +6,17 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
+	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/opensearch-project/opensearch-go"
 	"gorm.io/gorm"
 )
 
-func NewOrganizationRouter(app *fiber.App, db *gorm.DB, es *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) {
+func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
-	organizationService := service.NewOrganizationService(organizationRepo, s3, jwtSecret)
+	casbinRoleRepository := repository.NewCasbinRoleRepository(enforcer)
+	organizationService := service.NewOrganizationService(organizationRepo, casbinRoleRepository, s3)
 	organizationHandler := handler.NewOrganizationHandler(organizationService)
 
 	org := app.Group("/orgs")

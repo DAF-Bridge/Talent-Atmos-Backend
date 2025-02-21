@@ -61,6 +61,17 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// @Summary Get current user profile
+// @Description Get current user profile
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} domain.Profile
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /users/me [get]
 func (h *UserHandler) GetCurrentUser(c *fiber.Ctx) error {
 	userData, ok := c.Locals("user").(jwt.MapClaims)
 	// fmt.Printf("Type: %T, Value: %+v\n", userData, userData)

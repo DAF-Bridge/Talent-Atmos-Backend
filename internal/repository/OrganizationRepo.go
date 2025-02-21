@@ -17,19 +17,31 @@ func NewOrganizationRepository(db *gorm.DB) OrganizationRepository {
 	return organizationRepository{db: db}
 }
 
-func (r organizationRepository) CreateOrganization(org *models.Organization) error {
+func (r organizationRepository) CreateOrganization(userId uuid.UUID, org *models.Organization) (*models.Organization, error) {
 	tx := r.db.Begin()
 
 	if err := r.db.Create(org).Error; err != nil {
 		tx.Rollback()
-		return err
+		return nil, err
+	}
+
+	newRole := &models.RoleInOrganization{
+		UserID:         userId,
+		OrganizationID: org.ID,
+		Role:           "owner",
+	}
+
+	if err := r.db.Create(newRole).
+		Error; err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return org, nil
 }
 
 func (r organizationRepository) GetAllIndustries() ([]models.Industry, error) {
@@ -50,12 +62,12 @@ func (r organizationRepository) FindIndustryByIds(industryIDs []uint) ([]models.
 	return industries, nil
 }
 
-func (r organizationRepository) GetByOrgID(userID uuid.UUID, id uint) (*models.Organization, error) {
+func (r organizationRepository) GetByOrgID(id uint) (*models.Organization, error) {
 	org := &models.Organization{}
 	if err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("id = ?", id).
+		Where("id = ? ", id).
 		First(org).Error; err != nil {
 		return nil, err
 	}
@@ -70,7 +82,7 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 		Preload("OrganizationContacts").
 		Preload("Industries").
 		Order("created_at desc").Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&orgs).Error
 
 	if err != nil {
@@ -80,12 +92,11 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 	return orgs, nil
 }
 
-func (r organizationRepository) GetOrganizations(userID uuid.UUID) ([]models.Organization, error) {
+func (r organizationRepository) GetAllOrganizations() ([]models.Organization, error) {
 	var orgs []models.Organization
 	err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("owner_id = ?", userID).
 		Find(&orgs).Error
 	if err != nil {
 		return nil, err
@@ -97,7 +108,7 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) (*m
 	tx := r.db.Begin()
 
 	var existOrg models.Organization
-	if err := tx.Where("id = ?", org.ID).First(&existOrg).Error; err != nil {
+	if err := tx.Where("id = ? ", org.ID).First(&existOrg).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -132,7 +143,7 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) (*m
 	if err := tx.
 		Preload("OrganizationContacts").
 		Preload("Industries").
-		Where("id = ?", org.ID).
+		Where("id = ? ", org.ID).
 		First(&updatedOrg).Error; err != nil {
 
 		tx.Rollback()
@@ -161,14 +172,13 @@ func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string
 	return nil
 }
 
-func (r organizationRepository) DeleteOrganization(userID uuid.UUID, id uint) error {
+func (r organizationRepository) DeleteOrganization(id uint) error {
 	tx := r.db.Begin()
 
 	if err := tx.Model(&models.User{}).
 		Where("organization_id = ?", id).
 		Updates(map[string]interface{}{
 			"organization_id": nil,
-			"owned_org_id":    nil,
 		}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -349,7 +359,7 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 		Preload("Categories").
 		Order("created_at desc").
 		Limit(int(size)).
-		Offset(int(offset)).
+		Offset(offset).
 		Find(&orgs).Error
 
 	if err != nil {

@@ -3,6 +3,9 @@ package initializers
 import (
 	"context"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/pkg/authorization"
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"io"
 	"log"
 	"os"
@@ -19,12 +22,14 @@ import (
 
 var DB *gorm.DB
 
-// var ESClient *elasticsearch.Client
+// ESClient  *elasticsearch.Client
 var ESClient *opensearch.Client
 
 var S3 *infrastructure.S3Uploader
 
 var ctx = context.Background()
+
+var Enforcer *casbin.Enforcer
 
 func ConnectToDB() {
 	// Define the PostgreSQL connection details
@@ -132,4 +137,31 @@ func ConnectToRedis() *redis.Client {
 	logs.Info(fmt.Sprintf("Successfully connected to Redis!, %s", res))
 
 	return client
+}
+
+func ConnectToCasbin() {
+	// Initialize  authorization adapter
+	adapter, err := gormadapter.NewAdapterByDB(DB)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("failed to initialize authorization adapter: %v", err))
+	}
+
+	// Load model configuration file and policy store adapter
+	Enforcer, err = casbin.NewEnforcer("pkg/authorization/rbac_model.conf", adapter)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("failed to create authorization enforcer: %v", err))
+	}
+	Enforcer.EnableAutoSave(true)
+	//if err := Enforcer.LoadPolicy(); err != nil {
+	//	panic(fmt.Sprintf("failed to load policy: %v", err))
+	//}
+	ok, err := Enforcer.AddPoliciesEx(authorization.GetPermissionsList())
+	if err != nil {
+		logs.Info(fmt.Sprintf("Failed to add policies: %v", err))
+	}
+	if !ok {
+		logs.Info(fmt.Sprintf("Failed to add policies"))
+	}
+	logs.Info("Successfully connected to Casbin!")
+
 }

@@ -10,6 +10,12 @@ type userRepository struct {
 	db *gorm.DB
 }
 
+func (r userRepository) FindInUserIdList(userIds []uuid.UUID) ([]models.User, error) {
+	var users []models.User
+	err := r.db.Where("id IN (?)", userIds).Find(&users).Error
+	return users, err
+}
+
 // Constructor
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
@@ -86,4 +92,12 @@ func (r userRepository) UpdateUserPic(userID uuid.UUID, picURL string) error {
 // begin transaction
 func (r userRepository) BeginTransaction() *gorm.DB {
 	return r.db.Begin()
+}
+
+func (r userRepository) FindByID(userID uuid.UUID) (*models.User, error) {
+	var user models.User
+	if err := r.db.Where("id = ?", userID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

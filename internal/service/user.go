@@ -32,7 +32,7 @@ func convertToUserResponses(user *models.User) *dto.UserResponses {
 	}
 }
 
-func convertToUserModel(user *dto.SiguUpRequest) *models.User {
+func convertToUserModel(user *dto.SignUpRequest) *models.User {
 	return &models.User{
 		Name:     user.Name,
 		Email:    user.Email,

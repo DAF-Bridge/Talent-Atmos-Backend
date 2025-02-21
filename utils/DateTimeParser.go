@@ -41,7 +41,7 @@ func (t *TimeOnly) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Convert to a database value (for GORM)
+// Value Convert to a database value (for GORM)
 func (t TimeOnly) Value() (driver.Value, error) {
 	return t.Format("15:04:05"), nil
 }
@@ -132,7 +132,7 @@ func (d *DateOnly) Scan(value interface{}) error {
 	}
 }
 
-// Searching Service Utils
+// GetDateRange Searching Service Utils
 // GetDateRange converts a predefined date range string into a start and end time.
 func GetDateRange(dateRange string) (start time.Time, end time.Time) {
 	now := time.Now()

@@ -26,10 +26,16 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	initializers.DB.AutoMigrate(&models.User{}, &models.Organization{})
+	//if err := initializers.DB.AutoMigrate(&models.RoleInOrganization{}); err != nil {
+	//	log.Fatal(err)
+	//}
 
-	// initializers.DB.AutoMigrate(&models.User{})
-	// initializers.DB.AutoMigrate(&models.Organization{})
+	if err := initializers.DB.AutoMigrate(&models.InviteToken{}); err != nil {
+		log.Fatal(err)
+	}
+
+	//initializers.DB.AutoMigrate(&models.User{})
+	//initializers.DB.AutoMigrate(&models.Organization{})
 	// initializers.DB.AutoMigrate(&models.OrganizationContact{})
 	// initializers.DB.AutoMigrate(&models.OrgOpenJob{})
 	// initializers.DB.AutoMigrate(&models.Industry{})

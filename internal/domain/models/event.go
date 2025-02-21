@@ -97,7 +97,7 @@ type TicketAvailable struct {
 
 // Event is in repository package
 
-// TicketAvailable
+// TicketAvailableRepository
 type TicketAvailableRepository interface {
 	GetByID(id uint) (*TicketAvailable, error)
 	GetAll() ([]TicketAvailable, error)

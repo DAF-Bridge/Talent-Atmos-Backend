@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"mime/multipart"
+	"strconv"
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
@@ -24,16 +25,17 @@ import (
 const numberOfOrganization = 10
 
 type organizationService struct {
-	repo      repository.OrganizationRepository
-	S3        *infrastructure.S3Uploader
-	jwtSecret string
+	repo   repository.OrganizationRepository
+	casbin repository.EnforcerRoleRepository
+	S3     *infrastructure.S3Uploader
 }
 
-func NewOrganizationService(repo repository.OrganizationRepository, S3 *infrastructure.S3Uploader, jwtSecret string) OrganizationService {
+func NewOrganizationService(repo repository.OrganizationRepository, casbin repository.EnforcerRoleRepository,
+	S3 *infrastructure.S3Uploader) OrganizationService {
 	return organizationService{
-		repo:      repo,
-		S3:        S3,
-		jwtSecret: jwtSecret,
+		repo:   repo,
+		casbin: casbin,
+		S3:     S3,
 	}
 }
 
@@ -77,9 +79,10 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 	}
 
 	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
-	err = s.repo.CreateOrganization(&newOrg)
+	createdOrg, err := s.repo.CreateOrganization(userID, &newOrg)
 	if err != nil {
-		if pqErr, ok := err.(*pgconn.PgError); ok {
+		var pqErr *pgconn.PgError
+		if errors.As(err, &pqErr) {
 			switch pqErr.Code {
 			case "23505": // Unique constraint violation code for PostgreSQL
 				return errs.NewConflictError("Email already exists for another organization")
@@ -126,12 +129,23 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 			return errs.NewUnexpectedError()
 		}
 	}
+	// Create a role for the organization
+	ok, err := s.casbin.AddRoleForUserInDomain(userID.String(), "owner", strconv.Itoa(int(createdOrg.ID)))
+
+	if err != nil {
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+	if !ok {
+		logs.Error("Failed to create role for user")
+		return errs.NewUnexpectedError()
+	}
 
 	return nil
 }
 
-func (s organizationService) GetOrganizationByID(userID uuid.UUID, id uint) (*dto.OrganizationResponse, error) {
-	org, err := s.repo.GetByOrgID(userID, id)
+func (s organizationService) GetOrganizationByID(id uint) (*dto.OrganizationResponse, error) {
+	org, err := s.repo.GetByOrgID(id)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -167,8 +181,9 @@ func (s organizationService) GetPaginateOrganization(page uint) ([]dto.Organizat
 	return orgsResponses, nil
 }
 
-func (s organizationService) ListAllOrganizations(userID uuid.UUID) ([]dto.OrganizationResponse, error) {
-	orgs, err := s.repo.GetOrganizations(userID)
+func (s organizationService) ListAllOrganizations() ([]dto.OrganizationResponse, error) {
+
+	orgs, err := s.repo.GetAllOrganizations()
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -209,8 +224,9 @@ func (s organizationService) ListAllIndustries() (dto.IndustryListResponse, erro
 	return industriesResponse, nil
 }
 
-func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
-	existingOrg, err := s.repo.GetByOrgID(ownerID, orgID)
+func (s organizationService) UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.OrganizationResponse, error) {
+
+	existingOrg, err := s.repo.GetByOrgID(orgID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("organization not found")
@@ -268,7 +284,7 @@ func (s organizationService) UpdateOrganization(ownerID uuid.UUID, orgID uint, o
 
 	updatedOrg, err := s.repo.UpdateOrganization(&newOrg)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("organization not found")
 		}
 
@@ -297,8 +313,8 @@ func (s organizationService) UpdateOrganizationPicture(id uint, picURL string) e
 }
 
 // Deletes an organization by its ID
-func (s organizationService) DeleteOrganization(userID uuid.UUID, id uint) error {
-	err := s.repo.DeleteOrganization(userID, id)
+func (s organizationService) DeleteOrganization(id uint) error {
+	err := s.repo.DeleteOrganization(id)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -424,21 +440,19 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 // --------------------------------------------------------------------------
 
 type orgOpenJobService struct {
-	jobRepo   repository.OrgOpenJobRepository
-	DB        *gorm.DB
-	OS        *opensearch.Client
-	S3        *infrastructure.S3Uploader
-	jwtSecret string
+	jobRepo repository.OrgOpenJobRepository
+	DB      *gorm.DB
+	OS      *opensearch.Client
+	S3      *infrastructure.S3Uploader
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) OrgOpenJobService {
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
 	return orgOpenJobService{
-		jobRepo:   jobRepo,
-		DB:        db,
-		OS:        os,
-		S3:        s3,
-		jwtSecret: jwtSecret,
+		jobRepo: jobRepo,
+		DB:      db,
+		OS:      os,
+		S3:      s3,
 	}
 }
 

@@ -3,7 +3,6 @@ package errs
 import (
 	"errors"
 	"net/http"
-
 	"github.com/gofiber/fiber/v2"
 )
 

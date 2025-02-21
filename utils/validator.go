@@ -49,10 +49,7 @@ func ParseJSONAndValidate(c *fiber.Ctx, body interface{}) error {
 		}
 
 		// Join error messages and return as a single error string
-		return &fiber.Error{
-			Code:    fiber.StatusBadRequest,
-			Message: strings.Join(errorMessages, "; "),
-		}
+		return errs.NewBadRequestError(strings.Join(errorMessages, "; "))
 
 	}
 
@@ -69,10 +66,10 @@ func UnmarshalAndValidateJSON(c *fiber.Ctx, jsonStr string, dest interface{}) er
 		var typeErr *json.UnmarshalTypeError
 
 		if errors.As(err, &syntaxErr) {
-			logs.Error(err)
+			logs.Error(fmt.Sprintf("Syntax error at offset %d", syntaxErr.Offset))
 			return errs.NewBadRequestError(fmt.Sprintf("Syntax error at offset %d", syntaxErr.Offset))
 		} else if errors.As(err, &typeErr) {
-			logs.Error(err)
+			logs.Error(fmt.Sprintf("Type error: expected %s but got %v (field: %s)", typeErr.Type, typeErr.Value, typeErr.Field))
 			return errs.NewBadRequestError(fmt.Sprintf("Type error: expected %s but got %v (field: %s)", typeErr.Type, typeErr.Value, typeErr.Field))
 		}
 
@@ -87,10 +84,7 @@ func UnmarshalAndValidateJSON(c *fiber.Ctx, jsonStr string, dest interface{}) er
 			errorMessages = append(errorMessages, fmt.Sprintf("Field '%s' failed validation: %s (value: %v)\n", ve.Field, ve.Tag, ve.Value))
 		}
 
-		return &fiber.Error{
-			Code:    fiber.StatusBadRequest,
-			Message: strings.Join(errorMessages, "; "),
-		}
+		return errs.NewBadRequestError(strings.Join(errorMessages, "; "))
 	}
 
 	return nil

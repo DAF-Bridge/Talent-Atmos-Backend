@@ -1,6 +1,9 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/google/uuid"
+)
 
 type UserResponses struct {
 	ID        uuid.UUID `json:"id" example:"48a18dd9-48c3-45a5-b4f3-e8d7a60e2910"`
@@ -9,6 +12,17 @@ type UserResponses struct {
 	Email     string    `json:"email" example:"andaraiwin@gmail.com"`
 	Role      string    `json:"role" example:"User"`
 	UpdatedAt string    `json:"updatedAt" example:"2025-01-24T13:22:10.532645Z"`
+}
+
+func BuildUserResponses(user models.User) UserResponses {
+	return UserResponses{
+		ID:        user.ID,
+		Name:      user.Name,
+		PicUrl:    user.PicUrl,
+		Email:     user.Email,
+		Role:      string(user.Role),
+		UpdatedAt: user.UpdatedAt.String(),
+	}
 }
 
 type ProfileResponses struct {
@@ -23,7 +37,7 @@ type ProfileResponses struct {
 	UpdateAt  string    `json:"updatedAt" example:"2025-01-24T13:22:10.532645Z"`
 }
 
-type SiguUpRequest struct {
+type SignUpRequest struct {
 	Name     string `json:"name" example:"Anda Raiwin" validate:"required"`
 	Email    string `json:"email" example:"andaraiwin@gmail.com" validate:"required,email"`
 	Password string `json:"password" example:"$2a$10$GEMNCwJCpl2yRm.UirLrUuIG55oc8oLCcP4HRe0uPlTizoIVRAS6K" validate:"required"`
