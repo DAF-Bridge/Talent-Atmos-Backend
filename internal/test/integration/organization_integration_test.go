@@ -145,8 +145,7 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 
 		// Integration interface
 		jobRepo := repository.NewOrgOpenJobRepositoryMock()
-		casbinRoleRepository := repository.NewCasbinRoleRepository(initializers.Enforcer)
-		jobSrv := service.NewOrgOpenJobService(jobRepo, casbinRoleRepository, test.DB_TEST, initializers.ESClient, initializers.S3)
+		jobSrv := service.NewOrgOpenJobService(jobRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
 		jobHandler := handler.NewOrgOpenJobHandler(jobSrv)
 
 		app := fiber.New()
