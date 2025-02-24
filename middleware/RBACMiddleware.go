@@ -54,7 +54,7 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 
 		}
 		if !ok {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "You are not authorized"})
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"msg": "You are not authorized"})
 
 		}
 		return c.Next()

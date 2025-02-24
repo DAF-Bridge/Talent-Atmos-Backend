@@ -25,5 +25,5 @@ type RoleRepository interface {
 	IsExitRole(userID uuid.UUID, orgID uint) (bool, error)
 	FindByRoleNameAndOrganizationID(roleName string, orgID uint) ([]RoleInOrganization, error)
 	UpdateRole(userID uuid.UUID, orgID uint, role string) error
-	DeleteRole(userID uuid.UUID, orgID uint) error
+	DeleteRole(userID uuid.UUID, orgID uint) (*RoleInOrganization, error)
 }

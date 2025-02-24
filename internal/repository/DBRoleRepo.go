@@ -3,8 +3,10 @@ package repository
 import (
 	"errors"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type dbRoleRepository struct {
@@ -96,16 +98,27 @@ func (d dbRoleRepository) FindByRoleNameAndOrganizationID(roleName string, orgID
 }
 
 func (d dbRoleRepository) UpdateRole(userID uuid.UUID, orgID uint, role string) error {
-	return d.db.
+	result := d.db.
 		Model(&models.RoleInOrganization{}).
 		Where("user_id = ? AND organization_id = ?", userID, orgID).
-		Update("role", role).Error
+		Update("role", role)
+
+	return utils.GormErrorAndRowsAffected(result)
+
 }
 
-func (d dbRoleRepository) DeleteRole(userID uuid.UUID, orgID uint) error {
-	return d.db.
+func (d dbRoleRepository) DeleteRole(userID uuid.UUID, orgID uint) (*models.RoleInOrganization, error) {
+	role := new(models.RoleInOrganization)
+	result := d.db.
+		Clauses(clause.Returning{}).
 		Where("user_id = ? AND organization_id = ?", userID, orgID).
-		Delete(&models.RoleInOrganization{}).Error
+		Delete(role)
+	err := utils.GormErrorAndRowsAffected(result)
+	if err != nil {
+		return nil, err
+	}
+
+	return role, nil
 }
 
 func (d dbRoleRepository) IsExitRole(userID uuid.UUID, orgID uint) (bool, error) {

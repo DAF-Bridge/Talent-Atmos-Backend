@@ -9,15 +9,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
+	"html/template"
 )
 
-func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string) {
+func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string,
+	tmpl *template.Template,
+	baseCallbackInviteURL string) {
 	dbRoleRepository := repository.NewDBRoleRepository(db)
 	enforcerRoleRepository := repository.NewCasbinRoleRepository(enforcer)
 	userRepository := repository.NewUserRepository(db)
 	organizationRepository := repository.NewOrganizationRepository(db)
 	inviteTokenRepository := repository.NewInviteTokenRepository(db)
-	inviteMailRepository := repository.NewInviteMailRepository(mail)
+	inviteMailRepository := repository.NewInviteMailRepository(mail, tmpl, baseCallbackInviteURL)
 
 	roleService := service.NewRoleWithDomainService(dbRoleRepository, enforcerRoleRepository, userRepository, organizationRepository, inviteTokenRepository, inviteMailRepository)
 	roleHandler := handler.NewRoleHandler(roleService)
@@ -25,7 +28,7 @@ func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail 
 	app.Post("/callback-invitation", roleHandler.CallBackInvitationForMember)
 
 	rbac := middleware.NewRBACMiddleware(enforcer)
-	app.Get("/my-orgs", middleware.AuthMiddleware(jwtSecret), rbac.EnforceMiddleware("Role", "read"), roleHandler.GetDomainsByUser)
+	app.Get("/my-orgs", middleware.AuthMiddleware(jwtSecret), roleHandler.GetDomainsByUser)
 	role := app.Group("/roles/orgs/:orgID", middleware.AuthMiddleware(jwtSecret))
 	role.Get("/", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetRolesForUserInDomain)
 	role.Put("/", rbac.EnforceMiddleware("Role", "edit"), roleHandler.UpdateRolesForUserInDomain)

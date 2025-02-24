@@ -39,7 +39,7 @@ func (r userRepository) FindByProviderID(providerID string) (*models.User, error
 
 func (r userRepository) Create(user *models.User) error {
 	tx := r.db.Begin()
-	
+
 	if err := tx.Create(user).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -71,7 +71,7 @@ func (r userRepository) GetProfileByUserID(userId uuid.UUID) (*models.Profile, e
 
 func (r userRepository) UpdateUserPic(userID uuid.UUID, picURL string) error {
 	tx := r.db.Begin()
-	
+
 	if err := tx.Model(&models.User{}).Where("id = ?", userID).Update("pic_url", picURL).Error; err != nil {
 		tx.Rollback()
 		return err

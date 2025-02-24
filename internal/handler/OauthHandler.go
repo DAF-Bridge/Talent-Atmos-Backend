@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"os"
 	"time"
 
@@ -90,7 +91,7 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 	)
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to authenticate user: %v", err))
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return errs.SendFiberError(c, err)
 	}
 
 	// Set the JWT token in a cookie after redirect

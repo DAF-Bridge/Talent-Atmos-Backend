@@ -36,7 +36,7 @@ type SignUpHandlerRequest struct {
 // @Failure      400   {object}  fiber.Map "Bad Request - Invalid input"
 // @Failure      500   {object}  fiber.Map "Internal Server Error - Internal server error"
 // @Router       /signup [post]
-func (h *AuthHandler) SignUp(c *fiber.Ctx) error {
+func (a *AuthHandler) SignUp(c *fiber.Ctx) error {
 	// parse request
 	var req SignUpHandlerRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -44,7 +44,7 @@ func (h *AuthHandler) SignUp(c *fiber.Ctx) error {
 	}
 
 	// Generate token
-	token, err := h.authService.SignUp(req.Name, req.Email, req.Password, req.Phone)
+	token, err := a.authService.SignUp(req.Name, req.Email, req.Password, req.Phone)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -63,7 +63,7 @@ func (h *AuthHandler) SignUp(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Sign up successful"})
 }
 
-func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
+func (a *AuthHandler) LogIn(c *fiber.Ctx) error {
 	// parse request
 	var req struct {
 		Email    string `json:"email"`
@@ -74,7 +74,7 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	}
 
 	// Generate token
-	token, err := h.authService.LogIn(req.Email, req.Password)
+	token, err := a.authService.LogIn(req.Email, req.Password)
 	if err != nil {
 		logs.Error(err.Error())
 		return errs.SendFiberError(c, err)
@@ -96,7 +96,7 @@ func (h *AuthHandler) LogIn(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Login successful"})
 }
 
-func (s *AuthHandler) LogOut(c *fiber.Ctx) error {
+func (a *AuthHandler) LogOut(c *fiber.Ctx) error {
 	// Delete JWT cookie
 	c.Cookie(&fiber.Cookie{
 		Name:     "authToken",

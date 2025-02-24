@@ -159,8 +159,9 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) (*m
 
 func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string) error {
 	tx := r.db.Begin()
-
-	if err := tx.Model(&models.Organization{}).Where("id = ?", id).Update("pic_url", picURL).Error; err != nil {
+	result := tx.Model(&models.Organization{}).Where("id = ?", id).Update("pic_url", picURL)
+	err := utils.GormErrorAndRowsAffected(result)
+	if err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -190,15 +191,13 @@ func (r organizationRepository) UpdateOrganizationBackgroundPicture(id uint, pic
 func (r organizationRepository) DeleteOrganization(id uint) error {
 	tx := r.db.Begin()
 
-	if err := tx.Model(&models.User{}).
-		Where("organization_id = ?", id).
-		Updates(map[string]interface{}{
-			"organization_id": nil,
-		}).Error; err != nil {
+	//delete all roles in organization
+	if err := tx.Where("organization_id = ?", id).Delete(&models.RoleInOrganization{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
+	//delete all organization contacts
 	if err := tx.Where("organization_id = ?", id).Delete(&models.OrganizationContact{}).Error; err != nil {
 		tx.Rollback()
 		return err

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
@@ -21,7 +22,7 @@ type userService struct {
 	S3Uploader *infrastructure.S3Uploader
 }
 
-func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) *userService {
+func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) UserService {
 	return &userService{
 		userRepo:   userRepo,
 		S3Uploader: s3Uploader,
@@ -39,6 +40,10 @@ func (s userService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, fi
 	// Update user record in database
 	err = s.userRepo.UpdateUserPic(userID, picURL)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User not found")
+			return "", errs.NewNotFoundError("User not found")
+		}
 		logs.Error(fmt.Sprintf("Failed to update user picture: %v", err))
 		return "", err
 	}
@@ -60,11 +65,11 @@ func (s userService) ListUsers() ([]dto.UserResponses, error) {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("Users not found")
-			return nil, err
+			return nil, errs.NewNotFoundError("Users not found")
 		}
 
 		logs.Error(fmt.Sprintf("Failed to get users: %v", err))
-		return nil, err
+		return nil, errs.NewUnexpectedError()
 	}
 
 	var userResponses []dto.UserResponses
@@ -83,11 +88,11 @@ func (s userService) GetCurrentUserProfile(userId uuid.UUID) (*dto.ProfileRespon
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("Profile not found")
-			return nil, err
+			return nil, errs.NewNotFoundError("Profile not found")
 		}
 
 		logs.Error(fmt.Sprintf("Failed to get profile: %v", err))
-		return nil, err
+		return nil, errs.NewUnexpectedError()
 	}
 
 	profileRes := convertToProfileResponse(profile)

@@ -49,10 +49,16 @@ func (c CasbinRoleRepository) UpdateRoleForUserInDomain(user string, role string
 	//	return false, err
 	//}
 	oldRoles := c.enforcer.GetRolesForUserInDomain(user, domain)
+	if len(oldRoles) == 0 {
+		//logs.Info("No roles found for user: " + user + " in domain: " + domain)
+		return false, nil
+	}
+
 	oldGrouping := make([][]string, 0)
 	for _, oldRole := range oldRoles {
 		oldGrouping = append(oldGrouping, []string{user, oldRole, domain})
 	}
+
 	ok, err := c.enforcer.UpdateGroupingPolicies(oldGrouping, [][]string{{user, role, domain}})
 	if err != nil {
 		return false, err

@@ -62,7 +62,7 @@ func (s *AuthService) SignUp(name, email, password, phone string) (string, error
 	if err := s.userRepo.Create(user); err != nil {
 		tx.Rollback()
 		logs.Error("Failed to create user")
-		return "", errs.NewUnexpectedError()
+		return "", errs.NewConflictError(err.Error())
 	}
 
 	fname, lname := utils.SeparateName(name)

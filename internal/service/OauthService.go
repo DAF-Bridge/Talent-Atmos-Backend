@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"time"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -43,7 +44,11 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 	// check if email is already taken
 	if existedUser, err := s.userRepo.FindByEmail(email); err == nil {
 		user.ID = existedUser.ID
-		return s.generateJWT(user)
+		token, err := s.generateJWT(user)
+		if err != nil {
+			return "", errs.NewUnexpectedError()
+		}
+		return token, nil
 	}
 
 	fname, lname := utils.SeparateName(name)
@@ -59,7 +64,7 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 	if err := s.userRepo.Create(user); err != nil {
 		tx.Rollback() // Rollback if user creation fails
 		logs.Error("Failed to create user")
-		return "", err
+		return "", errs.NewConflictError(err.Error())
 	}
 
 	profile.UserID = user.ID
@@ -68,18 +73,22 @@ func (s *OauthService) AuthenticateUser(name, email, provider, providerID string
 	if err := s.profileRepo.Create(profile); err != nil {
 		tx.Rollback() // Rollback if profile creation fails
 		logs.Error("Failed to create profile")
-		return "", err
+		return "", errs.NewConflictError(err.Error())
 	}
 
 	// Commit the transaction if everything is successful
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback() // Rollback if commit fails
 		logs.Error("Failed to commit create user transaction")
-		return "", err
+		return "", errs.NewUnexpectedError()
 	}
 
 	// Generate JWT
-	return s.generateJWT(user)
+	token, err := s.generateJWT(user)
+	if err != nil {
+		return "", errs.NewUnexpectedError()
+	}
+	return token, nil
 }
 
 func (s *OauthService) generateJWT(user *models.User) (string, error) {
@@ -91,4 +100,3 @@ func (s *OauthService) generateJWT(user *models.User) (string, error) {
 	})
 	return token.SignedString([]byte(s.jwtSecret))
 }
-

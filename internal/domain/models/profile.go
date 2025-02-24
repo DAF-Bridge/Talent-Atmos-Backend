@@ -24,8 +24,8 @@ type Profile struct {
 	UpdatedAt   time.Time      `gorm:"autoUpdateTime" db:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" db:"deleted_at"`
 	UserID      uuid.UUID      `gorm:"type:uuid;not null" db:"user_id"`
-	User        User           `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-One relationship (has one, use UserID as foreign key)
-	Experiences []Experience   `gorm:"foreignKey:ProfileID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`     // One-to-Many relationship (has many)
+	User        User           `gorm:"foreignKey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`    // One-to-One relationship (has one, use UserID as foreign key)
+	Experiences []Experience   `gorm:"foreignKey:ProfileID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // One-to-Many relationship (has many)
 }
 
 type Experience struct {

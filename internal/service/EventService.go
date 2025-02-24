@@ -23,10 +23,9 @@ const numberOfEvent = 12
 // EventService is a service that provides operations on events.
 type eventService struct {
 	eventRepo repository.EventRepository
-
-	DB *gorm.DB
-	OS *opensearch.Client
-	S3 *infrastructure.S3Uploader
+	DB        *gorm.DB
+	OS        *opensearch.Client
+	S3        *infrastructure.S3Uploader
 }
 
 //--------------------------------------------//
@@ -34,10 +33,9 @@ type eventService struct {
 func NewEventService(eventRepo repository.EventRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) EventService {
 	return eventService{
 		eventRepo: eventRepo,
-
-		DB: db,
-		OS: os,
-		S3: s3}
+		DB:        db,
+		OS:        os,
+		S3:        s3}
 }
 
 func (s eventService) SyncEvents() error {
@@ -57,7 +55,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 }
 
 func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categoryIDs := []uint{}
+	categoryIDs := make([]uint, 0)
 	for _, category := range req.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
@@ -72,7 +70,7 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		return errs.NewUnexpectedError()
 	}
 
-	contacts := []models.ContactChannel{}
+	contacts := make([]models.ContactChannel, 0)
 	for _, contact := range req.ContactChannels {
 		contacts = append(contacts, models.ContactChannel{
 			Media:     models.Media(contact.Media),
@@ -100,6 +98,10 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		// Update event record in database
 		err = s.eventRepo.UpdateEventPicture(orgID, event.ID, picURL)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errs.NewNotFoundError("event not found")
+			}
+
 			logs.Error(err)
 			return errs.NewUnexpectedError()
 		}
@@ -112,7 +114,7 @@ func (s eventService) GetAllEvents() ([]dto.EventResponses, error) {
 	events, err := s.eventRepo.GetAll()
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("events not found")
 		}
 
@@ -120,7 +122,7 @@ func (s eventService) GetAllEvents() ([]dto.EventResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := []dto.EventResponses{}
+	EventResponses := make([]dto.EventResponses, 0)
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -133,15 +135,14 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, err
 	events, err := s.eventRepo.GetAllByOrgID(orgID)
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("events not found")
 		}
 
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
-
-	EventResponses := []dto.EventResponses{}
+	EventResponses := make([]dto.EventResponses, 0)
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -154,7 +155,7 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*dto.EventResponse
 	event, err := s.eventRepo.GetByID(orgID, eventID)
 	if err != nil {
 
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("event not found")
 		}
 
@@ -170,7 +171,7 @@ func (s eventService) GetEventByID(orgID uint, eventID uint) (*dto.EventResponse
 func (s eventService) ListAllCategories() (*dto.CategoryListResponse, error) {
 	categories, err := s.eventRepo.GetAllCategories()
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("No categories found")
 		}
 
@@ -200,7 +201,7 @@ func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) 
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := []dto.EventResponses{}
+	EventResponses := make([]dto.EventResponses, 0)
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -235,7 +236,7 @@ func (s eventService) CountEvent() (int64, error) {
 }
 
 func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
-	categoryIDs := []uint{}
+	var categoryIDs []uint
 	for _, category := range req.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
@@ -260,7 +261,7 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
-	contacts := []models.ContactChannel{}
+	var contacts []models.ContactChannel
 	for _, contact := range req.ContactChannels {
 		contacts = append(contacts, models.ContactChannel{
 			EventID:   existingEvent.ID,
@@ -287,6 +288,10 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 	// Update event record in database
 	updateEvent, err := s.eventRepo.Update(orgID, event.ID, &event)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("event not found")
+		}
+
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
@@ -301,7 +306,7 @@ func (s eventService) UploadEventPicture(ctx context.Context, file multipart.Fil
 
 	if err != nil {
 		logs.Error(err)
-		return "", err
+		return "", errs.NewUnexpectedError()
 	}
 
 	return picURL, nil

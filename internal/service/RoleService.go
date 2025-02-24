@@ -185,9 +185,20 @@ func (r RoleWithDomainService) Invitation(inviterUserID uuid.UUID, invitedEmail 
 		return false, errs.NewUnexpectedError()
 	}
 	subject := "You got an invitation to manage" + inviterUser.Name
+	InviteMailBody := repository.InviteMailBody{
+		InviterName:      inviterUser.Name,
+		InvitedName:      invitedUser.Name,
+		OrganizationName: org.Name,
+		Token:            inviteToken.Token.String(),
+	}
+	InviteMailConfig := repository.InviteMailConfig{
+		Subject: subject,
+		Body:    InviteMailBody,
+		ToEmail: invitedEmail,
+	}
 
 	//send email
-	err = r.inviteMailRepository.SendInvitedMail(invitedEmail, subject, inviterUser.Name, inviteToken.Token.String())
+	err = r.inviteMailRepository.SendInvitedMail(InviteMailConfig)
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to send email: %v", err))
 		return false, errs.NewUnexpectedError()
@@ -260,7 +271,7 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	return true, nil
 }
 
-func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganization, userId uuid.UUID) bool {
+func validateOwnerWillBeAtLeastOneLeft(owners []models.RoleInOrganization, userId uuid.UUID) bool {
 	if len(owners) > 1 {
 		return true
 	}
@@ -268,6 +279,15 @@ func validateOwnerIsAtLeastOneLeft(owners []models.RoleInOrganization, userId uu
 		return false
 	}
 	return owners[0].UserID != userId
+}
+
+func validateTargetUserIsOwner(owners []models.RoleInOrganization, userId uuid.UUID) bool {
+	for _, owner := range owners {
+		if owner.UserID == userId {
+			return true
+		}
+	}
+	return false
 }
 
 func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role string) (bool, error) {
@@ -286,10 +306,17 @@ func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role strin
 		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	if !validateOwnerIsAtLeastOneLeft(owners, userID) {
-		logs.Error("owner is at least one left")
-		return false, errs.NewBadRequestError("owner is at least one left")
+	if role == "moderator" {
+		if !validateOwnerWillBeAtLeastOneLeft(owners, userID) {
+			logs.Error("owner is at least one left")
+			return false, errs.NewBadRequestError("At least 1 owner remains")
+		}
+		if validateTargetUserIsOwner(owners, userID) {
+			logs.Error("Owners cannot change each other's roles.")
+			return false, errs.NewBadRequestError("Owners cannot change each other's roles.")
+		}
 	}
+
 	//update RoleName
 	if err = r.dbRoleRepository.UpdateRole(userID, orgID, role); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -323,19 +350,26 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	if !validateOwnerIsAtLeastOneLeft(owners, userID) {
+	if !validateOwnerWillBeAtLeastOneLeft(owners, userID) {
 		logs.Error("owner is at least one left")
 		return false, errs.NewBadRequestError("owner is at least one left")
 	}
 	//delete RoleName
-	if err = r.dbRoleRepository.DeleteRole(userID, orgID); err != nil {
+	deletedRole, err := r.dbRoleRepository.DeleteRole(userID, orgID)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("role not found")
 			return false, errs.NewNotFoundError("role not found")
 		}
+		logs.Error(fmt.Sprintf("Failed to delete role: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	ok, err := r.enforcerRoleRepository.DeleteRoleForUserInDomain(userID.String(), defaultRole, strconv.Itoa(int(orgID)))
+	if deletedRole == nil {
+		logs.Error("role not found")
+		return false, errs.NewNotFoundError("role not found")
+	}
+
+	ok, err := r.enforcerRoleRepository.DeleteRoleForUserInDomain(userID.String(), deletedRole.Role, strconv.Itoa(int(orgID)))
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to delete role in enforcer: %v", err))
 		return false, errs.NewUnexpectedError()

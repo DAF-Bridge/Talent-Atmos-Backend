@@ -5,7 +5,7 @@ import (
 )
 
 type EventRepository interface {
-	Create(orgID uint, event *models.Event) (error)
+	Create(orgID uint, event *models.Event) error
 	GetAll() ([]models.Event, error)
 	GetAllByOrgID(orgID uint) ([]models.Event, error)
 	GetByID(orgID uint, eventID uint) (*models.Event, error)
@@ -20,7 +20,7 @@ type EventRepository interface {
 }
 
 type MockEventRepository interface {
-	Create(orgID uint, event *models.Event) (error)
+	Create(orgID uint, event *models.Event) error
 	GetAll() ([]models.Event, error)
 	GetAllByOrgID(orgID uint) ([]models.Event, error)
 	GetByID(orgID uint, eventID uint) (*models.Event, error)

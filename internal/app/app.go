@@ -18,13 +18,14 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 	// "github.com/aws/aws-sdk-go-v2/aws"
 	// "github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func init() {
-	// initializers.LoadEnvVar()
+	initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
@@ -83,6 +84,9 @@ func Start() {
 		AllowCredentials: true, // Allow credentials (cookies) to be sent
 	}))
 
+	// Initialize default config
+	app.Use(logger.New())
+
 	jwtSecret := os.Getenv("JWT_SECRET")
 	// jwtSecret := viper.GetString("middleware.jwtSecret")
 
@@ -103,7 +107,7 @@ func Start() {
 	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3)
 
 	// Define routes for Roles
-	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret)
+	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)     // default
