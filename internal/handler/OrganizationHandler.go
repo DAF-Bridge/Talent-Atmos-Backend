@@ -2,12 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -36,7 +38,7 @@ func NewOrganizationHandler(service service.OrganizationService) *OrganizationHa
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/create [post]
 func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
-
+	// Check if the user is authenticated
 	claims, err := utils.ExtractJWTClaims(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
@@ -55,16 +57,22 @@ func (h *OrganizationHandler) CreateOrganization(c *fiber.Ctx) error {
 	}
 
 	file, fileHeader, err := utils.UploadImage(c)
-	defer file.Close()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
+	if file == nil || fileHeader == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "image is required"})
+	}
+	defer file.Close()
 
 	bgImage, bgImageHeader, err := utils.UploadBackgroundImage(c)
-	defer bgImage.Close()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
+	if bgImage == nil || bgImageHeader == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "background image is required"})
+	}
+	defer bgImage.Close()
 
 	if err := h.service.CreateOrganization(userID, org, c.Context(), file, fileHeader, bgImage, bgImageHeader); err != nil {
 		return errs.SendFiberError(c, err)
@@ -186,23 +194,29 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 	}
 
 	file, fileHeader, err := utils.UploadImage(c)
-	// no file is uploaded
-	if err == nil {
+	if err != nil {
+		if errors.Is(err, errs.NewBadRequestError("Failed to get image from form")) {
+			file = nil
+			fileHeader = nil
+		} else {
+			logs.Error(err)
+		}
+	} else {
 		defer file.Close()
-
-		file = nil
-		fileHeader = nil
 	}
+
 	bgImage, bgImageHeader, err := utils.UploadBackgroundImage(c)
-
-	// no file is uploaded
-	if err == nil {
+	if err != nil {
+		if errors.Is(err, errs.NewBadRequestError("Failed to get background image from form")) {
+			bgImage = nil
+			bgImageHeader = nil
+		} else {
+			logs.Error(err)
+		}
+	} else {
 		defer bgImage.Close()
-		bgImage = nil
-		bgImageHeader = nil
 	}
 
-	//updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), file, fileHeader)
 	updatedOrg, err := h.service.UpdateOrganization(uint(orgID), org, c.Context(), file, fileHeader, bgImage, bgImageHeader)
 	if err != nil {
 		return errs.SendFiberError(c, err)
