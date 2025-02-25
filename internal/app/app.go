@@ -24,6 +24,10 @@ import (
 )
 
 func init() {
+	mode := os.Getenv("ENVIRONMENT")
+	if mode != "production" && (mode == "" || mode == "dev") {
+		initializers.LoadEnvVar()
+	}
 	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
