@@ -1,6 +1,8 @@
 package api
 
 import (
+	"html/template"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
@@ -9,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
-	"html/template"
 )
 
 func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string,

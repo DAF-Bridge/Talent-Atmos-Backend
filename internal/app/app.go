@@ -13,6 +13,7 @@ import (
 	_ "github.com/spf13/viper"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
+	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/api"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -20,12 +21,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
-	// "github.com/aws/aws-sdk-go-v2/aws"
-	// "github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func init() {
-	initializers.LoadEnvVar()
+	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
@@ -133,6 +132,13 @@ func Start() {
 	//		counter++
 	//	}
 	//}
+
+	// Kafka
+	// topic := "talents_atmosevents"
+	// config := infrastructure.ReadConfig()
+
+	// infrastructure.Produce(topic, config)
+	// infrastructure.Consume(topic, config)
 
 	// fmt.Printf("Server is running on port %v\n", viper.GetInt("app.port"))
 

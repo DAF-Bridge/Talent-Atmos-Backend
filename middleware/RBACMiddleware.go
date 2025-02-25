@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -19,7 +20,7 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 	return func(c *fiber.Ctx) error {
 
 		userData, ok := c.Locals("user").(jwt.MapClaims)
-		fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
+		//fmt.Printf("Type: %T, Value: %+v\n", userData, userData)
 
 		if !ok {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
