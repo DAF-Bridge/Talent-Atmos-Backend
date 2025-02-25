@@ -40,6 +40,10 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Copy the Casbin configuration file
 COPY --from=builder /app/pkg/authorization/rbac_model.conf /app/pkg/authorization/rbac_model.conf
 
+COPY --from=builder /app/pkg/authorization/policy.csv /app/pkg/authorization/policy.csv
+
+COPY --from=builder /app/Invite_email_template.html /app/Invite_email_template.html
+
 ENV ENVIRONMENT=production
 
 EXPOSE 8080
