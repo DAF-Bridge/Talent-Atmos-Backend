@@ -40,7 +40,6 @@ func (r *RoleHandler) GetRolesForUserInDomain(c *fiber.Ctx) error {
 }
 
 func (r *RoleHandler) InvitationForMember(c *fiber.Ctx) error {
-	println("enter role handler")
 	// Access the user_id
 	userID, err := utils.GetUserIDFormFiberCtx(c)
 	if err != nil {
@@ -87,6 +86,11 @@ func (r *RoleHandler) CallBackInvitationForMember(c *fiber.Ctx) error {
 }
 
 func (r *RoleHandler) DeleteMember(c *fiber.Ctx) error {
+	// Access the user_id
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	// Access the organization
 	orgID, err := utils.GetOrgIDFormFiberCtx(c)
@@ -98,7 +102,7 @@ func (r *RoleHandler) DeleteMember(c *fiber.Ctx) error {
 	if err := utils.UnmarshalAndValidateJSON(string(c.Body()), &removeMemberRequest); err != nil {
 		return err
 	}
-	ok, err := r.roleWithDomainService.DeleteMember(removeMemberRequest.UserID, orgID)
+	ok, err := r.roleWithDomainService.DeleteMember(userID, removeMemberRequest.UserID, orgID)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
@@ -135,7 +139,11 @@ func (r *RoleHandler) DeleteDomain(c *fiber.Ctx) error {
 }
 
 func (r *RoleHandler) UpdateRolesForUserInDomain(c *fiber.Ctx) error {
-
+	// Access the user_id
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
 	// Access the organization
 	orgID, err := utils.GetOrgIDFormFiberCtx(c)
 	if err != nil {
@@ -147,7 +155,7 @@ func (r *RoleHandler) UpdateRolesForUserInDomain(c *fiber.Ctx) error {
 	if err := utils.UnmarshalAndValidateJSON(string(c.Body()), &editRoleRequest); err != nil {
 		return err
 	}
-	ok, err := r.roleWithDomainService.EditRole(editRoleRequest.UserID, orgID, editRoleRequest.Role)
+	ok, err := r.roleWithDomainService.EditRole(userID, editRoleRequest.UserID, orgID, editRoleRequest.Role)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
@@ -168,4 +176,12 @@ func (r *RoleHandler) GetDomainsByUser(c *fiber.Ctx) error {
 	response := dto.BuildListOrganizationShortResponse(ListDomain)
 
 	return c.Status(fiber.StatusOK).JSON(response)
+}
+
+func (r *RoleHandler) UpdateRoleToEnforcer(c *fiber.Ctx) error {
+	ok, err := r.roleWithDomainService.UpdateRoleToEnforcer()
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
 }

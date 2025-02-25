@@ -42,13 +42,13 @@ func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
 		organizationRepository: organizationRepository,
 		inviteTokenRepository:  inviteTokenRepository,
 		inviteMailRepository:   inviteMailRepository}
-	//_,_=roleService.initRoleToEnforcer()
-	ok, err := roleService.initRoleToEnforcer()
+	//_,_=roleService.UpdateRoleToEnforcer()
+	ok, err := roleService.UpdateRoleToEnforcer()
 	if err != nil {
-		log.Fatal("initRoleToEnforcer failed : " + err.Error())
+		log.Fatal("UpdateRoleToEnforcer failed : " + err.Error())
 	}
 	if !ok {
-		log.Fatal("initRoleToEnforcer failed")
+		log.Fatal("UpdateRoleToEnforcer failed")
 	}
 	return roleService
 }
@@ -290,7 +290,7 @@ func validateTargetUserIsOwner(owners []models.RoleInOrganization, userId uuid.U
 	return false
 }
 
-func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role string) (bool, error) {
+func (r RoleWithDomainService) EditRole(editorUserID uuid.UUID, targetUserID uuid.UUID, orgID uint, role string) (bool, error) {
 	//check RoleName is existing
 	if role != "owner" && role != "moderator" {
 		logs.Error("role is not valid")
@@ -307,18 +307,18 @@ func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role strin
 		return false, errs.NewUnexpectedError()
 	}
 	if role == "moderator" {
-		if !validateOwnerWillBeAtLeastOneLeft(owners, userID) {
+		if !validateOwnerWillBeAtLeastOneLeft(owners, targetUserID) {
 			logs.Error("owner is at least one left")
 			return false, errs.NewBadRequestError("At least 1 owner remains")
 		}
-		if validateTargetUserIsOwner(owners, userID) {
+		if editorUserID != targetUserID && validateTargetUserIsOwner(owners, targetUserID) {
 			logs.Error("Owners cannot change each other's roles.")
 			return false, errs.NewBadRequestError("Owners cannot change each other's roles.")
 		}
 	}
 
 	//update RoleName
-	if err = r.dbRoleRepository.UpdateRole(userID, orgID, role); err != nil {
+	if err = r.dbRoleRepository.UpdateRole(targetUserID, orgID, role); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("role not found")
 			return false, errs.NewNotFoundError("role not found")
@@ -326,7 +326,7 @@ func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role strin
 		logs.Error(fmt.Sprintf("Failed to update role: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	ok, err := r.enforcerRoleRepository.UpdateRoleForUserInDomain(userID.String(), role, strconv.Itoa(int(orgID)))
+	ok, err := r.enforcerRoleRepository.UpdateRoleForUserInDomain(targetUserID.String(), role, strconv.Itoa(int(orgID)))
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to update role in enforcer: %v", err))
 		return false, errs.NewUnexpectedError()
@@ -339,7 +339,7 @@ func (r RoleWithDomainService) EditRole(userID uuid.UUID, orgID uint, role strin
 
 }
 
-func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool, error) {
+func (r RoleWithDomainService) DeleteMember(editorUserID uuid.UUID, targetUserID uuid.UUID, orgID uint) (bool, error) {
 	//check number owner
 	owners, err := r.dbRoleRepository.FindByRoleNameAndOrganizationID("owner", orgID)
 	if err != nil {
@@ -350,12 +350,16 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 		logs.Error(fmt.Sprintf("Failed to get owner: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
-	if !validateOwnerWillBeAtLeastOneLeft(owners, userID) {
+	if !validateOwnerWillBeAtLeastOneLeft(owners, targetUserID) {
 		logs.Error("owner is at least one left")
-		return false, errs.NewBadRequestError("owner is at least one left")
+		return false, errs.NewBadRequestError("At least 1 owner remains")
+	}
+	if editorUserID != targetUserID && validateTargetUserIsOwner(owners, targetUserID) {
+		logs.Error("Owners cannot change each other's roles.")
+		return false, errs.NewBadRequestError("Owners cannot change each other's roles.")
 	}
 	//delete RoleName
-	deletedRole, err := r.dbRoleRepository.DeleteRole(userID, orgID)
+	deletedRole, err := r.dbRoleRepository.DeleteRole(targetUserID, orgID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("role not found")
@@ -369,7 +373,7 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 		return false, errs.NewNotFoundError("role not found")
 	}
 
-	ok, err := r.enforcerRoleRepository.DeleteRoleForUserInDomain(userID.String(), deletedRole.Role, strconv.Itoa(int(orgID)))
+	ok, err := r.enforcerRoleRepository.DeleteRoleForUserInDomain(targetUserID.String(), deletedRole.Role, strconv.Itoa(int(orgID)))
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to delete role in enforcer: %v", err))
 		return false, errs.NewUnexpectedError()
@@ -381,14 +385,14 @@ func (r RoleWithDomainService) DeleteMember(userID uuid.UUID, orgID uint) (bool,
 	return true, nil
 }
 
-func (r RoleWithDomainService) initRoleToEnforcer() (bool, error) {
+func (r RoleWithDomainService) UpdateRoleToEnforcer() (bool, error) {
 	roles, err := r.dbRoleRepository.GetAll()
 	if err != nil {
 		return false, err
 	}
 	ok, err := r.enforcerRoleRepository.ClearAllGrouping()
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("Failed to clear all grouping : " + err.Error())
 		return false, err
 	}
 	if !ok {
@@ -404,7 +408,7 @@ func (r RoleWithDomainService) initRoleToEnforcer() (bool, error) {
 	}
 	ok, err = r.enforcerRoleRepository.AddGroupingPolicies(groupingPolicies)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("Failed to add grouping policies : " + err.Error())
 		return false, errs.NewUnexpectedError()
 	}
 	if !ok {
