@@ -1,11 +1,13 @@
 package initializers
 
 import (
-	"gopkg.in/gomail.v2"
 	"html/template"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
+	"gopkg.in/gomail.v2"
 )
 
 var (
@@ -25,7 +27,7 @@ func SetupInviteMail() {
 		log.Fatal("BASE_EXTERNAL_URL is not set")
 	}
 	BaseCallbackInviteURL = baseUrl + "/invite-callback?token="
-	log.Println("Successfully Setup Invite Mail")
+	logs.Info("Successfully Setup Invite Mail")
 
 }
 
@@ -48,6 +50,6 @@ func SetupMail() {
 	}
 
 	DialerMail = gomail.NewDialer(smtpHost, smtpPort, smtpMail, smtpPassword)
-	log.Println("Successfully SMTP client initialized.")
+	logs.Info("Successfully SMTP client initialized.")
 
 }
