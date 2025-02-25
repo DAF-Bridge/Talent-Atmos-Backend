@@ -13,6 +13,7 @@ func init() {
 		"Organization":        {"delete", "update"},
 		"OrganizationContact": {"delete", "update", "create"},
 		"OrganizationOpenJob": {"delete", "update", "create"},
+		"Role":                {"read"},
 	}
 	moderatorPermissionsList := createCasbinPermissionsList("moderator", moderatorPermissionsMap)
 	permissionsList = append(permissionsList, moderatorPermissionsList...)

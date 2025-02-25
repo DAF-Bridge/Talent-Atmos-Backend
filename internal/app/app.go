@@ -30,6 +30,7 @@ func init() {
 	initializers.ConnectToElasticSearch()
 	initializers.ConnectToCasbin()
 	initializers.SetupMail()
+	initializers.SetupInviteMail()
 	// initializers.ConnectToRedis()
 	// initializers.SyncDB()
 	initializers.SetupGoth()
