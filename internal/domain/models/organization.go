@@ -105,7 +105,6 @@ type OrgOpenJob struct {
 	PicUrl         string         `gorm:"type:text" json:"picUrl"`
 	Scope          string         `gorm:"type:varchar(255);not null" json:"scope" example:"Software Development"`
 	Prerequisite   pq.StringArray `gorm:"type:text[]" json:"prerequisite" example:"Great at problem solving,Reliable"` // Required qualifications or skills
-	Location       string         `gorm:"type:varchar(255);not null" json:"location" example:"Chiang Mai"`
 	Workplace      Workplace      `gorm:"type:workplace;not null" json:"workplace" example:"remote"`
 	WorkType       WorkType       `gorm:"type:work_type;not null" json:"workType" example:"fulltime"`
 	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"careerStage" example:"entrylevel"`
@@ -116,6 +115,9 @@ type OrgOpenJob struct {
 	Benefits       string         `gorm:"type:text" json:"benefits" example:"Health insurance"`
 	Quantity       int            `json:"quantity" example:"1"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
+	Location       string         `gorm:"type:varchar(255);not null" json:"location" example:"Chiang Mai"`
+	Province       string         `gorm:"type:varchar(255);not null" json:"province" example:"Chiang Mai"`
+	Country        string         `gorm:"type:varchar(255);not null" json:"country" example:"TH"`
 	Status         string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
 	Categories     []Category     `gorm:"many2many:category_job;"`
 }

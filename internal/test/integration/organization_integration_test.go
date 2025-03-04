@@ -22,6 +22,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -122,7 +123,7 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 			Title:          "Software Engineer",
 			PicUrl:         "https://talentsatmos.com",
 			Scope:          "Software Development",
-			Location:       "Chiang Mai",
+			Prerequisite:   pq.StringArray{"Great at problem solving", "Reliable"},
 			Organization:   models.Organization{Name: "Talents Atmos"},
 			Workplace:      models.Workplace("remote"),
 			WorkType:       models.WorkType("fulltime"),
@@ -134,6 +135,9 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 			Benefits:       "Health insurance",
 			Quantity:       1,
 			Salary:         30000,
+			Location:       "Chiang Mai University",
+			Province:       "Chiang Mai",
+			Country:        "TH",
 			Status:         "published",
 			Categories: []models.Category{
 				{
