@@ -80,7 +80,6 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 		Title:          "Software Engineer",
 		PicUrl:         "https://talentsatmos.com",
 		Scope:          "Software Development",
-		Location:       "Chiang Mai",
 		Prerequisite:   pq.StringArray{"Great at problem solving", "Reliable"},
 		Workplace:      models.Workplace("remote"),
 		WorkType:       models.WorkType("fulltime"),
@@ -92,6 +91,9 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 		Benefits:       "Health insurance",
 		Quantity:       1,
 		Salary:         30000,
+		Location:       "Chiang Mai University",
+		Province:       "Chiang Mai",
+		Country:        "TH",
 		Status:         "published",
 		Categories: []models.Category{
 			{
