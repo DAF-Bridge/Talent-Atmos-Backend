@@ -22,6 +22,10 @@ type orgOpenJobRepositoryMock struct {
 	job *models.OrgOpenJob
 }
 
+func (r orgOpenJobRepositoryMock) CountsByOrgID(orgID uint) (int64, error) {
+	return 0, nil
+}
+
 func NewOrganizationRepositoryMock() OrganizationRepository {
 	org := &models.Organization{
 		Model:     gorm.Model{ID: 1, UpdatedAt: time.Now()},

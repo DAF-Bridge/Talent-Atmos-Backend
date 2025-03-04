@@ -173,7 +173,7 @@ func (r *RoleHandler) GetDomainsByUser(c *fiber.Ctx) error {
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
-	response := dto.BuildListOrganizationShortResponse(ListDomain)
+	response := dto.BuildListOrganizationShortAdminResponse(ListDomain)
 
 	return c.Status(fiber.StatusOK).JSON(response)
 }
@@ -184,4 +184,18 @@ func (r *RoleHandler) UpdateRoleToEnforcer(c *fiber.Ctx) error {
 		return errs.SendFiberError(c, err)
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": ok})
+}
+
+func (r *RoleHandler) GetNumberOfMember(c *fiber.Ctx) error {
+	// Access the organization
+	orgID, err := utils.GetOrgIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	count, err := r.roleWithDomainService.CountByOrgID(orgID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"numberOfMembers": count})
 }

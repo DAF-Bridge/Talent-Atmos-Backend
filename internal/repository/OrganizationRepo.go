@@ -305,6 +305,14 @@ func NewOrgOpenJobRepository(db *gorm.DB) OrgOpenJobRepository {
 	return orgOpenJobRepository{db: db}
 }
 
+func (r orgOpenJobRepository) CountsByOrgID(orgID uint) (int64, error) {
+	var count int64
+	if err := r.db.Model(&models.OrgOpenJob{}).Where("organization_id = ?", orgID).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (r orgOpenJobRepository) CreateJob(orgID uint, job *models.OrgOpenJob) error {
 	job.OrganizationID = orgID
 	err := r.db.Create(job).Error

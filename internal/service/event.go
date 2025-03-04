@@ -22,6 +22,7 @@ type EventService interface {
 	CountEvent() (int64, error)
 	UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error)
 	DeleteEvent(orgID uint, eventID uint) error
+	CountEventByOrgID(orgID uint) (int64, error)
 }
 
 func requestConvertToEvent(orgID uint, reqEvent dto.NewEventRequest, categories []models.Category, contacts []models.ContactChannel) models.Event {

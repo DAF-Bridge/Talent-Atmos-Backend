@@ -46,6 +46,47 @@ func BuildListOrganizationShortResponse(org []models.Organization) ListOrganizat
 
 }
 
+type OrganizationShortAdminResponse struct {
+	ID               uint   `json:"id" example:"1"`
+	Name             string `json:"name" example:"builds CMU"`
+	PicUrl           string `json:"picUrl" example:"https://example.com/image.jpg"`
+	Email            string `json:"email" example:"example@gmail.com"`
+	Phone            string `json:"phone" example:"0812345678"`
+	NumberOfOpenJobs int    `json:"numberOfOpenJobs" example:"1"`
+	NumberOfMembers  int    `json:"numberOfMembers" example:"1"`
+	NumberOfEvents   int    `json:"numberOfEvents" example:"1"`
+}
+
+func BuildOrganizationShortAdminResponse(org models.Organization) OrganizationShortAdminResponse {
+	countOpenJobs := len(org.OrgOpenJobs)
+	countMembers := len(org.OrgMembers)
+	countEvents := len(org.OrgEvents)
+	return OrganizationShortAdminResponse{
+		ID:               org.ID,
+		Name:             org.Name,
+		PicUrl:           org.PicUrl,
+		Email:            org.Email,
+		Phone:            org.Phone,
+		NumberOfOpenJobs: countOpenJobs,
+		NumberOfMembers:  countMembers,
+		NumberOfEvents:   countEvents,
+	}
+
+}
+
+type ListOrganizationShortAdminResponse struct {
+	Organizations []OrganizationShortAdminResponse `json:"organizations"`
+}
+
+func BuildListOrganizationShortAdminResponse(org []models.Organization) ListOrganizationShortAdminResponse {
+	var response []OrganizationShortAdminResponse
+	for _, o := range org {
+		response = append(response, BuildOrganizationShortAdminResponse(o))
+	}
+	return ListOrganizationShortAdminResponse{Organizations: response}
+
+}
+
 type JobRequest struct {
 	JobTitle       string             `json:"title" example:"Software Engineer" validate:"required,min=3,max=255"`
 	Scope          string             `json:"scope" example:"This is a scope" validate:"required"`

@@ -38,6 +38,17 @@ func NewEventService(eventRepo repository.EventRepository, db *gorm.DB, os *open
 		S3:        s3}
 }
 
+func (s eventService) CountEventByOrgID(orgID uint) (int64, error) {
+	count, err := s.eventRepo.CountsByOrgID(orgID)
+
+	if err != nil {
+		logs.Error(err)
+		return 0, errs.NewUnexpectedError()
+	}
+
+	return count, nil
+}
+
 func (s eventService) SyncEvents() error {
 	return sync.SyncEventsToOpenSearch(s.DB, s.OS)
 }

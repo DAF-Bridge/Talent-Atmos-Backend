@@ -53,6 +53,17 @@ func NewRoleWithDomainService(dbRoleRepository models.RoleRepository,
 	return roleService
 }
 
+func (r RoleWithDomainService) CountByOrgID(orgID uint) (int64, error) {
+	count, err := r.dbRoleRepository.CountMembers(orgID)
+
+	if err != nil {
+		logs.Error(err)
+		return 0, errs.NewUnexpectedError()
+	}
+
+	return count, nil
+}
+
 func (r RoleWithDomainService) GetRolesForUserInDomain(userID uuid.UUID, orgID uint) (*models.RoleInOrganization, error) {
 	roles, err := r.dbRoleRepository.FindByUserIDAndOrganizationID(userID, orgID)
 	if err != nil {

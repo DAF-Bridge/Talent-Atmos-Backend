@@ -700,4 +700,18 @@ func (h *OrgOpenJobHandler) SyncJobs(c *fiber.Ctx) error {
 	return nil
 }
 
+func (h *OrgOpenJobHandler) GetNumberOfJobs(c *fiber.Ctx) error {
+	// Access the organization
+	orgID, err := utils.GetOrgIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	count, err := h.service.CountsByOrgID(orgID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"numberOfOpenJobs": count})
+}
+
 // -------------------------------------------------------------------------

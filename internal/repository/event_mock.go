@@ -361,3 +361,14 @@ func (e *eventRepositoryMock) UpdateEventPicture(orgID uint, eventID uint, picUR
 
 	return errs.NewNotFoundError("event not found")
 }
+
+func (e *eventRepositoryMock) CountsByOrgID(orgID uint) (int64, error) {
+	var count int64
+	for _, event := range e.events {
+		if event.OrganizationID == orgID {
+			count++
+		}
+	}
+
+	return count, nil
+}

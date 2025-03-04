@@ -40,4 +40,5 @@ type OrgOpenJobRepository interface {
 	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	DeleteJob(orgID uint, jobID uint) error
+	CountsByOrgID(orgID uint) (int64, error)
 }

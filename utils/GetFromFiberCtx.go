@@ -34,7 +34,7 @@ func GetOrgIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
 	// Access the organization
 	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
-		return 0, fmt.Errorf("organization id is required")
+		return 0, fmt.Errorf("organization id is required  (orgID)")
 	}
 	if orgID < 1 {
 		return 0, fmt.Errorf("invalid organization id")

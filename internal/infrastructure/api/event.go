@@ -30,11 +30,12 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *
 	app.Get("events/categories/list", eventHandler.ListAllCategories)
 
 	// CRUD
+	event.Get("/", eventHandler.ListEventsByOrgID)
+	event.Get("/count", eventHandler.GetNumberOfEvents)
 	app.Get("/events-paginate", eventHandler.EventPaginate)
 	event.Post("/create", eventHandler.CreateEvent)
 	app.Get("/events", eventHandler.ListEvents)
 	event.Get("/:id", eventHandler.GetEventByID)
 	event.Put("/:id", eventHandler.UpdateEvent)
 	event.Delete("/:id", eventHandler.DeleteEvent)
-	event.Get("/", eventHandler.ListEventsByOrgID)
 }
