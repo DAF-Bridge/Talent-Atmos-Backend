@@ -294,6 +294,17 @@ func (e *eventRepositoryMock) Search(params map[string]string) ([]models.Event, 
 	return events, nil
 }
 
+func (e *eventRepositoryMock) countsByOrgID(orgID uint) (int64, error) {
+	var count int64
+	for _, event := range e.events {
+		if event.OrganizationID == orgID {
+			count++
+		}
+	}
+
+	return count, nil
+}
+
 // Update implements EventRepository.
 func (e *eventRepositoryMock) Update(orgID uint, eventID uint, event *models.Event) (*models.Event, error) {
 	found := false
