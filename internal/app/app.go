@@ -33,7 +33,7 @@ func init() {
 	initializers.ConnectToCasbin()
 	initializers.SetupMail()
 	initializers.SetupInviteMail()
-	initializers.ConnectToRedis()
+	// initializers.ConnectToRedis()
 	// initializers.SyncDB()
 	initializers.SetupGoth()
 	initializers.InitOAuth()
