@@ -15,4 +15,5 @@ type RoleService interface {
 	DeleteDomains(orgID uint) (bool, error)
 	GetDomainsByUser(uuid uuid.UUID) ([]models.Organization, error)
 	UpdateRoleToEnforcer() (bool, error)
+	CountByOrgID(orgID uint) (int64, error)
 }

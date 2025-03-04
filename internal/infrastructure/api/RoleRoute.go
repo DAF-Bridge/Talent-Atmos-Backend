@@ -37,5 +37,6 @@ func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail 
 	role.Delete("/", rbac.EnforceMiddleware("Role", "remove"), roleHandler.DeleteMember)
 	role.Get("/all", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetAllUsersWithRoleByDomain)
 	role.Post("/invitation", rbac.EnforceMiddleware("Role", "invite"), roleHandler.InvitationForMember)
+	role.Get("/count", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetNumberOfMember)
 	//role.Post("/check-Permission", rbac.EnforceMiddleware("Role", "read"), roleHandler.CheckPermission)
 }

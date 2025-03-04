@@ -13,6 +13,26 @@ type EventServiceMock struct {
 	mock.Mock
 }
 
+func (m *EventServiceMock) CountEventByOrgID(orgID uint) (int64, error) {
+	ret := m.Called(orgID)
+
+	var r0 int64
+	if rf, ok := ret.Get(0).(func(uint) int64); ok {
+		r0 = rf(orgID)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(orgID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 func NewEventServiceMock() *EventServiceMock {
 	return &EventServiceMock{}
 }

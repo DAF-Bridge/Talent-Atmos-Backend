@@ -739,3 +739,13 @@ func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {
 
 	return nil
 }
+
+func (s orgOpenJobService) CountsByOrgID(orgID uint) (int64, error) {
+	count, err := s.jobRepo.CountsByOrgID(orgID)
+	if err != nil {
+		logs.Error(err)
+		return 0, errs.NewUnexpectedError()
+	}
+
+	return count, nil
+}

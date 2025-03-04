@@ -19,6 +19,7 @@ type RoleInOrganization struct {
 type RoleRepository interface {
 	Create(role *RoleInOrganization) (*RoleInOrganization, error)
 	GetAll() ([]RoleInOrganization, error)
+	CountMembers(orgID uint) (int64, error)
 	FindByUserID(userID uuid.UUID) ([]RoleInOrganization, error)
 	FindByOrganizationID(orgID uint) ([]RoleInOrganization, error)
 	FindByUserIDAndOrganizationID(userID uuid.UUID, orgID uint) (*RoleInOrganization, error)

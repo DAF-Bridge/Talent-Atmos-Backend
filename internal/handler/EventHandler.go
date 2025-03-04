@@ -375,3 +375,18 @@ func (h EventHandler) SyncEvents(c *fiber.Ctx) error {
 
 	return nil
 }
+
+func (h EventHandler) GetNumberOfEvents(c *fiber.Ctx) error {
+	// Access the organization
+	orgID, err := utils.GetOrgIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	count, err := h.eventService.CountEventByOrgID(orgID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"numberOfEvents": count})
+}

@@ -202,3 +202,13 @@ func (r eventRepository) Delete(orgID uint, eventID uint) error {
 	return utils.GormErrorAndRowsAffected(result)
 
 }
+
+func (r eventRepository) CountsByOrgID(orgID uint) (int64, error) {
+	var count int64
+	err := r.db.Model(&models.Event{}).Where("organization_id = ?", orgID).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

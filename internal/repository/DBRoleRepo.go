@@ -55,6 +55,9 @@ func (d dbRoleRepository) FindByUserID(userID uuid.UUID) ([]models.RoleInOrganiz
 		Model(&models.RoleInOrganization{}).
 		Preload("User").
 		Preload("Organization").
+		Preload("Organization.OrgOpenJobs").
+		Preload("Organization.OrgMembers").
+		Preload("Organization.OrgEvents").
 		Where("user_id = ?", userID).
 		Find(&role).Error
 	if err != nil {
@@ -133,6 +136,17 @@ func (d dbRoleRepository) IsExitRole(userID uuid.UUID, orgID uint) (bool, error)
 		return false, err
 	}
 	return true, nil
+}
+
+func (d dbRoleRepository) CountMembers(orgID uint) (int64, error) {
+	var count int64
+	err := d.db.Model(&models.RoleInOrganization{}).
+		Where("organization_id = ?", orgID).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func NewDBRoleRepository(db *gorm.DB) models.RoleRepository {

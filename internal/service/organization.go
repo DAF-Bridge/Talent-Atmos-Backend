@@ -42,6 +42,7 @@ type OrgOpenJobService interface {
 	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.JobResponses, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	RemoveJob(orgID uint, jobID uint) error
+	CountsByOrgID(orgID uint) (int64, error)
 }
 
 func ConvertToOrgResponse(org models.Organization) dto.OrganizationResponse {
