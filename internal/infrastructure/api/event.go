@@ -12,10 +12,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
+func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) {
 	// Dependencies Injections for Event
 	eventRepo := repository.NewEventRepository(db)
-
 	eventService := service.NewEventService(eventRepo, db, es, s3)
 	eventHandler := handler.NewEventHandler(eventService)
 	_ = middleware.NewRBACMiddleware(enforcer)
@@ -33,9 +32,10 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *
 	event.Get("/", eventHandler.ListEventsByOrgID)
 	event.Get("/count", eventHandler.GetNumberOfEvents)
 	app.Get("/events-paginate", eventHandler.EventPaginate)
-	event.Post("/create", eventHandler.CreateEvent)
+	event.Post("/create", middleware.AuthMiddleware(jwtSecret), eventHandler.CreateEvent)
 	app.Get("/events", eventHandler.ListEvents)
 	event.Get("/:id", eventHandler.GetEventByID)
-	event.Put("/:id", eventHandler.UpdateEvent)
-	event.Delete("/:id", eventHandler.DeleteEvent)
+	event.Put("/:id", middleware.AuthMiddleware(jwtSecret), eventHandler.UpdateEvent)
+	event.Delete("/:id", middleware.AuthMiddleware(jwtSecret), eventHandler.DeleteEvent)
+	event.Get("/", middleware.AuthMiddleware(jwtSecret), eventHandler.ListEventsByOrgID)
 }

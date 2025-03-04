@@ -13,7 +13,6 @@ import (
 	_ "github.com/spf13/viper"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
-	_ "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure/api"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -28,14 +27,13 @@ func init() {
 	if mode != "production" && (mode == "" || mode == "dev") {
 		initializers.LoadEnvVar()
 	}
-	// initializers.LoadEnvVar()
 	initializers.ConnectToDB()
 	initializers.ConnectToS3()
 	initializers.ConnectToElasticSearch()
 	initializers.ConnectToCasbin()
 	initializers.SetupMail()
 	initializers.SetupInviteMail()
-	// initializers.ConnectToRedis()
+	initializers.ConnectToRedis()
 	// initializers.SyncDB()
 	initializers.SetupGoth()
 	initializers.InitOAuth()
@@ -108,7 +106,7 @@ func Start() {
 	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Events
-	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3)
+	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Roles
 	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
