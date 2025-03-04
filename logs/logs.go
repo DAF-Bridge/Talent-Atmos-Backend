@@ -28,6 +28,14 @@ func Debug(message string, fields ...zap.Field) {
 	log.Debug(message, fields...)
 }
 
+func Warn(message string, fields ...zap.Field) {
+	log.Warn(message, fields...)
+}
+
+func Fatal(message string, fields ...zap.Field) {
+	log.Fatal(message, fields...)
+}
+
 func Error(message interface{}, fields ...zap.Field) {
 	switch v := message.(type) {
 	case error:
