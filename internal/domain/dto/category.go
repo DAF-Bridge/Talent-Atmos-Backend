@@ -1,8 +1,8 @@
 package dto
 
 type CategoryResponses struct {
-	ID   uint   `json:"id" example:"1"`
-	Name string `json:"name" example:"forum"`
+	Value uint   `json:"value" example:"1"`
+	Label string `json:"label" example:"forum"`
 }
 
 type CategoryRequest struct {

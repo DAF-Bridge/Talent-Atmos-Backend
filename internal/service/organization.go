@@ -120,8 +120,8 @@ func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 	var categories []dto.CategoryResponses
 	for _, category := range job.Categories {
 		categories = append(categories, dto.CategoryResponses{
-			ID:   category.ID,
-			Name: category.Name,
+			Value: category.ID,
+			Label: category.Name,
 		})
 	}
 

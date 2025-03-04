@@ -181,8 +181,8 @@ func (s eventService) ListAllCategories() (*dto.CategoryListResponse, error) {
 	var responses dto.CategoryListResponse
 	for _, category := range categories {
 		responses.Categories = append(responses.Categories, dto.CategoryResponses{
-			ID:   category.ID,
-			Name: category.Name,
+			Value:   category.ID,
+			Label: category.Name,
 		})
 	}
 

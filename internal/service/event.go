@@ -52,8 +52,8 @@ func ConvertToEventResponse(event models.Event) dto.EventResponses {
 	var categories []dto.CategoryResponses
 	for _, category := range event.Categories {
 		categories = append(categories, dto.CategoryResponses{
-			ID:   category.ID,
-			Name: category.Name,
+			Value: category.ID,
+			Label: category.Name,
 		})
 	}
 
