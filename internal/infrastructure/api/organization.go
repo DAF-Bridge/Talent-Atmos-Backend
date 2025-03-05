@@ -48,14 +48,18 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 	// Define routes for Organization Open Jobs
 	org.Get("/jobs/list/all", orgOpenJobHandler.ListAllOrganizationJobs)
 	org.Get("/:orgID/jobs/list", orgOpenJobHandler.ListOrgOpenJobsByOrgID)
-	org.Get("/:orgID/jobs/get/:id", middleware.AuthMiddleware(jwtSecret), orgOpenJobHandler.GetOrgOpenJobByID)
+	org.Get("/:orgID/jobs/get/:id", middleware.AuthMiddleware(jwtSecret), orgOpenJobHandler.GetOrgOpenJobByIDwithOrgID)
 	org.Get("/:orgID/jobs/count", orgOpenJobHandler.GetNumberOfJobs)
 	org.Post("/:orgID/jobs/create", middleware.AuthMiddleware(jwtSecret), orgOpenJobHandler.CreateOrgOpenJob)
 	org.Put("/:orgID/jobs/update/:id", middleware.AuthMiddleware(jwtSecret), orgOpenJobHandler.UpdateOrgOpenJob)
 	org.Delete("/:orgID/jobs/delete/:id", middleware.AuthMiddleware(jwtSecret), orgOpenJobHandler.DeleteOrgOpenJob)
-
+	
 	// Searching Jobs
 	app.Get("/jobs-paginate/search", orgOpenJobHandler.SearchJobs)
 	// Sync PostGres to OpenSearch
 	app.Get("/sync-orgs-jobs", orgOpenJobHandler.SyncJobs)
+
+	// Get job for frontend
+	app.Get("/jobs/get/:id", orgOpenJobHandler.GetJobByID)
+	app.Get("/orgs/:id", organizationHandler.GetOrganizationByID)
 }

@@ -509,6 +509,20 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(org)
 }
 
+func (h *OrgOpenJobHandler) GetJobByID(c *fiber.Ctx) error {
+	jobID, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
+	}
+
+	job, err := h.service.GetJobByID(uint(jobID))
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(job)
+}
+
 // @Summary Get an organization open job by ID
 // @Description Get an organization open job by ID
 // @Tags Organization Job
@@ -521,7 +535,7 @@ func (h *OrgOpenJobHandler) ListOrgOpenJobsByOrgID(c *fiber.Ctx) error {
 // @Failure 404 {object} map[string]string "error: jobs not found"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/get/{id} [get]
-func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
+func (h *OrgOpenJobHandler) GetOrgOpenJobByIDwithOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization open job id is required"})
@@ -532,7 +546,7 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
 	}
 
-	org, err := h.service.GetJobByID(uint(orgID), uint(jobID))
+	org, err := h.service.GetJobByIDwithOrgID(uint(orgID), uint(jobID))
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}

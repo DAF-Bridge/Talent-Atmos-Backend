@@ -669,8 +669,24 @@ func (s orgOpenJobService) GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, er
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) GetJobByID(orgID uint, jobID uint) (*dto.JobResponses, error) {
-	job, err := s.jobRepo.GetJobByID(orgID, jobID)
+func (s orgOpenJobService) GetJobByID(jobID uint) (*dto.JobResponses, error) {
+	job, err := s.jobRepo.GetJobByID(jobID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("job not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	JobResponse := ConvertToJobResponse(*job)
+
+	return &JobResponse, nil
+}
+
+func (s orgOpenJobService) GetJobByIDwithOrgID(orgID uint, jobID uint) (*dto.JobResponses, error) {
+	job, err := s.jobRepo.GetJobByIDwithOrgID(orgID, jobID)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -709,7 +725,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 }
 
 func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error) {
-	existJob, err := s.jobRepo.GetJobByID(orgID, jobID)
+	existJob, err := s.jobRepo.GetJobByIDwithOrgID(orgID, jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("job not found")
