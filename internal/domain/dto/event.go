@@ -72,6 +72,7 @@ type EventResponses struct {
 	PriceType       string                          `json:"priceType" example:"free"`
 	RegisterLink    string                          `json:"registerLink" example:"https://example.com/register"`
 	Status          string                          `json:"status" example:"published"`
+	Organization    OrganizationResponse            `json:"organization"`
 	Categories      []CategoryResponses             `json:"categories" example:"[{\"id\": 1, \"name\": \"all\"}]"`
 	ContactChannels []EventContactChannelsResponses `json:"contactChannels" example:"[{\"media\": \"facebook\", \"mediaLink\": \"https://facebook.com\"}]"`
 	UpdateAt        string                          `json:"updatedAt" example:"2025-01-24T13:22:10.532645Z"`
