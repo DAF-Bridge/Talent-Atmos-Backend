@@ -50,7 +50,29 @@ func (m *EventServiceMock) NewEvent(orgID uint, req dto.NewEventRequest, ctx con
 	return r0
 }
 
-func (m *EventServiceMock) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
+func (m *EventServiceMock) GetEventByID(eventID uint) (*dto.EventResponses, error) {
+	ret := m.Called(eventID)
+
+	var r0 *dto.EventResponses
+	if rf, ok := ret.Get(0).(func(uint) *dto.EventResponses); ok {
+		r0 = rf(eventID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dto.EventResponses)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(eventID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+func (m *EventServiceMock) GetEventByIDwithOrgID(orgID uint, eventID uint) (*dto.EventResponses, error) {
 	ret := m.Called(orgID, eventID)
 
 	var r0 *dto.EventResponses

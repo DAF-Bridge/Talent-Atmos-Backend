@@ -20,7 +20,7 @@ import (
 )
 
 func TestEventHandler(t *testing.T) {
-	t.Run("TestGetEventByItsID", func(t *testing.T) {
+	t.Run("TestGetEventByItsIDandOrgID", func(t *testing.T) {
 		//ARRANGE
 		eventID := 1
 		organizationID := 1
@@ -47,11 +47,11 @@ func TestEventHandler(t *testing.T) {
 		expectedResponse := service.ConvertToEventResponse(expected)
 
 		eventService := service.NewEventServiceMock()
-		eventService.On("GetEventByID", uint(organizationID), uint(eventID)).Return(&expectedResponse, nil)
+		eventService.On("GetEventByIDwithOrgID", uint(organizationID), uint(eventID)).Return(&expectedResponse, nil)
 		eventHandler := handler.NewEventHandler(eventService)
 
 		app := fiber.New()
-		app.Get("/orgs/:orgID/events/:id", eventHandler.GetEventByID)
+		app.Get("/orgs/:orgID/events/:id", eventHandler.GetEventByIDwithOrgID)
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/orgs/%v/events/%v", organizationID, eventID), nil)
 

@@ -203,8 +203,18 @@ func (e *eventRepositoryMock) GetAllByOrgID(orgID uint) ([]models.Event, error) 
 	return resEvent, nil
 }
 
+func (e *eventRepositoryMock) GetByID(eventID uint) (*models.Event, error) {
+	for _, event := range e.events {
+		if event.Model.ID == eventID {
+			return &event, nil
+		}
+	}
+
+	return nil, errs.NewNotFoundError("event not found")
+}
+
 // GetByID implements EventRepository.
-func (e *eventRepositoryMock) GetByID(orgID uint, eventID uint) (*models.Event, error) {
+func (e *eventRepositoryMock) GetByIDwithOrgID(orgID uint, eventID uint) (*models.Event, error) {
 	for _, event := range e.events {
 		if event.OrganizationID == orgID && event.Model.ID == eventID {
 			return &event, nil
