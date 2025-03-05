@@ -82,7 +82,6 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			Title:        job.Title,
 			PicUrl:       job.PicUrl,
 			Description:  job.Description,
-			Location:     job.Location,
 			WorkType:     string(job.WorkType),
 			Workplace:    string(job.Workplace),
 			CareerStage:  string(job.CareerStage),
