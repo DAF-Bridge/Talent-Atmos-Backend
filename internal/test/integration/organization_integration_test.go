@@ -22,7 +22,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -119,11 +118,17 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 		jobID := 1
 
 		expected := models.OrgOpenJob{
-			Model:          gorm.Model{ID: 1, UpdatedAt: time.Now()},
-			Title:          "Software Engineer",
-			PicUrl:         "https://talentsatmos.com",
-			Scope:          "Software Development",
-			Prerequisite:   pq.StringArray{"Great at problem solving", "Reliable"},
+			Model:  gorm.Model{ID: 1, UpdatedAt: time.Now()},
+			Title:  "Software Engineer",
+			PicUrl: "https://talentsatmos.com",
+			Scope:  "Software Development",
+			Prerequisites: []models.Prerequisite{
+				{
+					Model: gorm.Model{ID: 1},
+					Title: "Bachelor's degree in Computer Science",
+					Link:  "https://example.com",
+				},
+			},
 			Organization:   models.Organization{Name: "Talents Atmos"},
 			Workplace:      models.Workplace("remote"),
 			WorkType:       models.WorkType("fulltime"),
