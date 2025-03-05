@@ -32,15 +32,15 @@ func convertToUserResponses(user *models.User) *dto.UserResponses {
 	}
 }
 
-func convertToUserModel(user *dto.SignUpRequest) *models.User {
-	return &models.User{
-		Name:     user.Name,
-		Email:    user.Email,
-		Password: &user.Password,
-		Role:     models.Role(user.Role),
-		Provider: models.Provider(user.Provider),
-	}
-}
+// func convertToUserModel(user *dto.SignUpRequest) *models.User {
+// 	return &models.User{
+// 		Name:     user.Name,
+// 		Email:    user.Email,
+// 		Password: &user.Password,
+// 		Role:     models.Role(user.Role),
+// 		Provider: models.Provider(user.Provider),
+// 	}
+// }
 
 func convertToProfileResponse(profile *models.Profile) *dto.ProfileResponses {
 	user := convertToUserResponses(&profile.User)

@@ -74,6 +74,7 @@ type EventResponses struct {
 	Status          string                          `json:"status" example:"published"`
 	Categories      []CategoryResponses             `json:"categories" example:"[{\"id\": 1, \"name\": \"all\"}]"`
 	ContactChannels []EventContactChannelsResponses `json:"contactChannels" example:"[{\"media\": \"facebook\", \"mediaLink\": \"https://facebook.com\"}]"`
+	UpdateAt        string                          `json:"updatedAt" example:"2025-01-24T13:22:10.532645Z"`
 }
 
 type EventCardResponses struct {
