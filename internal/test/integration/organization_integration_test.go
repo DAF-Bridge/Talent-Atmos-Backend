@@ -137,10 +137,8 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 			Description:    "This is a description",
 			HoursPerDay:    "8 hours",
 			Qualifications: "Bachelor's degree in Computer Science",
-			Benefits:       "Health insurance",
 			Quantity:       1,
 			Salary:         30000,
-			Location:       "Chiang Mai University",
 			Province:       "Chiang Mai",
 			Country:        "TH",
 			Status:         "published",
@@ -154,7 +152,8 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 
 		// Integration interface
 		jobRepo := repository.NewOrgOpenJobRepositoryMock()
-		jobSrv := service.NewOrgOpenJobService(jobRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
+		orgRepo := repository.NewOrganizationRepositoryMock()
+		jobSrv := service.NewOrgOpenJobService(jobRepo, orgRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
 		jobHandler := handler.NewOrgOpenJobHandler(jobSrv)
 
 		app := fiber.New()
