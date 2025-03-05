@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
-	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
@@ -445,10 +443,10 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
 
 	// Parse JSON from the "job" form field
-	jobData := c.FormValue("job")
-	if err := json.Unmarshal([]byte(jobData), &req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
+	// jobData := c.FormValue("job")
+	// if err := json.Unmarshal([]byte(jobData), &req); err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	// }
 
 	// validate request
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
@@ -460,20 +458,7 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
 
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-	fileHeader, err = c.FormFile("image")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
-	}
-
-	file, err = fileHeader.Open()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
-	}
-	defer file.Close()
-
-	if err := h.service.NewJob(uint(orgID), req, c.Context(), file, fileHeader); err != nil {
+	if err := h.service.NewJob(uint(orgID), req); err != nil {
 		return errs.SendFiberError(c, err)
 	}
 
@@ -573,10 +558,10 @@ func (h *OrgOpenJobHandler) GetOrgOpenJobByID(c *fiber.Ctx) error {
 func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
 	// Parse JSON from the "job" form field
-	jobData := c.FormValue("job")
-	if err := json.Unmarshal([]byte(jobData), &req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
+	// jobData := c.FormValue("job")
+	// if err := json.Unmarshal([]byte(jobData), &req); err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
+	// }
 
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
 		return err
@@ -592,21 +577,22 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
 	}
 
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-	fileHeader, err = c.FormFile("image")
-	if err == nil {
-		file, err = fileHeader.Open()
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
-		}
-		defer file.Close()
-	} else {
-		file = nil
-		fileHeader = nil
-	}
+	// var file multipart.File
+	// var fileHeader *multipart.FileHeader
+	// fileHeader, err = c.FormFile("image")
+	// if err == nil {
+	// 	file, err = fileHeader.Open()
+	// 	if err != nil {
+	// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+	// 	}
+	// 	defer file.Close()
+	// } else {
+	// 	file = nil
+	// 	fileHeader = nil
+	// }
 
-	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req, c.Context(), file, fileHeader)
+	// updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req, c.Context(), file, fileHeader)
+	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req)
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}

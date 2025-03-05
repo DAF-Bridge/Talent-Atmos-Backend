@@ -104,16 +104,13 @@ type JobRequest struct {
 	Prerequisite          []PrerequisiteRequest `json:"prerequisite" validate:"required"`
 	Workplace             models.Workplace      `json:"workplace" example:"remote" validate:"required"`
 	WorkType              models.WorkType       `json:"workType" example:"fulltime" validate:"required"`
-	WorkPlaceDescpription string                `json:"workPlaceDescpription" example:"This is a workplace description" validate:"required"`
 	CareerStage           models.CareerStage    `json:"careerStage" example:"entrylevel" validate:"required"`
 	Period                string                `json:"period" example:"1 year" validate:"required"`
 	Description           string                `json:"description" example:"This is a description" validate:"required"`
 	HoursPerDay           string                `json:"hoursPerDay" example:"8 hours" validate:"required"`
 	Qualifications        string                `json:"qualifications" example:"Bachelor's degree in Computer Science" validate:"required"`
-	Benefits              string                `json:"benefits" example:"Health insurance" validate:"required"`
 	Quantity              int                   `json:"quantity" example:"1" validate:"required"`
 	Salary                float64               `json:"salary" example:"30000" validate:"required"`
-	Location              string                `json:"location" example:"Chiang Mai University" validate:"required"`
 	Province              string                `json:"province" example:"Chiang Mai" validate:"required"`
 	Country               string                `json:"country" example:"TH" validate:"required"`
 	Status                string                `json:"status" example:"draft" validate:"required"`
@@ -123,21 +120,18 @@ type JobRequest struct {
 type JobResponses struct {
 	ID                    uint                    `json:"id" example:"1"`
 	JobTitle              string                  `json:"title" example:"Software Engineer"`
+	Description           string                  `json:"description" example:"This is a description"`
 	PicUrl                string                  `json:"picUrl" example:"https://example.com/image.jpg"`
 	Scope                 string                  `json:"scope" example:"This is a scope"`
 	Prerequisite          []PrerequisiteResponses `json:"prerequisite"`
 	Workplace             models.Workplace        `json:"workplace" example:"remote"`
-	WorkPlaceDescpription string                  `json:"workPlaceDescpription" example:"This is a workplace description"`
 	WorkType              models.WorkType         `json:"workType" example:"fulltime"`
 	CareerStage           models.CareerStage      `json:"careerStage" example:"entrylevel"`
 	Period                string                  `json:"period" example:"1 year"`
-	Description           string                  `json:"description" example:"This is a description"`
 	HoursPerDay           string                  `json:"hoursPerDay" example:"8 hours"`
 	Qualifications        string                  `json:"qualifications" example:"Bachelor's degree in Computer Science"`
-	Benefits              string                  `json:"benefits" example:"Health insurance"`
 	Quantity              int                     `json:"quantity" example:"1"`
 	Salary                float64                 `json:"salary" example:"30000"`
-	Location              string                  `json:"location" example:"Chiang Mai University"`
 	Province              string                  `json:"province" example:"Chiang Mai"`
 	Country               string                  `json:"country" example:"TH"`
 	Status                string                  `json:"status" example:"draft"`

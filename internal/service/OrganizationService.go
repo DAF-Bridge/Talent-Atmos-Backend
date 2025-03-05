@@ -500,19 +500,20 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 
 type orgOpenJobService struct {
 	jobRepo repository.OrgOpenJobRepository
+	OrgRepo repository.OrganizationRepository
 	DB      *gorm.DB
 	OS      *opensearch.Client
 	S3      *infrastructure.S3Uploader
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, OrgRepo repository.OrganizationRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
 	return orgOpenJobService{
 		jobRepo: jobRepo,
-
-		DB: db,
-		OS: os,
-		S3: s3,
+		OrgRepo: OrgRepo,
+		DB:      db,
+		OS:      os,
+		S3:      s3,
 	}
 }
 
@@ -539,7 +540,7 @@ func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Off
 	return jobsRes, nil
 }
 
-func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
+func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest) error {
 	categories, err := s.jobRepo.FindCategoryByIds(req.CategoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -565,21 +566,38 @@ func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest, ctx context.Co
 		}
 	}
 
-	// Upload image to S3
-	if file != nil {
-		picURL, err := s.S3.UploadJobBanner(ctx, file, fileHeader, orgID, job.ID)
-		if err != nil {
-			logs.Error(err)
-			return errs.NewUnexpectedError()
+	org, err := s.OrgRepo.GetByOrgID(orgID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("organization not found")
 		}
 
-		// Update PicUrl in job
-		err = s.jobRepo.UpdateJobPicture(orgID, job.ID, picURL)
-		if err != nil {
-			logs.Error(err)
-			return errs.NewUnexpectedError()
-		}
+		logs.Error(err)
+		return errs.NewUnexpectedError()
 	}
+
+	// Update Job Picture
+	err = s.jobRepo.UpdateJobPicture(orgID, job.ID, org.PicUrl)
+	if err != nil {
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	// Upload image to S3
+	// if file != nil {
+	// 	picURL, err := s.S3.UploadJobBanner(ctx, file, fileHeader, orgID, job.ID)
+	// 	if err != nil {
+	// 		logs.Error(err)
+	// 		return errs.NewUnexpectedError()
+	// 	}
+
+	// 	// Update PicUrl in job
+	// 	err = s.jobRepo.UpdateJobPicture(orgID, job.ID, picURL)
+	// 	if err != nil {
+	// 		logs.Error(err)
+	// 		return errs.NewUnexpectedError()
+	// 	}
+	// }
 
 	return nil
 }
@@ -690,7 +708,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	return jobsResponse, nil
 }
 
-func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.JobResponses, error) {
+func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error) {
 	existJob, err := s.jobRepo.GetJobByID(orgID, jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -712,24 +730,25 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest,
 
 	job := ConvertToJobRequest(orgID, dto, categories)
 	job.ID = existJob.ID
-	if file != nil {
-		picURL, err := s.S3.UploadJobBanner(ctx, file, fileHeader, orgID, job.ID)
-		if err != nil {
-			logs.Error(err)
-			return nil, errs.NewUnexpectedError()
-		}
 
-		job.PicUrl = picURL
-		// Update PicUrl in job
-		err = s.jobRepo.UpdateJobPicture(orgID, job.ID, picURL)
-		if err != nil {
-			logs.Error(err)
-			return nil, errs.NewUnexpectedError()
-		}
-	} else {
-		// If no new image is uploaded, use the existing image
-		job.PicUrl = existJob.PicUrl
-	}
+	// if file != nil {
+	// 	picURL, err := s.S3.UploadJobBanner(ctx, file, fileHeader, orgID, job.ID)
+	// 	if err != nil {
+	// 		logs.Error(err)
+	// 		return nil, errs.NewUnexpectedError()
+	// 	}
+
+	// 	job.PicUrl = picURL
+	// 	// Update PicUrl in job
+	// 	err = s.jobRepo.UpdateJobPicture(orgID, job.ID, picURL)
+	// 	if err != nil {
+	// 		logs.Error(err)
+	// 		return nil, errs.NewUnexpectedError()
+	// 	}
+	// } else {
+	// 	// If no new image is uploaded, use the existing image
+	// 	job.PicUrl = existJob.PicUrl
+	// }
 
 	updatedJob, err := s.jobRepo.UpdateJob(&job)
 	if err != nil {

@@ -34,13 +34,13 @@ type OrganizationContactService interface {
 type OrgOpenJobService interface {
 	SyncJobs() error
 	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
-	NewJob(orgID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
+	NewJob(orgID uint, dto dto.JobRequest) error
 	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
 	GetJobByID(orgID uint, jobID uint) (*dto.JobResponses, error)
 	GetJobPaginate(page uint) ([]dto.JobResponses, error)
-	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.JobResponses, error)
+	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	RemoveJob(orgID uint, jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
@@ -144,16 +144,13 @@ func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		Prerequisite:          prerequisites,
 		Workplace:             job.Workplace,
 		WorkType:              job.WorkType,
-		WorkPlaceDescpription: job.WorkPlaceDescpription,
 		CareerStage:           job.CareerStage,
 		Period:                job.Period,
 		Description:           job.Description,
 		HoursPerDay:           job.HoursPerDay,
 		Qualifications:        job.Qualifications,
-		Benefits:              job.Benefits,
 		Quantity:              job.Quantity,
 		Salary:                job.Salary,
-		Location:              job.Location,
 		Province:              job.Province,
 		Country:               job.Country,
 		Status:                job.Status,
@@ -178,16 +175,13 @@ func ConvertToJobRequest(orgID uint, job dto.JobRequest, categories []models.Cat
 		Prerequisites:         prerequisites,
 		Workplace:             job.Workplace,
 		WorkType:              job.WorkType,
-		WorkPlaceDescpription: job.WorkPlaceDescpription,
 		CareerStage:           job.CareerStage,
 		Period:                job.Period,
 		Description:           job.Description,
 		HoursPerDay:           job.HoursPerDay,
 		Qualifications:        job.Qualifications,
-		Benefits:              job.Benefits,
 		Quantity:              job.Quantity,
 		Salary:                job.Salary,
-		Location:              job.Location,
 		Province:              job.Province,
 		Country:               job.Country,
 		Status:                job.Status,

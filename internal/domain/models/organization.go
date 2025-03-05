@@ -98,28 +98,25 @@ type OrganizationContact struct {
 
 type OrgOpenJob struct {
 	gorm.Model
-	OrganizationID        uint           `gorm:"not null" json:"organizationId" example:"1"`
-	Organization          Organization   `gorm:"foreignKey:OrganizationID" json:"organization"`
-	Title                 string         `gorm:"type:varchar(255);not null" json:"title" example:"Software Engineer"`
-	PicUrl                string         `gorm:"type:text" json:"picUrl"`
-	Scope                 string         `gorm:"type:varchar(255);not null"`
-	Workplace             Workplace      `gorm:"type:workplace;not null"`
-	WorkType              WorkType       `gorm:"type:work_type;not null"`
-	WorkPlaceDescpription string         `gorm:"type:text"`
-	CareerStage           CareerStage    `gorm:"type:career_stage;not null" json:"careerStage" example:"entrylevel"`
-	Period                string         `gorm:"type:varchar(255);not null" json:"period" example:"1 year"`
-	Description           string         `gorm:"type:text" json:"description" example:"This is a description"`
-	HoursPerDay           string         `gorm:"type:varchar(255);not null" json:"hoursPerDay" example:"8 hours"`
-	Qualifications        string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
-	Benefits              string         `gorm:"type:text" json:"benefits" example:"Health insurance"`
-	Quantity              int            `json:"quantity" example:"1"`
-	Salary                float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
-	Location              string         `gorm:"type:varchar(255);not null" json:"location" example:"Chiang Mai"`
-	Province              string         `gorm:"type:varchar(255);not null" json:"province" example:"Chiang Mai"`
-	Country               string         `gorm:"type:varchar(255);not null" json:"country" example:"TH"`
-	Status                string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
-	Prerequisites         []Prerequisite `gorm:"foreignKey:JobID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // Job prerequisites
-	Categories            []Category     `gorm:"many2many:category_job;"`
+	OrganizationID uint           `gorm:"not null" json:"organizationId" example:"1"`
+	Organization   Organization   `gorm:"foreignKey:OrganizationID" json:"organization"`
+	Title          string         `gorm:"type:varchar(255);not null" json:"title" example:"Software Engineer"`
+	PicUrl         string         `gorm:"type:varchar(255)" db:"picUrl"`
+	Description    string         `gorm:"type:text" json:"description" example:"This is a description"`
+	Workplace      Workplace      `gorm:"type:workplace;not null"`
+	WorkType       WorkType       `gorm:"type:work_type;not null"`
+	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"careerStage" example:"entrylevel"`
+	Province       string         `gorm:"type:varchar(255);not null" json:"province" example:"Chiang Mai"`
+	Country        string         `gorm:"type:varchar(255);not null" json:"country" example:"TH"`
+	Scope          string         `gorm:"type:varchar(255);not null"`
+	HoursPerDay    string         `gorm:"type:varchar(255);not null" json:"hoursPerDay" example:"8 hours"`
+	Period         string         `gorm:"type:varchar(255);not null" json:"period" example:"1 year"`
+	Qualifications string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
+	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
+	Quantity       int            `json:"quantity" example:"1"`
+	Status         string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
+	Prerequisites  []Prerequisite `gorm:"foreignKey:JobID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // Job prerequisites
+	Categories     []Category     `gorm:"many2many:category_job;"`
 }
 
 type Prerequisite struct {
