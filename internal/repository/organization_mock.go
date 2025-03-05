@@ -235,7 +235,14 @@ func (r orgOpenJobRepositoryMock) FindCategoryByIds(catIDs []uint) ([]models.Cat
 	return nil, nil
 }
 
-func (r orgOpenJobRepositoryMock) GetJobByID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+func (r orgOpenJobRepositoryMock) GetJobByID(jobID uint) (*models.OrgOpenJob, error) {
+	if r.job.ID == jobID {
+		return r.job, nil
+	}
+	return nil, nil
+}
+
+func (r orgOpenJobRepositoryMock) GetJobByIDwithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
 	if r.job.ID == jobID {
 		return r.job, nil
 	}

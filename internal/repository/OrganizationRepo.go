@@ -377,8 +377,23 @@ func (r orgOpenJobRepository) GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob
 	return orgs, nil
 }
 
-func (r orgOpenJobRepository) GetJobByID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
-	org := &models.OrgOpenJob{}
+func (r orgOpenJobRepository) GetJobByID(jobID uint) (*models.OrgOpenJob, error) {
+	job := &models.OrgOpenJob{}
+
+	if err := r.db.
+		Preload("Organization").
+		Preload("Prerequisites").
+		Preload("Categories").
+		Where("id = ?", jobID).
+		First(&job).Error; err != nil {
+		return nil, err
+	}
+
+	return job, nil
+}
+
+func (r orgOpenJobRepository) GetJobByIDwithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+	job := &models.OrgOpenJob{}
 
 	if err := r.db.
 		Preload("Organization").
@@ -386,11 +401,11 @@ func (r orgOpenJobRepository) GetJobByID(orgID uint, jobID uint) (*models.OrgOpe
 		Preload("Categories").
 		Where("organization_id = ?", orgID).
 		Where("id = ?", jobID).
-		First(&org).Error; err != nil {
+		First(&job).Error; err != nil {
 		return nil, err
 	}
 
-	return org, nil
+	return job, nil
 }
 
 func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error) {

@@ -157,7 +157,7 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 		jobHandler := handler.NewOrgOpenJobHandler(jobSrv)
 
 		app := fiber.New()
-		app.Get("/orgs/:orgID/jobs/get/:id", middleware.AuthMiddleware("testSecret"), jobHandler.GetOrgOpenJobByID)
+		app.Get("/orgs/:orgID/jobs/get/:id", middleware.AuthMiddleware("testSecret"), jobHandler.GetOrgOpenJobByIDwithOrgID)
 
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/orgs/%v/jobs/get/%v", organizationID, jobID), nil)
 		req.AddCookie(&http.Cookie{

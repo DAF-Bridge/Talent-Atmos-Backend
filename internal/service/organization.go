@@ -38,7 +38,8 @@ type OrgOpenJobService interface {
 	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
-	GetJobByID(orgID uint, jobID uint) (*dto.JobResponses, error)
+	GetJobByID(jobID uint) (*dto.JobResponses, error)
+	GetJobByIDwithOrgID(orgID uint, jobID uint) (*dto.JobResponses, error)
 	GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
