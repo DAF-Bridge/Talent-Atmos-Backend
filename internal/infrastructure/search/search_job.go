@@ -100,7 +100,7 @@ func buildSearchJobQuery(query models.SearchJobQuery) map[string]interface{} {
 			},
 		})
 	}
-	if query.Categories == "all" {
+	if query.Categories == "" {
 		must = append(must, map[string]interface{}{
 			"match_all": map[string]interface{}{},
 		})

@@ -13,7 +13,7 @@ import (
 
 func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	var events []models.Event
-	if err := db.Preload("Organization").Preload("Category").Find(&events).Error; err != nil {
+	if err := db.Preload("Organization").Preload("Categories").Find(&events).Error; err != nil {
 		return fmt.Errorf("failed to fetch events: %v", err)
 	}
 
@@ -43,6 +43,7 @@ func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			Categories:         categories,
 			Organization:       event.Organization.Name,
 			OrganizationPicUrl: event.Organization.PicUrl,
+			UpdateAt:           event.UpdatedAt.Format("2006-01-02 15:04:05"),
 		}
 
 		jsonData, _ := json.Marshal(doc)
@@ -67,7 +68,7 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	}
 
 	var jobs []models.OrgOpenJob
-	if err := db.Preload("Organization").Preload("Categories").Find(&jobs).Error; err != nil {
+	if err := db.Preload("Organization").Preload("Prerequisites").Preload("Categories").Find(&jobs).Error; err != nil {
 		return fmt.Errorf("failed to fetch jobs: %v", err)
 	}
 
@@ -77,17 +78,26 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			categories = append(categories, category.Name)
 		}
 
+		var prerequisites []string
+		for _, p := range job.Prerequisites {
+			prerequisites = append(prerequisites, p.Title)
+		}
+
 		doc := models.JobDocument{
-			ID:           job.ID,
-			Title:        job.Title,
-			PicUrl:       job.PicUrl,
-			Description:  job.Description,
-			WorkType:     string(job.WorkType),
-			Workplace:    string(job.Workplace),
-			CareerStage:  string(job.CareerStage),
-			Salary:       job.Salary,
-			Categories:   categories,
-			Organization: job.Organization.Name,
+			ID:            job.ID,
+			Title:         job.Title,
+			PicUrl:        job.Organization.PicUrl,
+			Prerequisites: prerequisites,
+			Description:   job.Description,
+			WorkType:      string(job.WorkType),
+			Workplace:     string(job.Workplace),
+			CareerStage:   string(job.CareerStage),
+			Salary:        job.Salary,
+			Categories:    categories,
+			Organization:  job.Organization.Name,
+			Province:      job.Province,
+			Country:       job.Country,
+			UpdateAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
 		}
 
 		jsonData, _ := json.Marshal(doc)
