@@ -32,6 +32,8 @@ type OrganizationContactRepository interface {
 
 type OrgOpenJobRepository interface {
 	CreateJob(orgID uint, job *models.OrgOpenJob) error
+	CreatePrerequisite(jobID uint, pre *models.Prerequisite) error
+	FindPReqByJobID(jobID uint) ([]models.Prerequisite, error)
 	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
 	GetJobByID(orgID uint, jobID uint) (*models.OrgOpenJob, error)
 	GetAllJobs() ([]models.OrgOpenJob, error)
@@ -42,3 +44,4 @@ type OrgOpenJobRepository interface {
 	DeleteJob(orgID uint, jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
 }
+

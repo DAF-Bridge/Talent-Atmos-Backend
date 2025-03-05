@@ -6,7 +6,6 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -84,7 +83,13 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 		Title:          "Software Engineer",
 		PicUrl:         "https://talentsatmos.com",
 		Scope:          "Software Development",
-		Prerequisite:   pq.StringArray{"Great at problem solving", "Reliable"},
+		Prerequisites: []models.Prerequisite{
+			{
+				Model: gorm.Model{ID: 1},
+				Title: "Bachelor's degree in Computer Science",
+				Link:  "https://example.com",
+			},
+		},
 		Workplace:      models.Workplace("remote"),
 		WorkType:       models.WorkType("fulltime"),
 		CareerStage:    models.CareerStage("entrylevel"),
@@ -217,6 +222,14 @@ func (r organizationContactRepositoryMock) Delete(orgID uint, id uint) error {
 // ----------------------------------------------
 func (r orgOpenJobRepositoryMock) CreateJob(orgID uint, job *models.OrgOpenJob) error {
 	return nil
+}
+
+func (r orgOpenJobRepositoryMock) CreatePrerequisite(jobID uint, pre *models.Prerequisite) error {
+	return nil
+}
+
+func (r orgOpenJobRepositoryMock) FindPReqByJobID(jobID uint) ([]models.Prerequisite, error) {
+	return nil, nil
 }
 
 func (r orgOpenJobRepositoryMock) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {

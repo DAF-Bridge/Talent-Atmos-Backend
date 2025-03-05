@@ -35,6 +35,7 @@ type OrgOpenJobService interface {
 	SyncJobs() error
 	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
 	NewJob(orgID uint, dto dto.JobRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
+	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
 	GetJobByID(orgID uint, jobID uint) (*dto.JobResponses, error)
@@ -126,52 +127,88 @@ func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		})
 	}
 
+	var prerequisites []dto.PrerequisiteResponses
+	for i, p := range job.Prerequisites {
+		prerequisites = append(prerequisites, dto.PrerequisiteResponses{
+			Value: uint(i),
+			Title: p.Title,
+			Link:  p.Link,
+		})
+	}
+
 	return dto.JobResponses{
-		ID:             job.ID,
-		JobTitle:       job.Title,
-		PicUrl:         job.PicUrl,
-		Scope:          job.Scope,
-		Prerequisite:   job.Prerequisite,
-		Workplace:      job.Workplace,
-		WorkType:       job.WorkType,
-		CareerStage:    job.CareerStage,
-		Period:         job.Period,
-		Description:    job.Description,
-		HoursPerDay:    job.HoursPerDay,
-		Qualifications: job.Qualifications,
-		Benefits:       job.Benefits,
-		Quantity:       job.Quantity,
-		Salary:         job.Salary,
-		Location:       job.Location,
-		Province:       job.Province,
-		Country:        job.Country,
-		Status:         job.Status,
-		Categories:     categories,
-		UpdatedAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
+		ID:                    job.ID,
+		JobTitle:              job.Title,
+		PicUrl:                job.PicUrl,
+		Scope:                 job.Scope,
+		Prerequisite:          prerequisites,
+		Workplace:             job.Workplace,
+		WorkType:              job.WorkType,
+		WorkPlaceDescpription: job.WorkPlaceDescpription,
+		CareerStage:           job.CareerStage,
+		Period:                job.Period,
+		Description:           job.Description,
+		HoursPerDay:           job.HoursPerDay,
+		Qualifications:        job.Qualifications,
+		Benefits:              job.Benefits,
+		Quantity:              job.Quantity,
+		Salary:                job.Salary,
+		Location:              job.Location,
+		Province:              job.Province,
+		Country:               job.Country,
+		Status:                job.Status,
+		Categories:            categories,
+		UpdatedAt:             job.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
 
 func ConvertToJobRequest(orgID uint, job dto.JobRequest, categories []models.Category) models.OrgOpenJob {
+	var prerequisites []models.Prerequisite
+	for _, p := range job.Prerequisite {
+		prerequisites = append(prerequisites, models.Prerequisite{
+			Title: p.Title,
+			Link:  p.Link,
+		})
+	}
+
 	return models.OrgOpenJob{
-		OrganizationID: orgID,
-		Title:          job.JobTitle,
-		Scope:          job.Scope,
-		Prerequisite:   job.Prerequisite,
-		Workplace:      job.Workplace,
-		WorkType:       job.WorkType,
-		CareerStage:    job.CareerStage,
-		Period:         job.Period,
-		Description:    job.Description,
-		HoursPerDay:    job.HoursPerDay,
-		Qualifications: job.Qualifications,
-		Benefits:       job.Benefits,
-		Quantity:       job.Quantity,
-		Salary:         job.Salary,
-		Location:       job.Location,
-		Province:       job.Province,
-		Country:        job.Country,
-		Status:         job.Status,
-		Categories:     categories,
-		Model:          gorm.Model{UpdatedAt: time.Now()},
+		OrganizationID:        orgID,
+		Title:                 job.JobTitle,
+		Scope:                 job.Scope,
+		Prerequisites:         prerequisites,
+		Workplace:             job.Workplace,
+		WorkType:              job.WorkType,
+		WorkPlaceDescpription: job.WorkPlaceDescpription,
+		CareerStage:           job.CareerStage,
+		Period:                job.Period,
+		Description:           job.Description,
+		HoursPerDay:           job.HoursPerDay,
+		Qualifications:        job.Qualifications,
+		Benefits:              job.Benefits,
+		Quantity:              job.Quantity,
+		Salary:                job.Salary,
+		Location:              job.Location,
+		Province:              job.Province,
+		Country:               job.Country,
+		Status:                job.Status,
+		Categories:            categories,
+		Model:                 gorm.Model{UpdatedAt: time.Now()},
+	}
+}
+
+func ConvertToPrerequisiteRequest(jobID uint, prerequisite dto.PrerequisiteRequest) models.Prerequisite {
+	return models.Prerequisite{
+		JobID: jobID,
+		Title: prerequisite.Title,
+		Link:  prerequisite.Link,
+		Model: gorm.Model{UpdatedAt: time.Now()},
+	}
+}
+
+func ConvertToPrerequisiteResponse(prerequisite models.Prerequisite) dto.PrerequisiteResponses {
+	return dto.PrerequisiteResponses{
+		Value: uint(prerequisite.ID),
+		Title: prerequisite.Title,
+		Link:  prerequisite.Link,
 	}
 }

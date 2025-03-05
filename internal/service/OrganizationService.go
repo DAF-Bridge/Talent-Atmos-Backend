@@ -556,6 +556,15 @@ func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest, ctx context.Co
 		return errs.NewUnexpectedError()
 	}
 
+	// Create prerequisites
+	for _, pre := range req.Prerequisite {
+		prerequisite := ConvertToPrerequisiteRequest(job.ID, pre)
+		if err = s.jobRepo.CreatePrerequisite(job.ID, &prerequisite); err != nil {
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
+	}
+
 	// Upload image to S3
 	if file != nil {
 		picURL, err := s.S3.UploadJobBanner(ctx, file, fileHeader, orgID, job.ID)
@@ -570,6 +579,29 @@ func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest, ctx context.Co
 			logs.Error(err)
 			return errs.NewUnexpectedError()
 		}
+	}
+
+	return nil
+}
+
+func (s orgOpenJobService) NewPrerequisite(jobID uint, req dto.PrerequisiteRequest) error {
+	prerequisite := ConvertToPrerequisiteRequest(jobID, req)
+	err := s.jobRepo.CreatePrerequisite(jobID, &prerequisite)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("job not found")
+		}
+
+		if strings.Contains(err.Error(), "violates foreign key constraint") {
+			return errs.NewBadRequestError("violates foreign key constraint")
+		}
+
+		if strings.Contains(err.Error(), "violates not-null constraint") {
+			return errs.NewBadRequestError("violates not-null constraint")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
 	}
 
 	return nil
