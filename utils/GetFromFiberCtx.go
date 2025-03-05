@@ -30,6 +30,19 @@ func GetUserIDFormFiberCtx(c *fiber.Ctx) (uuid.UUID, error) {
 
 }
 
+func GetParamFormFiberCtx(c *fiber.Ctx, param, field string) (uint, error) {
+	// Access the organization
+	ID, err := c.ParamsInt(param)
+	if err != nil {
+		return 0, fmt.Errorf(field + " id is required  (" + param + ")")
+	}
+	if ID < 1 {
+		return 0, fmt.Errorf("invalid " + field + " id")
+	}
+	return uint(ID), nil
+
+}
+
 func GetOrgIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
 	// Access the organization
 	orgID, err := c.ParamsInt("orgID")
@@ -48,4 +61,24 @@ func GetStringOfOrgIDFormFiberCtx(c *fiber.Ctx) (string, error) {
 		return "", err
 	}
 	return strconv.Itoa(int(orgID)), nil
+}
+
+func GetStringOfParamFormFiberCtx(c *fiber.Ctx, param, field string) (string, error) {
+	ID, err := GetParamFormFiberCtx(c, param, field)
+	if err != nil {
+		return "", err
+	}
+	return strconv.Itoa(int(ID)), nil
+}
+
+func GetEventIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
+	return GetParamFormFiberCtx(c, "eventID", "event")
+}
+
+func GetStringOfEventIDFormFiberCtx(c *fiber.Ctx) (string, error) {
+	return GetStringOfParamFormFiberCtx(c, "eventID", "event")
+}
+
+func GetJobIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
+	return GetParamFormFiberCtx(c, "jobID", "Open job")
 }
