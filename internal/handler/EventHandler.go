@@ -150,6 +150,21 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 	return c.JSON(events)
 }
 
+func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
+	eventID, err := c.ParamsInt("id")
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
+	}
+
+	event, err := h.eventService.GetEventByID(uint(eventID))
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.JSON(event)
+}
+
 // @Summary Get an event by ID
 // @Description Get an event by its ID for a specific organization
 // @Tags Organization Events
@@ -160,7 +175,7 @@ func (h EventHandler) ListEventsByOrgID(c *fiber.Ctx) error {
 // @Failure 400 {object} map[string]string "error: Invalid parameters"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/events/{id} [get]
-func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
+func (h EventHandler) GetEventByIDwithOrgID(c *fiber.Ctx) error {
 	orgID, err := c.ParamsInt("orgID")
 
 	if err != nil {
@@ -173,7 +188,7 @@ func (h EventHandler) GetEventByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
 	}
 
-	event, err := h.eventService.GetEventByID(uint(orgID), uint(eventID))
+	event, err := h.eventService.GetEventByIDwithOrgID(uint(orgID), uint(eventID))
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}

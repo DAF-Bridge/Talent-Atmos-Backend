@@ -62,7 +62,23 @@ func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
 	return events, nil
 }
 
-func (r eventRepository) GetByID(orgID uint, eventID uint) (*models.Event, error) {
+func (r eventRepository) GetByID(eventID uint) (*models.Event, error) {
+	event := models.Event{}
+
+	if err := r.db.
+		Preload("Organization").
+		Preload("Categories").
+		Preload("ContactChannels").
+		Where("id = ?", eventID).
+		First(&event).Error; err != nil {
+
+		return nil, err
+	}
+
+	return &event, nil
+}
+
+func (r eventRepository) GetByIDwithOrgID(orgID uint, eventID uint) (*models.Event, error) {
 	event := models.Event{}
 
 	err := r.db.

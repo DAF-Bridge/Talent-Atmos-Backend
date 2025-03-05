@@ -8,7 +8,8 @@ type EventRepository interface {
 	Create(orgID uint, event *models.Event) error
 	GetAll() ([]models.Event, error)
 	GetAllByOrgID(orgID uint) ([]models.Event, error)
-	GetByID(orgID uint, eventID uint) (*models.Event, error)
+	GetByID(eventID uint) (*models.Event, error)
+	GetByIDwithOrgID(orgID uint, eventID uint) (*models.Event, error)
 	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
 	GetAllCategories() ([]models.Category, error)
 	GetPaginate(page uint, size uint) ([]models.Event, error)
@@ -24,7 +25,8 @@ type MockEventRepository interface {
 	Create(orgID uint, event *models.Event) error
 	GetAll() ([]models.Event, error)
 	GetAllByOrgID(orgID uint) ([]models.Event, error)
-	GetByID(orgID uint, eventID uint) (*models.Event, error)
+	GetByID(eventID uint) (*models.Event, error)
+	GetByIDwithOrgID(orgID uint, eventID uint) (*models.Event, error)
 	GetAllCategories() ([]models.Category, error)
 	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
 	Search(params map[string]string) ([]models.Event, error)

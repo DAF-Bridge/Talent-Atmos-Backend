@@ -34,7 +34,7 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *
 	app.Get("/events-paginate", eventHandler.EventPaginate)
 	event.Post("/create", middleware.AuthMiddleware(jwtSecret), eventHandler.CreateEvent)
 	app.Get("/events", eventHandler.ListEvents)
-	event.Get("/:id", eventHandler.GetEventByID)
+	event.Get("/:id", eventHandler.GetEventByIDwithOrgID)
 	event.Put("/:id", middleware.AuthMiddleware(jwtSecret), eventHandler.UpdateEvent)
 	event.Delete("/:id", middleware.AuthMiddleware(jwtSecret), eventHandler.DeleteEvent)
 	event.Get("/", middleware.AuthMiddleware(jwtSecret), eventHandler.ListEventsByOrgID)

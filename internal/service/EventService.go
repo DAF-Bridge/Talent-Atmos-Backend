@@ -162,8 +162,23 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, err
 	return EventResponses, nil
 }
 
-func (s eventService) GetEventByID(orgID uint, eventID uint) (*dto.EventResponses, error) {
-	event, err := s.eventRepo.GetByID(orgID, eventID)
+func (s eventService) GetEventByID(eventID uint) (*dto.EventResponses, error) {
+	event, err := s.eventRepo.GetByID(eventID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("event not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	eventResponse := ConvertToEventResponse(*event)
+	return &eventResponse, nil
+}
+
+func (s eventService) GetEventByIDwithOrgID(orgID uint, eventID uint) (*dto.EventResponses, error) {
+	event, err := s.eventRepo.GetByIDwithOrgID(orgID, eventID)
 	if err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -192,7 +207,7 @@ func (s eventService) ListAllCategories() (*dto.CategoryListResponse, error) {
 	var responses dto.CategoryListResponse
 	for _, category := range categories {
 		responses.Categories = append(responses.Categories, dto.CategoryResponses{
-			Value:   category.ID,
+			Value: category.ID,
 			Label: category.Name,
 		})
 	}
@@ -262,7 +277,7 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		return nil, errs.NewUnexpectedError()
 	}
 
-	existingEvent, err := s.eventRepo.GetByID(orgID, eventID)
+	existingEvent, err := s.eventRepo.GetByIDwithOrgID(orgID, eventID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("event not found")
