@@ -67,6 +67,8 @@ func ConvertToEventResponse(event models.Event) dto.EventResponses {
 		})
 	}
 
+	org := dto.BuildOrganizationResponse(event.Organization)
+
 	return dto.EventResponses{
 		ID:              int(event.ID),
 		OrganizationID:  int(event.OrganizationID),
@@ -89,6 +91,7 @@ func ConvertToEventResponse(event models.Event) dto.EventResponses {
 		Status:          event.Status,
 		Categories:      categories,
 		ContactChannels: contacts,
+		Organization:    org,
 		UpdateAt:        event.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }

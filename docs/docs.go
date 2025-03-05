@@ -439,7 +439,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.OrganizationResponse"
+                            "$ref": "#/definitions/dto.Organization"
                         }
                     },
                     "400": {
@@ -526,7 +526,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.OrganizationResponse"
+                                "$ref": "#/definitions/dto.Organization"
                             }
                         }
                     },
@@ -569,7 +569,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.OrganizationResponse"
+                                "$ref": "#/definitions/dto.Organization"
                             }
                         }
                     },
@@ -2256,7 +2256,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.OrganizationResponse": {
+        "dto.Organization": {
             "type": "object",
             "properties": {
                 "address": {

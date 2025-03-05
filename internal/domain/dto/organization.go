@@ -4,6 +4,14 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 )
 
+func BuildListDTO[T, F interface{}](t []T, fn func(T) F) []F {
+	var response []F
+	for _, o := range t {
+		response = append(response, fn(o))
+	}
+	return response
+}
+
 type JobShortResponseDTO struct {
 	ID        int    `json:"id" example:"1"`
 	Title     string `json:"title" example:"Software Engineer"`
@@ -154,6 +162,21 @@ type OrganizationContactResponses struct {
 	MediaLink string `json:"mediaLink" example:"https://facebook.com"`
 }
 
+func BuildOrganizationContactResponses(contact models.OrganizationContact) OrganizationContactResponses {
+	return OrganizationContactResponses{
+		Media:     string(contact.Media),
+		MediaLink: contact.MediaLink,
+	}
+}
+
+func BuildListOrganizationContactResponses(contact []models.OrganizationContact) []OrganizationContactResponses {
+	var response []OrganizationContactResponses
+	for _, c := range contact {
+		response = append(response, BuildOrganizationContactResponses(c))
+	}
+	return response
+}
+
 // type OrganizationIndustryRequest struct {
 // 	Industries []uint `json:"industries" example:"1,2,3" validate:"required"`
 // }
@@ -161,6 +184,21 @@ type OrganizationContactResponses struct {
 type IndustryResponses struct {
 	ID   uint   `json:"id" example:"1"`
 	Name string `json:"name" example:"Software"`
+}
+
+func BuildIndustryResponses(industry models.Industry) IndustryResponses {
+	return IndustryResponses{
+		ID:   industry.ID,
+		Name: industry.Industry,
+	}
+}
+
+func BuildListIndustryResponses(industries []*models.Industry) []IndustryResponses {
+	var response []IndustryResponses
+	for _, i := range industries {
+		response = append(response, BuildIndustryResponses(*i))
+	}
+	return response
 }
 
 type IndustryListResponse struct {
@@ -201,6 +239,30 @@ type OrganizationResponse struct {
 	OrganizationContact []OrganizationContactResponses `json:"organizationContacts"`
 	Industries          []IndustryResponses            `json:"industries"`
 	UpdatedAt           string                         `json:"updatedAt" example:"2024-11-29 08:00:00"`
+}
+
+func BuildOrganizationResponse(org models.Organization) OrganizationResponse {
+
+	return OrganizationResponse{
+		ID:                  org.ID,
+		Name:                org.Name,
+		Email:               org.Email,
+		Phone:               org.Phone,
+		PicUrl:              org.PicUrl,
+		BgUrl:               org.BgUrl,
+		HeadLine:            org.HeadLine,
+		Specialty:           org.Specialty,
+		Description:         org.Description,
+		Address:             org.Address,
+		Province:            org.Province,
+		Country:             org.Country,
+		Latitude:            org.Latitude,
+		Longitude:           org.Longitude,
+		OrganizationContact: BuildListOrganizationContactResponses(org.OrganizationContacts),
+		Industries:          BuildListIndustryResponses(org.Industries),
+		UpdatedAt:           org.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+
 }
 
 type PaginateOrganizationResponse struct {
