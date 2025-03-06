@@ -121,6 +121,7 @@ type JobRequest struct {
 	Salary         float64               `json:"salary" example:"30000" validate:"required"`
 	Province       string                `json:"province" example:"Chiang Mai" validate:"required"`
 	Country        string                `json:"country" example:"TH" validate:"required"`
+	RegisterLink   string                `json:"registerLink" example:"https://example.com/register"`
 	Status         string                `json:"status" example:"draft" validate:"required"`
 	CategoryIDs    []uint                `json:"categoryIds" example:"1,2,3" validate:"required"`
 }
@@ -143,6 +144,7 @@ type JobResponses struct {
 	Province       string                  `json:"province" example:"Chiang Mai"`
 	Country        string                  `json:"country" example:"TH"`
 	Status         string                  `json:"status" example:"draft"`
+	RegisterLink   string                  `json:"registerLink" example:"https://example.com/register"`
 	Categories     []CategoryResponses     `json:"categories"`
 	UpdatedAt      string                  `json:"updatedAt" example:"2024-11-29 08:00:00"`
 }

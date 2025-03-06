@@ -114,6 +114,7 @@ type OrgOpenJob struct {
 	Qualifications string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
 	Quantity       int            `json:"quantity" example:"1"`
+	RegisterLink   string         `gorm:"type:varchar(255)" db:"register_link"`
 	Status         string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
 	Prerequisites  []Prerequisite `gorm:"foreignKey:JobID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // Job prerequisites
 	Categories     []Category     `gorm:"many2many:category_job;"`
