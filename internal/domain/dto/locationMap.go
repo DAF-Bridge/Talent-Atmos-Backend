@@ -60,7 +60,7 @@ type EventMapResponses struct {
 	EndDate      string                          `json:"endDate"`
 	StartTime    string                          `json:"startTime"`
 	EndTime      string                          `json:"endTime"`
-	Location     string                          `json:"location"`
+	Location     string                          `json:"locationName"`
 	Latitude     float64                         `json:"latitude"`
 	Longitude    float64                         `json:"longitude"`
 	PicUrl       string                          `json:"picUrl"`
