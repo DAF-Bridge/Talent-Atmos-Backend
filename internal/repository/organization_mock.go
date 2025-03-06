@@ -99,6 +99,7 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 		Qualifications: "Bachelor's degree in Computer Science",
 		Quantity:       1,
 		Salary:         30000,
+		RegisterLink:   "https://example.com",
 		Province:       "Chiang Mai",
 		Country:        "TH",
 		Status:         "published",
