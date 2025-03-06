@@ -35,7 +35,7 @@ type EventDocument struct {
 	StartTime          string   `json:"startTime"`
 	EndTime            string   `json:"endTime"`
 	EndDate            string   `json:"endDate"`
-	LocationName       string   `json:"location"`
+	LocationName       string   `json:"locationName"`
 	Province           string   `json:"province"`
 	Country            string   `json:"country"`
 	LocationType       string   `json:"locationType"`

@@ -144,7 +144,7 @@ type JobResponses struct {
 	Country        string                  `json:"country" example:"TH"`
 	Status         string                  `json:"status" example:"draft"`
 	Categories     []CategoryResponses     `json:"categories"`
-	UpdatedAt      string                  `json:"UpdatedAt" example:"2024-11-29 08:00:00"`
+	UpdatedAt      string                  `json:"updatedAt" example:"2024-11-29 08:00:00"`
 }
 
 type PaginatedJobsResponse struct {
