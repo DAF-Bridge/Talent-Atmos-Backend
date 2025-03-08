@@ -45,10 +45,11 @@ type OrgOpenJobService interface {
 	RemoveJob(orgID uint, jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
 	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
-	GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*dto.PrerequisiteResponses, error)
+	GetPrerequisiteByID(prerequisiteID uint) (*dto.PrerequisiteResponses, error)
 	GetAllPrerequisitesBelongToJobs(jobID uint) ([]dto.PrerequisiteResponses, error)
+	GetAllPrerequisites() ([]dto.PrerequisiteResponses, error)
 	UpdatePrerequisite(jobID uint, prerequisiteID uint, dto dto.PrerequisiteRequest) (*dto.PrerequisiteResponses, error)
-	RemovePrerequisite(jobID uint, prerequisiteID uint) error
+	RemovePrerequisite(prerequisiteID uint) error
 }
 
 func ConvertToOrgResponse(org models.Organization) dto.OrganizationResponse {

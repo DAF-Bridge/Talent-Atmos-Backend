@@ -124,5 +124,5 @@ type Prerequisite struct {
 	JobID uint       `gorm:"not null" json:"jobId"`
 	Job   OrgOpenJob `gorm:"foreignKey:JobID;constraint:onUpdate:CASCADE,onDelete:CASCADE;" json:"job"`
 	Title string     `gorm:"type:varchar(255);not null" json:"name"`
-	Link  string     `gorm:"type:varchar(255)" json:"link"`
+	Link  string     `gorm:"type:text;not null" json:"link"`
 }

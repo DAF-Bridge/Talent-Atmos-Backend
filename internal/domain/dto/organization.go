@@ -96,8 +96,8 @@ func BuildListOrganizationShortAdminResponse(org []models.Organization) ListOrga
 }
 
 type PrerequisiteRequest struct {
-	Title string `json:"title" example:"Bachelor's degree in Computer Science" validate:"required"`
-	Link  string `json:"link" example:"https://example.com" validate:"required"`
+	Title string `json:"title" example:"Bachelor's degree in Computer Science" validate:"required,min=1"`
+	Link  string `json:"link" example:"https://example.com" validate:"required,min=1"`
 }
 
 type PrerequisiteResponses struct {

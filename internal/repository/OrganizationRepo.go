@@ -544,6 +544,14 @@ type prerequisiteRepository struct {
 	db *gorm.DB
 }
 
+func (r prerequisiteRepository) GetAllPrerequisites() ([]models.Prerequisite, error) {
+	var prerequisites []models.Prerequisite
+	if err := r.db.Find(&prerequisites).Error; err != nil {
+		return nil, err
+	}
+	return prerequisites, nil
+}
+
 func NewPrerequisiteRepository(db *gorm.DB) PrerequisiteRepository {
 	return prerequisiteRepository{db: db}
 }
@@ -564,9 +572,9 @@ func (r prerequisiteRepository) CreatePrerequisite(jobID uint, prerequisite *mod
 	return nil
 }
 
-func (r prerequisiteRepository) GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*models.Prerequisite, error) {
+func (r prerequisiteRepository) GetPrerequisiteByID(prerequisiteID uint) (*models.Prerequisite, error) {
 	prerequisite := &models.Prerequisite{}
-	if err := r.db.Where("job_id = ? AND id = ?", jobID, prerequisiteID).First(prerequisite).Error; err != nil {
+	if err := r.db.Where("id = ?", prerequisiteID).First(prerequisite).Error; err != nil {
 		return nil, err
 	}
 
@@ -582,11 +590,11 @@ func (r prerequisiteRepository) GetAllPrerequisitesBelongToJobs(jobID uint) ([]m
 	return prerequisites, nil
 }
 
-func (r prerequisiteRepository) UpdatePrerequisite(jobID uint, prerequisite *models.Prerequisite) (*models.Prerequisite, error) {
+func (r prerequisiteRepository) UpdatePrerequisite(prerequisite *models.Prerequisite) (*models.Prerequisite, error) {
 	tx := r.db.Begin()
 
 	var existPre models.Prerequisite
-	if err := tx.Where("job_id = ? AND id = ? ", jobID, prerequisite.ID).First(&existPre).Error; err != nil {
+	if err := tx.Where("id = ? ", prerequisite.ID).First(&existPre).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -603,11 +611,9 @@ func (r prerequisiteRepository) UpdatePrerequisite(jobID uint, prerequisite *mod
 	return prerequisite, nil
 }
 
-func (r prerequisiteRepository) DeletePrerequisite(jobID uint, prerequisiteID uint) error {
-	var prerequisite models.Prerequisite
-	err := r.db.Model(&prerequisite).Where("job_id = ? AND id = ?", prerequisiteID).Delete(&prerequisite).Error
-	if err != nil {
-		return err
-	}
-	return nil
+func (r prerequisiteRepository) DeletePrerequisite(prerequisiteID uint) error {
+	prerequisite := new(models.Prerequisite)
+	result := r.db.Model(&models.Prerequisite{}).Where("id = ?", prerequisiteID).Delete(prerequisite)
+	return utils.GormErrorAndRowsAffected(result)
+
 }

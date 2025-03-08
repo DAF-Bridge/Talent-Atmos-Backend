@@ -41,12 +41,6 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid organization id"})
 		}
 
-		// Load policy from Database
-		//err = r.enforcer.LoadPolicy()
-		//if err != nil {
-		//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "Error occurred when loading policy"})
-		//}
-
 		// Casbin enforces policy
 		ok, err = r.enforcer.Enforce(sub, fmt.Sprintf("%d", orgID), resources, act)
 
@@ -59,5 +53,11 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 
 		}
 		return c.Next()
+	}
+}
+
+func (r *RBACMiddleware) EnforceMiddlewareWithResources(resources string) func(act string) fiber.Handler {
+	return func(act string) fiber.Handler {
+		return r.EnforceMiddleware(resources, act)
 	}
 }

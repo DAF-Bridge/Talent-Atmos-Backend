@@ -15,7 +15,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
-	github.com/lib/pq v1.10.9
 	github.com/markbates/goth v1.80.0
 	github.com/opensearch-project/opensearch-go v1.1.0
 	github.com/spf13/viper v1.19.0
@@ -50,6 +49,7 @@ require (
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/microsoft/go-mssqldb v1.6.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect

@@ -303,21 +303,25 @@ func (r prerequisiteRepositoryMock) CreatePrerequisite(jobID uint, prerequisite 
 	return nil
 }
 
-func (r prerequisiteRepositoryMock) GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*models.Prerequisite, error) {
+func (r prerequisiteRepositoryMock) GetPrerequisiteByID(prerequisiteID uint) (*models.Prerequisite, error) {
 	if r.prerequisite.ID == prerequisiteID {
 		return r.prerequisite, nil
 	}
 	return nil, errs.NewNotFoundError("prerequisite not found")
 }
 
+func (r prerequisiteRepositoryMock) GetAllPrerequisites() ([]models.Prerequisite, error) {
+	return nil, nil
+}
+
 func (r prerequisiteRepositoryMock) GetAllPrerequisitesBelongToJobs(jobID uint) ([]models.Prerequisite, error) {
 	return nil, nil
 }
 
-func (r prerequisiteRepositoryMock) UpdatePrerequisite(jobID uint, prerequisite *models.Prerequisite) (*models.Prerequisite, error) {
+func (r prerequisiteRepositoryMock) UpdatePrerequisite(prerequisite *models.Prerequisite) (*models.Prerequisite, error) {
 	return nil, nil
 }
 
-func (r prerequisiteRepositoryMock) DeletePrerequisite(jobID uint, prerequisiteID uint) error {
+func (r prerequisiteRepositoryMock) DeletePrerequisite(prerequisiteID uint) error {
 	return nil
 }

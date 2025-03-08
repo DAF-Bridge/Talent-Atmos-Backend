@@ -34,10 +34,16 @@ func ValidateStruct(data interface{}) []types.ValidationError {
 }
 
 func ParseJSONAndValidate(c *fiber.Ctx, body interface{}) error {
+	if c.Body() == nil || len(c.Body()) == 0 {
+		return errs.NewBadRequestError("Request Body is Empty")
+	}
 	if err := c.BodyParser(body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
+	}
+	if body == nil {
+		return errs.NewBadRequestError("Empty JSON body")
 	}
 
 	validationErrors := ValidateStruct(body)

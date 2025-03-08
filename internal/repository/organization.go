@@ -47,8 +47,9 @@ type OrgOpenJobRepository interface {
 
 type PrerequisiteRepository interface {
 	CreatePrerequisite(jobID uint, prerequisite *models.Prerequisite) error
-	GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*models.Prerequisite, error)
+	GetPrerequisiteByID(prerequisiteID uint) (*models.Prerequisite, error)
+	GetAllPrerequisites() ([]models.Prerequisite, error)
 	GetAllPrerequisitesBelongToJobs(jobID uint) ([]models.Prerequisite, error)
-	UpdatePrerequisite(jobID uint, prerequisite *models.Prerequisite) (*models.Prerequisite, error)
-	DeletePrerequisite(jobID uint, prerequisiteID uint) error
+	UpdatePrerequisite(prerequisite *models.Prerequisite) (*models.Prerequisite, error)
+	DeletePrerequisite(prerequisiteID uint) error
 }

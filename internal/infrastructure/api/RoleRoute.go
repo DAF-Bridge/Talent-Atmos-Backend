@@ -1,8 +1,6 @@
 package api
 
 import (
-	"html/template"
-
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/handler"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
@@ -11,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
+	"html/template"
 )
 
 func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail *gomail.Dialer, jwtSecret string,
@@ -22,6 +21,7 @@ func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail 
 	organizationRepository := repository.NewOrganizationRepository(db)
 	inviteTokenRepository := repository.NewInviteTokenRepository(db)
 	inviteMailRepository := repository.NewInviteMailRepository(mail, tmpl, baseCallbackInviteURL)
+	authMiddleware := middleware.AuthMiddleware(jwtSecret)
 
 	roleService := service.NewRoleWithDomainService(dbRoleRepository, enforcerRoleRepository, userRepository, organizationRepository, inviteTokenRepository, inviteMailRepository)
 	roleHandler := handler.NewRoleHandler(roleService)
@@ -30,8 +30,8 @@ func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail 
 	app.Post("/updated-enforcer", roleHandler.UpdateRoleToEnforcer)
 
 	rbac := middleware.NewRBACMiddleware(enforcer)
-	app.Get("/my-orgs", middleware.AuthMiddleware(jwtSecret), roleHandler.GetDomainsByUser)
-	role := app.Group("/roles/orgs/:orgID", middleware.AuthMiddleware(jwtSecret))
+	app.Get("/my-orgs", authMiddleware, roleHandler.GetDomainsByUser)
+	role := app.Group("/roles/orgs/:orgID", authMiddleware)
 	role.Get("/", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetRolesForUserInDomain)
 	role.Put("/", rbac.EnforceMiddleware("Role", "edit"), roleHandler.UpdateRolesForUserInDomain)
 	role.Delete("/", rbac.EnforceMiddleware("Role", "remove"), roleHandler.DeleteMember)

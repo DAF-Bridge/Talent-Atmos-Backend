@@ -640,8 +640,8 @@ func (s orgOpenJobService) NewPrerequisite(jobID uint, req dto.PrerequisiteReque
 	return nil
 }
 
-func (s orgOpenJobService) GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*dto.PrerequisiteResponses, error) {
-	prerequisite, err := s.PreqRepo.GetPrerequisiteByID(jobID, prerequisiteID)
+func (s orgOpenJobService) GetPrerequisiteByID(prerequisiteID uint) (*dto.PrerequisiteResponses, error) {
+	prerequisite, err := s.PreqRepo.GetPrerequisiteByID(prerequisiteID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("prerequisite not found")
@@ -674,11 +674,31 @@ func (s orgOpenJobService) GetAllPrerequisitesBelongToJobs(jobID uint) ([]dto.Pr
 	return prerequisitesResponse, nil
 }
 
+func (s orgOpenJobService) GetAllPrerequisites() ([]dto.PrerequisiteResponses, error) {
+	prerequisites, err := s.PreqRepo.GetAllPrerequisites()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("prerequisites not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var prerequisitesResponse []dto.PrerequisiteResponses
+	for _, preq := range prerequisites {
+		prerequisitesResponse = append(prerequisitesResponse, ConvertToPrerequisiteResponse(preq))
+	}
+
+	return prerequisitesResponse, nil
+}
+
 func (s orgOpenJobService) UpdatePrerequisite(jobID uint, prerequisiteID uint, req dto.PrerequisiteRequest) (*dto.PrerequisiteResponses, error) {
+
 	prerequisite := ConvertToPrerequisiteRequest(jobID, req)
 
 	prerequisite.ID = prerequisiteID
-	updatedPreq, err := s.PreqRepo.UpdatePrerequisite(jobID, &prerequisite)
+	updatedPreq, err := s.PreqRepo.UpdatePrerequisite(&prerequisite)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error(err)
@@ -701,8 +721,8 @@ func (s orgOpenJobService) UpdatePrerequisite(jobID uint, prerequisiteID uint, r
 	return &updatedPreqRes, nil
 }
 
-func (s orgOpenJobService) RemovePrerequisite(jobID uint, id uint) error {
-	err := s.PreqRepo.DeletePrerequisite(jobID, id)
+func (s orgOpenJobService) RemovePrerequisite(id uint) error {
+	err := s.PreqRepo.DeletePrerequisite(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("prerequisite not found")
@@ -913,7 +933,7 @@ func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {
 	jobPrequisite, _ := s.PreqRepo.GetAllPrerequisitesBelongToJobs(jobID)
 
 	for _, preq := range jobPrequisite {
-		err := s.PreqRepo.DeletePrerequisite(jobID, preq.ID)
+		err := s.PreqRepo.DeletePrerequisite(preq.ID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errs.NewNotFoundError("prerequisite not found")

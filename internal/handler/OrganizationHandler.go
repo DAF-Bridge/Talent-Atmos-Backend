@@ -714,4 +714,97 @@ func (h *OrgOpenJobHandler) GetNumberOfJobs(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"numberOfOpenJobs": count})
 }
 
+func (h *OrgOpenJobHandler) CreatePrerequisite(c *fiber.Ctx) error {
+	var req dto.PrerequisiteRequest
+	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
+		return err
+	}
+
+	jobID, err := utils.GetJobIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
+	}
+
+	err = h.service.NewPrerequisite(jobID, req)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Prerequisite created successfully"})
+}
+
+func (h *OrgOpenJobHandler) GetPrerequisiteByID(c *fiber.Ctx) error {
+	prerequisiteID, err := utils.GetPrerequisiteIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "prerequisite id is required"})
+	}
+
+	prerequisite, err := h.service.GetPrerequisiteByID(prerequisiteID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(prerequisite)
+}
+
+func (h *OrgOpenJobHandler) GetAllPrerequisitesByJobID(c *fiber.Ctx) error {
+	jobID, err := utils.GetJobIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
+	}
+
+	prerequisites, err := h.service.GetAllPrerequisitesBelongToJobs(jobID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(prerequisites)
+}
+
+func (h *OrgOpenJobHandler) GetAllPrerequisites(c *fiber.Ctx) error {
+	prerequisites, err := h.service.GetAllPrerequisites()
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(prerequisites)
+}
+
+func (h *OrgOpenJobHandler) UpdatePrerequisite(c *fiber.Ctx) error {
+	var req dto.PrerequisiteRequest
+	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
+		return err
+	}
+	jobID, err := utils.GetJobIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required"})
+	}
+
+	prerequisiteID, err := utils.GetPrerequisiteIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "prerequisite id is required"})
+	}
+
+	updatedPrerequisite, err := h.service.UpdatePrerequisite(jobID, prerequisiteID, req)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedPrerequisite)
+}
+
+func (h *OrgOpenJobHandler) DeletePrerequisite(c *fiber.Ctx) error {
+	prerequisiteID, err := utils.GetPrerequisiteIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "prerequisite id is required"})
+	}
+
+	err = h.service.RemovePrerequisite(prerequisiteID)
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Prerequisite deleted successfully"})
+}
+
 // -------------------------------------------------------------------------
