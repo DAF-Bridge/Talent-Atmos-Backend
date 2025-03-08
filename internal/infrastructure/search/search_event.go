@@ -44,10 +44,10 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 		return dto.SearchEventResponse{}, nil
 	}
 
-	var results []models.EventDocument
+	var results []dto.EventDocumentDTOResponse
 	for _, hit := range hits {
 		source := hit.(map[string]interface{})["_source"].(map[string]interface{})
-		event := models.EventDocument{}
+		event := dto.EventDocumentDTOResponse{}
 		jsonString, _ := json.Marshal(source)
 		json.Unmarshal(jsonString, &event)
 		results = append(results, event)
@@ -59,7 +59,7 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 	if len(hits) == 0 {
 		responses = dto.SearchEventResponse{
 			TotalEvent: 0,
-			Events:     []models.EventDocument{},
+			Events:     []dto.EventDocumentDTOResponse{},
 		}
 
 		return responses, nil
