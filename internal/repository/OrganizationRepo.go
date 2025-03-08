@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/google/uuid"
+	"gorm.io/gorm/clause"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
@@ -285,11 +286,8 @@ func (r organizationContactRepository) Update(contact *models.OrganizationContac
 
 func (r organizationContactRepository) Delete(orgID uint, id uint) error {
 	var contact models.OrganizationContact
-	err := r.db.Model(&contact).Where("organization_id = ? AND id = ?", orgID, id).Delete(&contact).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	result := r.db.Model(&contact).Where("organization_id = ? AND id = ?", orgID, id).Delete(&contact)
+	return utils.GormErrorAndRowsAffected(result)
 }
 
 // --------------------------------------------------------------------------
@@ -333,7 +331,7 @@ func (r orgOpenJobRepository) CreatePrerequisite(jobID uint, pre *models.Prerequ
 func (r orgOpenJobRepository) UpdatePrerequisite(pre *models.Prerequisite) (*models.Prerequisite, error) {
 	tx := r.db.Begin()
 
-	var existPre models.Prerequisite
+	existPre := new(models.Prerequisite)
 	if err := tx.Where("id = ? ", pre.ID).First(&existPre).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -421,15 +419,14 @@ func (r orgOpenJobRepository) GetJobByID(jobID uint) (*models.OrgOpenJob, error)
 	return job, nil
 }
 
-func (r orgOpenJobRepository) GetJobByIDwithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+func (r orgOpenJobRepository) GetJobByIDWithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
 	job := &models.OrgOpenJob{}
 
 	if err := r.db.
 		Preload("Organization").
 		Preload("Prerequisites").
 		Preload("Categories").
-		Where("organization_id = ?", orgID).
-		Where("id = ?", jobID).
+		Where("organization_id = ? AND id = ?", orgID, jobID).
 		First(&job).Error; err != nil {
 		return nil, err
 	}
@@ -470,25 +467,30 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 		return nil, err
 	}
 
-	if err := tx.Model(&existJob).Association("Categories").Clear(); err != nil {
+	if err := tx.Exec("DELETE FROM category_job WHERE org_open_job_id = ?", existJob.ID).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	if err := tx.Model(&existJob).Association("Categories").Replace(job.Categories); err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Append(job.Categories); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	if err := tx.Model(&existJob).Association("Prerequisites").Clear(); err != nil {
-		tx.Rollback()
-		return nil, err
+	//var prerequisites models.Prerequisite
+	//if err := tx.Model(&prerequisites).Where("job_id = ?", job.ID).Delete(&prerequisites).Error; err != nil {
+	//	tx.Rollback()
+	//	return nil, err
+	//}
+	//
+	for i := range job.Prerequisites {
+		job.Prerequisites[i].JobID = job.ID
 	}
 
-	if err := tx.Model(&existJob).Association("Prerequisites").Replace(job.Prerequisites); err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	//if err := tx.Model(&prerequisites).Create(job.Prerequisites).Error; err != nil {
+	//	tx.Rollback()
+	//	return nil, err
+	//}
 
 	if err := tx.Model(&existJob).Updates(job).Error; err != nil {
 		tx.Rollback()
@@ -522,12 +524,33 @@ func (r orgOpenJobRepository) UpdateJobPicture(orgID uint, jobID uint, picURL st
 	return nil
 }
 
-func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) error {
-	var job models.OrgOpenJob
-	// err := r.db.Model(&job).Where("organization_id = ? AND id = ?", orgID, jobID).First(&job).Association("Categories").
-	err := r.db.Model(&job).Where("organization_id = ? AND id = ?", orgID, jobID).Delete(&job).Error
+func (r orgOpenJobRepository) DeleteJob(jobID uint) error {
+	tx := r.db.Begin()
 
-	if err != nil {
+	prerequisite := new(models.Prerequisite)
+
+	//delete all prerequisites
+	if err := tx.Model(&prerequisite).Where("job_id = ?", jobID).Delete(&prerequisite).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	//clear all categories
+	if err := tx.Exec("DELETE FROM category_job WHERE org_open_job_id = ?", jobID).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	job := new(models.OrgOpenJob)
+	result := tx.Model(job).
+		Select(clause.Associations).
+		Where("id = ?", jobID).
+		Delete(job)
+	if err := utils.GormErrorAndRowsAffected(result); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 

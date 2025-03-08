@@ -262,7 +262,7 @@ func (r orgOpenJobRepositoryMock) GetJobByID(jobID uint) (*models.OrgOpenJob, er
 	return nil, nil
 }
 
-func (r orgOpenJobRepositoryMock) GetJobByIDwithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
+func (r orgOpenJobRepositoryMock) GetJobByIDWithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error) {
 	if r.job.ID == jobID {
 		return r.job, nil
 	}
@@ -289,7 +289,7 @@ func (r orgOpenJobRepositoryMock) UpdateJobPicture(orgID uint, jobID uint, picUR
 	return nil
 }
 
-func (r orgOpenJobRepositoryMock) DeleteJob(orgID uint, jobID uint) error {
+func (r orgOpenJobRepositoryMock) DeleteJob(jobID uint) error {
 	return nil
 }
 

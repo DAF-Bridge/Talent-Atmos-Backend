@@ -29,7 +29,7 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 		// Access the user_id
 		sub, ok := userData["user_id"].(string) // JSON numbers are parsed as string
 		if !ok {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id 2 uuid"})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id uuid"})
 		}
 
 		// Access the organization

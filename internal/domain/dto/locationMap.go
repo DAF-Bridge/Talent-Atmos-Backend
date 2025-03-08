@@ -15,7 +15,7 @@ type OrganizationMapResponses struct {
 }
 
 func BuildOrganizationMapResponses(org models.Organization) OrganizationMapResponses {
-	industries := make([]string, 0)
+	industries := make([]string, len(org.Industries))
 	for _, industry := range org.Industries {
 		industries = append(industries, industry.Industry)
 	}
@@ -31,7 +31,7 @@ func BuildOrganizationMapResponses(org models.Organization) OrganizationMapRespo
 }
 
 func BuildListOrganizationMapResponses(orgs []models.Organization) []OrganizationMapResponses {
-	orgsResponses := make([]OrganizationMapResponses, 0)
+	orgsResponses := make([]OrganizationMapResponses, len(orgs))
 	for _, org := range orgs {
 		orgsResponses = append(orgsResponses, BuildOrganizationMapResponses(org))
 	}
@@ -70,7 +70,7 @@ type EventMapResponses struct {
 }
 
 func BuildEventMapResponses(event models.Event) EventMapResponses {
-	categories := make([]string, 0)
+	categories := make([]string, len(event.Categories))
 	for _, category := range event.Categories {
 		categories = append(categories, category.Name)
 	}
@@ -94,7 +94,7 @@ func BuildEventMapResponses(event models.Event) EventMapResponses {
 }
 
 func BuildListEventMapResponses(events []models.Event) []EventMapResponses {
-	eventsResponses := make([]EventMapResponses, 0)
+	eventsResponses := make([]EventMapResponses, len(events))
 	for _, event := range events {
 		eventsResponses = append(eventsResponses, BuildEventMapResponses(event))
 	}

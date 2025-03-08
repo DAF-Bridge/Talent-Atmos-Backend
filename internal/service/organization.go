@@ -42,7 +42,7 @@ type OrgOpenJobService interface {
 	GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
-	RemoveJob(orgID uint, jobID uint) error
+	RemoveJob(jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
 	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
 	GetPrerequisiteByID(prerequisiteID uint) (*dto.PrerequisiteResponses, error)
@@ -212,7 +212,7 @@ func ConvertToPrerequisiteRequest(jobID uint, prerequisite dto.PrerequisiteReque
 
 func ConvertToPrerequisiteResponse(prerequisite models.Prerequisite) dto.PrerequisiteResponses {
 	return dto.PrerequisiteResponses{
-		Value: uint(prerequisite.ID),
+		Value: prerequisite.ID,
 		Title: prerequisite.Title,
 		Link:  prerequisite.Link,
 	}

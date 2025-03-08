@@ -30,7 +30,7 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	if err := initializers.DB.AutoMigrate(&models.InviteToken{}); err != nil {
+	if err := initializers.DB.AutoMigrate(&models.OrgOpenJob{}); err != nil {
 		log.Fatal(err)
 	}
 

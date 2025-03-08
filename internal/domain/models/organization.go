@@ -116,7 +116,7 @@ type OrgOpenJob struct {
 	RegisterLink   string         `gorm:"type:varchar(255)" db:"register_link"`
 	Status         string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
 	Prerequisites  []Prerequisite `gorm:"foreignKey:JobID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // Job prerequisites
-	Categories     []Category     `gorm:"many2many:category_job;"`
+	Categories     []Category     `gorm:"many2many:category_job;constraint:OnDelete:CASCADE;"`
 }
 
 type Prerequisite struct {

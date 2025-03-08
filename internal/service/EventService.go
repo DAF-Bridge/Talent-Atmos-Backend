@@ -66,7 +66,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 }
 
 func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categoryIDs := make([]uint, 0)
+	categoryIDs := make([]uint, len(req.Categories))
 	for _, category := range req.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
@@ -81,7 +81,7 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		return errs.NewUnexpectedError()
 	}
 
-	contacts := make([]models.ContactChannel, 0)
+	contacts := make([]models.ContactChannel, len(req.ContactChannels))
 	for _, contact := range req.ContactChannels {
 		contacts = append(contacts, models.ContactChannel{
 			Media:     models.Media(contact.Media),
@@ -133,7 +133,7 @@ func (s eventService) GetAllEvents() ([]dto.EventResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := make([]dto.EventResponses, 0)
+	EventResponses := make([]dto.EventResponses, len(events))
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -153,7 +153,7 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, err
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
-	EventResponses := make([]dto.EventResponses, 0)
+	EventResponses := make([]dto.EventResponses, len(events))
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -227,7 +227,7 @@ func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) 
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := make([]dto.EventResponses, 0)
+	EventResponses := make([]dto.EventResponses, len(events))
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)

@@ -35,13 +35,13 @@ type OrgOpenJobRepository interface {
 	FindPreqByJobID(jobID uint) ([]models.Prerequisite, error)
 	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
 	GetJobByID(jobID uint) (*models.OrgOpenJob, error)
-	GetJobByIDwithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error)
+	GetJobByIDWithOrgID(orgID uint, jobID uint) (*models.OrgOpenJob, error)
 	GetAllJobs() ([]models.OrgOpenJob, error)
 	GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob, error)
 	GetJobsPaginate(page uint, size uint) ([]models.OrgOpenJob, error)
 	UpdateJob(job *models.OrgOpenJob) (*models.OrgOpenJob, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
-	DeleteJob(orgID uint, jobID uint) error
+	DeleteJob(jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
 }
 

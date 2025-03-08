@@ -626,17 +626,13 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/{orgID}/jobs/delete/{id} [delete]
 func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
-	orgID, err := c.ParamsInt("orgID")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required  (orgID)"})
-	}
 
 	jobID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "job id is required (id)"})
 	}
 
-	err = h.service.RemoveJob(uint(orgID), uint(jobID))
+	err = h.service.RemoveJob(uint(jobID))
 	if err != nil {
 		return errs.SendFiberError(c, err)
 	}
