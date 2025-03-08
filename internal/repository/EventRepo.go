@@ -169,7 +169,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	tx := r.db.Begin()
 
 	var existingEvent models.Event
-	err := tx.Where("organization_id = ? AND id = ?", orgID, eventID).Preload("Categories").Preload("ContactChannels").First(&existingEvent).Error
+	err := tx.Preload("Categories").Preload("ContactChannels").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -180,10 +180,10 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 		return nil, err
 	}
 
-	if err := r.db.Model(&existingEvent).Association("Categories").Replace(event.Categories); err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	if err := tx.Model(&existingEvent).Association("Categories").Replace(event.Categories); err != nil {
+        tx.Rollback()
+        return nil, err
+    }
 
 	if err := tx.Model(&existingEvent).Updates(event).Error; err != nil {
 		tx.Rollback()
@@ -195,7 +195,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	}
 
 	// Fetch the updated event
-	err = r.db.Preload("Category").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
+	err = r.db.Preload("Categories").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
