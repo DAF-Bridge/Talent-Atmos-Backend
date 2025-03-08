@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"encoding/json"
+	"errors"
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -260,14 +261,9 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	var req dto.NewEventRequest
 
-	// Parse JSON from the "event" form field
 	eventData := c.FormValue("event")
-	if err := json.Unmarshal([]byte(eventData), &req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	}
-
-	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
-		return err
+	if err := utils.UnmarshalAndValidateJSON(eventData, &req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	orgID, err := c.ParamsInt("orgID")
@@ -280,17 +276,26 @@ func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "event id is required"})
 	}
 
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-	fileHeader, err = c.FormFile("image")
+	file, fileHeader, err := utils.UploadImage(c)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+		if errors.Is(err, errs.NewBadRequestError("Failed to get image from form")) {
+			file = nil
+			fileHeader = nil
+		} else {
+			logs.Error(err)
+		}
+	} else {
+		defer file.Close()
 	}
-	file, err = fileHeader.Open()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
-	}
-	defer file.Close()
+	// fileHeader, err = c.FormFile("image")
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid file or missing file"})
+	// }
+	// file, err = fileHeader.Open()
+	// if err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+	// }
+	// defer file.Close()
 
 	eventUpdated, err := h.eventService.UpdateEvent(uint(orgID), uint(eventID), req, c.Context(), file, fileHeader)
 	if err != nil {
