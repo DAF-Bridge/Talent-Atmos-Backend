@@ -302,7 +302,10 @@ func (h EventHandler) UpdateEvent(c *fiber.Ctx) error {
 		return errs.SendFiberError(c, err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(eventUpdated)
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		"message": "event updated successfully",
+		"event":   eventUpdated,
+	})
 }
 
 // @Summary Delete an eventh

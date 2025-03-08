@@ -641,7 +641,7 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 		return errs.SendFiberError(c, err)
 	}
 
-	return c.SendStatus(fiber.StatusOK)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Job deleted successfully"})
 }
 
 // SearchJobs handles the search for job postings based on the provided query parameters.
