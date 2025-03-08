@@ -161,7 +161,12 @@ func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		Status:         job.Status,
 		RegisterLink:   job.RegisterLink,
 		Categories:     categories,
-		UpdatedAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
+		Organization: dto.OrganizationShortResponseWithinJob{
+			ID:     job.Organization.ID,
+			Name:   job.Organization.Name,
+			PicUrl: job.Organization.PicUrl,
+		},
+		UpdatedAt: job.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
 

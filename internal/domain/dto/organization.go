@@ -30,6 +30,12 @@ type OrganizationShortResponse struct {
 	Phone  string `json:"phone" example:"0812345678"`
 }
 
+type OrganizationShortResponseWithinJob struct {
+	ID     uint   `json:"id" example:"1"`
+	Name   string `json:"name" example:"builds CMU"`
+	PicUrl string `json:"picUrl" example:"https://example.com/image.jpg"`
+}
+
 func BuildOrganizationShortResponse(org models.Organization) OrganizationShortResponse {
 	return OrganizationShortResponse{
 		ID:     org.ID,
@@ -126,25 +132,26 @@ type JobRequest struct {
 }
 
 type JobResponses struct {
-	ID             uint                    `json:"id" example:"1"`
-	JobTitle       string                  `json:"title" example:"Software Engineer"`
-	Description    string                  `json:"description" example:"This is a description"`
-	PicUrl         string                  `json:"orgPicUrl" example:"https://example.com/image.jpg"`
-	Scope          string                  `json:"scope" example:"This is a scope"`
-	Prerequisite   []PrerequisiteResponses `json:"prerequisite"`
-	Workplace      models.Workplace        `json:"workplace" example:"remote"`
-	WorkType       models.WorkType         `json:"workType" example:"fulltime"`
-	CareerStage    models.CareerStage      `json:"careerStage" example:"entrylevel"`
-	Period         string                  `json:"period" example:"1 year"`
-	Qualifications string                  `json:"qualifications" example:"Bachelor's degree in Computer Science"`
-	Quantity       int                     `json:"quantity" example:"1"`
-	Salary         float64                 `json:"salary" example:"30000"`
-	Province       string                  `json:"province" example:"Chiang Mai"`
-	Country        string                  `json:"country" example:"TH"`
-	Status         string                  `json:"status" example:"draft"`
-	RegisterLink   string                  `json:"registerLink" example:"https://example.com/register"`
-	Categories     []CategoryResponses     `json:"categories"`
-	UpdatedAt      string                  `json:"updatedAt" example:"2024-11-29 08:00:00"`
+	ID             uint                               `json:"id" example:"1"`
+	JobTitle       string                             `json:"title" example:"Software Engineer"`
+	Description    string                             `json:"description" example:"This is a description"`
+	PicUrl         string                             `json:"orgPicUrl" example:"https://example.com/image.jpg"`
+	Scope          string                             `json:"scope" example:"This is a scope"`
+	Prerequisite   []PrerequisiteResponses            `json:"prerequisite"`
+	Workplace      models.Workplace                   `json:"workplace" example:"remote"`
+	WorkType       models.WorkType                    `json:"workType" example:"fulltime"`
+	CareerStage    models.CareerStage                 `json:"careerStage" example:"entrylevel"`
+	Period         string                             `json:"period" example:"1 year"`
+	Qualifications string                             `json:"qualifications" example:"Bachelor's degree in Computer Science"`
+	Quantity       int                                `json:"quantity" example:"1"`
+	Salary         float64                            `json:"salary" example:"30000"`
+	Province       string                             `json:"province" example:"Chiang Mai"`
+	Country        string                             `json:"country" example:"TH"`
+	Status         string                             `json:"status" example:"draft"`
+	RegisterLink   string                             `json:"registerLink" example:"https://example.com/register"`
+	Organization   OrganizationShortResponseWithinJob `json:"organization"`
+	Categories     []CategoryResponses                `json:"categories"`
+	UpdatedAt      string                             `json:"updatedAt" example:"2024-11-29 08:00:00"`
 }
 
 type PaginatedJobsResponse struct {
