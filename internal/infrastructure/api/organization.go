@@ -42,7 +42,8 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 
 	// Dependencies Injections for Organization Open Jobs
 	orgOpenJobRepo := repository.NewOrgOpenJobRepository(db)
-	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo, organizationRepo, db, es, s3)
+	jobPreqRepo := repository.NewPrerequisiteRepository(db)
+	orgOpenJobService := service.NewOrgOpenJobService(orgOpenJobRepo, organizationRepo, jobPreqRepo, db, es, s3)
 	orgOpenJobHandler := handler.NewOrgOpenJobHandler(orgOpenJobService)
 
 	// Define routes for Organization Open Jobs

@@ -35,7 +35,6 @@ type OrgOpenJobService interface {
 	SyncJobs() error
 	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
 	NewJob(orgID uint, dto dto.JobRequest) error
-	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
 	GetJobByID(jobID uint) (*dto.JobResponses, error)
@@ -45,6 +44,11 @@ type OrgOpenJobService interface {
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	RemoveJob(orgID uint, jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
+	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
+	GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*dto.PrerequisiteResponses, error)
+	GetAllPrerequisitesBelongToJobs(jobID uint) ([]dto.PrerequisiteResponses, error)
+	UpdatePrerequisite(jobID uint, prerequisiteID uint, dto dto.PrerequisiteRequest) (*dto.PrerequisiteResponses, error)
+	RemovePrerequisite(jobID uint, prerequisiteID uint) error
 }
 
 func ConvertToOrgResponse(org models.Organization) dto.OrganizationResponse {
@@ -129,9 +133,9 @@ func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 	}
 
 	var prerequisites []dto.PrerequisiteResponses
-	for i, p := range job.Prerequisites {
+	for _, p := range job.Prerequisites {
 		prerequisites = append(prerequisites, dto.PrerequisiteResponses{
-			Value: uint(i),
+			Value: p.ID,
 			Title: p.Title,
 			Link:  p.Link,
 		})
@@ -148,7 +152,6 @@ func ConvertToJobResponse(job models.OrgOpenJob) dto.JobResponses {
 		CareerStage:    job.CareerStage,
 		Period:         job.Period,
 		Description:    job.Description,
-		HoursPerDay:    job.HoursPerDay,
 		Qualifications: job.Qualifications,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,
@@ -180,7 +183,6 @@ func ConvertToJobRequest(orgID uint, job dto.JobRequest, categories []models.Cat
 		CareerStage:    job.CareerStage,
 		Period:         job.Period,
 		Description:    job.Description,
-		HoursPerDay:    job.HoursPerDay,
 		Qualifications: job.Qualifications,
 		Quantity:       job.Quantity,
 		Salary:         job.Salary,

@@ -135,7 +135,6 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 			CareerStage:    models.CareerStage("entrylevel"),
 			Period:         "1 year",
 			Description:    "This is a description",
-			HoursPerDay:    "8 hours",
 			Qualifications: "Bachelor's degree in Computer Science",
 			Quantity:       1,
 			Salary:         30000,
@@ -154,7 +153,8 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 		// Integration interface
 		jobRepo := repository.NewOrgOpenJobRepositoryMock()
 		orgRepo := repository.NewOrganizationRepositoryMock()
-		jobSrv := service.NewOrgOpenJobService(jobRepo, orgRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
+		preqRepo := repository.NewPrerequisiteRepositoryMock()
+		jobSrv := service.NewOrgOpenJobService(jobRepo, orgRepo, preqRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
 		jobHandler := handler.NewOrgOpenJobHandler(jobSrv)
 
 		app := fiber.New()

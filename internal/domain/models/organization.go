@@ -109,7 +109,6 @@ type OrgOpenJob struct {
 	Province       string         `gorm:"type:varchar(255);not null" json:"province" example:"Chiang Mai"`
 	Country        string         `gorm:"type:varchar(255);not null" json:"country" example:"TH"`
 	Scope          string         `gorm:"type:varchar(255);not null"`
-	HoursPerDay    string         `gorm:"type:varchar(255);not null" json:"hoursPerDay" example:"8 hours"`
 	Period         string         `gorm:"type:varchar(255);not null" json:"period" example:"1 year"`
 	Qualifications string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`

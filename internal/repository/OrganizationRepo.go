@@ -315,14 +315,43 @@ func (r orgOpenJobRepository) CountsByOrgID(orgID uint) (int64, error) {
 
 func (r orgOpenJobRepository) CreatePrerequisite(jobID uint, pre *models.Prerequisite) error {
 	pre.JobID = jobID
-	err := r.db.Create(pre).Error
-	if err != nil {
+
+	tx := r.db.Begin()
+
+	if err := tx.Create(pre).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (r orgOpenJobRepository) FindPReqByJobID(jobID uint) ([]models.Prerequisite, error) {
+func (r orgOpenJobRepository) UpdatePrerequisite(pre *models.Prerequisite) (*models.Prerequisite, error) {
+	tx := r.db.Begin()
+
+	var existPre models.Prerequisite
+	if err := tx.Where("id = ? ", pre.ID).First(&existPre).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&existPre).Updates(pre).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return pre, nil
+}
+
+func (r orgOpenJobRepository) FindPreqByJobID(jobID uint) ([]models.Prerequisite, error) {
 	var pre []models.Prerequisite
 	if err := r.db.Where("job_id = ?", jobID).Find(&pre).Error; err != nil {
 		return nil, err
@@ -506,3 +535,79 @@ func (r orgOpenJobRepository) DeleteJob(orgID uint, jobID uint) error {
 }
 
 // --------------------------------------------------------------------------
+
+// --------------------------------------------------------------------------
+// Prerequisite Repository
+// --------------------------------------------------------------------------
+
+type prerequisiteRepository struct {
+	db *gorm.DB
+}
+
+func NewPrerequisiteRepository(db *gorm.DB) PrerequisiteRepository {
+	return prerequisiteRepository{db: db}
+}
+
+func (r prerequisiteRepository) CreatePrerequisite(jobID uint, prerequisite *models.Prerequisite) error {
+	tx := r.db.Begin()
+
+	prerequisite.JobID = jobID
+	if err := tx.Create(prerequisite).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r prerequisiteRepository) GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*models.Prerequisite, error) {
+	prerequisite := &models.Prerequisite{}
+	if err := r.db.Where("job_id = ? AND id = ?", jobID, prerequisiteID).First(prerequisite).Error; err != nil {
+		return nil, err
+	}
+
+	return prerequisite, nil
+}
+
+func (r prerequisiteRepository) GetAllPrerequisitesBelongToJobs(jobID uint) ([]models.Prerequisite, error) {
+	var prerequisites []models.Prerequisite
+	if err := r.db.Where("job_id = ?", jobID).Find(&prerequisites).Error; err != nil {
+		return nil, err
+	}
+
+	return prerequisites, nil
+}
+
+func (r prerequisiteRepository) UpdatePrerequisite(jobID uint, prerequisite *models.Prerequisite) (*models.Prerequisite, error) {
+	tx := r.db.Begin()
+
+	var existPre models.Prerequisite
+	if err := tx.Where("job_id = ? AND id = ? ", jobID, prerequisite.ID).First(&existPre).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&existPre).Updates(prerequisite).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return prerequisite, nil
+}
+
+func (r prerequisiteRepository) DeletePrerequisite(jobID uint, prerequisiteID uint) error {
+	var prerequisite models.Prerequisite
+	err := r.db.Model(&prerequisite).Where("job_id = ? AND id = ?", prerequisiteID).Delete(&prerequisite).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

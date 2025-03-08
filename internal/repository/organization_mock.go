@@ -21,6 +21,10 @@ type orgOpenJobRepositoryMock struct {
 	job *models.OrgOpenJob
 }
 
+type prerequisiteRepositoryMock struct {
+	prerequisite *models.Prerequisite
+}
+
 func (r orgOpenJobRepositoryMock) CountsByOrgID(orgID uint) (int64, error) {
 	return 0, nil
 }
@@ -95,7 +99,6 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 		CareerStage:    models.CareerStage("entrylevel"),
 		Period:         "1 year",
 		Description:    "This is a description",
-		HoursPerDay:    "8 hours",
 		Qualifications: "Bachelor's degree in Computer Science",
 		Quantity:       1,
 		Salary:         30000,
@@ -112,6 +115,18 @@ func NewOrgOpenJobRepositoryMock() OrgOpenJobRepository {
 	}
 
 	return &orgOpenJobRepositoryMock{job: newJob}
+}
+
+func NewPrerequisiteRepositoryMock() PrerequisiteRepository {
+	newPreq := &models.Prerequisite{
+		Model: gorm.Model{ID: 1},
+		JobID: 1,
+		Job:   models.OrgOpenJob{Title: "Software Engineer"},
+		Title: "Bachelor's degree in Computer Science",
+		Link:  "https://example.com",
+	}
+
+	return &prerequisiteRepositoryMock{prerequisite: newPreq}
 }
 
 // ----------------------------------------------
@@ -227,7 +242,11 @@ func (r orgOpenJobRepositoryMock) CreatePrerequisite(jobID uint, pre *models.Pre
 	return nil
 }
 
-func (r orgOpenJobRepositoryMock) FindPReqByJobID(jobID uint) ([]models.Prerequisite, error) {
+func (r orgOpenJobRepositoryMock) UpdatePrerequisite(pre *models.Prerequisite) (*models.Prerequisite, error) {
+	return nil, nil
+}
+
+func (r orgOpenJobRepositoryMock) FindPreqByJobID(jobID uint) ([]models.Prerequisite, error) {
 	return nil, nil
 }
 
@@ -271,5 +290,34 @@ func (r orgOpenJobRepositoryMock) UpdateJobPicture(orgID uint, jobID uint, picUR
 }
 
 func (r orgOpenJobRepositoryMock) DeleteJob(orgID uint, jobID uint) error {
+	return nil
+}
+
+// ----------------------------------------------
+//
+//	PrerequisiteRepository
+//
+// ----------------------------------------------
+
+func (r prerequisiteRepositoryMock) CreatePrerequisite(jobID uint, prerequisite *models.Prerequisite) error {
+	return nil
+}
+
+func (r prerequisiteRepositoryMock) GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*models.Prerequisite, error) {
+	if r.prerequisite.ID == prerequisiteID {
+		return r.prerequisite, nil
+	}
+	return nil, errs.NewNotFoundError("prerequisite not found")
+}
+
+func (r prerequisiteRepositoryMock) GetAllPrerequisitesBelongToJobs(jobID uint) ([]models.Prerequisite, error) {
+	return nil, nil
+}
+
+func (r prerequisiteRepositoryMock) UpdatePrerequisite(jobID uint, prerequisite *models.Prerequisite) (*models.Prerequisite, error) {
+	return nil, nil
+}
+
+func (r prerequisiteRepositoryMock) DeletePrerequisite(jobID uint, prerequisiteID uint) error {
 	return nil
 }

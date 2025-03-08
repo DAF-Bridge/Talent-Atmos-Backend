@@ -499,21 +499,23 @@ func (s organizationContactService) DeleteContact(orgID uint, id uint) error {
 // --------------------------------------------------------------------------
 
 type orgOpenJobService struct {
-	jobRepo repository.OrgOpenJobRepository
-	OrgRepo repository.OrganizationRepository
-	DB      *gorm.DB
-	OS      *opensearch.Client
-	S3      *infrastructure.S3Uploader
+	jobRepo  repository.OrgOpenJobRepository
+	OrgRepo  repository.OrganizationRepository
+	PreqRepo repository.PrerequisiteRepository
+	DB       *gorm.DB
+	OS       *opensearch.Client
+	S3       *infrastructure.S3Uploader
 }
 
 // Constructor
-func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, OrgRepo repository.OrganizationRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
+func NewOrgOpenJobService(jobRepo repository.OrgOpenJobRepository, OrgRepo repository.OrganizationRepository, PreqRepo repository.PrerequisiteRepository, db *gorm.DB, os *opensearch.Client, s3 *infrastructure.S3Uploader) OrgOpenJobService {
 	return orgOpenJobService{
-		jobRepo: jobRepo,
-		OrgRepo: OrgRepo,
-		DB:      db,
-		OS:      os,
-		S3:      s3,
+		jobRepo:  jobRepo,
+		OrgRepo:  OrgRepo,
+		PreqRepo: PreqRepo,
+		DB:       db,
+		OS:       os,
+		S3:       s3,
 	}
 }
 
@@ -541,7 +543,12 @@ func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Off
 }
 
 func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest) error {
-	categories, err := s.jobRepo.FindCategoryByIds(req.CategoryIDs)
+	categoryIDs := make([]uint, 0)
+	for _, category := range req.Categories {
+		categoryIDs = append(categoryIDs, category.Value)
+	}
+
+	categories, err := s.jobRepo.FindCategoryByIds(categoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("categories not found")
@@ -560,7 +567,15 @@ func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest) error {
 	// Create prerequisites
 	for _, pre := range req.Prerequisite {
 		prerequisite := ConvertToPrerequisiteRequest(job.ID, pre)
-		if err = s.jobRepo.CreatePrerequisite(job.ID, &prerequisite); err != nil {
+		if err = s.PreqRepo.CreatePrerequisite(job.ID, &prerequisite); err != nil {
+			if errors.Is(err, gorm.ErrRegistered) {
+				return errs.NewBadRequestError("prerequisite already exists")
+			}
+
+			if strings.Contains(err.Error(), "violates foreign key constraint") {
+				return errs.NewBadRequestError("violates foreign key constraint")
+			}
+
 			logs.Error(err)
 			return errs.NewUnexpectedError()
 		}
@@ -604,7 +619,7 @@ func (s orgOpenJobService) NewJob(orgID uint, req dto.JobRequest) error {
 
 func (s orgOpenJobService) NewPrerequisite(jobID uint, req dto.PrerequisiteRequest) error {
 	prerequisite := ConvertToPrerequisiteRequest(jobID, req)
-	err := s.jobRepo.CreatePrerequisite(jobID, &prerequisite)
+	err := s.PreqRepo.CreatePrerequisite(jobID, &prerequisite)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.NewNotFoundError("job not found")
@@ -616,6 +631,81 @@ func (s orgOpenJobService) NewPrerequisite(jobID uint, req dto.PrerequisiteReque
 
 		if strings.Contains(err.Error(), "violates not-null constraint") {
 			return errs.NewBadRequestError("violates not-null constraint")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
+func (s orgOpenJobService) GetPrerequisiteByID(jobID uint, prerequisiteID uint) (*dto.PrerequisiteResponses, error) {
+	prerequisite, err := s.PreqRepo.GetPrerequisiteByID(jobID, prerequisiteID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("prerequisite not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	prerequisiteResponse := ConvertToPrerequisiteResponse(*prerequisite)
+	return &prerequisiteResponse, nil
+}
+
+func (s orgOpenJobService) GetAllPrerequisitesBelongToJobs(jobID uint) ([]dto.PrerequisiteResponses, error) {
+	prerequisites, err := s.PreqRepo.GetAllPrerequisitesBelongToJobs(jobID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.NewNotFoundError("prerequisites not found")
+		}
+
+		logs.Error(err)
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var prerequisitesResponse []dto.PrerequisiteResponses
+	for _, preq := range prerequisites {
+		prerequisitesResponse = append(prerequisitesResponse, ConvertToPrerequisiteResponse(preq))
+	}
+
+	return prerequisitesResponse, nil
+}
+
+func (s orgOpenJobService) UpdatePrerequisite(jobID uint, prerequisiteID uint, req dto.PrerequisiteRequest) (*dto.PrerequisiteResponses, error) {
+	prerequisite := ConvertToPrerequisiteRequest(jobID, req)
+
+	prerequisite.ID = prerequisiteID
+	updatedPreq, err := s.PreqRepo.UpdatePrerequisite(jobID, &prerequisite)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error(err)
+			return nil, errs.NewNotFoundError("prerequisite not found")
+		}
+
+		if strings.Contains(err.Error(), "violates foreign key constraint") {
+			logs.Error(err)
+			return nil, errs.NewBadRequestError("violates foreign key constraint")
+		}
+
+		if strings.Contains(err.Error(), "violates not-null constraint") {
+			logs.Error(err)
+			return nil, errs.NewBadRequestError("violates not-null constraint")
+		}
+	}
+
+	updatedPreqRes := ConvertToPrerequisiteResponse(*updatedPreq)
+
+	return &updatedPreqRes, nil
+}
+
+func (s orgOpenJobService) RemovePrerequisite(jobID uint, id uint) error {
+	err := s.PreqRepo.DeletePrerequisite(jobID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("prerequisite not found")
 		}
 
 		logs.Error(err)
@@ -735,11 +825,17 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest)
 		return nil, errs.NewUnexpectedError()
 	}
 
-	categories, err := s.jobRepo.FindCategoryByIds(dto.CategoryIDs)
+	categoryIDs := make([]uint, 0)
+	for _, category := range dto.Categories {
+		categoryIDs = append(categoryIDs, category.Value)
+	}
+
+	categories, err := s.jobRepo.FindCategoryByIds(categoryIDs)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("categories not found")
 		}
+
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
@@ -764,6 +860,26 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest)
 	// } else {
 	// 	// If no new image is uploaded, use the existing image
 	// 	job.PicUrl = existJob.PicUrl
+	// }
+
+	// // Convert prerequisites DTO to models
+	// var updatedPrerequisites []models.Prerequisite
+	// for _, preReq := range dto.Prerequisite {
+	// 	updatedPrerequisites = append(updatedPrerequisites, models.Prerequisite{
+	// 		JobID: jobID,
+	// 		Model: gorm.Model{ID: preReq}
+	// 		Title: preReq.Title,
+	// 		Link:  preReq.Link,
+	// 	})
+	// }
+
+	// Update prerequisites in repository
+	// for _, pre := range updatedPrerequisites {
+	// 	_, err := s.Preq.UpdatePrerequisite(jobID, &pre)
+	// 	if err != nil {
+	// 		logs.Error(err)
+	// 		return nil, errs.NewUnexpectedError()
+	// 	}
 	// }
 
 	updatedJob, err := s.jobRepo.UpdateJob(&job)
@@ -793,6 +909,21 @@ func (s orgOpenJobService) UpdateJobPicture(orgID uint, jobID uint, picURL strin
 }
 
 func (s orgOpenJobService) RemoveJob(orgID uint, jobID uint) error {
+
+	jobPrequisite, _ := s.PreqRepo.GetAllPrerequisitesBelongToJobs(jobID)
+
+	for _, preq := range jobPrequisite {
+		err := s.PreqRepo.DeletePrerequisite(jobID, preq.ID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errs.NewNotFoundError("prerequisite not found")
+			}
+
+			logs.Error(err)
+			return errs.NewUnexpectedError()
+		}
+	}
+
 	err := s.jobRepo.DeleteJob(orgID, jobID)
 
 	if err != nil {

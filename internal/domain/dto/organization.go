@@ -115,7 +115,6 @@ type JobRequest struct {
 	CareerStage    models.CareerStage    `json:"careerStage" example:"entrylevel" validate:"required"`
 	Period         string                `json:"period" example:"1 year" validate:"required"`
 	Description    string                `json:"description" example:"This is a description" validate:"required"`
-	HoursPerDay    string                `json:"hoursPerDay" example:"8 hours" validate:"required"`
 	Qualifications string                `json:"qualifications" example:"Bachelor's degree in Computer Science" validate:"required"`
 	Quantity       int                   `json:"quantity" example:"1" validate:"required"`
 	Salary         float64               `json:"salary" example:"30000" validate:"required"`
@@ -123,7 +122,7 @@ type JobRequest struct {
 	Country        string                `json:"country" example:"TH" validate:"required"`
 	RegisterLink   string                `json:"registerLink" example:"https://example.com/register"`
 	Status         string                `json:"status" example:"draft" validate:"required"`
-	CategoryIDs    []uint                `json:"categoryIds" example:"1,2,3" validate:"required"`
+	Categories     []CategoryRequest     `json:"categories" validate:"required"`
 }
 
 type JobResponses struct {
@@ -137,7 +136,6 @@ type JobResponses struct {
 	WorkType       models.WorkType         `json:"workType" example:"fulltime"`
 	CareerStage    models.CareerStage      `json:"careerStage" example:"entrylevel"`
 	Period         string                  `json:"period" example:"1 year"`
-	HoursPerDay    string                  `json:"hoursPerDay" example:"8 hours"`
 	Qualifications string                  `json:"qualifications" example:"Bachelor's degree in Computer Science"`
 	Quantity       int                     `json:"quantity" example:"1"`
 	Salary         float64                 `json:"salary" example:"30000"`
