@@ -1,0 +1,10 @@
+p, owner, data1, GET,allow
+p, owner, event, add,allow
+p, owner, data1, GET,allow
+p, owner, data1, GET,allow
+p, moderator, data1, GET,allow
+p ,moderator, data2, POST,allow
+
+g, user1 , owner ,org1
+g, user1 , moderator ,org2
+g2,Fong,"System Admin"

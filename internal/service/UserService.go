@@ -1,27 +1,105 @@
 package service
 
 import (
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain"
+	"context"
+	"errors"
+	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
+	"mime/multipart"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-type UserService struct {
-	repo domain.UserRepository
+type userService struct {
+	userRepo   repository.UserRepository
+	S3Uploader *infrastructure.S3Uploader
 }
 
-// NewUserService returns a new instance of UserService with the given repository
-func NewUserService(repo domain.UserRepository) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(userRepo repository.UserRepository, s3Uploader *infrastructure.S3Uploader) UserService {
+	return &userService{
+		userRepo:   userRepo,
+		S3Uploader: s3Uploader,
+	}
 }
 
-func (s *UserService) CreateUser(user *domain.User) error {
-	return s.repo.Create(user)
+func (s userService) UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+	// Upload image to S3
+	picURL, err := s.S3Uploader.UploadUserPictureFile(ctx, file, fileHeader, userID)
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to upload user picture: %v", err))
+		return "", err
+	}
+
+	// Update user record in database
+	err = s.userRepo.UpdateUserPic(userID, picURL)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User not found")
+			return "", errs.NewNotFoundError("User not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to update user picture: %v", err))
+		return "", err
+	}
+
+	return picURL, nil
 }
 
-func (s *UserService) ListUsers() ([]domain.User, error) {
-	return s.repo.GetAll()
+func (s userService) CreateUser(user *models.User) error {
+	err := s.userRepo.Create(user)
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to create user: %v", err))
+		return err
+	}
+	return nil
 }
 
-func (s *UserService) GetCurrentUserProfile(userId uuid.UUID) (*domain.Profile, error) {
-	return s.repo.GetCurrentUserProfile(userId)
+func (s userService) ListUsers() ([]dto.UserResponses, error) {
+	users, err := s.userRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("Users not found")
+			return nil, errs.NewNotFoundError("Users not found")
+		}
+
+		logs.Error(fmt.Sprintf("Failed to get users: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var userResponses []dto.UserResponses
+	for _, user := range users {
+		userResponse := convertToUserResponses(&user)
+		userResponses = append(userResponses, *userResponse)
+	}
+
+	return userResponses, nil
+}
+
+func (s userService) GetCurrentUserProfile(userId uuid.UUID) (*dto.ProfileResponses, error) {
+	profile, err := s.userRepo.GetProfileByUserID(userId)
+
+	// fmt.Println("profile", profile)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("Profile not found")
+			return nil, errs.NewNotFoundError("Profile not found")
+		}
+
+		logs.Error(fmt.Sprintf("Failed to get profile: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	profileRes := convertToProfileResponse(profile)
+
+	return profileRes, nil
+}
+
+func (s userService) FindByUserID(userId uuid.UUID) (*models.User, error) {
+	return s.userRepo.FindByID(userId)
 }
