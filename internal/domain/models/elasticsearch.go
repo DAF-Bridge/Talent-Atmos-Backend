@@ -53,30 +53,33 @@ type OrganizationShortDocument struct {
 }
 
 type JobDocument struct {
-	ID            uint     `json:"id"`
-	Title         string   `json:"title"`
-	PicUrl        string   `json:"orgPicUrl"`
-	Prerequisites []string `json:"prerequisite"`
-	Description   string   `json:"description"`
-	Location      string   `json:"location"`
-	Workplace     string   `json:"workplace"`
-	WorkType      string   `json:"workType"`
-	CareerStage   string   `json:"careerStage"`
-	Salary        float64  `json:"salary"`
-	Categories    []string `json:"categories"`
-	Organization  string   `json:"organization"`
-	Province      string   `json:"province"`
-	Country       string   `json:"country"`
-	UpdateAt      string   `json:"updatedAt"`
+	ID            uint                      `json:"id"`
+	Title         string                    `json:"title"`
+	PicUrl        string                    `json:"orgPicUrl"`
+	Prerequisites []string                  `json:"prerequisite"`
+	Description   string                    `json:"description"`
+	Location      string                    `json:"location"`
+	Workplace     string                    `json:"workplace"`
+	WorkType      string                    `json:"workType"`
+	CareerStage   string                    `json:"careerStage"`
+	Salary        float64                   `json:"salary"`
+	Categories    []string                  `json:"categories"`
+	Organization  OrganizationShortDocument `json:"organization"`
+	Province      string                    `json:"province"`
+	Country       string                    `json:"country"`
+	UpdateAt      string                    `json:"updatedAt"`
 }
 
 type OrganizationDocument struct {
-	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	PicUrl      string `json:"picUrl"`
-	Description string `json:"description"`
-	Location    string `json:"location"`
-	Website     string `json:"website"`
-	Email       string `json:"email"`
-	Phone       string `json:"phone"`
+	ID          uint    `json:"id"`
+	Name        string  `json:"name"`
+	PicUrl      string  `json:"picUrl"`
+	Description string  `json:"description"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	Province    string  `json:"province"`
+	Country     string  `json:"country"`
+	Email       string  `json:"email"`
+	Phone       string  `json:"phone"`
+	UpdateAt    string  `json:"updatedAt"`
 }

@@ -99,10 +99,14 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			CareerStage:   string(job.CareerStage),
 			Salary:        job.Salary,
 			Categories:    categories,
-			Organization:  job.Organization.Name,
-			Province:      job.Province,
-			Country:       job.Country,
-			UpdateAt:      job.UpdatedAt.Format("2006-01-02 15:04:05"),
+			Organization: models.OrganizationShortDocument{
+				ID:     uint(job.Organization.ID),
+				Name:   string(job.Organization.Name),
+				PicUrl: string(job.Organization.PicUrl),
+			},
+			Province: string(job.Province),
+			Country:  job.Country,
+			UpdateAt: job.UpdatedAt.Format("2006-01-02 15:04:05"),
 		}
 
 		jsonData, _ := json.Marshal(doc)
@@ -143,13 +147,23 @@ func ensureJobIndexExists(client *opensearch.Client) error {
 					"Title": { "type": "text" },
 					"PicUrl": { "type": "text" },
 					"Description": { "type": "text" },
-					"Location": { "type": "text" },
+					"Prerequisites": { "type": "text" },
 					"WorkType": { "type": "keyword" },
 					"Workplace": { "type": "keyword" },
 					"CareerStage": { "type": "keyword" },
 					"Salary": { "type": "integer" },
 					"Categories": { "type": "keyword" },
-					"Organization": { "type": "text" }
+					"Organization": {
+						"type": "object",
+						"properties": {
+							"ID": { "type": "integer" },
+							"Name": { "type": "text" },
+							"PicUrl": { "type": "text" }
+						}
+					},
+					"Province": { "type": "keyword" },
+					"Country": { "type": "keyword" },
+					"UpdateAt": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" }
 				}
 			}
 		}`

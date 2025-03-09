@@ -37,3 +37,18 @@ type EventDocumentDTOResponse struct {
 	Price        string                           `json:"price"`
 	UpdateAt     string                           `json:"updatedAt"`
 }
+
+type JobDocumentDTOResponse struct {
+	ID           uint                             `json:"id"`
+	Title        string                           `json:"title"`
+	PicUrl       string                           `json:"picUrl"`
+	Description  string                           `json:"description"`
+	Location     string                           `json:"location"`
+	Workplace    string                           `json:"workplace"`
+	WorkType     string                           `json:"workType"`
+	CareerStage  string                           `json:"careerStage"`
+	Salary       float64                          `json:"salary"`
+	Categories   []string                         `json:"categories"`
+	Organization models.OrganizationShortDocument `json:"organization"`
+	UpdateAt     string                           `json:"updatedAt"`
+}
