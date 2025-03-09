@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
@@ -453,6 +454,8 @@ func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 		return err
 	}
 
+	fmt.Println("req", req)
+
 	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
@@ -611,7 +614,7 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 		return errs.SendFiberError(c, err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(updatedJob)
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{"message": "Job updated successfully", "job": updatedJob})
 }
 
 // @Summary Delete an organization job by ID
