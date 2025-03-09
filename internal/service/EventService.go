@@ -66,7 +66,7 @@ func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset in
 }
 
 func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error {
-	categoryIDs := make([]uint, len(req.Categories))
+	categoryIDs := make([]uint, 0)
 	for _, category := range req.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
@@ -81,7 +81,7 @@ func (s eventService) NewEvent(orgID uint, req dto.NewEventRequest, ctx context.
 		return errs.NewUnexpectedError()
 	}
 
-	contacts := make([]models.ContactChannel, len(req.ContactChannels))
+	contacts := make([]models.ContactChannel, 0)
 	for _, contact := range req.ContactChannels {
 		contacts = append(contacts, models.ContactChannel{
 			Media:     models.Media(contact.Media),
@@ -133,7 +133,7 @@ func (s eventService) GetAllEvents() ([]dto.EventResponses, error) {
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := make([]dto.EventResponses, len(events))
+	EventResponses := make([]dto.EventResponses, 0)
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -153,7 +153,7 @@ func (s eventService) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, err
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
 	}
-	EventResponses := make([]dto.EventResponses, len(events))
+	EventResponses := make([]dto.EventResponses, 0)
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -227,7 +227,7 @@ func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) 
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := make([]dto.EventResponses, len(events))
+	EventResponses := make([]dto.EventResponses, 0)
 	for _, event := range events {
 		eventResponse := ConvertToEventResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
@@ -262,22 +262,8 @@ func (s eventService) CountEvent() (int64, error) {
 }
 
 func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error) {
-	var categoryIDs []uint
-	for _, category := range req.Categories {
-		categoryIDs = append(categoryIDs, category.Value)
-	}
 
-	categories, err := s.eventRepo.FindCategoryByIds(categoryIDs)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errs.NewNotFoundError("categories not found")
-		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
-	}
-
-	existingEvent, err := s.eventRepo.GetByIDwithOrgID(orgID, eventID)
+	existingEvent, err := s.eventRepo.GetByID(eventID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.NewNotFoundError("event not found")
@@ -285,6 +271,24 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError()
+	}
+
+	var categoryIDs []uint
+	for _, category := range req.Categories {
+		categoryIDs = append(categoryIDs, category.Value)
+	}
+
+	categories := make([]models.Category, 0)
+	if len(categoryIDs) > 0 {
+		categories, err = s.eventRepo.FindCategoryByIds(categoryIDs)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errs.NewNotFoundError("categories not found")
+			}
+
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
+		}
 	}
 
 	var contacts []models.ContactChannel
@@ -296,16 +300,16 @@ func (s eventService) UpdateEvent(orgID uint, eventID uint, req dto.NewEventRequ
 		})
 	}
 
-	// Convert request to event model
+	// Convert request to Event
 	event := requestConvertToEvent(orgID, req, categories, contacts)
 	event.ID = eventID
+
 	if file != nil {
 		picURL, err := s.S3.UploadEventPictureFile(ctx, file, fileHeader, orgID, eventID)
 		if err != nil {
 			logs.Error(err)
 			return nil, errs.NewUnexpectedError()
 		}
-
 		event.PicUrl = picURL
 	} else {
 		event.PicUrl = existingEvent.PicUrl

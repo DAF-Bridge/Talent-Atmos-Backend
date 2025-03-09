@@ -65,7 +65,7 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 		industryPointers[i] = &industries[i]
 	}
 
-	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
+	contacts := make([]models.OrganizationContact, 0)
 	for i, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
 		if !checkMediaTypes(lowerMedia) {
@@ -269,7 +269,7 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 		industryPointers[i] = &industries[i]
 	}
 
-	contacts := make([]models.OrganizationContact, len(org.OrganizationContacts))
+	contacts := make([]models.OrganizationContact, 0)
 	for i, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
 		if !checkMediaTypes(lowerMedia) {

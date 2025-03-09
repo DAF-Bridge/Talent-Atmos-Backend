@@ -483,7 +483,7 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 		return nil, err
 	}
 
-	if job.Prerequisites != nil && len(job.Prerequisites) != 0 {
+	if job.Prerequisites != nil && len(job.Prerequisites) > 0 {
 		if err := tx.Model(&prerequisites).Create(job.Prerequisites).Error; err != nil {
 			tx.Rollback()
 			return nil, err
@@ -502,6 +502,7 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 		Preload("Categories").
 		Where("id = ?", job.ID).
 		First(&updatedJob).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 

@@ -43,7 +43,7 @@ func newEventShortResponse(event dto.EventResponses) EventShortResponse {
 
 // newListEventShortResponse converts a list of EventResponses to a list of EventShortResponse
 func newListEventShortResponse(events []dto.EventResponses) []EventShortResponse {
-	listEvent := make([]EventShortResponse, len(events))
+	listEvent := make([]EventShortResponse, 0)
 
 	for i, event := range events {
 		listEvent[i] = newEventShortResponse(event)

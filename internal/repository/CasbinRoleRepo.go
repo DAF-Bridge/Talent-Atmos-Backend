@@ -54,7 +54,7 @@ func (c CasbinRoleRepository) UpdateRoleForUserInDomain(user string, role string
 		return false, nil
 	}
 
-	oldGrouping := make([][]string, len(oldRoles))
+	oldGrouping := make([][]string, 0)
 	for _, oldRole := range oldRoles {
 		oldGrouping = append(oldGrouping, []string{user, oldRole, domain})
 	}
