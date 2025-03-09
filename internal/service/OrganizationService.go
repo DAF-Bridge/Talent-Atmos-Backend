@@ -817,6 +817,7 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 }
 
 func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error) {
+
 	existJob, err := s.jobRepo.GetJobByID(jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -831,15 +832,18 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest)
 	for _, category := range dto.Categories {
 		categoryIDs = append(categoryIDs, category.Value)
 	}
+	categories := make([]models.Category, 0)
 
-	categories, err := s.jobRepo.FindCategoryByIds(categoryIDs)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errs.NewNotFoundError("categories not found")
+	if len(categoryIDs) != 0 {
+		categories, err = s.jobRepo.FindCategoryByIds(categoryIDs)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errs.NewNotFoundError("categories not found")
+			}
+
+			logs.Error(err)
+			return nil, errs.NewUnexpectedError()
 		}
-
-		logs.Error(err)
-		return nil, errs.NewUnexpectedError()
 	}
 
 	job := ConvertToJobRequest(orgID, dto, categories)
@@ -876,15 +880,6 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest)
 	}
 
 	job.Prerequisites = updatedPrerequisites
-
-	// Update prerequisites in repository
-	// for _, pre := range updatedPrerequisites {
-	// 	_, err := s.Preq.UpdatePrerequisite(jobID, &pre)
-	// 	if err != nil {
-	// 		logs.Error(err)
-	// 		return nil, errs.NewUnexpectedError()
-	// 	}
-	// }
 
 	updatedJob, err := s.jobRepo.UpdateJob(&job)
 	if err != nil {

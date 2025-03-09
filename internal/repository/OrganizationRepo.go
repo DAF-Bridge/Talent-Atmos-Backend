@@ -483,9 +483,11 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 		return nil, err
 	}
 
-	if err := tx.Model(&prerequisites).Create(job.Prerequisites).Error; err != nil {
-		tx.Rollback()
-		return nil, err
+	if job.Prerequisites != nil && len(job.Prerequisites) != 0 {
+		if err := tx.Model(&prerequisites).Create(job.Prerequisites).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
 	if err := tx.Model(&existJob).Save(job).Error; err != nil {
