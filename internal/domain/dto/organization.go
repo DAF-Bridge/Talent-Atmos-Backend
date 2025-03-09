@@ -115,7 +115,7 @@ type PrerequisiteResponses struct {
 type JobRequest struct {
 	JobTitle       string                `json:"title" example:"Software Engineer" validate:"required,min=3,max=255"`
 	Scope          string                `json:"scope" example:"This is a scope" validate:"required"`
-	Prerequisite   []PrerequisiteRequest `json:"prerequisite" validate:"required"`
+	Prerequisite   []PrerequisiteRequest `json:"prerequisite"`
 	Workplace      models.Workplace      `json:"workplace" example:"remote" validate:"required"`
 	WorkType       models.WorkType       `json:"workType" example:"fulltime" validate:"required"`
 	CareerStage    models.CareerStage    `json:"careerStage" example:"entrylevel" validate:"required"`
