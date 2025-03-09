@@ -472,45 +472,40 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 		return nil, err
 	}
 
-	if err := tx.Model(&existJob).Association("Categories").Append(job.Categories); err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Replace(job.Categories); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	//var prerequisites models.Prerequisite
-	//if err := tx.Model(&prerequisites).Where("job_id = ?", job.ID).Delete(&prerequisites).Error; err != nil {
-	//	tx.Rollback()
-	//	return nil, err
-	//}
-	//
-	for i := range job.Prerequisites {
-		job.Prerequisites[i].JobID = job.ID
+	var prerequisites models.Prerequisite
+	if err := tx.Model(&prerequisites).Where("job_id = ?", job.ID).Delete(&prerequisites).Error; err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
-	//if err := tx.Model(&prerequisites).Create(job.Prerequisites).Error; err != nil {
-	//	tx.Rollback()
-	//	return nil, err
-	//}
-
-	if err := tx.Model(&existJob).Updates(job).Error; err != nil {
+	if err := tx.Model(&prerequisites).Create(job.Prerequisites).Error; err != nil {
 		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&existJob).Save(job).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	var updatedJob models.OrgOpenJob
+	if err := tx.
+		Preload("Organization").
+		Preload("Prerequisites").
+		Preload("Categories").
+		Where("id = ?", job.ID).
+		First(&updatedJob).Error; err != nil {
 		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
-
-	var updatedJob models.OrgOpenJob
-	if err := r.db.
-		Preload("Organization").
-		Preload("Prerequisites").
-		Preload("Categories").
-		Where("organization_id = ? AND id = ?", job.OrganizationID, job.ID).
-		First(&updatedJob).Error; err != nil {
-		return nil, err
-	}
-
 	return &updatedJob, nil
 }
 

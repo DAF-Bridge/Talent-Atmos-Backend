@@ -864,16 +864,18 @@ func (s orgOpenJobService) UpdateJob(orgID uint, jobID uint, dto dto.JobRequest)
 	// 	job.PicUrl = existJob.PicUrl
 	// }
 
-	// // Convert prerequisites DTO to models
-	// var updatedPrerequisites []models.Prerequisite
-	// for _, preReq := range dto.Prerequisite {
-	// 	updatedPrerequisites = append(updatedPrerequisites, models.Prerequisite{
-	// 		JobID: jobID,
-	// 		Model: gorm.Model{ID: preReq}
-	// 		Title: preReq.Title,
-	// 		Link:  preReq.Link,
-	// 	})
-	// }
+	// Convert prerequisites DTO to models
+	var updatedPrerequisites []models.Prerequisite
+	for _, preReq := range dto.Prerequisite {
+		updatedPrerequisites = append(updatedPrerequisites, models.Prerequisite{
+			JobID: jobID,
+			//Model: gorm.Model{ID: preReq.}
+			Title: preReq.Title,
+			Link:  preReq.Link,
+		})
+	}
+
+	job.Prerequisites = updatedPrerequisites
 
 	// Update prerequisites in repository
 	// for _, pre := range updatedPrerequisites {
