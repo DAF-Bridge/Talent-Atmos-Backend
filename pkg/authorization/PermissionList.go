@@ -9,8 +9,8 @@ var permissionsList [][]string
 func init() {
 	allRole = []string{"moderator", "owner", "system_admin"}
 	moderatorPermissionsMap := map[string][]string{
-		"Event":               {"read"},
-		"Organization":        {"delete", "update"},
+		"Event":               {"delete", "update", "create"},
+		"Organization":        {"update"},
 		"OrganizationContact": {"delete", "update", "create"},
 		"OrganizationOpenJob": {"delete", "update", "create"},
 		"Role":                {"read"},
@@ -19,7 +19,7 @@ func init() {
 	permissionsList = append(permissionsList, moderatorPermissionsList...)
 
 	ownerPermissionsMap := map[string][]string{
-		"Organization": {"create"},
+		"Organization": {"delete"},
 		"Role":         {"remove", "edit", "invite", "read"},
 	}
 	mergeMapSlice(ownerPermissionsMap, moderatorPermissionsMap)

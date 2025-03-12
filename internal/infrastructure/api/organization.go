@@ -22,6 +22,7 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 	//rbac
 	authMiddleware := middleware.AuthMiddleware(jwtSecret)
 	rbac := middleware.NewRBACMiddleware(enforcer)
+	enforceMiddlewareWithOrganization := rbac.EnforceMiddlewareWithResources("Organization")
 
 	org := app.Group("/orgs")
 
@@ -30,8 +31,8 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 	org.Get("/list", authMiddleware, organizationHandler.ListOrganizations)
 	org.Post("/create", authMiddleware, organizationHandler.CreateOrganization)
 	org.Get("/get/:id", authMiddleware, organizationHandler.GetOrganizationByID)
-	org.Put("/update/:id", authMiddleware, organizationHandler.UpdateOrganization)
-	org.Delete("/delete/:id", authMiddleware, organizationHandler.DeleteOrganization)
+	org.Put("/update/:id", authMiddleware, enforceMiddlewareWithOrganization("update"), organizationHandler.UpdateOrganization)
+	org.Delete("/delete/:id", authMiddleware, enforceMiddlewareWithOrganization("delete"), organizationHandler.DeleteOrganization)
 
 	// Dependencies Injections for Organization Contact
 	orgContactRepo := repository.NewOrganizationContactRepository(db)

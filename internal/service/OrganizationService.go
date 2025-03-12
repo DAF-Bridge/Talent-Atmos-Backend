@@ -65,17 +65,17 @@ func (s organizationService) CreateOrganization(userID uuid.UUID, org dto.Organi
 		industryPointers[i] = &industries[i]
 	}
 
-	contacts := make([]models.OrganizationContact, 0)
-	for i, contact := range org.OrganizationContacts {
+	var contacts []models.OrganizationContact
+	for _, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
 		if !checkMediaTypes(lowerMedia) {
 			return errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 		}
 
-		contacts[i] = models.OrganizationContact{
+		contacts = append(contacts, models.OrganizationContact{
 			Media:     models.Media(lowerMedia),
 			MediaLink: contact.MediaLink,
-		}
+		})
 	}
 
 	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
@@ -270,16 +270,16 @@ func (s organizationService) UpdateOrganization(orgID uint, org dto.Organization
 	}
 
 	contacts := make([]models.OrganizationContact, 0)
-	for i, contact := range org.OrganizationContacts {
+	for _, contact := range org.OrganizationContacts {
 		lowerMedia := strings.ToLower(contact.Media)
 		if !checkMediaTypes(lowerMedia) {
 			return nil, errs.NewBadRequestError("invalid media type: " + contact.Media + ". Allowed types: website, twitter, facebook, linkedin, instagram")
 		}
 
-		contacts[i] = models.OrganizationContact{
+		contacts = append(contacts, models.OrganizationContact{
 			Media:     models.Media(lowerMedia),
 			MediaLink: contact.MediaLink,
-		}
+		})
 	}
 
 	newOrg := ConvertToOrgRequest(org, contacts, industryPointers)
