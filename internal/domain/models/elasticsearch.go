@@ -52,6 +52,29 @@ type OrganizationShortDocument struct {
 	PicUrl string `json:"picUrl"`
 }
 
+type PrerequisiteDocument struct {
+	Title string `json:"name"`
+	Link  string `json:"link"`
+}
+
+// type JobDocument struct {
+// 	ID            uint                      `json:"id"`
+// 	Title         string                    `json:"title"`
+// 	PicUrl        string                    `json:"orgPicUrl"`
+// 	Prerequisites []PrerequisiteDocument    `json:"prerequisite"`
+// 	Description   string                    `json:"description"`
+// 	Location      string                    `json:"location"`
+// 	Workplace     string                    `json:"workplace"`
+// 	WorkType      string                    `json:"workType"`
+// 	CareerStage   string                    `json:"careerStage"`
+// 	Salary        float64                   `json:"salary"`
+// 	Categories    []string                  `json:"categories"`
+// 	Organization  OrganizationShortDocument `json:"organization"`
+// 	Province      string                    `json:"province"`
+// 	Country       string                    `json:"country"`
+// 	UpdateAt      string                    `json:"updatedAt"`
+// }
+
 type JobDocument struct {
 	ID            uint                      `json:"id"`
 	Title         string                    `json:"title"`

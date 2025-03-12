@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
@@ -107,9 +108,10 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 			"match_all": map[string]interface{}{},
 		})
 	} else {
+		categories := strings.Split(query.Category, ",")
 		must = append(must, map[string]interface{}{
-			"match": map[string]interface{}{
-				"category": query.Category,
+			"terms": map[string]interface{}{
+				"categories": categories,
 			},
 		})
 	}

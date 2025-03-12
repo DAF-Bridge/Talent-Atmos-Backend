@@ -83,6 +83,35 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			categories = append(categories, category.Name)
 		}
 
+		// var prerequisites []models.PrerequisiteDocument
+		// for _, p := range job.Prerequisites {
+		// 	prerequisites = append(prerequisites, models.PrerequisiteDocument{
+		// 		Title: p.Title,
+		// 		Link:  p.Link,
+		// 	})
+		// }
+
+		// doc := models.JobDocument{
+		// 	ID:            job.ID,
+		// 	Title:         job.Title,
+		// 	PicUrl:        job.Organization.PicUrl,
+		// 	Prerequisites: prerequisites,
+		// 	Description:   job.Description,
+		// 	WorkType:      string(job.WorkType),
+		// 	Workplace:     string(job.Workplace),
+		// 	CareerStage:   string(job.CareerStage),
+		// 	Salary:        job.Salary,
+		// 	Categories:    categories,
+		// 	Organization: models.OrganizationShortDocument{
+		// 		ID:     uint(job.Organization.ID),
+		// 		Name:   string(job.Organization.Name),
+		// 		PicUrl: string(job.Organization.PicUrl),
+		// 	},
+		// 	Province: string(job.Province),
+		// 	Country:  job.Country,
+		// 	UpdateAt: job.UpdatedAt.Format("2006-01-02 15:04:05"),
+		// }
+
 		var prerequisites []string
 		for _, p := range job.Prerequisites {
 			prerequisites = append(prerequisites, p.Title)
