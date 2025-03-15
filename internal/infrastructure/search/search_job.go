@@ -8,12 +8,11 @@ import (
 	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/opensearch-project/opensearch-go"
 )
 
-func SearchJobs(client *opensearch.Client, query models.SearchJobQuery, page int, offset int) (dto.SearchJobResponse, error) {
+func SearchJobs(client *opensearch.Client, query dto.SearchJobQuery, page int, offset int) (dto.SearchJobResponse, error) {
 	searchQuery := buildSearchJobQuery(query)
 
 	// fmt.Println(searchQuery)
@@ -45,10 +44,10 @@ func SearchJobs(client *opensearch.Client, query models.SearchJobQuery, page int
 		return dto.SearchJobResponse{}, nil
 	}
 
-	var results []models.JobDocument
+	var results []dto.JobDocument
 	for _, hit := range hits {
 		source := hit.(map[string]interface{})["_source"].(map[string]interface{})
-		job := models.JobDocument{}
+		job := dto.JobDocument{}
 		jsonString, _ := json.Marshal(source)
 		json.Unmarshal(jsonString, &job)
 		results = append(results, job)
@@ -60,7 +59,7 @@ func SearchJobs(client *opensearch.Client, query models.SearchJobQuery, page int
 	if len(hits) == 0 {
 		responses = dto.SearchJobResponse{
 			TotalJob: 0,
-			Jobs:     []models.JobDocument{},
+			Jobs:     []dto.JobDocument{},
 		}
 
 		return responses, nil
@@ -76,7 +75,7 @@ func SearchJobs(client *opensearch.Client, query models.SearchJobQuery, page int
 	return responses, nil
 }
 
-func buildSearchJobQuery(query models.SearchJobQuery) map[string]interface{} {
+func buildSearchJobQuery(query dto.SearchJobQuery) map[string]interface{} {
 	searchQuery := make(map[string]interface{})
 	boolQuery := make(map[string]interface{})
 	var must []map[string]interface{}
@@ -108,7 +107,7 @@ func buildSearchJobQuery(query models.SearchJobQuery) map[string]interface{} {
 		categories := strings.Split(query.Categories, ",")
 		must = append(must, map[string]interface{}{
 			"terms": map[string]interface{}{
-				"categories": categories,
+				"categories.label.keyword": categories, // Make sure categories are indexed as 'keyword'
 			},
 		})
 	}

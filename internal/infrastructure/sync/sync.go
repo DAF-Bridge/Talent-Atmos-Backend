@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
@@ -18,18 +19,21 @@ func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	}
 
 	for _, event := range events {
-		var categories []string
+		var categories []dto.CategoryRequest
 		for _, category := range event.Categories {
-			categories = append(categories, category.Name)
+			categories = append(categories, dto.CategoryRequest{
+				Value: category.ID,
+				Label: category.Name,
+			})
 		}
 
-		org := models.OrganizationShortDocument{
+		org := dto.OrganizationShortDocument{
 			ID:     event.Organization.ID,
 			Name:   event.Organization.Name,
 			PicUrl: event.Organization.PicUrl,
 		}
 
-		doc := models.EventDocument{
+		doc := dto.EventDocument{
 			ID:           event.ID,
 			Name:         event.Name,
 			PicUrl:       event.PicUrl,
@@ -78,49 +82,25 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	}
 
 	for _, job := range jobs {
-		var categories []string
+		var categories []dto.CategoryRequest
 		for _, category := range job.Categories {
-			categories = append(categories, category.Name)
+			categories = append(categories, dto.CategoryRequest{
+				Value: category.ID,
+				Label: category.Name,
+			})
 		}
 
-		// var prerequisites []models.PrerequisiteDocument
-		// for _, p := range job.Prerequisites {
-		// 	prerequisites = append(prerequisites, models.PrerequisiteDocument{
-		// 		Title: p.Title,
-		// 		Link:  p.Link,
-		// 	})
-		// }
-
-		// doc := models.JobDocument{
-		// 	ID:            job.ID,
-		// 	Title:         job.Title,
-		// 	PicUrl:        job.Organization.PicUrl,
-		// 	Prerequisites: prerequisites,
-		// 	Description:   job.Description,
-		// 	WorkType:      string(job.WorkType),
-		// 	Workplace:     string(job.Workplace),
-		// 	CareerStage:   string(job.CareerStage),
-		// 	Salary:        job.Salary,
-		// 	Categories:    categories,
-		// 	Organization: models.OrganizationShortDocument{
-		// 		ID:     uint(job.Organization.ID),
-		// 		Name:   string(job.Organization.Name),
-		// 		PicUrl: string(job.Organization.PicUrl),
-		// 	},
-		// 	Province: string(job.Province),
-		// 	Country:  job.Country,
-		// 	UpdateAt: job.UpdatedAt.Format("2006-01-02 15:04:05"),
-		// }
-
-		var prerequisites []string
+		var prerequisites []dto.PrerequisiteRequest
 		for _, p := range job.Prerequisites {
-			prerequisites = append(prerequisites, p.Title)
+			prerequisites = append(prerequisites, dto.PrerequisiteRequest{
+				Title: p.Title,
+				Link:  p.Link,
+			})
 		}
 
-		doc := models.JobDocument{
+		doc := dto.JobDocument{
 			ID:            job.ID,
 			Title:         job.Title,
-			PicUrl:        job.Organization.PicUrl,
 			Prerequisites: prerequisites,
 			Description:   job.Description,
 			WorkType:      string(job.WorkType),
@@ -128,7 +108,7 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			CareerStage:   string(job.CareerStage),
 			Salary:        job.Salary,
 			Categories:    categories,
-			Organization: models.OrganizationShortDocument{
+			Organization: dto.OrganizationShortDocument{
 				ID:     uint(job.Organization.ID),
 				Name:   string(job.Organization.Name),
 				PicUrl: string(job.Organization.PicUrl),

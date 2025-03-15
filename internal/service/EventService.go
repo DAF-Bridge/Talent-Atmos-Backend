@@ -53,7 +53,7 @@ func (s eventService) SyncEvents() error {
 	return sync.SyncEventsToOpenSearch(s.DB, s.OS)
 }
 
-func (s eventService) SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
+func (s eventService) SearchEvents(query dto.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
 	eventsRes, err := search.SearchEvents(s.OS, query, page, Offset)
 	if err != nil {
 		if len(eventsRes.Events) == 0 {

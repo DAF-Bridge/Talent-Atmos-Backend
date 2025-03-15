@@ -15,6 +15,7 @@ type OrganizationRepository interface {
 	//GetAllOrganizations(userID uuid.UUID) ([]models.Organization, error)
 	GetOrgsPaginate(page uint, size uint) ([]models.Organization, error)
 	UpdateOrganization(org *models.Organization) (*models.Organization, error)
+	UpdateOrganizationStatus(id uint, status string) error
 	//UpdateOrganization(userID uuid.UUID, org *models.Organization) (*models.Organization, error)
 	UpdateOrganizationPicture(id uint, picURL string) error
 	UpdateOrganizationBackgroundPicture(id uint, picURL string) error

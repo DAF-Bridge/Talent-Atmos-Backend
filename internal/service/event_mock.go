@@ -5,7 +5,6 @@ import (
 	"mime/multipart"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -283,18 +282,18 @@ func (m *EventServiceMock) SyncEvents() error {
 	return r0
 }
 
-func (m *EventServiceMock) SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
+func (m *EventServiceMock) SearchEvents(query dto.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error) {
 	ret := m.Called(query, page, Offset)
 
 	var r0 dto.SearchEventResponse
-	if rf, ok := ret.Get(0).(func(models.SearchQuery, int, int) dto.SearchEventResponse); ok {
+	if rf, ok := ret.Get(0).(func(dto.SearchQuery, int, int) dto.SearchEventResponse); ok {
 		r0 = rf(query, page, Offset)
 	} else {
 		r0 = ret.Get(0).(dto.SearchEventResponse)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(models.SearchQuery, int, int) error); ok {
+	if rf, ok := ret.Get(1).(func(dto.SearchQuery, int, int) error); ok {
 		r1 = rf(query, page, Offset)
 	} else {
 		r1 = ret.Error(1)

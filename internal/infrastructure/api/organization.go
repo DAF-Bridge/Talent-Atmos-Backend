@@ -31,6 +31,8 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 	org.Get("/list", authMiddleware, organizationHandler.ListOrganizations)
 	org.Post("/create", authMiddleware, organizationHandler.CreateOrganization)
 	org.Get("/get/:id", authMiddleware, organizationHandler.GetOrganizationByID)
+	org.Patch("/:orgID/status", authMiddleware, enforceMiddlewareWithOrganization("update"), organizationHandler.UpdateOrganizationStatus)
+	// org.Patch("/:orgID/status", authMiddleware, organizationHandler.UpdateOrganizationStatus)
 	org.Put("/update/:id", authMiddleware, enforceMiddlewareWithOrganization("update"), organizationHandler.UpdateOrganization)
 	org.Delete("/delete/:id", authMiddleware, enforceMiddlewareWithOrganization("delete"), organizationHandler.DeleteOrganization)
 

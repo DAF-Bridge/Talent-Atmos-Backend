@@ -71,6 +71,7 @@ type Organization struct {
 	Country              string                `gorm:"type:varchar(255)" db:"country"`
 	Latitude             float64               `gorm:"type:decimal(10,8)" db:"latitude"`  // Geographic latitude (stored as string for precision)
 	Longitude            float64               `gorm:"type:decimal(11,8)" db:"longitude"` // Geographic longitude (stored as string for precision)
+	Status               string                `gorm:"type:varchar(50);default:'pending'" db:"status"`
 	OrganizationContacts []OrganizationContact `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs          []OrgOpenJob          `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgMembers           []RoleInOrganization  `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`

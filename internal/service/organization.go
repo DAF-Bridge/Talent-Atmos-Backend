@@ -18,6 +18,7 @@ type OrganizationService interface {
 	GetOrganizationByID(orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
 	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, file2 multipart.File, file2Header *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganizationStatus(orgID uint, status string) error
 	UpdateOrganizationBackgroundPicture(id uint, picURL string) error
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(orgID uint) error
@@ -33,7 +34,7 @@ type OrganizationContactService interface {
 
 type OrgOpenJobService interface {
 	SyncJobs() error
-	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
+	SearchJobs(query dto.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
 	NewJob(orgID uint, dto dto.JobRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)

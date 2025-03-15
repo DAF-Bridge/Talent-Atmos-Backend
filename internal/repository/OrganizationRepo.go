@@ -158,6 +158,22 @@ func (r organizationRepository) UpdateOrganization(org *models.Organization) (*m
 	return &updatedOrg, nil
 }
 
+func (r organizationRepository) UpdateOrganizationStatus(id uint, status string) error {
+	tx := r.db.Begin()
+	result := tx.Model(&models.Organization{}).Where("id = ?", id).Update("status", status)
+	err := utils.GormErrorAndRowsAffected(result)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r organizationRepository) UpdateOrganizationPicture(id uint, picURL string) error {
 	tx := r.db.Begin()
 	result := tx.Model(&models.Organization{}).Where("id = ?", id).Update("pic_url", picURL)

@@ -190,6 +190,10 @@ func (r organizationRepositoryMock) UpdateOrganization(org *models.Organization)
 	return nil, nil
 }
 
+func (r organizationRepositoryMock) UpdateOrganizationStatus(id uint, status string) error {
+	return nil
+}
+
 func (r organizationRepositoryMock) UpdateOrganizationPicture(id uint, picURL string) error {
 	return nil
 }

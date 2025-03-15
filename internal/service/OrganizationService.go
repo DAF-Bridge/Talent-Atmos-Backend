@@ -369,6 +369,20 @@ func (s organizationService) UpdateOrganizationBackgroundPicture(id uint, picURL
 	return nil
 }
 
+func (s organizationService) UpdateOrganizationStatus(orgID uint, status string) error {
+	err := s.repo.UpdateOrganizationStatus(orgID, status)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("organization not found")
+		}
+
+		logs.Error(err)
+		return errs.NewUnexpectedError()
+	}
+
+	return nil
+}
+
 // Deletes an organization by its ID
 func (s organizationService) DeleteOrganization(id uint) error {
 	err := s.repo.DeleteOrganization(id)
@@ -529,7 +543,7 @@ func (s orgOpenJobService) SyncJobs() error {
 	return nil
 }
 
-func (s orgOpenJobService) SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error) {
+func (s orgOpenJobService) SearchJobs(query dto.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error) {
 	jobsRes, err := search.SearchJobs(s.OS, query, page, Offset)
 	if err != nil {
 		if len(jobsRes.Jobs) == 0 {
