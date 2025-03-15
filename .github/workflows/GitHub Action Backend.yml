@@ -184,14 +184,10 @@ jobs:
           docker build -t $IMAGE_NAME:$TAG -t $VERSION_TAG .
           docker push $IMAGE_NAME:$TAG
           docker push $VERSION_TAG
-        continue-on-error: true
 
       - name: Notify on Success
         if: ${{ steps.container_build_push.outcome == 'success' }}
         run: echo "Docker image successfully pushed to GitHub Container Registry"
-
-    outputs:
-      outcome: ${{ steps.container_build_push.outcome}}
 
   notify:
     needs: [unit_test, integration_test, build, container_build_push]
@@ -202,7 +198,6 @@ jobs:
           UNIT_TEST_STATUS="${{ needs.unit_test.outputs.outcome }}"
           INTEGRATION_TEST_STATUS="${{ needs.integration_test.outputs.outcome }}"
           BUILD_STATUS="${{ needs.build.outputs.build_status }}"
-          CONTAINER_BUILD_STATUS="${{ needs.container_build_push.outputs.outcome }}"
 
           if [ "$UNIT_TEST_STATUS" != "success" ] && [ "$INTEGRATION_TEST_STATUS" != "success" ]; then
             STAGE="All Test"
@@ -215,9 +210,6 @@ jobs:
             STATUS="failure"
           elif [ "$BUILD_STATUS" != "success" ]; then
             STAGE="Build"
-            STATUS="failure"
-          elif [ "$CONTAINER_BUILD_STATUS" != "success" ]; then
-            STAGE="Container PUSH"
             STATUS="failure"
           else
             STAGE="All"
