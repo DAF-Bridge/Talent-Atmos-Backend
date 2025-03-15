@@ -175,7 +175,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
           TAG=latest
           COMMIT_HASH=${{ github.sha }}
 
@@ -184,8 +184,10 @@ jobs:
           docker build -t $IMAGE_NAME:$TAG -t $VERSION_TAG .
           docker push $IMAGE_NAME:$TAG
           docker push $VERSION_TAG
+        continue-on-error: true
 
       - name: Notify on Success
+        if: ${{ steps.container_build_push.outcome == 'success' }}
         run: echo "Docker image successfully pushed to GitHub Container Registry"
 
     outputs:
