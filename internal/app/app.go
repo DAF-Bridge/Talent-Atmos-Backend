@@ -103,14 +103,16 @@ func Start() {
 	// Define routes for Users
 	api.NewUserRouter(app, initializers.DB, initializers.S3, jwtSecret)
 
+	// Define routes for Roles
+	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
+
 	// Define routes for Organizations && Organization Open Jobs
+	api.NewOrganizationAdminRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Events
+	api.NewEventAdminRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
-
-	// Define routes for Roles
-	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
 
 	// Define routes for Locations
 	api.NewLocationMapRouter(app, initializers.DB)

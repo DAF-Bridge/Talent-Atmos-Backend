@@ -223,15 +223,15 @@ func (r RoleWithDomainService) CallBackToken(token uuid.UUID) (bool, error) {
 	inviteToken, err := r.inviteTokenRepository.GetByToken(token)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			logs.Error("token not found")
-			return false, errs.NewNotFoundError("token not found")
+			logs.Error("invite token not found")
+			return false, errs.NewNotFoundError("invite token not found")
 		}
 		logs.Error(fmt.Sprintf("Failed to get invite token: %v", err))
 		return false, errs.NewUnexpectedError()
 	}
 	if inviteToken == nil {
-		logs.Error("token not found")
-		return false, errs.NewNotFoundError("token not found")
+		logs.Error("invite token not found")
+		return false, errs.NewNotFoundError("invite token not found")
 	}
 	// create RoleName
 	var newRole = models.RoleInOrganization{

@@ -119,7 +119,7 @@ func (h *OrganizationHandler) ListIndustries(c *fiber.Ctx) error {
 // @Router /orgs/get/{id} [get]
 func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 
-	orgID, err := c.ParamsInt("id")
+	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
@@ -182,7 +182,7 @@ func (h *OrganizationHandler) UpdateOrganization(c *fiber.Ctx) error {
 		return err
 	}
 
-	orgID, err := c.ParamsInt("id")
+	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}
@@ -244,7 +244,6 @@ func (h *OrganizationHandler) UpdateOrganizationStatus(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Organization status updated successfully"})
 }
 
-
 // @Summary Delete an organization by ID
 // @Description Delete an organization by ID
 // @Tags Organization
@@ -257,7 +256,7 @@ func (h *OrganizationHandler) UpdateOrganizationStatus(c *fiber.Ctx) error {
 // @Router /orgs/delete/{id} [delete]
 func (h *OrganizationHandler) DeleteOrganization(c *fiber.Ctx) error {
 
-	orgID, err := c.ParamsInt("id")
+	orgID, err := c.ParamsInt("orgID")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "organization id is required"})
 	}

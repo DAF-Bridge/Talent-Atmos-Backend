@@ -30,8 +30,8 @@ func NewRoleRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, mail 
 	app.Post("/updated-enforcer", roleHandler.UpdateRoleToEnforcer)
 
 	rbac := middleware.NewRBACMiddleware(enforcer)
-	app.Get("/my-orgs", authMiddleware, roleHandler.GetDomainsByUser)
-	role := app.Group("/roles/orgs/:orgID", authMiddleware)
+	app.Get("/admin/my-orgs", authMiddleware, roleHandler.GetDomainsByUser)
+	role := app.Group("admin/roles/orgs/:orgID", authMiddleware)
 	role.Get("/", rbac.EnforceMiddleware("Role", "read"), roleHandler.GetRolesForUserInDomain)
 	role.Put("/", rbac.EnforceMiddleware("Role", "edit"), roleHandler.UpdateRolesForUserInDomain)
 	role.Delete("/", rbac.EnforceMiddleware("Role", "remove"), roleHandler.DeleteMember)
