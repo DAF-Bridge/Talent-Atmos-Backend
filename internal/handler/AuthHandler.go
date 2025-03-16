@@ -25,17 +25,6 @@ type SignUpHandlerRequest struct {
 	Phone    string `json:"phone"`
 }
 
-// SignUp godoc
-// @Summary      Sign up a new user
-// @Description  Create a new user in the system
-// @Tags         Authentication
-// @Accept       json
-// @Produce      json
-// @Param        body  body  SignUpHandlerRequest  true  "Sign Up Request Body"
-// @Success      201   {object}  fiber.Map "message: Sign up successful" "OK"
-// @Failure      400   {object}  fiber.Map "Bad Request - Invalid input"
-// @Failure      500   {object}  fiber.Map "Internal Server Error - Internal server error"
-// @Router       /signup [post]
 func (a *AuthHandler) SignUp(c *fiber.Ctx) error {
 	// parse request
 	var req SignUpHandlerRequest
@@ -107,6 +96,59 @@ func (a *AuthHandler) LogOut(c *fiber.Ctx) error {
 		SameSite: fiber.CookieSameSiteNoneMode,
 		Path:     "/",                        // important: must match the path used when setting
 		Domain:   os.Getenv("COOKIE_DOMAIN"), // Domain for which the cookie is valid
+	})
+	// Optionally, redirect to a logout page or send a response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Logout successful"})
+}
+
+// ----------------------------
+// 			Admin
+// ----------------------------
+
+func (a *AuthHandler) LogInAdmin(c *fiber.Ctx) error {
+	// parse request
+	var req struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// Generate token
+	token, err := a.authService.LogIn(req.Email, req.Password)
+	if err != nil {
+		logs.Error(err.Error())
+		return errs.SendFiberError(c, err)
+	}
+
+	// Set the JWT token in a cookie after redirect
+	c.Cookie(&fiber.Cookie{
+		Name:     "authToken",
+		Value:    token,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7), // Set expiration for 7 days
+		HTTPOnly: true,                               // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",  // Only send the cookie over HTTPS in production
+		SameSite: fiber.CookieSameSiteNoneMode,       // Allow cross-site cookie sharing
+		Path:     "/",                                // Path for which the cookie is valid
+		Domain:   os.Getenv("COOKIE_ADMIN_DOMAIN"),   // Domain for which the cookie is valid
+	})
+
+	// Send response and return nil to ensure proper handling
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Login successful"})
+}
+
+func (a *AuthHandler) LogOutAdmin(c *fiber.Ctx) error {
+	// Delete JWT cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     "authToken",
+		Value:    "",                             // empty value
+		Expires:  time.Now().Add(-1 * time.Hour), // set expiry in the past
+		HTTPOnly: true,
+		Secure:   os.Getenv("ENVIRONMENT") != "dev",
+		SameSite: fiber.CookieSameSiteNoneMode,
+		Path:     "/",                              // important: must match the path used when setting
+		Domain:   os.Getenv("COOKIE_ADMIN_DOMAIN"), // Domain for which the cookie is valid
 	})
 	// Optionally, redirect to a logout page or send a response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Logout successful"})

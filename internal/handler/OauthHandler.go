@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"os"
 	"time"
+
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/initializers"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
@@ -62,6 +63,66 @@ func (h *OauthHandler) GoogleCallback(c *fiber.Ctx) error {
 
 	// Use the token to fetch user info
 	client := initializers.OauthConfig.Client(c.Context(), token)
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to fetch user info: %v", err))
+		return c.Status(fiber.StatusBadRequest).SendString("Failed to fetch user info: " + err.Error())
+	}
+	defer resp.Body.Close()
+
+	// Parse user info (replace with actual user struct as needed)
+	var userInfo struct {
+		Name      string `json:"name"`
+		Email     string `json:"email"`
+		Provider  string `json:"provider"`
+		UserID    string `json:"id"`
+		AvatarURL string `json:"picture"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		logs.Error(fmt.Sprintf("Failed to parse user info: %v", err))
+		return c.Status(fiber.StatusBadRequest).SendString("Failed to parse user info: " + err.Error())
+	}
+
+	// create or update a user record in your DB and Generate token
+	tokenString, err := h.oauthService.AuthenticateUser(
+		userInfo.Name,
+		userInfo.Email,
+		"google",
+		userInfo.UserID,
+	)
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to authenticate user: %v", err))
+		return errs.SendFiberError(c, err)
+	}
+
+	// Set the JWT token in a cookie after redirect
+	c.Cookie(&fiber.Cookie{
+		Name:     "authToken",
+		Value:    tokenString,                              // Token from the auth service
+		Expires:  time.Now().Add(time.Hour * 24 * 7),       // Set expiration for 7 days
+		HTTPOnly: true,                                     // Prevent JavaScript access to the cookie
+		Secure:   os.Getenv("ENVIRONMENT") == "production", // Only send the cookie over HTTPS in production
+		SameSite: "None",
+		Path:     "/", // Path for which the cookie is valid
+	})
+
+	// return token as response
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "OAuth login successful"})
+}
+
+func (h *OauthHandler) AdminGoogleCallback(c *fiber.Ctx) error {
+	// Get and validate required parameters
+	code := c.Query("code")
+
+	// Exchange the authorization code for an access token
+	token, err := initializers.OauthConfigAdmin.Exchange(context.Background(), code)
+	if err != nil {
+		logs.Error(fmt.Sprintf("Failed to exchange token: %v", err))
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Failed to exchange token: %v", err))
+	}
+
+	// Use the token to fetch user info
+	client := initializers.OauthConfigAdmin.Client(c.Context(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
 		logs.Error(fmt.Sprintf("Failed to fetch user info: %v", err))
