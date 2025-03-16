@@ -5,7 +5,6 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/infrastructure"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/repository"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/middleware"
 	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/opensearch-project/opensearch-go"
@@ -17,7 +16,8 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *
 	eventRepo := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepo, db, es, s3)
 	eventHandler := handler.NewEventHandler(eventService)
-	_ = middleware.NewRBACMiddleware(enforcer)
+	//rbac := middleware.NewRBACMiddleware(enforcer)
+	//enforceMiddlewareWithEvent := rbac.EnforceMiddlewareWithResources("Event")
 
 	event := app.Group("/orgs/:orgID/events")
 
@@ -32,11 +32,11 @@ func NewEventRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *
 	event.Get("/", eventHandler.ListEventsByOrgID)
 	event.Get("/count", eventHandler.GetNumberOfEvents)
 	app.Get("/events-paginate", eventHandler.EventPaginate)
-	event.Post("/create", middleware.AuthMiddleware(jwtSecret), eventHandler.CreateEvent)
+	//event.Post("/create", middleware.AuthMiddleware(jwtSecret), enforceMiddlewareWithEvent("create"), eventHandler.CreateEvent)
 	app.Get("/events", eventHandler.ListEvents)
 	app.Get("/events/:id", eventHandler.GetEventByID)
 	event.Get("/:id", eventHandler.GetEventByIDwithOrgID)
-	event.Put("/:id", middleware.AuthMiddleware(jwtSecret), eventHandler.UpdateEvent)
-	event.Delete("/:id", middleware.AuthMiddleware(jwtSecret), eventHandler.DeleteEvent)
-	event.Get("/", middleware.AuthMiddleware(jwtSecret), eventHandler.ListEventsByOrgID)
+	//event.Put("/:id", middleware.AuthMiddleware(jwtSecret), enforceMiddlewareWithEvent("update"), eventHandler.UpdateEvent)
+	//event.Delete("/:id", middleware.AuthMiddleware(jwtSecret), enforceMiddlewareWithEvent("delete"), eventHandler.DeleteEvent)
+	//event.Get("/", middleware.AuthMiddleware(jwtSecret), eventHandler.ListEventsByOrgID)
 }

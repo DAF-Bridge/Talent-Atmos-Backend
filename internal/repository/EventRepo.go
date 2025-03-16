@@ -4,6 +4,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type eventRepository struct {
@@ -169,23 +170,46 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	tx := r.db.Begin()
 
 	var existingEvent models.Event
-	err := tx.Preload("Categories").Preload("ContactChannels").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
-	if err != nil {
+	if err := tx.Preload("Categories").Preload("ContactChannels").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	if err := tx.Model(&existingEvent).Association("Categories").Clear(); err != nil {
+	if err := tx.Exec("DELETE FROM category_event WHERE event_id = ?", existingEvent.ID).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
 	if err := tx.Model(&existingEvent).Association("Categories").Replace(event.Categories); err != nil {
-        tx.Rollback()
-        return nil, err
-    }
+		tx.Rollback()
+		return nil, err
+	}
 
-	if err := tx.Model(&existingEvent).Updates(event).Error; err != nil {
+	var contactChannels models.ContactChannel
+	if err := tx.Model(&contactChannels).Where("event_id = ?", eventID).Delete(&contactChannels).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if event.ContactChannels != nil && len(event.ContactChannels) > 0 {
+		if err := tx.Model(&contactChannels).Create(event.ContactChannels).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if err := tx.Model(&existingEvent).Save(event).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Fetch the updated event
+	err := tx.Preload("Organization").
+		Preload("ContactChannels").
+		Preload("Categories").
+		Where(" id = ?", eventID).
+		First(&existingEvent).Error
+	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -193,14 +217,6 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
-
-	// Fetch the updated event
-	err = r.db.Preload("Categories").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
 	return &existingEvent, nil
 }
 
@@ -214,9 +230,33 @@ func (r eventRepository) UpdateEventPicture(orgID uint, eventID uint, picURL str
 
 func (r eventRepository) Delete(orgID uint, eventID uint) error {
 	// Soft delete
-	result := r.db.Where("organization_id = ? AND id = ?", orgID, eventID).Delete(&models.Event{})
-	return utils.GormErrorAndRowsAffected(result)
+	tx := r.db.Begin()
 
+	var contactChannels models.ContactChannel
+
+	if err := tx.Model(&contactChannels).Where("event_id = ?", eventID).Delete(&contactChannels).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	//clear all category_event
+	if err := tx.Exec("DELETE FROM category_event WHERE event_id = ?", eventID).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	event := new(models.Event)
+	result := tx.Model(event).Select(clause.Associations).Where(" id = ?", eventID).Delete(event)
+	if err := utils.GormErrorAndRowsAffected(result); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r eventRepository) CountsByOrgID(orgID uint) (int64, error) {

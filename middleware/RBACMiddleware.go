@@ -29,7 +29,7 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 		// Access the user_id
 		sub, ok := userData["user_id"].(string) // JSON numbers are parsed as string
 		if !ok {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id 2 uuid"})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user_id uuid"})
 		}
 
 		// Access the organization
@@ -45,11 +45,11 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 		ok, err = r.enforcer.Enforce(sub, fmt.Sprintf("%d", orgID), resources, act)
 
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "Error occurred when authorizing user"})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error occurred when authorizing user"})
 
 		}
 		if !ok {
-			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"msg": "You are not authorized"})
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "You are not authorized"})
 
 		}
 		return c.Next()

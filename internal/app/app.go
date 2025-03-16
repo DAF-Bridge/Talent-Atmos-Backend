@@ -37,6 +37,7 @@ func init() {
 	// initializers.SyncDB()
 	initializers.SetupGoth()
 	initializers.InitOAuth()
+	initializers.InitAdminOAuth()
 }
 
 // Start function
@@ -80,9 +81,9 @@ func Start() {
 
 	// Apply the CORS middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     os.Getenv("BASE_EXTERNAL_URL"), // Allow requests from this origin
+		AllowOrigins:     os.Getenv("CORS_ORIGIN_URL"), // Allow requests from this origin
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Set-Cookie",
-		AllowMethods:     "GET, POST,  PUT, DELETE",
+		AllowMethods:     "GET, POST,  PUT, DELETE, PATCH",
 		AllowCredentials: true, // Allow credentials (cookies) to be sent
 	}))
 
@@ -102,14 +103,16 @@ func Start() {
 	// Define routes for Users
 	api.NewUserRouter(app, initializers.DB, initializers.S3, jwtSecret)
 
+	// Define routes for Roles
+	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
+
 	// Define routes for Organizations && Organization Open Jobs
+	api.NewOrganizationAdminRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 
 	// Define routes for Events
+	api.NewEventAdminRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
 	api.NewEventRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
-
-	// Define routes for Roles
-	api.NewRoleRouter(app, initializers.DB, initializers.Enforcer, initializers.DialerMail, jwtSecret, initializers.InviteBodyTemplate, initializers.BaseCallbackInviteURL)
 
 	// Define routes for Locations
 	api.NewLocationMapRouter(app, initializers.DB)

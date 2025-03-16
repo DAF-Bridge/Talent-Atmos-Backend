@@ -22,9 +22,9 @@ func SetupInviteMail() {
 		log.Fatalf("Error loading template: %v", err)
 	}
 	InviteBodyTemplate = inviteBodyTemplate
-	baseUrl := os.Getenv("BASE_EXTERNAL_URL")
+	baseUrl := os.Getenv("ADMIN_EXTERNAL_URL")
 	if baseUrl == "" {
-		log.Fatal("BASE_EXTERNAL_URL is not set")
+		log.Fatal("ADMIN_EXTERNAL_URL is not set")
 	}
 	BaseCallbackInviteURL = baseUrl + "/invite-callback?token="
 	logs.Info("Successfully Setup Invite Mail")

@@ -6,7 +6,6 @@ import (
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
@@ -43,10 +42,10 @@ func newEventShortResponse(event dto.EventResponses) EventShortResponse {
 
 // newListEventShortResponse converts a list of EventResponses to a list of EventShortResponse
 func newListEventShortResponse(events []dto.EventResponses) []EventShortResponse {
-	listEvent := make([]EventShortResponse, len(events))
+	listEvent := make([]EventShortResponse, 0)
 
-	for i, event := range events {
-		listEvent[i] = newEventShortResponse(event)
+	for _, event := range events {
+		listEvent = append(listEvent, newEventShortResponse(event))
 	}
 
 	return listEvent
@@ -366,8 +365,7 @@ func (h EventHandler) SearchEvents(c *fiber.Ctx) error {
 	page := 1
 	Offset := 12
 
-	var query models.SearchQuery
-
+	var query dto.SearchQuery
 	if err := c.QueryParser(&query); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid query parameters",

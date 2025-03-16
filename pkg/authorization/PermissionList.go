@@ -9,17 +9,17 @@ var permissionsList [][]string
 func init() {
 	allRole = []string{"moderator", "owner", "system_admin"}
 	moderatorPermissionsMap := map[string][]string{
-		"Event":               {"read"},
-		"Organization":        {"delete", "update"},
-		"OrganizationContact": {"delete", "update", "create"},
-		"OrganizationOpenJob": {"delete", "update", "create"},
+		"Event":               {"delete", "update", "create", "read"},
+		"Organization":        {"update", "read"},
+		"OrganizationContact": {"delete", "update", "create", "read"},
+		"OrganizationOpenJob": {"delete", "update", "create", "read"},
 		"Role":                {"read"},
 	}
 	moderatorPermissionsList := createCasbinPermissionsList("moderator", moderatorPermissionsMap)
 	permissionsList = append(permissionsList, moderatorPermissionsList...)
 
 	ownerPermissionsMap := map[string][]string{
-		"Organization": {"create"},
+		"Organization": {"delete"},
 		"Role":         {"remove", "edit", "invite", "read"},
 	}
 	mergeMapSlice(ownerPermissionsMap, moderatorPermissionsMap)

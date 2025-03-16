@@ -5,15 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
-	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/opensearch-project/opensearch-go"
 )
 
-func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int, offset int) (dto.SearchEventResponse, error) {
+func SearchEvents(client *opensearch.Client, query dto.SearchQuery, page int, offset int) (dto.SearchEventResponse, error) {
 	searchQuery := buildSearchQuery(query)
 
 	queryBody, err := json.Marshal(searchQuery)
@@ -29,7 +29,6 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 	)
 	if err != nil {
 		logs.Error(fmt.Sprintf("failed to execute search on: %v", err))
-		// return nil, err
 		return dto.SearchEventResponse{}, err
 	}
 	defer res.Body.Close()
@@ -40,7 +39,6 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	if !ok {
 		logs.Error("No search results found")
-		// return nil,
 		return dto.SearchEventResponse{}, nil
 	}
 
@@ -75,7 +73,7 @@ func SearchEvents(client *opensearch.Client, query models.SearchQuery, page int,
 	return responses, nil
 }
 
-func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
+func buildSearchQuery(query dto.SearchQuery) map[string]interface{} {
 	startDate, endDate := utils.GetDateRange(query.DateRange)
 
 	// Construct the query map based on the filters
@@ -102,14 +100,15 @@ func buildSearchQuery(query models.SearchQuery) map[string]interface{} {
 			},
 		})
 	}
-	if query.Category == "all" {
+	if query.Categories == "all" {
 		must = append(must, map[string]interface{}{
 			"match_all": map[string]interface{}{},
 		})
 	} else {
+		categories := strings.Split(query.Categories, ",")
 		must = append(must, map[string]interface{}{
-			"match": map[string]interface{}{
-				"category": query.Category,
+			"terms": map[string]interface{}{
+				"categories.label.keyword": categories,
 			},
 		})
 	}

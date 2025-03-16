@@ -12,7 +12,7 @@ import (
 type EventService interface {
 	NewEvent(orgID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) error
 	SyncEvents() error
-	SearchEvents(query models.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error)
+	SearchEvents(query dto.SearchQuery, page int, Offset int) (dto.SearchEventResponse, error)
 	GetAllEvents() ([]dto.EventResponses, error)
 	GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses, error)
 	GetEventByID(eventID uint) (*dto.EventResponses, error)

@@ -144,13 +144,13 @@ func ConnectToCasbin() {
 	// Initialize  authorization adapter
 	adapter, err := gormadapter.NewAdapterByDB(DB)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("failed to initialize authorization adapter: %v", err))
+		log.Fatalf("failed to initialize authorization adapter: %v", err)
 	}
 
 	// Load model configuration file and policy store adapter
 	Enforcer, err = casbin.NewEnforcer("./pkg/authorization/rbac_model.conf", adapter)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("failed to create authorization enforcer: %v", err))
+		log.Fatalf("failed to create authorization enforcer: %v", err)
 	}
 	Enforcer.EnableAutoSave(true)
 	//if err := Enforcer.LoadPolicy(); err != nil {
@@ -161,7 +161,7 @@ func ConnectToCasbin() {
 		logs.Info(fmt.Sprintf("Failed to add policies: %v", err))
 	}
 	if !ok {
-		logs.Info(fmt.Sprintf("Failed to add policies"))
+		logs.Info("Failed to add policies")
 	}
 	logs.Info("Successfully connected to Casbin!")
 

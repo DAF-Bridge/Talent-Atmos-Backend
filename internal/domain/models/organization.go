@@ -71,6 +71,7 @@ type Organization struct {
 	Country              string                `gorm:"type:varchar(255)" db:"country"`
 	Latitude             float64               `gorm:"type:decimal(10,8)" db:"latitude"`  // Geographic latitude (stored as string for precision)
 	Longitude            float64               `gorm:"type:decimal(11,8)" db:"longitude"` // Geographic longitude (stored as string for precision)
+	Status               string                `gorm:"type:varchar(50);default:'pending'" db:"status"`
 	OrganizationContacts []OrganizationContact `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgOpenJobs          []OrgOpenJob          `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
 	OrgMembers           []RoleInOrganization  `gorm:"foreignKey:OrganizationID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"`
@@ -113,10 +114,10 @@ type OrgOpenJob struct {
 	Qualifications string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
 	Quantity       int            `json:"quantity" example:"1"`
-	RegisterLink   string         `gorm:"type:varchar(255)" db:"register_link"`
+	RegisterLink   string         `gorm:"type:text" db:"register_link"`
 	Status         string         `gorm:"type:varchar(50);default:'draft'" json:"status" example:"draft"`
 	Prerequisites  []Prerequisite `gorm:"foreignKey:JobID;constraint:onUpdate:CASCADE,onDelete:CASCADE;"` // Job prerequisites
-	Categories     []Category     `gorm:"many2many:category_job;"`
+	Categories     []Category     `gorm:"many2many:category_job;constraint:OnDelete:CASCADE;"`
 }
 
 type Prerequisite struct {

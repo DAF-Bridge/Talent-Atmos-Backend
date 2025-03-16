@@ -64,15 +64,18 @@ type EventMapResponses struct {
 	Latitude     float64                         `json:"latitude"`
 	Longitude    float64                         `json:"longitude"`
 	PicUrl       string                          `json:"picUrl"`
-	Category     []string                        `json:"category"`
+	Category     []CategoryResponses             `json:"categories"`
 	Price        string                          `json:"price"`
 	Organization OrganizationInEventMapResponses `json:"organization"`
 }
 
 func BuildEventMapResponses(event models.Event) EventMapResponses {
-	categories := make([]string, 0)
+	var categories []CategoryResponses
 	for _, category := range event.Categories {
-		categories = append(categories, category.Name)
+		categories = append(categories, CategoryResponses{
+			Value: category.ID,
+			Label: category.Name,
+		})
 	}
 
 	organization := BuildOrganizationInEventMapResponses(event.Organization)

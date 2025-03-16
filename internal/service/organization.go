@@ -18,6 +18,7 @@ type OrganizationService interface {
 	GetOrganizationByID(orgID uint) (*dto.OrganizationResponse, error)
 	GetPaginateOrganization(page uint) ([]dto.OrganizationResponse, error)
 	UpdateOrganization(orgID uint, org dto.OrganizationRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader, file2 multipart.File, file2Header *multipart.FileHeader) (*dto.OrganizationResponse, error)
+	UpdateOrganizationStatus(orgID uint, status string) error
 	UpdateOrganizationBackgroundPicture(id uint, picURL string) error
 	UpdateOrganizationPicture(id uint, picURL string) error
 	DeleteOrganization(orgID uint) error
@@ -33,7 +34,7 @@ type OrganizationContactService interface {
 
 type OrgOpenJobService interface {
 	SyncJobs() error
-	SearchJobs(query models.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
+	SearchJobs(query dto.SearchJobQuery, page int, Offset int) (dto.SearchJobResponse, error)
 	NewJob(orgID uint, dto dto.JobRequest) error
 	ListAllJobs() ([]dto.JobResponses, error)
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
@@ -42,7 +43,7 @@ type OrgOpenJobService interface {
 	GetJobPaginate(page uint) ([]dto.JobResponses, error)
 	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
-	RemoveJob(orgID uint, jobID uint) error
+	RemoveJob(jobID uint) error
 	CountsByOrgID(orgID uint) (int64, error)
 	NewPrerequisite(jobID uint, dto dto.PrerequisiteRequest) error
 	GetPrerequisiteByID(prerequisiteID uint) (*dto.PrerequisiteResponses, error)
@@ -212,7 +213,7 @@ func ConvertToPrerequisiteRequest(jobID uint, prerequisite dto.PrerequisiteReque
 
 func ConvertToPrerequisiteResponse(prerequisite models.Prerequisite) dto.PrerequisiteResponses {
 	return dto.PrerequisiteResponses{
-		Value: uint(prerequisite.ID),
+		Value: prerequisite.ID,
 		Title: prerequisite.Title,
 		Link:  prerequisite.Link,
 	}

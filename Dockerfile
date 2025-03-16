@@ -25,6 +25,8 @@ COPY . .
 
 ENV CGO_ENABLED=0 
 
+ENV ENVIRONMENT=production
+
 # Build the Go app
 RUN go build -ldflags="-s -w" -v -o /usr/local/bin/app ./
 
