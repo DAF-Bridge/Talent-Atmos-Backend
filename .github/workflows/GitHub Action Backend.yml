@@ -195,7 +195,7 @@ jobs:
         run: echo "Docker image successfully pushed to GitHub Container Registry"
 
   notify:
-    needs: [unit_test, integration_test, build, container_build_push]
+    needs: [unit_test, integration_test, build]
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord notification
