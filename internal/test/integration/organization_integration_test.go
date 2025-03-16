@@ -81,10 +81,15 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 		organizationService := service.NewOrganizationService(organizationRepo, casbinRoleRepository, initializers.S3)
 		organizationHandler := handler.NewOrganizationHandler(organizationService)
 
-		app := fiber.New()
-		app.Get("/orgs/get/:id", middleware.AuthMiddleware("testSecret"), organizationHandler.GetOrganizationByID)
+		// rbac := middleware.NewRBACMiddleware(initializers.Enforcer)
+		// enforceMiddlewareWithOrganization := rbac.EnforceMiddlewareWithResources("Organization")
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/orgs/get/%v", organizationID), nil)
+		app := fiber.New()
+		org := app.Group("/admin/orgs", middleware.AuthMiddleware(jwtSecret))
+		// app.Get("/orgs/get/:id", middleware.AuthMiddleware("testSecret"), organizationHandler.GetOrganizationByID)
+		org.Get("/get/:orgID", organizationHandler.GetOrganizationByID)
+
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/admin/orgs/get/%v", organizationID), nil)
 		req.AddCookie(&http.Cookie{
 			Name:     "authToken",
 			Value:    mockToken,
@@ -157,10 +162,15 @@ func TestOrganizationHandlerIntegrationService(t *testing.T) {
 		jobSrv := service.NewOrgOpenJobService(jobRepo, orgRepo, preqRepo, test.DB_TEST, initializers.ESClient, initializers.S3)
 		jobHandler := handler.NewOrgOpenJobHandler(jobSrv)
 
-		app := fiber.New()
-		app.Get("/orgs/:orgID/jobs/get/:id", middleware.AuthMiddleware("testSecret"), jobHandler.GetOrgOpenJobByIDwithOrgID)
+		// rbac := middleware.NewRBACMiddleware(initializers.Enforcer)
+		// enforceMiddlewareWithOpenJob := rbac.EnforceMiddlewareWithResources("OrganizationOpenJob")
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/orgs/%v/jobs/get/%v", organizationID, jobID), nil)
+		app := fiber.New()
+		org := app.Group("/admin/orgs", middleware.AuthMiddleware(jwtSecret))
+		// app.Get("/orgs/:orgID/jobs/get/:id", middleware.AuthMiddleware("testSecret"), jobHandler.GetOrgOpenJobByIDwithOrgID)
+		org.Get("/:orgID/jobs/get/:id", jobHandler.GetOrgOpenJobByIDwithOrgID)
+
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/admin/orgs/%v/jobs/get/%v", organizationID, jobID), nil)
 		req.AddCookie(&http.Cookie{
 			Name:     "authToken",
 			Value:    mockToken,
