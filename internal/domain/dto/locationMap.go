@@ -64,7 +64,7 @@ type EventMapResponses struct {
 	Latitude     float64                         `json:"latitude"`
 	Longitude    float64                         `json:"longitude"`
 	PicUrl       string                          `json:"picUrl"`
-	Category     []CategoryResponses             `json:"category"`
+	Category     []CategoryResponses             `json:"categories"`
 	Price        string                          `json:"price"`
 	Organization OrganizationInEventMapResponses `json:"organization"`
 }
