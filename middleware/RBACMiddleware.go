@@ -45,11 +45,11 @@ func (r *RBACMiddleware) EnforceMiddleware(resources string, act string) fiber.H
 		ok, err = r.enforcer.Enforce(sub, fmt.Sprintf("%d", orgID), resources, act)
 
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": "Error occurred when authorizing user"})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error occurred when authorizing user"})
 
 		}
 		if !ok {
-			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"msg": "You are not authorized"})
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "You are not authorized"})
 
 		}
 		return c.Next()
