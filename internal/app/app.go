@@ -49,7 +49,7 @@ func triggerJenkins() {
 
 	auth := base64.StdEncoding.EncodeToString([]byte(jenkinsUsername + ":" + jenkinsToken))
 
-	cmd := exec.Command("curl", "-X", "POST", fmt.Sprintf("%v/job/Auto%%20Pull%%20GHCR/build", jenkinsURL, "-H", "Authorization: Basic "+auth))
+	cmd := exec.Command("curl", "-X", "POST", fmt.Sprintf("%v/job/Auto%%20Pull%%20GHCR/build", jenkinsURL), "-H", "Authorization: Basic "+auth)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println("Failed to trigger Jenkins:", err)
