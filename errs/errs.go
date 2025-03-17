@@ -57,6 +57,13 @@ func NewBadRequestError(message string) error {
 	}
 }
 
+func NewForbiddenError(message string) error {
+	return AppError{
+		Code:    http.StatusForbidden,
+		Message: message,
+	}
+}
+
 func NewUnauthorizedError(message string) error {
 	return AppError{
 		Code:    http.StatusUnauthorized,

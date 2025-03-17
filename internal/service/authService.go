@@ -108,6 +108,12 @@ func (s *AuthService) LogIn(email, password string) (string, error) {
 		return "", errs.NewUnauthorizedError("invalid email or password")
 	}
 
+	// Check if user is not login with local Username and Password
+	if user.Provider != models.ProviderLocal || user.Password == nil {
+		logs.Error("User is not registered with local username and password")
+		return "", errs.NewForbiddenError("User is not registered with Username and Password. Please log in using the other method.")
+	}
+
 	passwordStr := *user.Password // Convert *string to string
 
 	// Check Password
