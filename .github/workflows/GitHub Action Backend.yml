@@ -194,8 +194,16 @@ jobs:
         if: ${{ steps.container_build_push.outcome == 'success' }}
         run: echo "Docker image successfully pushed to GitHub Container Registry"
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: container_build_push
+    steps:
+      - name: Notify Jenkins
+        run: |
+          curl -X POST ${{ secrets.RASPBERRY_PI_IP }}/trigger-jenkins
+
   notify:
-    needs: [unit_test, integration_test, build, container_build_push]
+    needs: [unit_test, integration_test, build]
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord notification
