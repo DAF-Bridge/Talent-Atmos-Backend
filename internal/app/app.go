@@ -1,10 +1,12 @@
 package app
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/errs"
 
@@ -38,6 +40,22 @@ func init() {
 	initializers.SetupGoth()
 	initializers.InitOAuth()
 	initializers.InitAdminOAuth()
+}
+
+func triggerJenkins() {
+	jenkinsURL := os.Getenv("JENKINS_URL")
+	jenkinsToken := os.Getenv("JENKINS_API_TOKEN")
+	jenkinsUsername := os.Getenv("JENKINS_USERNAME")
+
+	auth := base64.StdEncoding.EncodeToString([]byte(jenkinsUsername + ":" + jenkinsToken))
+
+	cmd := exec.Command("curl", "-X", "POST", fmt.Sprintf("%v/job/Auto%%20Pull%%20GHCR/build", jenkinsURL, "-H", "Authorization: Basic "+auth))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Failed to trigger Jenkins:", err)
+		return
+	}
+	fmt.Println("Jenkins triggered:", string(output))
 }
 
 // Start function
@@ -96,6 +114,12 @@ func Start() {
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET is not set")
 	}
+
+	// Jenkins
+	app.Post("/trigger-jenkins", func(c *fiber.Ctx) error {
+		go triggerJenkins()
+		return c.SendString("Triggered Jenkins!")
+	})
 
 	// Define routes for Auth
 	api.NewAuthRouter(app, initializers.DB, jwtSecret)
