@@ -6,7 +6,7 @@ FROM golang:1.23.4-alpine AS builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates curl
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
