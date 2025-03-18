@@ -6,6 +6,7 @@ import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/service"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/dto"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/logs"
 	"github.com/gofiber/fiber/v2"
@@ -148,4 +149,96 @@ func (h *UserHandler) UploadProfilePicture(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"picUrl": picURL})
+}
+
+type UserPreferenceHandler struct {
+	service service.UserPreferenceService
+}
+
+func NewUserPreferenceHandler(service service.UserPreferenceService) *UserPreferenceHandler {
+	return &UserPreferenceHandler{service: service}
+}
+
+func (h *UserPreferenceHandler) CreateUserPreference(c *fiber.Ctx) error {
+	var userPreference dto.UserPreferenceRequest
+	if err := utils.ParseJSONAndValidate(c, &userPreference); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	user, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	parsedUserID, err := uuid.Parse(user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	if err := h.service.CreateUserPreference(parsedUserID, userPreference); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "User preference created successfully"})
+}
+
+func (h *UserPreferenceHandler) GetUserPreferenceByUserID(c *fiber.Ctx) error {
+	user, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	parsedUserID, err := uuid.Parse(user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	userPreference, err := h.service.GetUserPreference(parsedUserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userPreference)
+}
+
+func (h *UserPreferenceHandler) UpdateUserPreference(c *fiber.Ctx) error {
+	var userPreference dto.UserPreferenceRequest
+	if err := utils.ParseJSONAndValidate(c, &userPreference); err != nil {
+		return err
+	}
+
+	user, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	parsedUserID, err := uuid.Parse(user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	updatedUserPreference, err := h.service.UpdateUserPreference(parsedUserID, userPreference)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedUserPreference)
+}
+
+func (h *UserPreferenceHandler) DeleteUserPreference(c *fiber.Ctx) error {
+	user, err := utils.ExtractJWTClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	parsedUserID, err := uuid.Parse(user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
+	}
+
+	if err := h.service.DeleteUserPreference(parsedUserID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User preference deleted successfully"})
 }

@@ -462,13 +462,6 @@ func NewOrgOpenJobHandler(service service.OrgOpenJobService) *OrgOpenJobHandler 
 // @Router /orgs/{orgID}/jobs/create [post]
 func (h *OrgOpenJobHandler) CreateOrgOpenJob(c *fiber.Ctx) error {
 	var req dto.JobRequest
-
-	// Parse JSON from the "job" form field
-	// jobData := c.FormValue("job")
-	// if err := json.Unmarshal([]byte(jobData), &req); err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid JSON format"})
-	// }
-
 	// validate request
 	if err := utils.ParseJSONAndValidate(c, &req); err != nil {
 		return err
@@ -628,7 +621,6 @@ func (h *OrgOpenJobHandler) UpdateOrgOpenJob(c *fiber.Ctx) error {
 	// 	fileHeader = nil
 	// }
 
-	// updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req, c.Context(), file, fileHeader)
 	updatedJob, err := h.service.UpdateJob(uint(orgID), uint(jobID), req)
 	if err != nil {
 		return errs.SendFiberError(c, err)

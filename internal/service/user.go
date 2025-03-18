@@ -21,6 +21,13 @@ type UserService interface {
 	UpdateUserPicture(ctx context.Context, userID uuid.UUID, file multipart.File, fileHeader *multipart.FileHeader) (string, error)
 }
 
+type UserPreferenceService interface {
+	CreateUserPreference(userID uuid.UUID, req dto.UserPreferenceRequest) error
+	GetUserPreference(userID uuid.UUID) (dto.UserPreferenceResponse, error)
+	UpdateUserPreference(userID uuid.UUID, req dto.UserPreferenceRequest) (dto.UserPreferenceResponse, error)
+	DeleteUserPreference(userID uuid.UUID) error
+}
+
 func convertToUserResponses(user *models.User) *dto.UserResponses {
 	return &dto.UserResponses{
 		ID:        user.ID,
