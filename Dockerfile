@@ -6,7 +6,7 @@ FROM golang:1.23.4-alpine AS builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-RUN apk --no-cache add ca-certificates curl
+RUN apk --no-cache add ca-certificates
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -30,10 +30,11 @@ ENV ENVIRONMENT=production
 # Build the Go app
 RUN go build -ldflags="-s -w" -v -o /usr/local/bin/app ./
 
-# Empty image
-FROM scratch
+FROM alpine:latest
 
 WORKDIR /app
+
+RUN apk --no-cache add ca-certificates curl
 
 COPY --from=builder /usr/local/bin/app /usr/local/bin/app
 
