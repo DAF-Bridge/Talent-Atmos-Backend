@@ -29,15 +29,15 @@ type EventContactChannelsResponses struct {
 type NewEventRequest struct {
 	Name            string                           `json:"name" example:"builds IDEA 2024" validate:"required"`
 	StartDate       string                           `json:"startDate" example:"2025-01-25" validate:"required"`
-	EndDate         string                           `json:"endDate" example:"2025-01-22" validate:"required"`
+	EndDate         string                           `json:"endDate" example:"2025-01-22"`
 	StartTime       string                           `json:"startTime" example:"08:00:00" validate:"required"`
 	EndTime         string                           `json:"endTime" example:"17:00:00" validate:"required"`
 	Content         string                           `json:"content" example:"{\"html\": \"<h1>Hello</h1>\"}" validate:"required"`
-	Latitude        float64                          `json:"latitude" example:"13.7563" validate:"required"`
-	Longitude       float64                          `json:"longitude" example:"100.5018" validate:"required"`
+	Latitude        float64                          `json:"latitude" example:"13.7563"`
+	Longitude       float64                          `json:"longitude" example:"100.5018"`
 	LocationName    string                           `json:"locationName" example:"Bangkok" validate:"required"`
-	Province        string                           `json:"province" example:"Chiang Mai" validate:"required"`
-	Country         string                           `json:"country" example:"Thailand" validate:"required"`
+	Province        string                           `json:"province" example:"Chiang Mai"`
+	Country         string                           `json:"country" example:"Thailand"`
 	LocationType    string                           `json:"locationType" example:"onsite" validate:"required"`
 	Audience        string                           `json:"audience" example:"general" validate:"required"`
 	PriceType       string                           `json:"priceType" example:"free" validate:"required"`
