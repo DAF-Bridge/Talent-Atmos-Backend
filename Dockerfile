@@ -30,10 +30,11 @@ ENV ENVIRONMENT=production
 # Build the Go app
 RUN go build -ldflags="-s -w" -v -o /usr/local/bin/app ./
 
-# Empty image
-FROM scratch
+FROM alpine:latest
 
 WORKDIR /app
+
+RUN apk --no-cache add ca-certificates curl
 
 COPY --from=builder /usr/local/bin/app /usr/local/bin/app
 

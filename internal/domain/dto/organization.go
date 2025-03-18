@@ -123,9 +123,9 @@ type JobRequest struct {
 	Description    string                `json:"description" example:"This is a description" validate:"required"`
 	Qualifications string                `json:"qualifications" example:"Bachelor's degree in Computer Science" validate:"required"`
 	Quantity       int                   `json:"quantity" example:"1" validate:"required"`
-	Salary         float64               `json:"salary" example:"30000" validate:"required"`
-	Province       string                `json:"province" example:"Chiang Mai" validate:"required"`
-	Country        string                `json:"country" example:"TH" validate:"required"`
+	Salary         float64               `json:"salary" example:"30000"`
+	Province       string                `json:"province" example:"Chiang Mai"`
+	Country        string                `json:"country" example:"TH"`
 	RegisterLink   string                `json:"registerLink" example:"https://example.com/register"`
 	Status         string                `json:"status" example:"draft" validate:"required"`
 	Categories     []CategoryRequest     `json:"categories" validate:"required"`
@@ -219,11 +219,11 @@ type OrganizationRequest struct {
 	HeadLine             string                       `json:"headline" example:"This is a headline" validate:"required"`
 	Specialty            string                       `json:"specialty" example:"This is an specialty" validate:"required"`
 	Description          string                       `json:"description" example:"This is a description" validate:"required"`
-	Address              string                       `json:"address" example:"Chiang Mai postal code: 50200" validate:"required"`
-	Province             string                       `json:"province" example:"Chiang Mai" validate:"required"`
-	Country              string                       `json:"country" example:"Thailand" validate:"required"`
-	Latitude             float64                      `json:"latitude" example:"18.7876" validate:"required"`
-	Longitude            float64                      `json:"longitude" example:"98.9937" validate:"required"`
+	Address              string                       `json:"address" example:"Chiang Mai postal code: 50200"`
+	Province             string                       `json:"province" example:"Chiang Mai"`
+	Country              string                       `json:"country" example:"Thailand"`
+	Latitude             float64                      `json:"latitude" example:"18.7876"`
+	Longitude            float64                      `json:"longitude" example:"98.9937"`
 	OrganizationContacts []OrganizationContactRequest `json:"organizationContacts" validate:"required"`
 	IndustryIDs          []uint                       `json:"industries" example:"1,2,3" validate:"required"`
 }

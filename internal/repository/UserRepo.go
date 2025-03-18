@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -100,4 +101,109 @@ func (r userRepository) FindByID(userID uuid.UUID) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// ----------------------------------
+// 		UserPreferenceRepository
+// ----------------------------------
+
+type userPreferenceRepository struct {
+	db *gorm.DB
+}
+
+func NewUserPreferenceRepository(db *gorm.DB) UserPreferenceRepository {
+	return &userPreferenceRepository{db: db}
+}
+
+func (r userPreferenceRepository) Create(userPreference *models.UserPreference) error {
+	tx := r.db.Begin()
+
+	if err := tx.Create(userPreference).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r userPreferenceRepository) Update(userPreference *models.UserPreference) error {
+	var existUserPreference models.UserPreference
+	if err := r.db.Where("user_id = ?", userPreference.UserID).First(&existUserPreference).Error; err != nil {
+		return err
+	}
+
+	tx := r.db.Begin()
+
+	// Clear and replace industries
+	if err := tx.Model(&existUserPreference).Association("Categories").Clear(); err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Model(&existUserPreference).Association("Categories").Replace(userPreference.Categories); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Model(&models.UserPreference{}).Where("user_id = ?", userPreference.UserID).Save(userPreference).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r userPreferenceRepository) Delete(userPreference *models.UserPreference) error {
+	tx := r.db.Begin()
+
+	//clear all categories
+	if err := tx.Exec("DELETE FROM user_category WHERE user_preference_id = ?", userPreference.ID).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	
+	result := tx.Model(userPreference).Where("id = ?", userPreference.ID).Delete(userPreference)
+
+	if err := utils.GormErrorAndRowsAffected(result); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}
+
+func (r userPreferenceRepository) FindByUserID(userID uuid.UUID) (*models.UserPreference, error) {
+	var userPreference models.UserPreference
+	if err := r.db.Preload("Categories").Where("user_id = ?", userID).First(&userPreference).Error; err != nil {
+		return nil, err
+	}
+	
+	return &userPreference, nil
+}
+
+func (r userPreferenceRepository) GetAll() ([]models.UserPreference, error) {
+	var userPreferences []models.UserPreference
+	if err := r.db.Preload("Categories").Find(&userPreferences).Error; err != nil {
+		return nil, err
+	}
+
+	return userPreferences, nil
+}
+
+func (r userPreferenceRepository) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {
+	var categories []models.Category
+
+	err := r.db.Find(&categories, catIDs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return categories, nil
 }

@@ -49,3 +49,40 @@ type LoginRequest struct {
 	Email    string `json:"email" example:"andaraiwin@gmail.com" validate:"required,email"`
 	Password string `json:"password" example:"$2a$10$GEMNCwJCpl2yRm.UirLrUuIG55oc8oLCcP4HRe0uPlTizoIVRAS6K" validate:"required"`
 }
+
+type UserPreferenceRequest struct {
+	Categories []CategoryRequest `json:"categories" validate:"required"`
+}
+
+type UserPreferenceResponse struct {
+	UserID     uuid.UUID           `json:"userId" example:"48a18dd9-48c3-45a5-b4f3-e8d7a60e2910"`
+	Categories []CategoryResponses `json:"categories"`
+}
+
+func BuildUserPreferenceRequest(userPreference models.UserPreference) UserPreferenceRequest {
+	var categories []CategoryRequest
+	for _, category := range userPreference.Categories {
+		categories = append(categories, CategoryRequest{
+			Value: category.ID,
+		})
+	}
+
+	return UserPreferenceRequest{
+		Categories: categories,
+	}
+}
+
+func BuildUserPreferenceResponse(userPreference models.UserPreference) UserPreferenceResponse {
+	var categories []CategoryResponses
+	for _, category := range userPreference.Categories {
+		categories = append(categories, CategoryResponses{
+			Value: category.ID,
+			Label: category.Name,
+		})
+	}
+
+	return UserPreferenceResponse{
+		UserID:     userPreference.UserID,
+		Categories: categories,
+	}
+}

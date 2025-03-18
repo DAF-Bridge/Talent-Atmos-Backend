@@ -16,3 +16,12 @@ type UserRepository interface {
 	FindByID(userID uuid.UUID) (*models.User, error)
 	FindInUserIdList(userIds []uuid.UUID) ([]models.User, error)
 }
+
+type UserPreferenceRepository interface {
+	Create(userPreference *models.UserPreference) error
+	Update(userPreference *models.UserPreference) error
+	Delete(userPreference *models.UserPreference) error
+	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
+	FindByUserID(userID uuid.UUID) (*models.UserPreference, error)
+	GetAll() ([]models.UserPreference, error)
+}
