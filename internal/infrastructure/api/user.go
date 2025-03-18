@@ -29,6 +29,7 @@ func NewUserRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, j
 	userPreferenceService := service.NewUserPreferenceService(userPreferenceRepo, userRepo)
 	userPreferenceHandler := handler.NewUserPreferenceHandler(userPreferenceService)
 
+	app.Get("/users/user-preference/list", userPreferenceHandler.ListUserPreferences)
 	app.Post("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.CreateUserPreference)
 	app.Get("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.GetUserPreferenceByUserID)
 	app.Put("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.UpdateUserPreference)

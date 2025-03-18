@@ -156,6 +156,26 @@ func (s userPreferenceService) CreateUserPreference(userID uuid.UUID, req dto.Us
 	return nil
 }
 
+func (s userPreferenceService) ListUserPreferences() ([]dto.UserPreferenceResponse, error) {
+	userPreferences, err := s.userPreferenceRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User preferences not found")
+			return nil, errs.NewNotFoundError("User preferences not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user preferences: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var userPreferenceResponses []dto.UserPreferenceResponse
+	for _, userPreference := range userPreferences {
+		userPreferenceResponse := dto.BuildUserPreferenceResponse(userPreference)
+		userPreferenceResponses = append(userPreferenceResponses, userPreferenceResponse)
+	}
+
+	return userPreferenceResponses, nil
+}
+
 func (s userPreferenceService) GetUserPreference(userID uuid.UUID) (dto.UserPreferenceResponse, error) {
 	userPreference, err := s.userPreferenceRepo.FindByUserID(userID)
 	if err != nil {

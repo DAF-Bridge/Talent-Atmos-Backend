@@ -242,3 +242,12 @@ func (h *UserPreferenceHandler) DeleteUserPreference(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User preference deleted successfully"})
 }
+
+func (h *UserPreferenceHandler) ListUserPreferences(c *fiber.Ctx) error {
+	userPreferences, err := h.service.ListUserPreferences()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userPreferences)
+}

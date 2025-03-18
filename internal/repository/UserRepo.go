@@ -184,7 +184,17 @@ func (r userPreferenceRepository) FindByUserID(userID uuid.UUID) (*models.UserPr
 	if err := r.db.Preload("Categories").Where("user_id = ?", userID).First(&userPreference).Error; err != nil {
 		return nil, err
 	}
+	
 	return &userPreference, nil
+}
+
+func (r userPreferenceRepository) GetAll() ([]models.UserPreference, error) {
+	var userPreferences []models.UserPreference
+	if err := r.db.Preload("Categories").Find(&userPreferences).Error; err != nil {
+		return nil, err
+	}
+
+	return userPreferences, nil
 }
 
 func (r userPreferenceRepository) FindCategoryByIds(catIDs []uint) ([]models.Category, error) {

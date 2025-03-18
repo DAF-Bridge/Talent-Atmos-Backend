@@ -23,4 +23,5 @@ type UserPreferenceRepository interface {
 	Delete(userPreference *models.UserPreference) error
 	FindCategoryByIds(catIDs []uint) ([]models.Category, error)
 	FindByUserID(userID uuid.UUID) (*models.UserPreference, error)
+	GetAll() ([]models.UserPreference, error)
 }
