@@ -121,6 +121,8 @@ func Start() {
 		return c.SendString("Triggered Jenkins!")
 	})
 
+	api.NewRecommendationRouter(app, initializers.DB, jwtSecret)
+
 	// Define routes for Auth
 	api.NewAuthRouter(app, initializers.DB, jwtSecret)
 
@@ -164,13 +166,6 @@ func Start() {
 	//		counter++
 	//	}
 	//}
-
-	// Kafka
-	// topic := "talents_atmosevents"
-	// config := infrastructure.ReadConfig()
-
-	// infrastructure.Produce(topic, config)
-	// infrastructure.Consume(topic, config)
 
 	// fmt.Printf("Server is running on port %v\n", viper.GetInt("app.port"))
 

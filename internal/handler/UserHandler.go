@@ -251,3 +251,12 @@ func (h *UserPreferenceHandler) ListUserPreferences(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(userPreferences)
 }
+
+func (h *UserPreferenceHandler) ListEventTrainingPreference(c *fiber.Ctx) error {
+	eventTrainingPreference, err := h.service.ListEventTrainingPreference()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(eventTrainingPreference)
+}

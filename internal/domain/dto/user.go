@@ -86,3 +86,20 @@ func BuildUserPreferenceResponse(userPreference models.UserPreference) UserPrefe
 		Categories: categories,
 	}
 }
+
+type UserPreferenceTrainingResponses struct {
+	ID         []uuid.UUID `json:"userId"`
+	Categories [][]uint    `json:"categories"`
+}
+
+func BuildUserPreferenceTrainingResponses(userPreference models.UserPreference) UserPreferenceTrainingResponses {
+	var categories [][]uint
+	for _, category := range userPreference.Categories {
+		categories = append(categories, []uint{category.ID})
+	}
+
+	return UserPreferenceTrainingResponses{
+		ID:         []uuid.UUID{userPreference.UserID},
+		Categories: categories,
+	}
+}

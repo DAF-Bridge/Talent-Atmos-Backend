@@ -108,12 +108,14 @@ func (s userService) FindByUserID(userId uuid.UUID) (*models.User, error) {
 type userPreferenceService struct {
 	userPreferenceRepo repository.UserPreferenceRepository
 	userRepo           repository.UserRepository
+	eventRepo          repository.EventRepository
 }
 
-func NewUserPreferenceService(userPreferenceRepo repository.UserPreferenceRepository, userRepo repository.UserRepository) UserPreferenceService {
+func NewUserPreferenceService(userPreferenceRepo repository.UserPreferenceRepository, userRepo repository.UserRepository, eventRepo repository.EventRepository) UserPreferenceService {
 	return &userPreferenceService{
 		userPreferenceRepo: userPreferenceRepo,
 		userRepo:           userRepo,
+		eventRepo:          eventRepo,
 	}
 }
 
@@ -156,24 +158,54 @@ func (s userPreferenceService) CreateUserPreference(userID uuid.UUID, req dto.Us
 	return nil
 }
 
-func (s userPreferenceService) ListUserPreferences() ([]dto.UserPreferenceResponse, error) {
+func (s userPreferenceService) ListUserPreferences() (dto.UserPreferenceTrainingResponses, error) {
 	userPreferences, err := s.userPreferenceRepo.GetAll()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logs.Error("User preferences not found")
-			return nil, errs.NewNotFoundError("User preferences not found")
+			return dto.UserPreferenceTrainingResponses{}, errs.NewNotFoundError("User preferences not found")
 		}
 		logs.Error(fmt.Sprintf("Failed to get user preferences: %v", err))
-		return nil, errs.NewUnexpectedError()
+		return dto.UserPreferenceTrainingResponses{}, errs.NewUnexpectedError()
 	}
 
-	var userPreferenceResponses []dto.UserPreferenceResponse
+	var userPreferencesResp dto.UserPreferenceTrainingResponses
 	for _, userPreference := range userPreferences {
-		userPreferenceResponse := dto.BuildUserPreferenceResponse(userPreference)
-		userPreferenceResponses = append(userPreferenceResponses, userPreferenceResponse)
+		var categories []uint
+		for _, category := range userPreference.Categories {
+			categories = append(categories, category.ID)
+		}
+
+		userPreferencesResp.ID = append(userPreferencesResp.ID, userPreference.UserID)
+		userPreferencesResp.Categories = append(userPreferencesResp.Categories, categories)
 	}
 
-	return userPreferenceResponses, nil
+	return userPreferencesResp, nil
+}
+
+func (s userPreferenceService) ListEventTrainingPreference() (dto.EventTrainingRespoonses, error) {
+	events, err := s.eventRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("Events not found")
+			return dto.EventTrainingRespoonses{}, errs.NewNotFoundError("Events not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get events: %v", err))
+		return dto.EventTrainingRespoonses{}, errs.NewUnexpectedError()
+	}
+
+	var eventResponses dto.EventTrainingRespoonses
+	for _, event := range events {
+		var categories []uint
+		for _, category := range event.Categories {
+			categories = append(categories, category.ID)
+		}
+		eventResponses.ID = append(eventResponses.ID, event.ID)
+		eventResponses.Name = append(eventResponses.Name, event.Name)
+		eventResponses.Categories = append(eventResponses.Categories, categories)
+	}
+
+	return eventResponses, nil
 }
 
 func (s userPreferenceService) GetUserPreference(userID uuid.UUID) (dto.UserPreferenceResponse, error) {
