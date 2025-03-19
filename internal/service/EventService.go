@@ -18,7 +18,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const numberOfEvent = 12
+const numberOfEvent uint = 12
 
 // EventService is a service that provides operations on events.
 type eventService struct {

@@ -22,8 +22,8 @@ import (
 	"gorm.io/gorm"
 )
 
-const numberOfOrganization = 12
-const numberOfJob = 4
+const numberOfOrganization uint = 12
+const numberOfJob uint = 4
 
 type organizationService struct {
 	repo   repository.OrganizationRepository
