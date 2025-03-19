@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) {
+func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
 	casbinRoleRepository := repository.NewCasbinRoleRepository(enforcer)
@@ -58,6 +58,8 @@ func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforce
 
 	// Define routes for Organization Open Jobs
 	org.Get("/jobs/list/all", orgOpenJobHandler.ListAllOrganizationJobs)
+	org.Get("/jobs/jobs-paginate", orgOpenJobHandler.GetPaginateOrgOpenJob)
+
 	org.Get("/:orgID/jobs/list", orgOpenJobHandler.ListOrgOpenJobsByOrgID)
 	org.Get("/:orgID/jobs/get/:id", orgOpenJobHandler.GetOrgOpenJobByIDwithOrgID)
 	org.Get("/:orgID/jobs/count", orgOpenJobHandler.GetNumberOfJobs)

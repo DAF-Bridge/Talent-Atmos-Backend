@@ -215,7 +215,7 @@ func (s eventService) ListAllCategories() (*dto.CategoryListResponse, error) {
 	return &responses, nil
 }
 
-func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
+func (s eventService) GetEventPaginate(page uint) ([]dto.EventDocumentDTOResponse, error) {
 	events, err := s.eventRepo.GetPaginate(page, numberOfEvent)
 
 	if err != nil {
@@ -227,9 +227,9 @@ func (s eventService) GetEventPaginate(page uint) ([]dto.EventResponses, error) 
 		return nil, errs.NewUnexpectedError()
 	}
 
-	EventResponses := make([]dto.EventResponses, 0)
+	EventResponses := make([]dto.EventDocumentDTOResponse, 0)
 	for _, event := range events {
-		eventResponse := ConvertToEventResponse(event)
+		eventResponse := ConvertToEventDocumentResponse(event)
 		EventResponses = append(EventResponses, eventResponse)
 	}
 

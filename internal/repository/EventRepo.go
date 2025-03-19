@@ -122,10 +122,10 @@ func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, erro
 	var events []models.Event
 	offset := int((page - 1) * size)
 
-	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
-		Preload("Organization").
+	err := r.db.Preload("Organization").
 		Preload("Categories").
 		Preload("ContactChannels").
+		Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
 		Order("created_at desc").
 		Limit(int(size)).
 		Offset(offset).

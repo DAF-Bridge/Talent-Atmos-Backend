@@ -18,7 +18,7 @@ type EventService interface {
 	GetEventByID(eventID uint) (*dto.EventResponses, error)
 	GetEventByIDwithOrgID(orgID uint, eventID uint) (*dto.EventResponses, error)
 	ListAllCategories() (*dto.CategoryListResponse, error)
-	GetEventPaginate(page uint) ([]dto.EventResponses, error)
+	GetEventPaginate(page uint) ([]dto.EventDocumentDTOResponse, error)
 	GetFirst() (*dto.EventResponses, error)
 	CountEvent() (int64, error)
 	UpdateEvent(orgID uint, eventID uint, event dto.NewEventRequest, ctx context.Context, file multipart.File, fileHeader *multipart.FileHeader) (*dto.EventResponses, error)
@@ -94,4 +94,42 @@ func ConvertToEventResponse(event models.Event) dto.EventResponses {
 		Organization:    org,
 		UpdateAt:        event.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
+}
+
+func ConvertToEventDocumentResponse(event models.Event) dto.EventDocumentDTOResponse {
+	var Categories []dto.CategoryResponses
+	for _, category := range event.Categories {
+		Categories = append(Categories, dto.CategoryResponses{
+			Value: category.ID,
+			Label: category.Name,
+		})
+	}
+
+	Organization := dto.OrganizationShortDocument{
+		ID:     event.Organization.ID,
+		Name:   event.Organization.Name,
+		PicUrl: event.Organization.PicUrl,
+	}
+
+	return dto.EventDocumentDTOResponse{
+		ID:           event.ID,
+		Name:         event.Name,
+		PicUrl:       event.PicUrl,
+		StartDate:    event.StartDate.Format("2006-01-02"),
+		EndDate:      event.EndDate.Format("2006-01-02"),
+		StartTime:    event.StartTime.Format("15:04:05"),
+		EndTime:      event.EndTime.Format("15:04:05"),
+		Latitude:     event.Latitude,
+		Longitude:    event.Longitude,
+		LocationName: event.LocationName,
+		Province:     event.Province,
+		Country:      event.Country,
+		LocationType: event.LocationType,
+		Audience:     event.Audience,
+		Price:        event.PriceType,
+		Categories:   Categories,
+		Organization: Organization,
+		UpdateAt:     event.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+
 }

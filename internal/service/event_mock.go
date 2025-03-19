@@ -137,15 +137,15 @@ func (m *EventServiceMock) GetAllEventsByOrgID(orgID uint) ([]dto.EventResponses
 	return r0, r1
 }
 
-func (m *EventServiceMock) GetEventPaginate(page uint) ([]dto.EventResponses, error) {
+func (m *EventServiceMock) GetEventPaginate(page uint) ([]dto.EventDocumentDTOResponse, error) {
 	ret := m.Called(page)
 
-	var r0 []dto.EventResponses
-	if rf, ok := ret.Get(0).(func(uint) []dto.EventResponses); ok {
+	var r0 []dto.EventDocumentDTOResponse
+	if rf, ok := ret.Get(0).(func(uint) []dto.EventDocumentDTOResponse); ok {
 		r0 = rf(page)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]dto.EventResponses)
+			r0 = ret.Get(0).([]dto.EventDocumentDTOResponse)
 		}
 	}
 

@@ -26,10 +26,12 @@ func NewUserRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, j
 
 	// Dependencies Injections for User Preference
 	userPreferenceRepo := repository.NewUserPreferenceRepository(db)
-	userPreferenceService := service.NewUserPreferenceService(userPreferenceRepo, userRepo)
+	eventRepo := repository.NewEventRepository(db)
+	userPreferenceService := service.NewUserPreferenceService(userPreferenceRepo, userRepo, eventRepo)
 	userPreferenceHandler := handler.NewUserPreferenceHandler(userPreferenceService)
 
 	app.Get("/users/user-preference/list", userPreferenceHandler.ListUserPreferences)
+	app.Get("/users/event-preference/list", userPreferenceHandler.ListEventTrainingPreference)
 	app.Post("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.CreateUserPreference)
 	app.Get("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.GetUserPreferenceByUserID)
 	app.Put("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.UpdateUserPreference)

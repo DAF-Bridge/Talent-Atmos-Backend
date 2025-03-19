@@ -24,7 +24,8 @@ type UserService interface {
 type UserPreferenceService interface {
 	CreateUserPreference(userID uuid.UUID, req dto.UserPreferenceRequest) error
 	GetUserPreference(userID uuid.UUID) (dto.UserPreferenceResponse, error)
-	ListUserPreferences() ([]dto.UserPreferenceResponse, error)
+	ListUserPreferences() (dto.UserPreferenceTrainingResponses, error)
+	ListEventTrainingPreference() (dto.EventTrainingRespoonses, error)
 	UpdateUserPreference(userID uuid.UUID, req dto.UserPreferenceRequest) (dto.UserPreferenceResponse, error)
 	DeleteUserPreference(userID uuid.UUID) error
 }

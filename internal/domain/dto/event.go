@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
+
 type EventShortResponseDTO struct {
 	ID        int    `json:"id" example:"1"`
 	Name      string `json:"name" example:"builds IDEA 2024"`
@@ -90,4 +92,23 @@ type EventCardResponses struct {
 	LocationName   string                    `json:"location" example:"builds CMU"`
 	Organization   OrganizationShortResponse `json:"organization"`
 	Province       string                    `json:"province" example:"Chiang Mai"`
+}
+
+type EventTrainingRespoonses struct {
+	ID         []uint   `json:"id" example:"[1, 2]"`
+	Name       []string `json:"name"`
+	Categories [][]uint `json:"categories"`
+}
+
+func BuildEventTrainingResponses(event models.Event) EventTrainingRespoonses {
+	var categories [][]uint
+	for _, category := range event.Categories {
+		categories = append(categories, []uint{category.ID})
+	}
+
+	return EventTrainingRespoonses{
+		ID:         []uint{event.ID},
+		Name:       []string{event.Name},
+		Categories: categories,
+	}
 }
