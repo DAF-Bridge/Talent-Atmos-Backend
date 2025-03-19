@@ -37,13 +37,24 @@ func NewUserRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, j
 	app.Put("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.UpdateUserPreference)
 	app.Delete("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.DeleteUserPreference)
 
-	userInteractRepository := repository.NewUserInteractRepository(db)
-	userInteractService := service.NewUserInteractService(userInteractRepository)
-	userInteractHandler := handler.NewUserInteractHandler(userInteractService)
+	//userInteractRepository := repository.NewUserInteractRepository(db)
+	//userInteractService := service.NewUserInteractService(userInteractRepository)
+	//userInteractHandler := handler.NewUserInteractHandler(userInteractService)
+	//
+	//app.Get("/users/interact/list", userInteractHandler.GetAllUserInteract)
+	//app.Get("/users/interact", middleware.AuthMiddleware(jwtSecret), userInteractHandler.GetUserInteractByUserID)
+	//app.Get("/users/interact/category/:categoryID", userInteractHandler.GetUserInteractByCategoryID)
+	//app.Post("/users/interact/events/:eventID", middleware.AuthMiddleware(jwtSecret), userInteractHandler.InterestedInTheEvent)
+	//
+	//
+	userInteractEventRepository := repository.NewUserInteractEventRepository(db)
+	userInteractEventService := service.NewUserInteractEventService(userInteractEventRepository)
+	userInteractEventHandler := handler.NewUserInteractEventHandler(userInteractEventService)
 
-	app.Get("/users/interact/list", userInteractHandler.GetAllUserInteract)
-	app.Get("/users/interact", middleware.AuthMiddleware(jwtSecret), userInteractHandler.GetUserInteractByUserID)
-	app.Get("/users/interact/category/:categoryID", userInteractHandler.GetUserInteractByCategoryID)
-	app.Post("/users/interact/events/:eventID", middleware.AuthMiddleware(jwtSecret), userInteractHandler.InterestedInTheEvent)
-
+	app.Post("/users/interact/events/:eventID", middleware.AuthMiddleware(jwtSecret), userInteractEventHandler.InterestedInTheEvent)
+	app.Get("/users/interact/events/list", userInteractEventHandler.GetAllUserInteractEvent)
+	app.Get("/users/interact/events", middleware.AuthMiddleware(jwtSecret), userInteractEventHandler.GetUserInteractEventsByUserID)
+	app.Get("/users/interact/categories/list", userInteractEventHandler.GetStatUserInteractCategoriesByUserID)
+	app.Get("/interact/events", userInteractEventHandler.GetAllUserInteractEvent)
+	app.Get("/interact/categories/", userInteractEventHandler.GetStatUserInteractCategoriesByUserID)
 }

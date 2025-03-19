@@ -359,3 +359,110 @@ func NewUserInteractService(userInteractRepo repository.UserInteractRepository) 
 		userInteractRepo: userInteractRepo,
 	}
 }
+
+type userInteractEventService struct {
+	userInteractEventRepo repository.UserInteractEventRepository
+}
+
+func (u userInteractEventService) FindInteractedEventByUserID(userID uuid.UUID) (*dto.EventsAreInteractedByUserResponse, error) {
+	interactEvent, user, err := u.userInteractEventRepo.FindInteractedEventByUserID(userID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return convertToEventsAreInteractedByUserResponse(user, interactEvent), nil
+
+}
+
+func (u userInteractEventService) GetAll() ([]dto.UserInteractEventResponse, error) {
+	interactEvents, err := u.userInteractEventRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var userInteractResponses []dto.UserInteractEventResponse
+	for _, userInteract := range interactEvents {
+		userInteractResponse := convertToUserInteractEventResponse(&userInteract)
+		userInteractResponses = append(userInteractResponses, *userInteractResponse)
+	}
+
+	return userInteractResponses, nil
+}
+
+func (u userInteractEventService) FindUserCategoriesStatsByUserID(userID uuid.UUID) (*dto.UserInteractCategoriesResponse, error) {
+	interactEvent, user, err := u.userInteractEventRepo.FindInteractedEventByUserID(userID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	events := make([]models.Event, 0)
+	for _, event := range interactEvent {
+		events = append(events, event.Event)
+	}
+
+	return convertToUserInteractCategoryResponse(user, events), nil
+
+}
+
+func (u userInteractEventService) GetAllUserCategoriesStats() ([]dto.UserInteractCategoriesResponse, error) {
+	interactEvents, err := u.userInteractEventRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return convertToListUserInteractCategoryResponse(interactEvents), nil
+}
+
+func (u userInteractEventService) GetAllInteractedEventPerUser() ([]dto.EventsAreInteractedByUserResponse, error) {
+	interactEvents, err := u.userInteractEventRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	return convertToAllEventsAreInteractedByUserResponse(interactEvents), nil
+
+}
+
+func (u userInteractEventService) IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error {
+	if err := u.userInteractEventRepo.IncrementUserInteractForEvent(userID, eventID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("event not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to increment user interact for event: %v", err))
+		return errs.NewUnexpectedError()
+	}
+	return nil
+}
+
+func NewUserInteractEventService(userInteractEventRepo repository.UserInteractEventRepository) UserInteractEventService {
+	return &userInteractEventService{
+		userInteractEventRepo: userInteractEventRepo,
+	}
+}

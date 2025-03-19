@@ -323,3 +323,84 @@ func (h *UserInteractHandler) GetUserInteractByCategoryID(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(userInteract)
 }
+
+type UserInteractEventHandler struct {
+	service service.UserInteractEventService
+}
+
+func NewUserInteractEventHandler(service service.UserInteractEventService) *UserInteractEventHandler {
+	return &UserInteractEventHandler{service: service}
+}
+
+func (h *UserInteractEventHandler) InterestedInTheEvent(c *fiber.Ctx) error {
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	eventID, err := utils.GetEventIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if err := h.service.IncrementUserInteractForEvent(userID, eventID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User interested in the event"})
+}
+
+func (h *UserInteractEventHandler) GetAllUserInteractEvent(c *fiber.Ctx) error {
+	userInteractEvent, err := h.service.GetAll()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteractEvent)
+}
+
+func (h *UserInteractEventHandler) GetUserInteractEventsByUserID(c *fiber.Ctx) error {
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userInteractEvent, err := h.service.FindInteractedEventByUserID(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteractEvent)
+}
+
+func (h *UserInteractEventHandler) GetStatUserInteractCategoriesByUserID(c *fiber.Ctx) error {
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userInteractEvent, err := h.service.FindUserCategoriesStatsByUserID(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteractEvent)
+}
+
+func (h *UserInteractEventHandler) GetAllStatUserInteractCategories(c *fiber.Ctx) error {
+	userInteractEvent, err := h.service.GetAllUserCategoriesStats()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteractEvent)
+}
+
+func (h *UserInteractEventHandler) GetAllInteractedEventPerUser(c *fiber.Ctx) error {
+	userInteractEvent, err := h.service.GetAllInteractedEventPerUser()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(fiber.StatusOK).JSON(userInteractEvent)
+
+}

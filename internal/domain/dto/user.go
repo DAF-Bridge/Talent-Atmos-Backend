@@ -114,3 +114,29 @@ type UserInteractResponse struct {
 	CategoryResponses CategoryResponses `json:"category"`
 	Count             uint              `json:"count"`
 }
+
+type UserInteractCategoriesResponse struct {
+	UserResponses UserResponses               `json:"user"`
+	Categories    []CategoryWithCountResponse `json:"categories"`
+}
+
+type CategoryWithCountResponse struct {
+	CategoryResponses CategoryResponses `json:"category"`
+	Count             uint              `json:"count"`
+}
+
+type UserInteractEventResponse struct {
+	UserResponses  UserResponses            `json:"user"`
+	EventResponses EventDocumentDTOResponse `json:"events"`
+	Count          uint                     `json:"count"`
+}
+
+type EventWithCountResponses struct {
+	EventResponse EventDocumentDTOResponse `json:"event"`
+	Count         uint                     `json:"count"`
+}
+
+type EventsAreInteractedByUserResponse struct {
+	UserResponses  UserResponses             `json:"user"`
+	EventResponses []EventWithCountResponses `json:"events"`
+}

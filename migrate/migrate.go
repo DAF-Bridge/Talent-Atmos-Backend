@@ -30,14 +30,21 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	if err := initializers.DB.AutoMigrate(&models.OrgOpenJob{}); err != nil {
-		log.Fatal(err)
-	}
+	//if err := initializers.DB.AutoMigrate(&models.OrgOpenJob{}); err != nil {
+	//	log.Fatal(err)
+	//}
 
-	if err := initializers.DB.AutoMigrate(&models.UserInteract{}); err != nil {
+	//if err := initializers.DB.AutoMigrate(&models.UserInteract{}); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := initializers.DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS user_category_idx ON user_interacts(user_id, category_id)").Error; err != nil {
+	//	log.Fatal(err)
+	//}
+
+	if err := initializers.DB.AutoMigrate(&models.UserInteractEvent{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := initializers.DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS user_category_idx ON user_interacts(user_id, category_id)").Error; err != nil {
+	if err := initializers.DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS user_event_idx ON user_interact_events(user_id, event_id)").Error; err != nil {
 		log.Fatal(err)
 	}
 
