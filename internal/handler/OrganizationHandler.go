@@ -141,7 +141,7 @@ func (h *OrganizationHandler) GetOrganizationByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param page query int false "Page number"
-// @Success 200 {array} dto.OrganizationResponse
+// @Success 200 {array} dto.EventShortResponseDTO
 // @Failure 400 {object} map[string]string "error: invalid page"
 // @Failure 500 {object} map[string]string "error: Internal Server Error"
 // @Router /orgs/paginate [get]
@@ -653,6 +653,21 @@ func (h *OrgOpenJobHandler) DeleteOrgOpenJob(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Job deleted successfully"})
+}
+
+func (h *OrgOpenJobHandler) GetPaginateOrgOpenJob(c *fiber.Ctx) error {
+
+	page := c.QueryInt("page", 1)
+	if page < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page"})
+	}
+
+	jobs, err := h.service.GetJobPaginate(uint(page))
+	if err != nil {
+		return errs.SendFiberError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(jobs)
 }
 
 // SearchJobs handles the search for job postings based on the provided query parameters.

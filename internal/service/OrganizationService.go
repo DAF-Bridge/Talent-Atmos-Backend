@@ -22,7 +22,8 @@ import (
 	"gorm.io/gorm"
 )
 
-const numberOfOrganization = 10
+const numberOfOrganization = 12
+const numberOfJob = 4
 
 type organizationService struct {
 	repo   repository.OrganizationRepository
@@ -809,7 +810,7 @@ func (s orgOpenJobService) GetJobByIDwithOrgID(orgID uint, jobID uint) (*dto.Job
 }
 
 func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error) {
-	jobs, err := s.jobRepo.GetJobsPaginate(page, numberOfOrganization)
+	jobs, err := s.jobRepo.GetJobsPaginate(page, numberOfJob)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
