@@ -277,3 +277,85 @@ func (s userPreferenceService) DeleteUserPreference(userID uuid.UUID) error {
 
 	return nil
 }
+
+type userInteractService struct {
+	userInteractRepo repository.UserInteractRepository
+}
+
+func (u userInteractService) IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error {
+	if err := u.userInteractRepo.IncrementUserInteractForEvent(userID, eventID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.NewNotFoundError("event not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to increment user interact for event: %v", err))
+		return errs.NewUnexpectedError()
+	}
+	return nil
+
+}
+
+func (u userInteractService) FindByUserID(userID uuid.UUID) ([]dto.UserInteractResponse, error) {
+	userInteracts, err := u.userInteractRepo.FindByUserID(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var userInteractResponses []dto.UserInteractResponse
+	for _, userInteract := range userInteracts {
+		userInteractResponse := convertToUserInteractResponse(&userInteract)
+		userInteractResponses = append(userInteractResponses, *userInteractResponse)
+	}
+
+	return userInteractResponses, nil
+}
+
+func (u userInteractService) GetAll() ([]dto.UserInteractResponse, error) {
+	userInteracts, err := u.userInteractRepo.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var userInteractResponses []dto.UserInteractResponse
+	for _, userInteract := range userInteracts {
+		userInteractResponse := convertToUserInteractResponse(&userInteract)
+		userInteractResponses = append(userInteractResponses, *userInteractResponse)
+	}
+
+	return userInteractResponses, nil
+}
+
+func (u userInteractService) FindCategoryByIds(catIDs uint) ([]dto.UserInteractResponse, error) {
+	userInteracts, err := u.userInteractRepo.FindCategoryByIds(catIDs)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logs.Error("User interacts not found")
+			return nil, errs.NewNotFoundError("User interacts not found")
+		}
+		logs.Error(fmt.Sprintf("Failed to get user interacts: %v", err))
+		return nil, errs.NewUnexpectedError()
+	}
+
+	var userInteractResponses []dto.UserInteractResponse
+	for _, userInteract := range userInteracts {
+		userInteractResponse := convertToUserInteractResponse(&userInteract)
+		userInteractResponses = append(userInteractResponses, *userInteractResponse)
+	}
+
+	return userInteractResponses, nil
+}
+
+func NewUserInteractService(userInteractRepo repository.UserInteractRepository) UserInteractService {
+	return &userInteractService{
+		userInteractRepo: userInteractRepo,
+	}
+}

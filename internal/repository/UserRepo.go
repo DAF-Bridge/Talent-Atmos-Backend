@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
@@ -168,7 +169,7 @@ func (r userPreferenceRepository) Delete(userPreference *models.UserPreference) 
 		tx.Rollback()
 		return err
 	}
-	
+
 	result := tx.Model(userPreference).Where("id = ?", userPreference.ID).Delete(userPreference)
 
 	if err := utils.GormErrorAndRowsAffected(result); err != nil {
@@ -184,7 +185,7 @@ func (r userPreferenceRepository) FindByUserID(userID uuid.UUID) (*models.UserPr
 	if err := r.db.Preload("Categories").Where("user_id = ?", userID).First(&userPreference).Error; err != nil {
 		return nil, err
 	}
-	
+
 	return &userPreference, nil
 }
 
@@ -206,4 +207,90 @@ func (r userPreferenceRepository) FindCategoryByIds(catIDs []uint) ([]models.Cat
 	}
 
 	return categories, nil
+}
+
+// ----------------------------------
+// UserInteract
+// ----------------------------------
+
+type userInteractRepository struct {
+	db *gorm.DB
+}
+
+func (u userInteractRepository) FindByUserID(userID uuid.UUID) ([]models.UserInteract, error) {
+	var userInteract []models.UserInteract
+	if err := u.db.Model(&models.UserInteract{}).
+		Preload("User").
+		Preload("Category").
+		Where("user_id = ?", userID).Find(&userInteract).Error; err != nil {
+		return nil, err
+	}
+	return userInteract, nil
+}
+
+func (u userInteractRepository) GetAll() ([]models.UserInteract, error) {
+	var userInteract []models.UserInteract
+	if err := u.db.Model(&models.UserInteract{}).
+		Preload("User").
+		Preload("Category").
+		Find(&userInteract).Error; err != nil {
+		return nil, err
+	}
+	return userInteract, nil
+}
+
+func (u userInteractRepository) FindCategoryByIds(catIDs uint) ([]models.UserInteract, error) {
+	var userInteract []models.UserInteract
+	if err := u.db.Model(&models.UserInteract{}).
+		Preload("User").
+		Preload("Category").
+		Where("category_id = ?", catIDs).Find(&userInteract).Error; err != nil {
+		return nil, err
+	}
+	return userInteract, nil
+
+}
+
+func (u userInteractRepository) IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error {
+	tx := u.db.Begin()
+	var event models.Event
+
+	// 🔹 ดึงข้อมูล Event พร้อม Categories ที่เกี่ยวข้อง
+	if err := tx.Preload("Categories").First(&event, eventID).Error; err != nil {
+		return err // ถ้าไม่มี Event → Rollback ทันที
+	}
+
+	// 🔹 วนลูปทุก Category แล้วเพิ่ม count ใน UserInteract
+	for _, category := range event.Categories {
+		var interact models.UserInteract
+		result := tx.Where("user_id = ? AND category_id = ?", userID, category.ID).First(&interact)
+
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			// ถ้ายังไม่มี → สร้างใหม่
+			newInteract := models.UserInteract{
+				UserID:     userID,
+				CategoryID: category.ID,
+				Count:      1,
+			}
+			if err := tx.Create(&newInteract).Error; err != nil {
+				return err // Rollback ถ้าสร้างไม่สำเร็จ
+			}
+		} else {
+			// ถ้ามีอยู่แล้ว → อัปเดต count +1
+			if err := tx.Model(&interact).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
+				return err // Rollback ถ้าอัปเดตไม่สำเร็จ
+			}
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil // Commit ถ้าทุกอย่างสำเร็จ
+
+}
+
+func NewUserInteractRepository(db *gorm.DB) UserInteractRepository {
+	return &userInteractRepository{db: db}
 }

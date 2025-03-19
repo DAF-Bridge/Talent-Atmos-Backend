@@ -51,3 +51,12 @@ type UserPreference struct {
 	UserID     uuid.UUID  `gorm:"type:uuid;not null" db:"user_id"`
 	Categories []Category `gorm:"many2many:user_category;"`
 }
+
+type UserInteract struct {
+	gorm.Model
+	UserID     uuid.UUID `gorm:"type:uuid;not null" db:"user_id"`
+	User       User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
+	CategoryID uint      `gorm:"type:uint;not null" db:"category_id"`
+	Category   Category  `gorm:"foreignKey:CategoryID;constraint:OnDelete:CASCADE;"`
+	Count      uint      `gorm:"type:uint;not null;default:0" db:"count"`
+}

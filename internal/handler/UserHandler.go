@@ -260,3 +260,66 @@ func (h *UserPreferenceHandler) ListEventTrainingPreference(c *fiber.Ctx) error 
 
 	return c.Status(fiber.StatusOK).JSON(eventTrainingPreference)
 }
+
+type UserInteractHandler struct {
+	service service.UserInteractService
+}
+
+func NewUserInteractHandler(service service.UserInteractService) *UserInteractHandler {
+	return &UserInteractHandler{service: service}
+}
+
+func (h *UserInteractHandler) InterestedInTheEvent(c *fiber.Ctx) error {
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	eventID, err := utils.GetEventIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if err := h.service.IncrementUserInteractForEvent(userID, eventID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User interested in the event"})
+}
+
+func (h *UserInteractHandler) GetAllUserInteract(c *fiber.Ctx) error {
+	userInteract, err := h.service.GetAll()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteract)
+}
+
+func (h *UserInteractHandler) GetUserInteractByUserID(c *fiber.Ctx) error {
+	userID, err := utils.GetUserIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userInteract, err := h.service.FindByUserID(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteract)
+}
+
+func (h *UserInteractHandler) GetUserInteractByCategoryID(c *fiber.Ctx) error {
+	categoryID, err := utils.GetCategoryIDFormFiberCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	userInteract, err := h.service.FindCategoryByIds(categoryID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userInteract)
+}

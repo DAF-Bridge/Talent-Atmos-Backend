@@ -36,4 +36,14 @@ func NewUserRouter(app *fiber.App, db *gorm.DB, s3 *infrastructure.S3Uploader, j
 	app.Get("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.GetUserPreferenceByUserID)
 	app.Put("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.UpdateUserPreference)
 	app.Delete("/users/user-preference", middleware.AuthMiddleware(jwtSecret), userPreferenceHandler.DeleteUserPreference)
+
+	userInteractRepository := repository.NewUserInteractRepository(db)
+	userInteractService := service.NewUserInteractService(userInteractRepository)
+	userInteractHandler := handler.NewUserInteractHandler(userInteractService)
+
+	app.Get("/users/interact/list", userInteractHandler.GetAllUserInteract)
+	app.Get("/users/interact", middleware.AuthMiddleware(jwtSecret), userInteractHandler.GetUserInteractByUserID)
+	app.Get("/users/interact/category/:categoryID", userInteractHandler.GetUserInteractByCategoryID)
+	app.Post("/users/interact/events/:eventID", middleware.AuthMiddleware(jwtSecret), userInteractHandler.InterestedInTheEvent)
+
 }
