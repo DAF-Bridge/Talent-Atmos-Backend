@@ -79,7 +79,7 @@ func (r organizationRepository) GetOrgsPaginate(page uint, size uint) ([]models.
 	var orgs []models.Organization
 	offset := int((page - 1) * size)
 
-	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
+	err := r.db.
 		Preload("OrganizationContacts").
 		Preload("Industries").
 		Order("created_at desc").Limit(int(size)).
@@ -457,7 +457,6 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 	err := r.db.Preload("Organization").
 		Preload("Categories").
 		Preload("Prerequisites").
-		Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
 		Order("created_at desc").
 		Limit(int(size)).
 		Offset(offset).
