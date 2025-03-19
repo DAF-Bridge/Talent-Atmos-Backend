@@ -809,7 +809,7 @@ func (s orgOpenJobService) GetJobByIDwithOrgID(orgID uint, jobID uint) (*dto.Job
 	return &JobResponse, nil
 }
 
-func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error) {
+func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobDocumentDTOResponse, error) {
 	jobs, err := s.jobRepo.GetJobsPaginate(page, numberOfJob)
 
 	if err != nil {
@@ -821,10 +821,9 @@ func (s orgOpenJobService) GetJobPaginate(page uint) ([]dto.JobResponses, error)
 		return nil, errs.NewUnexpectedError()
 	}
 
-	var jobsResponse []dto.JobResponses
-
+	var jobsResponse []dto.JobDocumentDTOResponse
 	for _, job := range jobs {
-		jobResponse := ConvertToJobResponse(job)
+		jobResponse := ConvertToJobDocumentDTOResponse(job)
 		jobsResponse = append(jobsResponse, jobResponse)
 	}
 

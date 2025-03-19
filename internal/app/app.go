@@ -134,7 +134,7 @@ func Start() {
 
 	// Define routes for Organizations && Organization Open Jobs
 	api.NewOrganizationAdminRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
-	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)
+	api.NewOrganizationRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3)
 
 	// Define routes for Events
 	api.NewEventAdminRouter(app, initializers.DB, initializers.Enforcer, initializers.ESClient, initializers.S3, jwtSecret)

@@ -454,10 +454,10 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 	var orgs []models.OrgOpenJob
 
 	offset := int((page - 1) * size)
-	err := r.db.Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
-		Preload("Organization").
-		Preload("Prerequisites").
+	err := r.db.Preload("Organization").
 		Preload("Categories").
+		Preload("Prerequisites").
+		Scopes(utils.NewPaginate(int(page), int(size)).PaginatedResult).
 		Order("created_at desc").
 		Limit(int(size)).
 		Offset(offset).

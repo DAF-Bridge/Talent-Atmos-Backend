@@ -40,7 +40,7 @@ type OrgOpenJobService interface {
 	GetAllJobsByOrgID(OrgId uint) ([]dto.JobResponses, error)
 	GetJobByID(jobID uint) (*dto.JobResponses, error)
 	GetJobByIDwithOrgID(orgID uint, jobID uint) (*dto.JobResponses, error)
-	GetJobPaginate(page uint) ([]dto.JobResponses, error)
+	GetJobPaginate(page uint) ([]dto.JobDocumentDTOResponse, error)
 	UpdateJob(orgID uint, jobID uint, dto dto.JobRequest) (*dto.JobResponses, error)
 	UpdateJobPicture(orgID uint, jobID uint, picURL string) error
 	RemoveJob(jobID uint) error
@@ -216,5 +216,34 @@ func ConvertToPrerequisiteResponse(prerequisite models.Prerequisite) dto.Prerequ
 		Value: prerequisite.ID,
 		Title: prerequisite.Title,
 		Link:  prerequisite.Link,
+	}
+}
+
+func ConvertToJobDocumentDTOResponse(job models.OrgOpenJob) dto.JobDocumentDTOResponse {
+	var Categories []dto.CategoryResponses
+	for _, category := range job.Categories {
+		Categories = append(Categories, dto.CategoryResponses{
+			Value: category.ID,
+			Label: category.Name,
+		})
+	}
+
+	Organization := dto.OrganizationShortDocument{
+		ID:     job.Organization.ID,
+		Name:   job.Organization.Name,
+		PicUrl: job.Organization.PicUrl,
+	}
+
+	return dto.JobDocumentDTOResponse{
+		ID:           job.ID,
+		Title:        job.Title,
+		Description:  job.Description,
+		Workplace:    string(job.Workplace),
+		WorkType:     string(job.WorkType),
+		CareerStage:  string(job.CareerStage),
+		Salary:       job.Salary,
+		Categories:   Categories,
+		Organization: Organization,
+		UpdateAt:     job.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }

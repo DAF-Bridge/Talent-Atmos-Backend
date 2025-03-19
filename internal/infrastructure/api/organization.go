@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader, jwtSecret string) {
+func NewOrganizationRouter(app *fiber.App, db *gorm.DB, enforcer casbin.IEnforcer, es *opensearch.Client, s3 *infrastructure.S3Uploader) {
 	// Dependencies Injections for Organization
 	organizationRepo := repository.NewOrganizationRepository(db)
 	casbinRoleRepository := repository.NewCasbinRoleRepository(enforcer)

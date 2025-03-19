@@ -237,10 +237,8 @@ func (h EventHandler) EventPaginate(c *fiber.Ctx) error {
 	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	//}
 
-	listEvent := newListEventShortResponse(events)
-
 	//return c.JSON(fiber.Map{"events": listEvent, "total_events": total})
-	return c.JSON(listEvent)
+	return c.JSON(events)
 }
 
 // @Summary Update an event
