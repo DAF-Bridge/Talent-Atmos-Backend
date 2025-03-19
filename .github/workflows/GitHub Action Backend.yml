@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main", "develop-did", "develop-fong"]
   pull_request:
-    branches: ["main", "develop-did", "develop-fong"]
+    branches: ["main"]
 
 jobs:
   build:
@@ -185,19 +185,12 @@ jobs:
           VERSION_TAG=$IMAGE_NAME:$COMMIT_HASH
 
           docker buildx create --use
-          docker buildx build --platform linux/amd64 \
-                              -t $IMAGE_NAME:$COMMIT_HASH-amd64 \
-                              --push .
           
-          docker buildx build --platform linux/arm64 \
-                              -t $IMAGE_NAME:$COMMIT_HASH-arm64 \
-                              --push .
-                              
-          docker buildx imagetools create -t $IMAGE_NAME:latest \
-                                          -t $IMAGE_NAME:$COMMIT_HASH \
-                                          $IMAGE_NAME:$COMMIT_HASH-amd64 \
-                                          $IMAGE_NAME:$COMMIT_HASH-arm64
-
+          docker buildx build --platform linux/amd64,linux/arm64 \
+                        -t $IMAGE_NAME:$TAG \
+                        -t $IMAGE_NAME:$COMMIT_HASH \
+                        --push .
+                        
       - name: Notify on Success
         if: ${{ steps.container_build_push.outcome == 'success' }}
         run: echo "Docker image successfully pushed to GitHub Container Registry"
