@@ -86,3 +86,7 @@ func GetJobIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
 func GetPrerequisiteIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
 	return GetParamFormFiberCtx(c, "prerequisiteID", "Prerequisite")
 }
+
+func GetCategoryIDFormFiberCtx(c *fiber.Ctx) (uint, error) {
+	return GetParamFormFiberCtx(c, "categoryID", "Category")
+}

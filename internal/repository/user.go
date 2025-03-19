@@ -25,3 +25,10 @@ type UserPreferenceRepository interface {
 	FindByUserID(userID uuid.UUID) (*models.UserPreference, error)
 	GetAll() ([]models.UserPreference, error)
 }
+
+type UserInteractRepository interface {
+	IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error
+	FindByUserID(userID uuid.UUID) ([]models.UserInteract, error)
+	GetAll() ([]models.UserInteract, error)
+	FindCategoryByIds(catIDs uint) ([]models.UserInteract, error)
+}

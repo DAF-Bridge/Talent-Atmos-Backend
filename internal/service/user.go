@@ -30,6 +30,13 @@ type UserPreferenceService interface {
 	DeleteUserPreference(userID uuid.UUID) error
 }
 
+type UserInteractService interface {
+	IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error
+	FindByUserID(userID uuid.UUID) ([]dto.UserInteractResponse, error)
+	GetAll() ([]dto.UserInteractResponse, error)
+	FindCategoryByIds(catIDs uint) ([]dto.UserInteractResponse, error)
+}
+
 func convertToUserResponses(user *models.User) *dto.UserResponses {
 	return &dto.UserResponses{
 		ID:        user.ID,
@@ -64,5 +71,16 @@ func convertToProfileResponse(profile *models.Profile) *dto.ProfileResponses {
 		PicUrl:    profile.PicUrl,
 		Role:      user.Role,
 		UpdateAt:  profile.UpdatedAt.Format("2006-01-02T15:04:05"),
+	}
+}
+
+func convertToUserInteractResponse(interact *models.UserInteract) *dto.UserInteractResponse {
+	return &dto.UserInteractResponse{
+		UserResponses: *convertToUserResponses(&interact.User),
+		CategoryResponses: dto.CategoryResponses{
+			Value: interact.Category.ID,
+			Label: interact.Category.Name,
+		},
+		Count: interact.Count,
 	}
 }

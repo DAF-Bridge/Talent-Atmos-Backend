@@ -103,3 +103,14 @@ func BuildUserPreferenceTrainingResponses(userPreference models.UserPreference) 
 		Categories: categories,
 	}
 }
+
+type UserInteractRequest struct {
+	UserID  uuid.UUID `json:"userId" example:"48a18dd9-48c3-45a5-b4f3-e8d7a60e2910" validate:"required"`
+	EventID uint      `json:"eventId" example:"1" validate:"required"`
+}
+
+type UserInteractResponse struct {
+	UserResponses     UserResponses     `json:"user"`
+	CategoryResponses CategoryResponses `json:"category"`
+	Count             uint              `json:"count"`
+}
