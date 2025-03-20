@@ -31,7 +31,7 @@ func TestEventHandlerIntegrationService(t *testing.T) {
 		// 	expected := models.Event{
 		// 		Model:          gorm.Model{ID: 1},
 		// 		OrganizationID: 1,
-		// 		Categories:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
+		// 		categoryData:     []models.Category{{Model: gorm.Model{ID: 1}, Name: "default"}},
 		// 		Name:           "Builds Renewable Energy Summit",
 		// 		PicUrl:         "https://drive.google.com/uc?export=view&id=1-wqxOT_uo1pE_mEPHbJVoirMMH2Be3Ks",
 		// 		StartDate:      utils.DateOnly{Time: utils.DateParser("2025-01-15")},
