@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/internal/domain/models"
 	"github.com/DAF-Bridge/Talent-Atmos-Backend/utils"
 	"github.com/google/uuid"
@@ -118,6 +119,15 @@ func NewUserPreferenceRepository(db *gorm.DB) UserPreferenceRepository {
 
 func (r userPreferenceRepository) Create(userPreference *models.UserPreference) error {
 	tx := r.db.Begin()
+	var existing models.UserPreference
+
+	if err := tx.Where("user_id = ?", userPreference.UserID).First(&existing).Error; err == nil {
+		tx.Rollback()
+		return err
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		tx.Rollback()
+		return err
+	}
 
 	if err := tx.Create(userPreference).Error; err != nil {
 		tx.Rollback()

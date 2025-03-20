@@ -48,7 +48,7 @@ type User struct {
 
 type UserPreference struct {
 	gorm.Model
-	UserID     uuid.UUID  `gorm:"type:uuid;not null" db:"user_id"`
+	UserID     uuid.UUID  `gorm:"type:uuid;not null;unique" db:"user_id"`
 	Categories []Category `gorm:"many2many:user_category;"`
 }
 
