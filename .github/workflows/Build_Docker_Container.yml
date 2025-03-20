@@ -68,10 +68,9 @@ jobs:
             VERSION_TAG=$IMAGE_NAME:$COMMIT_HASH
   
             docker buildx create --use
-            docker buildx build --push \
-              --platform linux/amd64,linux/arm64 \
-              --tag $IMAGE_NAME:$TAG \
-              --tag $VERSION_TAG .
+            docker buildx build --platform linux/amd64,linux/arm64 \
+                              -t $IMAGE_NAME:$COMMIT_HASH \
+                              --push .
   
         - name: Notify on Success
           if: ${{ steps.container_build_push.outcome == 'success' }}
