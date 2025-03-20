@@ -58,6 +58,22 @@ func triggerJenkins() {
 	fmt.Println("Jenkins triggered:", string(output))
 }
 
+func triggerJenkinsRec() {
+	jenkinsURL := os.Getenv("JENKINS_REC_URL")
+	jenkinsToken := os.Getenv("JENKINS_API_TOKEN")
+	jenkinsUsername := os.Getenv("JENKINS_USERNAME")
+
+	auth := base64.StdEncoding.EncodeToString([]byte(jenkinsUsername + ":" + jenkinsToken))
+
+	cmd := exec.Command("curl", "-X", "POST", jenkinsURL, "-H", "Authorization: Basic "+auth)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Failed to trigger Jenkins:", err)
+		return
+	}
+	fmt.Println("Jenkins Rec triggered:", string(output))
+}
+
 // Start function
 // @title Talent Atmos Web Application API
 // @version 0.1
@@ -118,7 +134,12 @@ func Start() {
 	// Jenkins
 	app.Post("/trigger-jenkins", func(c *fiber.Ctx) error {
 		go triggerJenkins()
-		return c.SendString("Triggered Jenkins!")
+		return c.SendString("Triggered Jenkins!, Backend CD")
+	})
+
+	app.Post("/trigger-jenkins-rec", func(c *fiber.Ctx) error {
+		go triggerJenkinsRec()
+		return c.SendString("Triggered Jenkins!, Recommendation CD")
 	})
 
 	api.NewRecommendationRouter(app, initializers.DB, jwtSecret)
