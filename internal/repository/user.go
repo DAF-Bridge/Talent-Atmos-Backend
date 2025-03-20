@@ -32,3 +32,10 @@ type UserInteractRepository interface {
 	GetAll() ([]models.UserInteract, error)
 	FindCategoryByIds(catIDs uint) ([]models.UserInteract, error)
 }
+
+type UserInteractEventRepository interface {
+	IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error
+	FindInteractedEventByUserID(userID uuid.UUID) ([]models.UserInteractEvent, *models.User, error)
+	GetAll() ([]models.UserInteractEvent, error)
+	FindUsersInteractEventByEventId(eventID uint) ([]models.UserInteractEvent, *models.Event, error)
+}

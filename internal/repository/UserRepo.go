@@ -294,3 +294,111 @@ func (u userInteractRepository) IncrementUserInteractForEvent(userID uuid.UUID, 
 func NewUserInteractRepository(db *gorm.DB) UserInteractRepository {
 	return &userInteractRepository{db: db}
 }
+
+// ----------------------------------
+// UserInteractEvent
+// ----------------------------------
+
+type userInteractEventRepository struct {
+	db *gorm.DB
+}
+
+func (u userInteractEventRepository) FindInteractedEventByUserID(userID uuid.UUID) ([]models.UserInteractEvent, *models.User, error) {
+	tx := u.db.Begin()
+	var userInteractEvent []models.UserInteractEvent
+
+	var user *models.User
+
+	//  get list of event that user interacted
+	if err := tx.Model(&models.UserInteractEvent{}).
+		Preload("Event").
+		Where("user_id = ?", userID).
+		Find(&userInteractEvent).Error; err != nil {
+		tx.Rollback()
+	}
+
+	// get user
+	if err := tx.Model(&models.User{}).Where("id = ?", userID).First(&user).Error; err != nil {
+		tx.Rollback()
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, nil, err
+	}
+
+	return userInteractEvent, user, nil
+}
+
+func (u userInteractEventRepository) FindUsersInteractEventByEventId(eventID uint) ([]models.UserInteractEvent, *models.Event, error) {
+	tx := u.db.Begin()
+	var userInteractEvent []models.UserInteractEvent
+
+	var event *models.Event
+
+	// get list of user that interacted with event
+	if err := tx.Model(&models.UserInteractEvent{}).
+		Preload("User").
+		Where("event_id = ?", eventID).
+		Find(&userInteractEvent).Error; err != nil {
+		tx.Rollback()
+	}
+
+	// get event
+	if err := tx.Model(&models.Event{}).Where("id = ?", eventID).First(&event).Error; err != nil {
+		tx.Rollback()
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, nil, err
+	}
+
+	return userInteractEvent, event, nil
+
+}
+
+func (u userInteractEventRepository) IncrementUserInteractForEvent(userID uuid.UUID, eventID uint) error {
+	tx := u.db.Begin()
+	var userInteractEvent models.UserInteractEvent
+
+	if err := tx.Model(userInteractEvent).
+		Where("user_id = ? and event_id =?", userID, eventID).
+		First(&userInteractEvent).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			newUserInteractEvent := models.UserInteractEvent{
+				UserID:  userID,
+				EventID: eventID,
+				Count:   1,
+			}
+			if err := tx.Create(&newUserInteractEvent).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		} else {
+			if err := tx.Model(&userInteractEvent).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
+				tx.Rollback()
+			}
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u userInteractEventRepository) GetAll() ([]models.UserInteractEvent, error) {
+	var userInteractEvent []models.UserInteractEvent
+	if err := u.db.Model(&models.UserInteractEvent{}).
+		Preload("User").
+		Preload("Event").
+		Preload("Event.Categories").
+		Find(&userInteractEvent).Error; err != nil {
+		return nil, err
+	}
+	return userInteractEvent, nil
+}
+
+func NewUserInteractEventRepository(db *gorm.DB) UserInteractEventRepository {
+	return &userInteractEventRepository{db: db}
+}
