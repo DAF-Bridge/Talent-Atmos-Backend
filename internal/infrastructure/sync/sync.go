@@ -14,7 +14,7 @@ import (
 
 func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	var events []models.Event
-	if err := db.Preload("Organization").Preload("categoryData").Find(&events).Error; err != nil {
+	if err := db.Preload("Organization").Preload("Categories").Find(&events).Error; err != nil {
 		return fmt.Errorf("failed to fetch events: %v", err)
 	}
 
@@ -77,7 +77,7 @@ func SyncJobsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 	}
 
 	var jobs []models.OrgOpenJob
-	if err := db.Preload("Organization").Preload("Prerequisites").Preload("categoryData").Find(&jobs).Error; err != nil {
+	if err := db.Preload("Organization").Preload("Prerequisites").Preload("Categories").Find(&jobs).Error; err != nil {
 		return fmt.Errorf("failed to fetch jobs: %v", err)
 	}
 
