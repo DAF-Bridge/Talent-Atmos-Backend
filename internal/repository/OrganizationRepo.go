@@ -397,7 +397,7 @@ func (r orgOpenJobRepository) GetAllJobs() ([]models.OrgOpenJob, error) {
 	err := r.db.
 		Preload("Organization").
 		Preload("Prerequisites").
-		Preload("categoryData").
+		Preload("Categories").
 		Find(&orgs).Error
 	if err != nil {
 		return nil, err
@@ -411,7 +411,7 @@ func (r orgOpenJobRepository) GetAllJobsByOrgID(OrgId uint) ([]models.OrgOpenJob
 	if err := r.db.
 		Preload("Organization").
 		Preload("Prerequisites").
-		Preload("categoryData").
+		Preload("Categories").
 		Where("organization_id = ?", OrgId).
 		Find(&orgs).Error; err != nil {
 		return nil, err
@@ -426,7 +426,7 @@ func (r orgOpenJobRepository) GetJobByID(jobID uint) (*models.OrgOpenJob, error)
 	if err := r.db.
 		Preload("Organization").
 		Preload("Prerequisites").
-		Preload("categoryData").
+		Preload("Categories").
 		Where("id = ?", jobID).
 		First(&job).Error; err != nil {
 		return nil, err
@@ -441,7 +441,7 @@ func (r orgOpenJobRepository) GetJobByIDWithOrgID(orgID uint, jobID uint) (*mode
 	if err := r.db.
 		Preload("Organization").
 		Preload("Prerequisites").
-		Preload("categoryData").
+		Preload("Categories").
 		Where("organization_id = ? AND id = ?", orgID, jobID).
 		First(&job).Error; err != nil {
 		return nil, err
@@ -455,7 +455,7 @@ func (r orgOpenJobRepository) GetJobsPaginate(page uint, size uint) ([]models.Or
 
 	offset := int((page - 1) * size)
 	err := r.db.Preload("Organization").
-		Preload("categoryData").
+		Preload("Categories").
 		Preload("Prerequisites").
 		Order("created_at desc").
 		Limit(int(size)).
@@ -475,7 +475,7 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 	var existJob models.OrgOpenJob
 	if err := tx.
 		Where("organization_id = ? AND id = ?", job.OrganizationID, job.ID).
-		Preload("categoryData").
+		Preload("Categories").
 		Preload("Prerequisites").
 		First(&existJob).Error; err != nil {
 		tx.Rollback()
@@ -487,7 +487,7 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 		return nil, err
 	}
 
-	if err := tx.Model(&existJob).Association("categoryData").Replace(job.Categories); err != nil {
+	if err := tx.Model(&existJob).Association("Categories").Replace(job.Categories); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -514,7 +514,7 @@ func (r orgOpenJobRepository) UpdateJob(job *models.OrgOpenJob) (*models.OrgOpen
 	if err := tx.
 		Preload("Organization").
 		Preload("Prerequisites").
-		Preload("categoryData").
+		Preload("Categories").
 		Where("id = ?", job.ID).
 		First(&updatedJob).Error; err != nil {
 		tx.Rollback()

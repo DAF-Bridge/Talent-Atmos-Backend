@@ -140,11 +140,11 @@ func (r userPreferenceRepository) Update(userPreference *models.UserPreference) 
 	tx := r.db.Begin()
 
 	// Clear and replace industries
-	if err := tx.Model(&existUserPreference).Association("categoryData").Clear(); err != nil {
+	if err := tx.Model(&existUserPreference).Association("Categories").Clear(); err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Model(&existUserPreference).Association("categoryData").Replace(userPreference.Categories); err != nil {
+	if err := tx.Model(&existUserPreference).Association("Categories").Replace(userPreference.Categories); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -182,7 +182,7 @@ func (r userPreferenceRepository) Delete(userPreference *models.UserPreference) 
 
 func (r userPreferenceRepository) FindByUserID(userID uuid.UUID) (*models.UserPreference, error) {
 	var userPreference models.UserPreference
-	if err := r.db.Preload("categoryData").Where("user_id = ?", userID).First(&userPreference).Error; err != nil {
+	if err := r.db.Preload("Categories").Where("user_id = ?", userID).First(&userPreference).Error; err != nil {
 		return nil, err
 	}
 
@@ -191,7 +191,7 @@ func (r userPreferenceRepository) FindByUserID(userID uuid.UUID) (*models.UserPr
 
 func (r userPreferenceRepository) GetAll() ([]models.UserPreference, error) {
 	var userPreferences []models.UserPreference
-	if err := r.db.Preload("categoryData").Find(&userPreferences).Error; err != nil {
+	if err := r.db.Preload("Categories").Find(&userPreferences).Error; err != nil {
 		return nil, err
 	}
 
@@ -255,8 +255,8 @@ func (u userInteractRepository) IncrementUserInteractForEvent(userID uuid.UUID, 
 	tx := u.db.Begin()
 	var event models.Event
 
-	// 🔹 ดึงข้อมูล Event พร้อม categoryData ที่เกี่ยวข้อง
-	if err := tx.Preload("categoryData").First(&event, eventID).Error; err != nil {
+	// 🔹 ดึงข้อมูล Event พร้อม Categories ที่เกี่ยวข้อง
+	if err := tx.Preload("Categories").First(&event, eventID).Error; err != nil {
 		return err // ถ้าไม่มี Event → Rollback ทันที
 	}
 
@@ -392,7 +392,7 @@ func (u userInteractEventRepository) GetAll() ([]models.UserInteractEvent, error
 	if err := u.db.Model(&models.UserInteractEvent{}).
 		Preload("User").
 		Preload("Event").
-		Preload("Event.categoryData").
+		Preload("Event.Categories").
 		Find(&userInteractEvent).Error; err != nil {
 		return nil, err
 	}
