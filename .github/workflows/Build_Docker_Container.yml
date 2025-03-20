@@ -69,8 +69,9 @@ jobs:
   
             docker buildx create --use
             docker buildx build --platform linux/amd64,linux/arm64 \
-                              -t $IMAGE_NAME:$COMMIT_HASH \
-                              --push .
+                        -t $IMAGE_NAME:$COMMIT_HASH \
+                        -t $IMAGE_NAME:latest \
+                        --push .
   
         - name: Notify on Success
           if: ${{ steps.container_build_push.outcome == 'success' }}
