@@ -241,6 +241,8 @@ func ConvertToJobDocumentDTOResponse(job models.OrgOpenJob) dto.JobDocumentDTORe
 		Workplace:    string(job.Workplace),
 		WorkType:     string(job.WorkType),
 		CareerStage:  string(job.CareerStage),
+		Province:     job.Province,
+		Country:      job.Country,
 		Salary:       job.Salary,
 		Categories:   Categories,
 		Organization: Organization,
