@@ -26,7 +26,7 @@ func BuildListEventRecommendation(recs []Recommendation, db *gorm.DB) ([]dto.Eve
 	var eventResponses []dto.EventDocumentDTOResponse
 	for _, rec := range recs {
 		var event models.Event
-		if err := db.Preload("Organization").Preload("Categories").First(&event, rec.ID).Error; err != nil {
+		if err := db.Preload("Organization").Preload("categoryData").First(&event, rec.ID).Error; err != nil {
 			return nil, fmt.Errorf("failed to fetch event with id %d: %v", rec.ID, err)
 		}
 

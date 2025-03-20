@@ -37,7 +37,7 @@ func (r eventRepository) GetAll() ([]models.Event, error) {
 	var events []models.Event
 	err := r.db.
 		Preload("ContactChannels").
-		Preload("Categories").
+		Preload("categoryData").
 		Preload("Organization").
 		Find(&events).Error
 	if err != nil {
@@ -52,7 +52,7 @@ func (r eventRepository) GetAllByOrgID(orgID uint) ([]models.Event, error) {
 
 	err := r.db.
 		Preload("ContactChannels").
-		Preload("Categories").
+		Preload("categoryData").
 		Preload("Organization").
 		Where("organization_id = ?", orgID).
 		Find(&events).Error
@@ -68,7 +68,7 @@ func (r eventRepository) GetByID(eventID uint) (*models.Event, error) {
 
 	if err := r.db.
 		Preload("Organization").
-		Preload("Categories").
+		Preload("categoryData").
 		Preload("ContactChannels").
 		Where("id = ?", eventID).
 		First(&event).Error; err != nil {
@@ -84,7 +84,7 @@ func (r eventRepository) GetByIDwithOrgID(orgID uint, eventID uint) (*models.Eve
 
 	err := r.db.
 		Preload("Organization").
-		Preload("Categories").
+		Preload("categoryData").
 		Preload("ContactChannels").
 		Where("organization_id = ? AND id = ?", orgID, eventID).
 		First(&event).Error
@@ -123,7 +123,7 @@ func (r eventRepository) GetPaginate(page uint, size uint) ([]models.Event, erro
 	offset := int((page - 1) * size)
 
 	err := r.db.Preload("Organization").
-		Preload("Categories").
+		Preload("categoryData").
 		Preload("ContactChannels").
 		Order("created_at desc").
 		Limit(int(size)).
@@ -142,7 +142,7 @@ func (r eventRepository) GetFirst() (*models.Event, error) {
 
 	err := r.db.
 		Preload("Organization").
-		Preload("Categories").
+		Preload("categoryData").
 		Preload("ContactChannels").
 		First(&event).Error
 
@@ -169,7 +169,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	tx := r.db.Begin()
 
 	var existingEvent models.Event
-	if err := tx.Preload("Categories").Preload("ContactChannels").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error; err != nil {
+	if err := tx.Preload("categoryData").Preload("ContactChannels").Where("organization_id = ? AND id = ?", orgID, eventID).First(&existingEvent).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 		return nil, err
 	}
 
-	if err := tx.Model(&existingEvent).Association("Categories").Replace(event.Categories); err != nil {
+	if err := tx.Model(&existingEvent).Association("categoryData").Replace(event.Categories); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (r eventRepository) Update(orgID uint, eventID uint, event *models.Event) (
 	// Fetch the updated event
 	err := tx.Preload("Organization").
 		Preload("ContactChannels").
-		Preload("Categories").
+		Preload("categoryData").
 		Where(" id = ?", eventID).
 		First(&existingEvent).Error
 	if err != nil {

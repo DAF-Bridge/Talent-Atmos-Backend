@@ -117,12 +117,13 @@ type UserInteractResponse struct {
 
 type UserInteractCategoriesResponse struct {
 	UserResponses UserResponses               `json:"user"`
-	Categories    []CategoryWithCountResponse `json:"categories"`
+	CategoryData  []CategoryWithCountResponse `json:"CategoryData"`
+	TotalEvents   uint                        `json:"totalEvents"`
 }
 
 type CategoryWithCountResponse struct {
 	CategoryResponses CategoryResponses `json:"category"`
-	Count             uint              `json:"count"`
+	Amount            uint              `json:"amount"`
 }
 
 type UserInteractEventResponse struct {

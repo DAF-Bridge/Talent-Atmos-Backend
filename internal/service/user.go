@@ -125,7 +125,7 @@ func convertToUserInteractCategoryResponse(user *models.User, events []models.Ev
 						Value: category.ID,
 						Label: category.Name,
 					},
-					Count: 0,
+					Amount: 0,
 				}
 			} else {
 				statCategories[category.ID] = dto.CategoryWithCountResponse{
@@ -133,7 +133,7 @@ func convertToUserInteractCategoryResponse(user *models.User, events []models.Ev
 						Value: category.ID,
 						Label: category.Name,
 					},
-					Count: statCategories[category.ID].Count + 1,
+					Amount: statCategories[category.ID].Amount + 1,
 				}
 			}
 
@@ -147,7 +147,8 @@ func convertToUserInteractCategoryResponse(user *models.User, events []models.Ev
 
 	return &dto.UserInteractCategoriesResponse{
 		UserResponses: *convertToUserResponses(user),
-		Categories:    categories,
+		CategoryData:  categories,
+		TotalEvents:   uint(len(events)),
 	}
 
 }
