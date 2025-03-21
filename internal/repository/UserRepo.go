@@ -283,11 +283,13 @@ func (u userInteractRepository) IncrementUserInteractForEvent(userID uuid.UUID, 
 				Count:      1,
 			}
 			if err := tx.Create(&newInteract).Error; err != nil {
+				tx.Rollback()
 				return err // Rollback ถ้าสร้างไม่สำเร็จ
 			}
 		} else {
 			// ถ้ามีอยู่แล้ว → อัปเดต count +1
 			if err := tx.Model(&interact).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
+				tx.Rollback()
 				return err // Rollback ถ้าอัปเดตไม่สำเร็จ
 			}
 		}
@@ -322,6 +324,7 @@ func (u userInteractEventRepository) FindInteractedEventByUserID(userID uuid.UUI
 	//  get list of event that user interacted
 	if err := tx.Model(&models.UserInteractEvent{}).
 		Preload("Event").
+		Preload("Event.Categories").
 		Where("user_id = ?", userID).
 		Find(&userInteractEvent).Error; err != nil {
 		tx.Rollback()
@@ -354,7 +357,7 @@ func (u userInteractEventRepository) FindUsersInteractEventByEventId(eventID uin
 	}
 
 	// get event
-	if err := tx.Model(&models.Event{}).Where("id = ?", eventID).First(&event).Error; err != nil {
+	if err := tx.Preload("Categories").Model(&models.Event{}).Where("id = ?", eventID).First(&event).Error; err != nil {
 		tx.Rollback()
 	}
 
@@ -386,6 +389,7 @@ func (u userInteractEventRepository) IncrementUserInteractForEvent(userID uuid.U
 		} else {
 			if err := tx.Model(&userInteractEvent).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
 				tx.Rollback()
+				return err
 			}
 		}
 	}

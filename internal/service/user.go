@@ -128,12 +128,13 @@ func convertToUserInteractCategoryResponse(user *models.User, events []models.Ev
 					Amount: 0,
 				}
 			} else {
+				oldAmount := statCategories[category.ID].Amount
 				statCategories[category.ID] = dto.CategoryWithCountResponse{
 					CategoryResponses: dto.CategoryResponses{
 						Value: category.ID,
 						Label: category.Name,
 					},
-					Amount: statCategories[category.ID].Amount + 1,
+					Amount: oldAmount + 1,
 				}
 			}
 
