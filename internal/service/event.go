@@ -69,13 +69,18 @@ func ConvertToEventResponse(event models.Event) dto.EventResponses {
 
 	org := dto.BuildOrganizationResponse(event.Organization)
 
+	endDate := ""
+	if !event.EndDate.Time.IsZero() {
+		endDate = event.EndDate.Format("2006-01-02")
+	}
+
 	return dto.EventResponses{
 		ID:              int(event.ID),
 		OrganizationID:  int(event.OrganizationID),
 		Name:            event.Name,
 		PicUrl:          event.PicUrl,
 		StartDate:       event.StartDate.Format("2006-01-02"),
-		EndDate:         event.EndDate.Format("2006-01-02"),
+		EndDate:         endDate,
 		StartTime:       event.StartTime.Format("15:04:05"),
 		EndTime:         event.EndTime.Format("15:04:05"),
 		Content:         event.Content,

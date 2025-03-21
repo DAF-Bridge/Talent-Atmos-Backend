@@ -60,7 +60,7 @@ type Event struct {
 	Name            string            `gorm:"type:varchar(255);not null" db:"event_name"`
 	PicUrl          string            `gorm:"type:text" db:"pic_url"`
 	StartDate       utils.DateOnly    `gorm:"type:date;not null" db:"start_date"`
-	EndDate         utils.DateOnly    `gorm:"type:date;not null" db:"end_date"`
+	EndDate         utils.DateOnly    `gorm:"type:date" db:"end_date"`
 	StartTime       utils.TimeOnly    `gorm:"type:time without time zone" db:"start_time"`
 	EndTime         utils.TimeOnly    `gorm:"type:time without time zone" db:"end_time"`
 	Content         string            `gorm:"type:text" db:"content"`
