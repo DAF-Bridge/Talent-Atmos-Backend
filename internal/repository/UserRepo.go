@@ -288,7 +288,9 @@ func (u userInteractRepository) IncrementUserInteractForEvent(userID uuid.UUID, 
 			}
 		} else {
 			// ถ้ามีอยู่แล้ว → อัปเดต count +1
-			if err := tx.Model(&interact).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
+			if err := tx.Model(&interact).
+				Where("user_id = ? and event_id =?", userID, eventID).
+				UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
 				tx.Rollback()
 				return err // Rollback ถ้าอัปเดตไม่สำเร็จ
 			}
@@ -387,7 +389,9 @@ func (u userInteractEventRepository) IncrementUserInteractForEvent(userID uuid.U
 				return err
 			}
 		} else {
-			if err := tx.Model(&userInteractEvent).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
+			if err := tx.Model(&userInteractEvent).
+				Where("user_id = ? and event_id =?", userID, eventID).
+				UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

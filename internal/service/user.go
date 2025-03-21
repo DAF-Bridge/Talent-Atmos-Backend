@@ -116,28 +116,20 @@ func convertToUserInteractEventResponse(UserInteractEvent *models.UserInteractEv
 
 func convertToUserInteractCategoryResponse(user *models.User, events []models.Event) *dto.UserInteractCategoriesResponse {
 	statCategories := make(map[uint]dto.CategoryWithCountResponse)
-
 	for _, event := range events {
 		for _, category := range event.Categories {
-			if _, ok := statCategories[category.ID]; !ok {
+			if statCategory, ok := statCategories[category.ID]; !ok {
 				statCategories[category.ID] = dto.CategoryWithCountResponse{
 					CategoryResponses: dto.CategoryResponses{
 						Value: category.ID,
 						Label: category.Name,
 					},
-					Amount: 0,
+					Amount: 1,
 				}
 			} else {
-				oldAmount := statCategories[category.ID].Amount
-				statCategories[category.ID] = dto.CategoryWithCountResponse{
-					CategoryResponses: dto.CategoryResponses{
-						Value: category.ID,
-						Label: category.Name,
-					},
-					Amount: oldAmount + 1,
-				}
+				statCategory.Amount++
+				statCategories[category.ID] = statCategory
 			}
-
 		}
 	}
 
