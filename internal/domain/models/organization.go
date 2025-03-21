@@ -107,10 +107,10 @@ type OrgOpenJob struct {
 	Workplace      Workplace      `gorm:"type:workplace;not null"`
 	WorkType       WorkType       `gorm:"type:work_type;not null"`
 	CareerStage    CareerStage    `gorm:"type:career_stage;not null" json:"careerStage" example:"entrylevel"`
-	Province       string         `gorm:"type:varchar(255);not null" json:"province" example:"Chiang Mai"`
-	Country        string         `gorm:"type:varchar(255);not null" json:"country" example:"TH"`
-	Scope          string         `gorm:"type:varchar(255);not null"`
-	Period         string         `gorm:"type:varchar(255);not null" json:"period" example:"1 year"`
+	Province       string         `gorm:"type:varchar(255)" json:"province" example:"Chiang Mai"`
+	Country        string         `gorm:"type:varchar(255)" json:"country" example:"TH"`
+	Scope          string         `gorm:"type:varchar(255)"`
+	Period         string         `gorm:"type:varchar(255)" json:"period" example:"1 year"`
 	Qualifications string         `gorm:"type:text" json:"qualifications" example:"Bachelor's degree in Computer Science"`
 	Salary         float64        `gorm:"type:decimal(10,2)" json:"salary" example:"30000"`
 	Quantity       int            `json:"quantity" example:"1"`

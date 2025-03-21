@@ -119,14 +119,14 @@ type JobRequest struct {
 	Workplace      models.Workplace      `json:"workplace" example:"remote" validate:"required"`
 	WorkType       models.WorkType       `json:"workType" example:"fulltime" validate:"required"`
 	CareerStage    models.CareerStage    `json:"careerStage" example:"entrylevel" validate:"required"`
-	Period         string                `json:"period" example:"1 year" validate:"required"`
+	Period         string                `json:"period" example:"1 year"`
 	Description    string                `json:"description" example:"This is a description" validate:"required"`
 	Qualifications string                `json:"qualifications" example:"Bachelor's degree in Computer Science" validate:"required"`
 	Quantity       int                   `json:"quantity" example:"1" validate:"required"`
 	Salary         float64               `json:"salary" example:"30000"`
 	Province       string                `json:"province" example:"Chiang Mai"`
 	Country        string                `json:"country" example:"TH"`
-	RegisterLink   string                `json:"registerLink" example:"https://example.com/register"`
+	RegisterLink   string                `json:"registerLink" example:"https://example.com/register" validate:"required"`
 	Status         string                `json:"status" example:"draft" validate:"required"`
 	Categories     []CategoryRequest     `json:"categories" validate:"required"`
 }
@@ -215,9 +215,9 @@ type IndustryListResponse struct {
 type OrganizationRequest struct {
 	Name                 string                       `json:"name" example:"builds CMU" validate:"required,min=3,max=255"`
 	Email                string                       `json:"email" example:"andaraiwin@gmail.com" validate:"required"`
-	Phone                string                       `json:"phone" example:"0812345678" validate:"required"`
+	Phone                string                       `json:"phone" example:"0812345678"`
 	HeadLine             string                       `json:"headline" example:"This is a headline" validate:"required"`
-	Specialty            string                       `json:"specialty" example:"This is an specialty" validate:"required"`
+	Specialty            string                       `json:"specialty" example:"This is an specialty"`
 	Description          string                       `json:"description" example:"This is a description" validate:"required"`
 	Address              string                       `json:"address" example:"Chiang Mai postal code: 50200"`
 	Province             string                       `json:"province" example:"Chiang Mai"`
