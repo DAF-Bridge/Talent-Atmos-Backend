@@ -33,6 +33,11 @@ func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			PicUrl: event.Organization.PicUrl,
 		}
 
+		endDate := ""
+		if !event.EndDate.Time.IsZero() {
+			endDate = event.EndDate.Format("2006-01-02")
+		}
+
 		doc := dto.EventDocument{
 			ID:           event.ID,
 			Name:         event.Name,
@@ -41,7 +46,7 @@ func SyncEventsToOpenSearch(db *gorm.DB, client *opensearch.Client) error {
 			Latitude:     event.Latitude,
 			Longitude:    event.Longitude,
 			StartDate:    event.StartDate.Format("2006-01-02"),
-			EndDate:      event.EndDate.Format("2006-01-02"),
+			EndDate:      endDate,
 			StartTime:    event.StartTime.Format("15:04:05"),
 			EndTime:      event.EndTime.Format("15:04:05"),
 			LocationName: event.LocationName,
