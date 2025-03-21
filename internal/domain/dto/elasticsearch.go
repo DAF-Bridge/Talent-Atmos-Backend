@@ -127,15 +127,18 @@ type EventDocumentDTOResponse struct {
 }
 
 type JobDocumentDTOResponse struct {
-	ID           uint                      `json:"id"`
-	Title        string                    `json:"title"`
-	Description  string                    `json:"description"`
-	Location     string                    `json:"location"`
-	Workplace    string                    `json:"workplace"`
-	WorkType     string                    `json:"workType"`
-	CareerStage  string                    `json:"careerStage"`
-	Salary       float64                   `json:"salary"`
-	Categories   []CategoryResponses       `json:"categories"`
-	Organization OrganizationShortDocument `json:"organization"`
-	UpdateAt     string                    `json:"updatedAt"`
+	ID            uint                      `json:"id"`
+	Title         string                    `json:"title"`
+	Prerequisites []PrerequisiteRequest     `json:"prerequisite"`
+	Description   string                    `json:"description"`
+	Location      string                    `json:"location"`
+	Workplace     string                    `json:"workplace"`
+	WorkType      string                    `json:"workType"`
+	CareerStage   string                    `json:"careerStage"`
+	Salary        float64                   `json:"salary"`
+	Categories    []CategoryResponses       `json:"categories"`
+	Organization  OrganizationShortDocument `json:"organization"`
+	Province      string                    `json:"province"`
+	Country       string                    `json:"country"`
+	UpdateAt      string                    `json:"updatedAt"`
 }

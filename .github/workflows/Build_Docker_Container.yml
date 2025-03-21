@@ -1,0 +1,86 @@
+name: Golang Backend Build Container
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goarch: [amd64, arm64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+          cache: true
+
+      - name: Build
+        id: build
+        run: |
+          go build -v -o app main.go || exit 1
+        continue-on-error: true
+
+      - name: Check build result
+        if: ${{ steps.build.outcome != 'success' }}
+        run: echo "Build stage failed."
+        id: build_failed
+
+    outputs:
+      build_status: ${{ steps.build.outcome }}
+      
+  container_build_push:
+      runs-on: ubuntu-latest
+      needs: build
+      if: ${{ needs.build.outputs.build_status == 'success' }}
+  
+      permissions:
+        contents: read
+        packages: write
+  
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+  
+        - name: Log in to GitHub Container Registry
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GHCR_TOKEN }}
+  
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+  
+        - name: Build and Push Multi-Arch Docker Image
+          run: |
+            IMAGE_NAME=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+            TAG=latest
+            COMMIT_HASH=${{ github.sha }}
+  
+            VERSION_TAG=$IMAGE_NAME:$COMMIT_HASH
+  
+            docker buildx create --use
+            docker buildx build --platform linux/amd64,linux/arm64 \
+                        -t $IMAGE_NAME:$COMMIT_HASH \
+                        -t $IMAGE_NAME:latest \
+                        --push .
+  
+        - name: Notify on Success
+          if: ${{ steps.container_build_push.outcome == 'success' }}
+          run: echo "Docker image successfully pushed to GitHub Container Registry"
+  
+  deploy:
+      runs-on: ubuntu-latest
+      needs: container_build_push
+      steps:
+        - name: Notify Jenkins
+          run: |
+            curl -X POST ${{ secrets.RASPBERRY_PI_IP }}/trigger-jenkins

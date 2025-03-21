@@ -126,6 +126,11 @@ func (s userPreferenceService) CreateUserPreference(userID uuid.UUID, req dto.Us
 			logs.Error("User not found")
 			return errs.NewNotFoundError("User not found")
 		}
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			logs.Error("User already exists")
+			return errs.NewConflictError("User already exists")
+		}
+
 		logs.Error(fmt.Sprintf("Failed to find user: %v", err))
 		return errs.NewUnexpectedError()
 	}

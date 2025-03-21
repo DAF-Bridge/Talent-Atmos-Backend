@@ -161,7 +161,7 @@ func ensureJobIndexExists(client *opensearch.Client) error {
 					"Workplace": { "type": "keyword" },
 					"CareerStage": { "type": "keyword" },
 					"Salary": { "type": "integer" },
-					"Categories": { "type": "keyword" },
+					"categoryData": { "type": "keyword" },
 					"Organization": {
 						"type": "object",
 						"properties": {
