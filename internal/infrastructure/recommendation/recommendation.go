@@ -18,7 +18,7 @@ import (
 
 type Recommendation struct {
 	ID    int     `json:"id"`
-	Title string  `json:"title"`
+	Title string  `json:"name"`
 	Score float64 `json:"score"`
 }
 
