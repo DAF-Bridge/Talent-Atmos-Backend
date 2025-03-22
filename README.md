@@ -8,7 +8,7 @@ go mod tidy
 ```
 
 ## Environment Variables
->> Create a .env file in the root directory and configure it based on .env.example
+> Create a *.env* file in the root directory and configure it based on *.env.example*
 
 ## Running the project
 ```
